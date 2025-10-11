@@ -60,6 +60,7 @@ add_action('plugins_loaded', function() {
 });
 
 // Load Sprint 2 Week 2 Features
+require_once __DIR__ . '/load-week2-features.php';
 
 
 

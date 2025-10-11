@@ -60,10 +60,21 @@ add_action('plugins_loaded', function() {
 });
 
 // Load Sprint 2 Week 2 Features
+require_once __DIR__ . '/load-week2-features.php';
 
+// Load Search classes
+require_once plugin_dir_path(__FILE__) . 'src/Search/FilterHandler.php';
+require_once plugin_dir_path(__FILE__) . 'src/Search/QueryBuilder.php';
+require_once plugin_dir_path(__FILE__) . 'src/Search/Geocoder.php';
 
+// Load Utils
+require_once plugin_dir_path(__FILE__) . 'src/Utils/Cache.php';
 
+// Load enhanced API
+require_once plugin_dir_path(__FILE__) . 'src/API/BusinessEndpoint-enhanced.php';
 
+// Load database indexes
+require_once plugin_dir_path(__FILE__) . 'includes/database-indexes.php';
 
 // Load Sprint 2 Week 2 - Search Infrastructure
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/sprint2-week2-loader.php')) {

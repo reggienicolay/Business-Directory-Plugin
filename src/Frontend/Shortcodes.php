@@ -29,10 +29,7 @@ class Shortcodes {
             </div>
             
             <div class="bd-directory-content">
-                <aside class="bd-filters">
-                    <h3><?php _e('Filters', 'business-directory'); ?></h3>
-                    <p><?php _e('Filters coming soon...', 'business-directory'); ?></p>
-                </aside>
+                <?php echo do_shortcode('[business_filters]'); ?>
                 
                 <main class="bd-results">
                     <div class="bd-view-toggle">
