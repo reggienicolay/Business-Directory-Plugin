@@ -11,3 +11,20 @@
 - Data access classes
 - PHPUnit test suite
 - GitHub Actions CI/CD
+
+## [0.2.0] - Sprint 1 Week 2
+
+### Added
+- Business metaboxes for custom fields (phone, website, hours, social)
+- Location map with Leaflet for coordinate selection
+- CSV bulk importer with admin page
+- REST API endpoint /bd/v1/businesses
+- Frontend directory shortcode [bd_directory]
+- Map/list view toggle
+- Distance calculation from user location
+
+### Technical
+- Admin map integration with Leaflet
+- Haversine distance formula
+- CSV parsing with term creation
+- Frontend asset enqueuing system
