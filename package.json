@@ -1,0 +1,12 @@
+{
+    "name": "business-directory",
+    "version": "0.1.0",
+    "description": "Business Directory Plugin",
+    "scripts": {
+        "build": "echo 'Build script placeholder'",
+        "watch": "echo 'Watch script placeholder'",
+        "lint": "echo 'Lint script placeholder'"
+    },
+    "devDependencies": {},
+    "dependencies": {}
+}

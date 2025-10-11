@@ -1,0 +1,9 @@
+/**
+ * Business Directory - Admin Styles
+ */
+
+.bd-admin-header {
+    padding: 20px 0;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 20px;
+}
