@@ -28,3 +28,24 @@
 - Haversine distance formula
 - CSV parsing with term creation
 - Frontend asset enqueuing system
+
+## [0.3.0] - Sprint 2 Week 1
+
+### Added
+- Public business submission form with spam protection
+- Review system with 5-star ratings
+- Photo uploads for reviews (up to 3 images)
+- Cloudflare Turnstile CAPTCHA integration
+- Rate limiting for submissions and reviews
+- Email notifications to admins
+- Moderation queues for submissions and reviews
+- Settings page for Turnstile keys and notification emails
+- Aggregate rating calculation
+- REST API endpoints for submissions and reviews
+
+### Technical
+- New database tables: bd_submissions
+- Updated bd_reviews table with photo_ids and email fields
+- Form validation and sanitization
+- File upload handling for review photos
+- Transient-based rate limiting

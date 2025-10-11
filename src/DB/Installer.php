@@ -3,13 +3,19 @@ namespace BD\DB;
 
 class Installer {
     
-    const DB_VERSION = '1.0.0';
+    const DB_VERSION = '2.0.0';
     
     public static function activate() {
         self::create_tables();
         self::create_roles();
         self::flush_rewrite_rules();
-        add_option('bd_db_version', self::DB_VERSION);
+        
+        $current_version = get_option('bd_db_version', '1.0.0');
+        if (version_compare($current_version, self::DB_VERSION, '<')) {
+            self::upgrade_database($current_version);
+        }
+        
+        update_option('bd_db_version', self::DB_VERSION);
     }
     
     public static function deactivate() {
@@ -18,9 +24,9 @@ class Installer {
     
     private static function create_tables() {
         global $wpdb;
-        
         $charset_collate = $wpdb->get_charset_collate();
         
+        // Existing tables
         $locations_table = $wpdb->prefix . 'bd_locations';
         $locations_sql = "CREATE TABLE IF NOT EXISTS $locations_table (
             business_id bigint(20) UNSIGNED NOT NULL,
@@ -44,10 +50,13 @@ class Installer {
             business_id bigint(20) UNSIGNED NOT NULL,
             user_id bigint(20) UNSIGNED DEFAULT NULL,
             author_name varchar(120) DEFAULT NULL,
+            author_email varchar(120) DEFAULT NULL,
             rating tinyint(1) UNSIGNED NOT NULL,
             title varchar(180) DEFAULT NULL,
             content text DEFAULT NULL,
+            photo_ids text DEFAULT NULL,
             status varchar(20) NOT NULL DEFAULT 'pending',
+            ip_address varchar(45) DEFAULT NULL,
             created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             KEY idx_business (business_id),
@@ -55,9 +64,48 @@ class Installer {
             KEY idx_created (created_at)
         ) $charset_collate;";
         
+        // NEW: Submissions table
+        $submissions_table = $wpdb->prefix . 'bd_submissions';
+        $submissions_sql = "CREATE TABLE IF NOT EXISTS $submissions_table (
+            id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            business_data longtext NOT NULL,
+            submitted_by bigint(20) UNSIGNED DEFAULT NULL,
+            submitter_name varchar(120) DEFAULT NULL,
+            submitter_email varchar(120) DEFAULT NULL,
+            ip_address varchar(45) DEFAULT NULL,
+            status varchar(20) NOT NULL DEFAULT 'pending',
+            admin_notes text DEFAULT NULL,
+            created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_status (status),
+            KEY idx_created (created_at)
+        ) $charset_collate;";
+        
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($locations_sql);
         dbDelta($reviews_sql);
+        dbDelta($submissions_sql);
+    }
+    
+    private static function upgrade_database($from_version) {
+        global $wpdb;
+        
+        if (version_compare($from_version, '2.0.0', '<')) {
+            $reviews_table = $wpdb->prefix . 'bd_reviews';
+            
+            $columns = $wpdb->get_results("SHOW COLUMNS FROM $reviews_table");
+            $column_names = array_column($columns, 'Field');
+            
+            if (!in_array('photo_ids', $column_names)) {
+                $wpdb->query("ALTER TABLE $reviews_table ADD COLUMN photo_ids text DEFAULT NULL AFTER content");
+            }
+            if (!in_array('author_email', $column_names)) {
+                $wpdb->query("ALTER TABLE $reviews_table ADD COLUMN author_email varchar(120) DEFAULT NULL AFTER author_name");
+            }
+            if (!in_array('ip_address', $column_names)) {
+                $wpdb->query("ALTER TABLE $reviews_table ADD COLUMN ip_address varchar(45) DEFAULT NULL AFTER status");
+            }
+        }
     }
     
     private static function create_roles() {

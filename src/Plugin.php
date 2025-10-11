@@ -31,10 +31,15 @@ class Plugin {
         if (is_admin()) {
             new Admin\MetaBoxes();
             new Admin\ImporterPage();
+            new Admin\Settings();
+            new Moderation\SubmissionsQueue();
+            new Moderation\ReviewsQueue();
         }
         
         // Frontend components
         new Frontend\Shortcodes();
+        new Forms\BusinessSubmission();
+        new Forms\ReviewSubmission();
     }
     
     public function register_post_types() {
@@ -74,7 +79,6 @@ class Plugin {
                 true
             );
             
-            // Enqueue map script for edit screen
             if ($hook === 'post.php' || $hook === 'post-new.php') {
                 wp_enqueue_script(
                     'bd-admin-map',
@@ -106,5 +110,7 @@ class Plugin {
     
     public function register_rest_routes() {
         REST\BusinessesController::register();
+        REST\SubmitBusinessController::register();
+        REST\SubmitReviewController::register();
     }
 }
