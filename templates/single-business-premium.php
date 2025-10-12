@@ -181,7 +181,23 @@ while (have_posts()) : the_post();
             </section>
         <?php endif; ?>
 
-        <!-- SOCIAL SHARING SECTION -->
+
+
+        <!-- Main Content Grid -->
+        <div class="bd-business-grid">
+
+            <!-- Left Column: About & Features -->
+            <div class="bd-business-main">
+
+                <!-- About Section -->
+                <div class="bd-info-card bd-about-section">
+                    <h2>About <?php the_title(); ?></h2>
+                    <div class="bd-description">
+                        <?php the_content(); ?>
+                    </div>
+                </div>
+
+                        <!-- SOCIAL SHARING SECTION -->
         <section class="bd-social-sharing">
             <h3>Share this business</h3>
             <div class="bd-share-buttons">
@@ -222,20 +238,6 @@ while (have_posts()) : the_post();
                 </button>
             </div>
         </section>
-
-        <!-- Main Content Grid -->
-        <div class="bd-business-grid">
-
-            <!-- Left Column: About & Features -->
-            <div class="bd-business-main">
-
-                <!-- About Section -->
-                <div class="bd-info-card bd-about-section">
-                    <h2>About <?php the_title(); ?></h2>
-                    <div class="bd-description">
-                        <?php the_content(); ?>
-                    </div>
-                </div>
 
                 <!-- Amenities/Features -->
                 <?php $features = get_post_meta($business_id, 'bd_features', true); ?>
