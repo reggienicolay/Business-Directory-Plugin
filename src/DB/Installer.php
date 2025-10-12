@@ -3,7 +3,7 @@ namespace BD\DB;
 
 class Installer {
     
-    const DB_VERSION = '2.0.0';
+    const DB_VERSION = '2.1.0';  // ← BUMPED VERSION
     
     public static function activate() {
         self::create_tables();
@@ -64,7 +64,6 @@ class Installer {
             KEY idx_created (created_at)
         ) $charset_collate;";
         
-        // NEW: Submissions table
         $submissions_table = $wpdb->prefix . 'bd_submissions';
         $submissions_sql = "CREATE TABLE IF NOT EXISTS $submissions_table (
             id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -80,6 +79,10 @@ class Installer {
             KEY idx_status (status),
             KEY idx_created (created_at)
         ) $charset_collate;";
+        
+        // NEW: Claim Requests table
+        require_once plugin_dir_path(__FILE__) . 'ClaimRequestsTable.php';
+        ClaimRequestsTable::create_table();
         
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($locations_sql);
@@ -105,6 +108,13 @@ class Installer {
             if (!in_array('ip_address', $column_names)) {
                 $wpdb->query("ALTER TABLE $reviews_table ADD COLUMN ip_address varchar(45) DEFAULT NULL AFTER status");
             }
+        }
+        
+        // NEW: Version 2.1.0 upgrades
+        if (version_compare($from_version, '2.1.0', '<')) {
+            // Create claim requests table if upgrading
+            require_once plugin_dir_path(__FILE__) . 'ClaimRequestsTable.php';
+            ClaimRequestsTable::create_table();
         }
     }
     

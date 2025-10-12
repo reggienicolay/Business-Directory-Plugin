@@ -45,16 +45,8 @@ class Filters
             <!-- Filters Sidebar -->
             <aside class="bd-directory-sidebar" style="flex: 0 0 280px;">
 
-                <!-- Add Business CTA Button -->
-                <div class="bd-add-business-cta" style="margin-bottom: 24px;">
-                    <a href="<?php echo home_url('/add-your-business/'); ?>" class="bd-add-business-btn">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M10 0C4.5 0 0 4.5 0 10s4.5 10 10 10 10-4.5 10-10S15.5 0 10 0zm5 11h-4v4H9v-4H5V9h4V5h2v4h4v2z" />
-                        </svg>
-                        Add Your Business
-                    </a>
-                </div>
-
+<!-- Add Business CTA Button -->
+<div class="bd-add-business-cta" style="margin-bottom: 24px;"><a href="<?php echo home_url('/add-your-business/'); ?>" class="bd-add-business-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> ADD YOUR BUSINESS</a></div>
                 <?php echo self::render_filter_panel($metadata); ?>
             </aside>
 

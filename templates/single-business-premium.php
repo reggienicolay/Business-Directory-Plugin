@@ -1,7 +1,7 @@
 <?php
-
 /**
- * Premium Single Business Template
+ * Premium Single Business Template - WITH SIDEBAR CLAIM BLOCK
+ * Features: Photo Gallery, Video Gallery, Lightbox, Similar Businesses, Social Sharing
  */
 
 get_header();
@@ -16,8 +16,20 @@ while (have_posts()) : the_post();
     $review_count = get_post_meta($business_id, 'bd_review_count', true);
     $categories = wp_get_post_terms($business_id, 'bd_category');
     $areas = wp_get_post_terms($business_id, 'bd_area');
+    $social = get_post_meta($business_id, 'bd_social', true);
+    $claimed_by = get_post_meta($business_id, 'bd_claimed_by', true);
+    $claim_status = get_post_meta($business_id, 'bd_claim_status', true);
 ?>
 
+    <!-- Back to Directory Button -->
+    <a href="<?php echo home_url('/business-directory/'); ?>" class="bd-back-link">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0L0 8l8 8V0z"/>
+        </svg>
+        Back to Directory
+    </a>
+
+    <!-- Hero Section -->
     <div class="bd-business-hero">
         <div class="bd-business-hero-content">
             <div class="bd-business-hero-left">
@@ -55,9 +67,10 @@ while (have_posts()) : the_post();
                 <?php endif; ?>
             </div>
 
+            <!-- Hero Action Buttons -->
             <div class="bd-business-hero-actions">
                 <?php if (!empty($contact['website'])): ?>
-                    <a href="<?php echo esc_url($contact['website']); ?>" target="_blank" class="bd-btn bd-btn-primary">
+                    <a href="<?php echo esc_url($contact['website']); ?>" target="_blank" rel="noopener" class="bd-btn bd-btn-primary">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="10" cy="10" r="8" />
                             <path d="M2 10h16M10 2a15.3 15.3 0 0 1 4 8 15.3 15.3 0 0 1-4 8 15.3 15.3 0 0 1-4-8 15.3 15.3 0 0 1 4-8z" />
@@ -80,76 +93,140 @@ while (have_posts()) : the_post();
 
     <div class="bd-business-content-wrapper">
 
-        <!-- Photo Gallery Section -->
+        <!-- PHOTO GALLERY SECTION -->
         <?php
         $photo_ids = get_post_meta($business_id, 'bd_photos', true);
-        $featured_image = get_post_thumbnail_id($business_id);
+        $featured_image_id = get_post_thumbnail_id($business_id);
 
-        // Combine featured image with gallery photos
-        $all_photos = [];
-        if ($featured_image) {
-            $all_photos[] = $featured_image;
-        }
+        $all_photo_ids = [];
         if ($photo_ids && is_array($photo_ids)) {
-            $all_photos = array_merge($all_photos, $photo_ids);
+            $all_photo_ids = $photo_ids;
         }
-        $all_photos = array_unique($all_photos); // Remove duplicates
+        if ($featured_image_id && !in_array($featured_image_id, $all_photo_ids)) {
+            array_unshift($all_photo_ids, $featured_image_id);
+        }
+        $all_photo_ids = array_values(array_unique($all_photo_ids));
         ?>
 
-        <?php if (!empty($all_photos)): ?>
+        <?php if (!empty($all_photo_ids) && count($all_photo_ids) > 0): ?>
             <section class="bd-photo-gallery">
-                <!-- Main large photo -->
-                <div class="bd-gallery-main">
+                <div class="bd-gallery-main bd-gallery-clickable" data-index="0">
                     <?php
-                    $main_photo = wp_get_attachment_image_url($all_photos[0], 'large');
+                    $main_photo_url = wp_get_attachment_image_url($all_photo_ids[0], 'large');
+                    $main_photo_alt = get_post_meta($all_photo_ids[0], '_wp_attachment_image_alt', true) ?: get_the_title() . ' - Photo 1';
                     ?>
-                    <img src="<?php echo esc_url($main_photo); ?>" alt="<?php the_title(); ?>">
+                    <img src="<?php echo esc_url($main_photo_url); ?>" 
+                         alt="<?php echo esc_attr($main_photo_alt); ?>" 
+                         loading="eager">
+                    <div class="bd-gallery-overlay">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="M21 21l-4.35-4.35"/>
+                            <line x1="11" y1="8" x2="11" y2="14"/>
+                            <line x1="8" y1="11" x2="14" y2="11"/>
+                        </svg>
+                    </div>
                 </div>
 
-                <!-- Side grid of 4 photos -->
-                <?php if (count($all_photos) > 1): ?>
+                <?php if (count($all_photo_ids) > 1): ?>
                     <div class="bd-gallery-grid">
                         <?php
-                        // Show photos 2-5 (up to 4 photos in the grid)
-                        $grid_photos = array_slice($all_photos, 1, 4);
-                        foreach ($grid_photos as $index => $photo_id):
+                        $grid_photo_ids = array_slice($all_photo_ids, 1, 4);
+                        $remaining_count = count($all_photo_ids) - 5;
+                        
+                        foreach ($grid_photo_ids as $index => $photo_id):
                             $photo_url = wp_get_attachment_image_url($photo_id, 'medium');
-
-                            // If this is the 4th grid item and there are more photos, show "+X more" overlay
-                            $is_last = ($index === 3 || $index === count($grid_photos) - 1);
-                            $has_more = count($all_photos) > 5;
+                            $photo_alt = get_post_meta($photo_id, '_wp_attachment_image_alt', true) ?: get_the_title() . ' - Photo ' . ($index + 2);
+                            $is_last_grid_item = ($index === 3);
+                            $show_more_overlay = ($is_last_grid_item && $remaining_count > 0);
+                            $actual_index = $index + 1;
                         ?>
-                            <div class="bd-gallery-item <?php echo ($is_last && $has_more) ? 'bd-gallery-more' : ''; ?>">
-                                <?php if ($is_last && $has_more): ?>
+                            <div class="bd-gallery-item bd-gallery-clickable <?php echo $show_more_overlay ? 'bd-gallery-more' : ''; ?>" 
+                                 data-index="<?php echo $actual_index; ?>">
+                                <?php if ($show_more_overlay): ?>
                                     <div class="bd-gallery-more-overlay">
-                                        <span>+<?php echo count($all_photos) - 5; ?> more</span>
+                                        <span>+<?php echo $remaining_count; ?> more</span>
                                     </div>
                                 <?php endif; ?>
-                                <img src="<?php echo esc_url($photo_url); ?>" alt="Photo <?php echo $index + 2; ?>">
+                                <img src="<?php echo esc_url($photo_url); ?>" 
+                                     alt="<?php echo esc_attr($photo_alt); ?>" 
+                                     loading="lazy">
                             </div>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
             </section>
+        <?php endif; ?>
 
-        <?php else: ?>
-            <!-- Claim listing CTA if no photos -->
-            <section class="bd-photo-gallery-placeholder">
-                <div class="bd-add-photos-cta">
-                    <svg width="48" height="48" viewBox="0 0 48 48" fill="currentColor">
-                        <path d="M24 4C12.95 4 4 12.95 4 24s8.95 20 20 20 20-8.95 20-20S35.05 4 24 4zm10 22h-8v8h-4v-8h-8v-4h8v-8h4v8h8v4z" />
-                    </svg>
-                    <h3>Is this your business?</h3>
-                    <p>Claim this listing to add photos, update info, and respond to reviews</p>
-                    <a href="mailto:admin@business-directory.local?subject=Claim Listing: <?php echo urlencode(get_the_title()); ?>" class="bd-btn bd-btn-ghost">Claim This Listing</a>
+        <!-- VIDEO GALLERY SECTION -->
+        <?php
+        $video_ids = get_post_meta($business_id, 'bd_videos', true);
+        if ($video_ids && is_array($video_ids) && count($video_ids) > 0):
+        ?>
+            <section class="bd-video-gallery">
+                <h2 class="bd-section-title">Videos</h2>
+                <div class="bd-video-grid">
+                    <?php foreach ($video_ids as $video_id):
+                        $video_url = wp_get_attachment_url($video_id);
+                        $video_thumb = wp_get_attachment_image_url($video_id, 'medium');
+                    ?>
+                        <div class="bd-video-item">
+                            <video controls poster="<?php echo esc_url($video_thumb); ?>">
+                                <source src="<?php echo esc_url($video_url); ?>" type="video/mp4">
+                                Your browser does not support video playback.
+                            </video>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
             </section>
         <?php endif; ?>
 
+        <!-- SOCIAL SHARING SECTION -->
+        <section class="bd-social-sharing">
+            <h3>Share this business</h3>
+            <div class="bd-share-buttons">
+                <?php
+                $share_url = urlencode(get_permalink());
+                $share_title = urlencode(get_the_title());
+                ?>
+                
+                <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo $share_url; ?>" 
+                   target="_blank" rel="noopener" class="bd-share-btn bd-share-facebook">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                    </svg>
+                    Facebook
+                </a>
+
+                <a href="https://twitter.com/intent/tweet?url=<?php echo $share_url; ?>&text=<?php echo $share_title; ?>" 
+                   target="_blank" rel="noopener" class="bd-share-btn bd-share-twitter">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                    Twitter
+                </a>
+
+                <a href="mailto:?subject=Check%20out%20<?php echo $share_title; ?>&body=I%20found%20this%20business:%20<?php echo $share_url; ?>" 
+                   class="bd-share-btn bd-share-email">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                    </svg>
+                    Email
+                </a>
+
+                <button type="button" class="bd-share-btn bd-share-copy" data-url="<?php echo get_permalink(); ?>">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                    </svg>
+                    Copy Link
+                </button>
+            </div>
+        </section>
+
         <!-- Main Content Grid -->
         <div class="bd-business-grid">
 
-            <!-- Left Column: About & Hours -->
+            <!-- Left Column: About & Features -->
             <div class="bd-business-main">
 
                 <!-- About Section -->
@@ -180,8 +257,44 @@ while (have_posts()) : the_post();
 
             </div>
 
-            <!-- Right Sidebar: Contact & Hours -->
+            <!-- Right Sidebar: Claim Block, Hours, Contact, Map -->
             <aside class="bd-business-sidebar">
+
+                <!-- CLAIM BLOCK (SIDEBAR VERSION) -->
+                <?php if (!$claimed_by): ?>
+                    <div class="bd-info-card bd-claim-card">
+                        <div class="bd-claim-icon-small">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="currentColor">
+                                <path d="M16 2C8.3 2 2 8.3 2 16s6.3 14 14 14 14-6.3 14-14S23.7 2 16 2zm7 15h-6v6h-2v-6H9v-2h6V9h2v6h6v2z"/>
+                            </svg>
+                        </div>
+                        <h4>Own this business?</h4>
+                        <p class="bd-claim-text">Claim your listing to update info, add photos, and respond to reviews.</p>
+                        
+                        <?php if ($claim_status === 'pending'): ?>
+                            <button class="bd-btn bd-btn-secondary bd-btn-block" disabled>
+                                Claim Pending
+                            </button>
+                        <?php else: ?>
+                            <button type="button" class="bd-btn bd-btn-primary bd-btn-block bd-claim-btn">
+                                Claim This Listing
+                            </button>
+                        <?php endif; ?>
+                    </div>
+                <?php elseif ($claimed_by && current_user_can('edit_post', $business_id)): ?>
+                    <div class="bd-info-card bd-claim-card bd-owned">
+                        <div class="bd-claim-icon-small bd-owned-icon">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="white">
+                                <path d="M16 2C8.3 2 2 8.3 2 16s6.3 14 14 14 14-6.3 14-14S23.7 2 16 2zm-2 20l-6-6 1.4-1.4L14 19.2l8.6-8.6L24 12l-10 10z"/>
+                            </svg>
+                        </div>
+                        <h4 style="color: #2E7D32;">✓ Your Listing</h4>
+                        <p class="bd-claim-text">Manage your business information and respond to reviews.</p>
+                        <a href="<?php echo get_edit_post_link($business_id); ?>" class="bd-btn bd-btn-primary bd-btn-block">
+                            Manage Listing
+                        </a>
+                    </div>
+                <?php endif; ?>
 
                 <!-- Hours Card -->
                 <?php if ($hours): ?>
@@ -264,20 +377,14 @@ while (have_posts()) : the_post();
                     </div>
                 </div>
 
-<!-- Map Preview -->
+                <!-- Map Preview -->
                 <?php if ($location && !empty($location['lat']) && !empty($location['lng'])): ?>
                     <div class="bd-info-card bd-map-preview">
-                        <h3>Location</h3>
-                        <div id="bd-location-map" style="height: 250px; border-radius: 12px; overflow: hidden; margin-bottom: 16px;"
-                            data-lat="<?php echo esc_attr($location['lat']); ?>"
-                            data-lng="<?php echo esc_attr($location['lng']); ?>"></div>
-                        <a href="https://www.google.com/maps/search/?api=1&query=<?php echo urlencode($location['address'] . ', ' . $location['city']); ?>"
-                            target="_blank" 
-                            class="bd-map-link"
-                            style="display: inline-flex; align-items: center; gap: 8px; color: #6b2c3e; font-weight: 600; text-decoration: none;">
-                            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                                <path d="M8 0C5.2 0 3 2.2 3 5c0 3.5 5 11 5 11s5-7.5 5-11c0-2.8-2.2-5-5-5zm0 7.5c-1.4 0-2.5-1.1-2.5-2.5S6.6 2.5 8 2.5s2.5 1.1 2.5 2.5S9.4 7.5 8 7.5z"/>
-                            </svg>
+                        <div id="bd-location-map" 
+                             data-lat="<?php echo esc_attr($location['lat']); ?>"
+                             data-lng="<?php echo esc_attr($location['lng']); ?>"></div>
+                        <a href="https://www.google.com/maps/search/?api=1&query=<?php echo urlencode($location['address'] . ', ' . $location['city'] . ', ' . $location['state']); ?>" 
+                           target="_blank" rel="noopener" class="bd-map-link">
                             Get Directions →
                         </a>
                     </div>
@@ -287,53 +394,114 @@ while (have_posts()) : the_post();
 
         </div>
 
+        <!-- SIMILAR BUSINESSES SECTION -->
+        <?php
+        $similar_args = [
+            'post_type' => 'bd_business',
+            'posts_per_page' => 3,
+            'post__not_in' => [$business_id],
+            'post_status' => 'publish',
+        ];
+
+        if (!empty($categories)) {
+            $similar_args['tax_query'] = [
+                [
+                    'taxonomy' => 'bd_category',
+                    'field' => 'term_id',
+                    'terms' => $categories[0]->term_id,
+                ],
+            ];
+        }
+
+        $similar_businesses = new WP_Query($similar_args);
+
+        if ($similar_businesses->have_posts()):
+        ?>
+            <section class="bd-similar-businesses">
+                <h2 class="bd-section-title">Similar Businesses</h2>
+                <div class="bd-similar-grid">
+                    <?php while ($similar_businesses->have_posts()): $similar_businesses->the_post();
+                        $sim_id = get_the_ID();
+                        $sim_rating = get_post_meta($sim_id, 'bd_avg_rating', true);
+                        $sim_reviews = get_post_meta($sim_id, 'bd_review_count', true);
+                        $sim_location = get_post_meta($sim_id, 'bd_location', true);
+                    ?>
+                        <article class="bd-similar-card">
+                            <?php if (has_post_thumbnail()): ?>
+                                <div class="bd-similar-image">
+                                    <a href="<?php the_permalink(); ?>">
+                                        <?php the_post_thumbnail('medium'); ?>
+                                    </a>
+                                </div>
+                            <?php endif; ?>
+                            <div class="bd-similar-content">
+                                <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+                                
+                                <?php if ($sim_rating): ?>
+                                    <div class="bd-similar-rating">
+                                        <span class="bd-rating-num"><?php echo number_format($sim_rating, 1); ?></span>
+                                        <div class="bd-stars">
+                                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                                <span class="<?php echo $i <= $sim_rating ? 'filled' : 'empty'; ?>">★</span>
+                                            <?php endfor; ?>
+                                        </div>
+                                        <span class="bd-review-text">(<?php echo $sim_reviews; ?>)</span>
+                                    </div>
+                                <?php endif; ?>
+
+                                <?php if ($sim_location): ?>
+                                    <p class="bd-similar-location">
+                                        <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+                                            <path d="M7 0C4.2 0 2 2.2 2 5c0 3.5 5 9 5 9s5-5.5 5-9c0-2.8-2.2-5-5-5zm0 7c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+                                        </svg>
+                                        <?php echo esc_html($sim_location['city']); ?>
+                                    </p>
+                                <?php endif; ?>
+
+                                <a href="<?php the_permalink(); ?>" class="bd-similar-link">View Details →</a>
+                            </div>
+                        </article>
+                    <?php endwhile; wp_reset_postdata(); ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
     </div>
+
+    <!-- PHOTO LIGHTBOX MODAL -->
+    <div id="bd-lightbox" class="bd-lightbox" style="display: none;">
+        <button type="button" class="bd-lightbox-close" aria-label="Close">&times;</button>
+        <button type="button" class="bd-lightbox-prev" aria-label="Previous">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="white">
+                <path d="M20 4L8 16l12 12V4z"/>
+            </svg>
+        </button>
+        <button type="button" class="bd-lightbox-next" aria-label="Next">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="white">
+                <path d="M12 4l12 12-12 12V4z"/>
+            </svg>
+        </button>
+        <div class="bd-lightbox-content">
+            <img src="" alt="" id="bd-lightbox-image">
+            <div class="bd-lightbox-caption">
+                <span id="bd-lightbox-counter"></span>
+            </div>
+        </div>
+    </div>
+
+    <?php if (!empty($all_photo_ids)): ?>
+    <script>
+    window.bdBusinessPhotos = <?php echo json_encode(array_map(function($id) {
+        return [
+            'url' => wp_get_attachment_image_url($id, 'full'),
+            'alt' => get_post_meta($id, '_wp_attachment_image_alt', true) ?: get_the_title(),
+        ];
+    }, $all_photo_ids)); ?>;
+    </script>
+    <?php endif; ?>
 
 <?php
 endwhile;
 
-// Load Leaflet.js for map if location exists
-if ($location && !empty($location['lat']) && !empty($location['lng'])): 
+get_footer();
 ?>
-<!-- Load Leaflet.js for map -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var mapElement = document.getElementById('bd-location-map');
-    
-    if (mapElement) {
-        var lat = parseFloat(mapElement.dataset.lat);
-        var lng = parseFloat(mapElement.dataset.lng);
-        
-        // Initialize map
-        var map = L.map('bd-location-map', {
-            scrollWheelZoom: false,
-            dragging: true,
-            touchZoom: true,
-            doubleClickZoom: true
-        }).setView([lat, lng], 15);
-        
-        // Add tile layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
-        }).addTo(map);
-        
-        // Custom marker icon
-        var customIcon = L.divIcon({
-            className: 'custom-map-marker',
-            html: '<div style="background: #6b2c3e; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);"><div style="transform: rotate(45deg); margin-top: 5px; margin-left: 7px; font-size: 16px; color: white;">📍</div></div>',
-            iconSize: [30, 42],
-            iconAnchor: [15, 42]
-        });
-        
-        // Add marker
-        L.marker([lat, lng], { icon: customIcon }).addTo(map);
-    }
-});
-</script>
-<?php endif; ?>
-
-<?php get_footer(); ?>

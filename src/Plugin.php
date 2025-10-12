@@ -32,14 +32,15 @@ class Plugin {
             new Admin\MetaBoxes();
             new Admin\ImporterPage();
             new Admin\Settings();
-              // new Moderation\SubmissionsQueue();
             new Moderation\ReviewsQueue();
+            new Admin\ClaimsQueue();
         }
         
         // Frontend components
         new Frontend\Shortcodes();
         new Forms\BusinessSubmission();
         new Forms\ReviewSubmission();
+        new Forms\ClaimRequest();
     }
     
     public function register_post_types() {
@@ -112,5 +113,6 @@ class Plugin {
         REST\BusinessesController::register();
         REST\SubmitBusinessController::register();
         REST\SubmitReviewController::register();
+        REST\ClaimController::register();
     }
 }

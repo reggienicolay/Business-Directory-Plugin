@@ -130,17 +130,34 @@ add_action('wp_enqueue_scripts', function() {
             'bd-business-detail',
             $plugin_url . 'assets/css/business-detail-premium.css',
             ['font-awesome'],
-            '1.0.1'
+            '1.0.2'  // ← Bumped version for cache busting
         );
+
+        // Enqueue Leaflet for the map (if not already loaded)
+        if (!wp_script_is('leaflet', 'enqueued')) {
+            wp_enqueue_style(
+                'leaflet',
+                'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
+                [],
+                '1.9.4'
+            );
+            
+            wp_enqueue_script(
+                'leaflet',
+                'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+                [],
+                '1.9.4',
+                true
+            );
+        }
 
         // Enqueue business detail JS
         wp_enqueue_script(
             'bd-business-detail',
             $plugin_url . 'assets/js/business-detail.js',
-            ['jquery'],
-            '1.0.0',
+            ['jquery', 'leaflet'],  // ← Added 'leaflet' dependency
+            '1.0.1',  // ← Bumped version for cache busting
             true
         );
     }
-}, 20);        
-        
+}, 20);

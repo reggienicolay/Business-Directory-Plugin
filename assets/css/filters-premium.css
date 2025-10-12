@@ -1792,8 +1792,9 @@ body.page-template-directory .entry-title {
     }
 }
 
+
 /* ============================================================================
-   ADD BUSINESS CTA BUTTON
+   ADD BUSINESS CTA BUTTON - FIXED ALIGNMENT
    ========================================================================= */
 
 .bd-add-business-cta {
@@ -1820,7 +1821,7 @@ body.page-template-directory .entry-title {
     cursor: pointer !important;
     transition: all 0.3s ease !important;
     box-shadow: 0 4px 16px rgba(107, 44, 62, 0.3) !important;
-    line-height: 1 !important;
+    line-height: 1.2 !important; /* FIXED: Changed from 1 to 1.2 for better vertical alignment */
 }
 
 .bd-add-business-btn:hover {
@@ -1835,16 +1836,14 @@ body.page-template-directory .entry-title {
     height: 18px !important;
     flex-shrink: 0 !important;
     display: block !important;
+    margin: 0 !important; /* Remove all margins */
 }
 
 /* Pulsing effect to draw attention */
 @keyframes pulse-glow {
-
-    0%,
-    100% {
+    0%, 100% {
         box-shadow: 0 4px 16px rgba(107, 44, 62, 0.3);
     }
-
     50% {
         box-shadow: 0 4px 24px rgba(201, 168, 106, 0.6);
     }
