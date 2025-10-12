@@ -4,8 +4,22 @@ namespace BD\Forms;
 class ReviewSubmission {
     
     public function __construct() {
-        add_filter('the_content', [$this, 'add_reviews_to_content']);
+        // Open wrapper FIRST (priority 5)
+        add_filter('the_content', [$this, 'wrap_business_content'], 5);
+        // Add reviews LAST and close wrapper (priority 20)
+        add_filter('the_content', [$this, 'add_reviews_to_content'], 20);
+        
         add_action('wp_enqueue_scripts', [$this, 'enqueue_assets']);
+    }
+    
+    /**
+     * Wrap entire business content in plugin-controlled div
+     */
+    public function wrap_business_content($content) {
+        if (is_singular('bd_business') && is_main_query()) {
+            return '<div class="bd-business-detail-wrapper">' . $content;
+        }
+        return $content;
     }
     
     public function enqueue_assets() {
@@ -29,7 +43,7 @@ class ReviewSubmission {
     
     public function add_reviews_to_content($content) {
         if (is_singular('bd_business') && is_main_query()) {
-            return $content . $this->render_reviews_section();
+            return $content . $this->render_reviews_section() . '</div><!-- .bd-business-detail-wrapper -->';
         }
         return $content;
     }

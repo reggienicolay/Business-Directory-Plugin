@@ -40,9 +40,16 @@ class MetaBoxes {
     public function render_details_metabox($post) {
         wp_nonce_field('bd_business_details', 'bd_business_details_nonce');
         
-        $phone = get_post_meta($post->ID, 'bd_phone', true);
-        $website = get_post_meta($post->ID, 'bd_website', true);
-        $email = get_post_meta($post->ID, 'bd_email', true);
+        // Read from bd_contact meta field
+        $contact = get_post_meta($post->ID, 'bd_contact', true);
+        if (!is_array($contact)) {
+            $contact = [];
+        }
+        
+        $phone = $contact['phone'] ?? '';
+        $website = $contact['website'] ?? '';
+        $email = $contact['email'] ?? '';
+        
         $price_level = get_post_meta($post->ID, 'bd_price_level', true);
         $hours = get_post_meta($post->ID, 'bd_hours', true);
         $social = get_post_meta($post->ID, 'bd_social', true);
@@ -139,14 +146,19 @@ class MetaBoxes {
      * Render location metabox
      */
     public function render_location_metabox($post) {
-        $location = \BD\DB\LocationsTable::get($post->ID);
+        // Read from bd_location meta field instead of table
+        $location = get_post_meta($post->ID, 'bd_location', true);
+        
+        if (!is_array($location)) {
+            $location = [];
+        }
         
         $lat = $location['lat'] ?? '';
         $lng = $location['lng'] ?? '';
         $address = $location['address'] ?? '';
         $city = $location['city'] ?? '';
         $state = $location['state'] ?? '';
-        $postal_code = $location['postal_code'] ?? '';
+        $postal_code = $location['zip'] ?? '';
         
         ?>
         <div class="bd-metabox-field">
@@ -203,52 +215,35 @@ class MetaBoxes {
             return;
         }
         
-        // Save business details
-        if (isset($_POST['bd_phone'])) {
-            update_post_meta($post_id, 'bd_phone', sanitize_text_field($_POST['bd_phone']));
-        }
-        if (isset($_POST['bd_website'])) {
-            update_post_meta($post_id, 'bd_website', esc_url_raw($_POST['bd_website']));
-        }
-        if (isset($_POST['bd_email'])) {
-            update_post_meta($post_id, 'bd_email', sanitize_email($_POST['bd_email']));
-        }
+        // Save contact data in the SAME format as frontend submissions
+        $contact = [
+            'phone' => isset($_POST['bd_phone']) ? sanitize_text_field($_POST['bd_phone']) : '',
+            'website' => isset($_POST['bd_website']) ? esc_url_raw($_POST['bd_website']) : '',
+            'email' => isset($_POST['bd_email']) ? sanitize_email($_POST['bd_email']) : '',
+        ];
+        update_post_meta($post_id, 'bd_contact', $contact);
+        
+        // Save location data in the SAME format as frontend submissions
+        $location = [
+            'address' => isset($_POST['bd_address']) ? sanitize_text_field($_POST['bd_address']) : '',
+            'city' => isset($_POST['bd_city']) ? sanitize_text_field($_POST['bd_city']) : '',
+            'state' => isset($_POST['bd_state']) ? sanitize_text_field($_POST['bd_state']) : '',
+            'zip' => isset($_POST['bd_postal_code']) ? sanitize_text_field($_POST['bd_postal_code']) : '',
+            'lat' => isset($_POST['bd_lat']) ? floatval($_POST['bd_lat']) : '',
+            'lng' => isset($_POST['bd_lng']) ? floatval($_POST['bd_lng']) : '',
+        ];
+        update_post_meta($post_id, 'bd_location', $location);
+        
+        // Save other fields
         if (isset($_POST['bd_price_level'])) {
             update_post_meta($post_id, 'bd_price_level', sanitize_text_field($_POST['bd_price_level']));
         }
         if (isset($_POST['bd_hours'])) {
-            update_post_meta($post_id, 'bd_hours', array_map('sanitize_text_field', $_POST['bd_hours']));
+            update_post_meta($post_id, 'bd_hours', $_POST['bd_hours']);
         }
         if (isset($_POST['bd_social'])) {
             $social = array_map('esc_url_raw', $_POST['bd_social']);
             update_post_meta($post_id, 'bd_social', $social);
-        }
-        
-        // Save location data
-        if (isset($_POST['bd_lat']) && isset($_POST['bd_lng'])) {
-            $lat = floatval($_POST['bd_lat']);
-            $lng = floatval($_POST['bd_lng']);
-            
-            if (\BD\Utils\Validation::is_valid_latitude($lat) && \BD\Utils\Validation::is_valid_longitude($lng)) {
-                $location_data = [
-                    'business_id' => $post_id,
-                    'lat' => $lat,
-                    'lng' => $lng,
-                    'address' => isset($_POST['bd_address']) ? sanitize_text_field($_POST['bd_address']) : '',
-                    'city' => isset($_POST['bd_city']) ? sanitize_text_field($_POST['bd_city']) : '',
-                    'state' => isset($_POST['bd_state']) ? sanitize_text_field($_POST['bd_state']) : '',
-                    'postal_code' => isset($_POST['bd_postal_code']) ? sanitize_text_field($_POST['bd_postal_code']) : '',
-                ];
-                
-                // Check if location exists
-                $existing = \BD\DB\LocationsTable::get($post_id);
-                
-                if ($existing) {
-                    \BD\DB\LocationsTable::update($post_id, $location_data);
-                } else {
-                    \BD\DB\LocationsTable::insert($location_data);
-                }
-            }
         }
     }
 }

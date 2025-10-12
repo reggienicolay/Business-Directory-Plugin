@@ -12,7 +12,6 @@ class BusinessEndpoint {
     }
     
     public static function register_routes() {
-        // Enhanced businesses endpoint with filtering
         register_rest_route('bd/v1', '/businesses', [
             'methods' => 'GET',
             'callback' => [__CLASS__, 'get_businesses'],
@@ -33,7 +32,6 @@ class BusinessEndpoint {
             ],
         ]);
         
-        // Filter metadata endpoint
         register_rest_route('bd/v1', '/filters', [
             'methods' => 'GET',
             'callback' => [__CLASS__, 'get_filter_metadata'],
@@ -41,14 +39,9 @@ class BusinessEndpoint {
         ]);
     }
     
-    /**
-     * Get filtered businesses
-     */
     public static function get_businesses($request) {
-        // Sanitize filters
         $filters = FilterHandler::sanitize_filters($request->get_params());
         
-        // Check cache
         $cache_key = Cache::get_query_key($filters);
         $cached = get_transient($cache_key);
         
@@ -56,16 +49,13 @@ class BusinessEndpoint {
             return rest_ensure_response($cached);
         }
         
-        // Build and execute query
         $query_builder = new QueryBuilder($filters);
         $result = $query_builder->get_businesses_with_location();
         
-        // Format businesses
         $businesses = [];
         foreach ($result['businesses'] as $b) {
             $business = self::format_business($b['id']);
             
-            // Add distance if available
             if (isset($b['distance_km'])) {
                 $business['distance'] = [
                     'km' => round($b['distance_km'], 2),
@@ -77,7 +67,6 @@ class BusinessEndpoint {
             $businesses[] = $business;
         }
         
-        // Calculate map bounds
         $bounds = self::calculate_bounds($businesses);
         
         $response = [
@@ -90,41 +79,37 @@ class BusinessEndpoint {
             'filters_applied' => self::get_applied_filters($filters),
         ];
         
-        // Cache for 5 minutes
         set_transient($cache_key, $response, 5 * MINUTE_IN_SECONDS);
         
         return rest_ensure_response($response);
     }
     
     /**
-     * Format single business
+     * Format single business - READS FROM POST META ONLY
      */
     private static function format_business($business_id) {
-        global $wpdb;
-        
         $post = get_post($business_id);
         
-        // Get location from wp_bd_locations table instead of post meta
-        $location_data = $wpdb->get_row($wpdb->prepare(
-            "SELECT lat, lng, address, city, state, postal_code 
-             FROM {$wpdb->prefix}bd_locations 
-             WHERE business_id = %d",
-            $business_id
-        ), ARRAY_A);
+        // Get location from bd_location meta field
+        $location_meta = get_post_meta($business_id, 'bd_location', true);
         
         $location = null;
-        if ($location_data) {
+        if ($location_meta && is_array($location_meta)) {
             $location = [
-                'lat' => floatval($location_data['lat']),
-                'lng' => floatval($location_data['lng']),
-                'address' => $location_data['address'] ?? '',
-                'city' => $location_data['city'] ?? '',
-                'state' => $location_data['state'] ?? '',
-                'postal_code' => $location_data['postal_code'] ?? '',
+                'lat' => floatval($location_meta['lat'] ?? 0),
+                'lng' => floatval($location_meta['lng'] ?? 0),
+                'address' => $location_meta['address'] ?? '',
+                'city' => $location_meta['city'] ?? '',
+                'state' => $location_meta['state'] ?? '',
+                'zip' => $location_meta['zip'] ?? '',
             ];
         }
         
+        // Get contact from bd_contact meta field
         $contact = get_post_meta($business_id, 'bd_contact', true);
+        if (!is_array($contact)) {
+            $contact = [];
+        }
         
         return [
             'id' => $business_id,
@@ -144,9 +129,6 @@ class BusinessEndpoint {
         ];
     }
     
-    /**
-     * Calculate map bounds for all businesses
-     */
     private static function calculate_bounds($businesses) {
         if (empty($businesses)) {
             return null;
@@ -174,9 +156,6 @@ class BusinessEndpoint {
         ];
     }
     
-    /**
-     * Get summary of applied filters
-     */
     private static function get_applied_filters($filters) {
         $applied = [];
         
@@ -205,14 +184,10 @@ class BusinessEndpoint {
         return $applied;
     }
     
-    /**
-     * Get filter metadata
-     */
     public static function get_filter_metadata() {
         $metadata = FilterHandler::get_filter_metadata();
         return rest_ensure_response($metadata);
     }
 }
 
-// Initialize
 BusinessEndpoint::init();

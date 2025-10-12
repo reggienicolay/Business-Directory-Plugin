@@ -1,0 +1,671 @@
+/**
+ * Business Directory - Subtle Modern Theme
+ * Apple-inspired clean design with subtle animations
+ */
+
+/* ============================================================================
+   CSS VARIABLES
+   ========================================================================= */
+:root {
+    --bd-primary: #007AFF;
+    --bd-primary-hover: #0051D5;
+    --bd-surface: #FFFFFF;
+    --bd-surface-hover: #F5F5F7;
+    --bd-border: #D2D2D7;
+    --bd-text-primary: #1D1D1F;
+    --bd-text-secondary: #86868B;
+    --bd-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --bd-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --bd-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+    --bd-radius-sm: 8px;
+    --bd-radius-md: 12px;
+    --bd-radius-lg: 16px;
+    --bd-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================================
+   RESET & BASE
+   ========================================================================= */
+.bd-directory-wrapper * {
+    box-sizing: border-box;
+}
+
+.bd-directory-wrapper {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    color: var(--bd-text-primary);
+    line-height: 1.5;
+}
+
+/* Hide WordPress injected breaks */
+.bd-filter-panel br,
+.bd-checkbox-group br,
+.bd-radio-group br,
+.bd-filter-group br {
+    display: none !important;
+}
+
+/* ============================================================================
+   FILTER PANEL
+   ========================================================================= */
+.bd-filter-panel {
+    background: var(--bd-surface);
+    border: 1px solid var(--bd-border);
+    border-radius: var(--bd-radius-lg);
+    overflow: hidden;
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    box-shadow: var(--bd-shadow-sm);
+    transition: var(--bd-transition);
+}
+
+.bd-filter-panel:hover {
+    box-shadow: var(--bd-shadow-md);
+}
+
+.bd-filter-content {
+    padding: 24px;
+    overflow-y: auto;
+    max-height: calc(100vh - 40px);
+}
+
+/* Custom scrollbar */
+.bd-filter-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.bd-filter-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.bd-filter-content::-webkit-scrollbar-thumb {
+    background: var(--bd-border);
+    border-radius: 4px;
+}
+
+.bd-filter-content::-webkit-scrollbar-thumb:hover {
+    background: var(--bd-text-secondary);
+}
+
+/* ============================================================================
+   FILTER HEADER
+   ========================================================================= */
+.bd-filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--bd-border);
+}
+
+.bd-filter-header h3 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--bd-text-primary);
+}
+
+.bd-filter-close {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--bd-text-secondary);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    transition: var(--bd-transition);
+}
+
+.bd-filter-close:hover {
+    background: var(--bd-surface-hover);
+    color: var(--bd-text-primary);
+}
+
+/* ============================================================================
+   FILTER GROUPS
+   ========================================================================= */
+.bd-filter-group {
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--bd-border);
+}
+
+.bd-filter-group:last-of-type {
+    border-bottom: none;
+}
+
+.bd-filter-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--bd-text-primary);
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+}
+
+/* ============================================================================
+   INPUT FIELDS
+   ========================================================================= */
+.bd-filter-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1.5px solid var(--bd-border);
+    border-radius: var(--bd-radius-sm);
+    font-size: 15px;
+    background: var(--bd-surface);
+    color: var(--bd-text-primary);
+    transition: var(--bd-transition);
+}
+
+.bd-filter-input:focus {
+    outline: none;
+    border-color: var(--bd-primary);
+    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+}
+
+.bd-filter-input::placeholder {
+    color: var(--bd-text-secondary);
+}
+
+.bd-select {
+    padding: 10px 14px;
+    border: 1.5px solid var(--bd-border);
+    border-radius: var(--bd-radius-sm);
+    font-size: 14px;
+    background: var(--bd-surface);
+    color: var(--bd-text-primary);
+    cursor: pointer;
+    transition: var(--bd-transition);
+}
+
+.bd-select:hover {
+    border-color: var(--bd-primary);
+}
+
+.bd-select:focus {
+    outline: none;
+    border-color: var(--bd-primary);
+    box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+}
+
+/* ============================================================================
+   CHECKBOXES & RADIOS - MODERN PILLS
+   ========================================================================= */
+.bd-checkbox-group,
+.bd-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.bd-checkbox-label,
+.bd-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--bd-text-primary);
+    cursor: pointer;
+    padding: 10px 12px;
+    border-radius: var(--bd-radius-sm);
+    transition: var(--bd-transition);
+    position: relative;
+}
+
+.bd-checkbox-label:hover,
+.bd-radio-label:hover {
+    background: var(--bd-surface-hover);
+}
+
+/* Custom checkbox styling */
+.bd-checkbox-label input[type="checkbox"],
+.bd-radio-label input[type="radio"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--bd-border);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    transition: var(--bd-transition);
+    flex-shrink: 0;
+}
+
+.bd-radio-label input[type="radio"] {
+    border-radius: 50%;
+}
+
+.bd-checkbox-label input[type="checkbox"]:checked,
+.bd-radio-label input[type="radio"]:checked {
+    background: var(--bd-primary);
+    border-color: var(--bd-primary);
+}
+
+.bd-checkbox-label input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.bd-radio-label input[type="radio"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+}
+
+/* Special toggle label */
+.bd-toggle-label {
+    padding: 14px 16px;
+    background: var(--bd-surface-hover);
+    border-radius: var(--bd-radius-sm);
+    font-weight: 500;
+    transition: var(--bd-transition);
+}
+
+.bd-toggle-label:hover {
+    background: #E8E8ED;
+}
+
+.bd-toggle-label input:checked ~ span {
+    color: var(--bd-primary);
+}
+
+/* ============================================================================
+   BUTTONS
+   ========================================================================= */
+.bd-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: var(--bd-radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--bd-transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    letter-spacing: -0.01em;
+}
+
+.bd-btn-primary {
+    background: var(--bd-primary);
+    color: white;
+    flex: 1;
+}
+
+.bd-btn-primary:hover {
+    background: var(--bd-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+}
+
+.bd-btn-primary:active {
+    transform: translateY(0);
+}
+
+.bd-btn-secondary {
+    background: var(--bd-surface-hover);
+    color: var(--bd-text-primary);
+    flex: 1;
+}
+
+.bd-btn-secondary:hover {
+    background: #E8E8ED;
+    transform: translateY(-1px);
+}
+
+.bd-btn-small {
+    padding: 10px 18px;
+    font-size: 13px;
+}
+
+.bd-btn-block {
+    width: 100%;
+}
+
+/* ============================================================================
+   LOCATION CONTROLS
+   ========================================================================= */
+.bd-location-buttons {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.bd-location-display {
+    padding: 12px 16px;
+    background: #F0F9FF;
+    border: 1px solid #BFDBFE;
+    border-radius: var(--bd-radius-sm);
+    font-size: 13px;
+    color: #1E40AF;
+    margin-top: 12px;
+    line-height: 1.5;
+}
+
+#bd-manual-location {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+/* ============================================================================
+   RADIUS SLIDER
+   ========================================================================= */
+#bd-radius-container {
+    margin-top: 16px;
+}
+
+.bd-radius-label {
+    display: block;
+    font-size: 13px;
+    color: var(--bd-text-secondary);
+    margin-bottom: 10px;
+    font-weight: 500;
+}
+
+.bd-slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--bd-surface-hover);
+    outline: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+}
+
+.bd-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--bd-primary);
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.4);
+    transition: var(--bd-transition);
+}
+
+.bd-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.6);
+}
+
+.bd-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--bd-primary);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 122, 255, 0.4);
+    transition: var(--bd-transition);
+}
+
+.bd-slider::-moz-range-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.6);
+}
+
+/* ============================================================================
+   RESULTS INFO BAR
+   ========================================================================= */
+.bd-results-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px !important;
+    background: var(--bd-surface) !important;
+    border: 1px solid var(--bd-border) !important;
+    border-radius: var(--bd-radius-md) !important;
+    margin-bottom: 20px !important;
+    box-shadow: var(--bd-shadow-sm);
+}
+
+.bd-result-count {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--bd-text-primary);
+    letter-spacing: -0.01em;
+}
+
+.bd-sort-options {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--bd-text-secondary);
+}
+
+/* ============================================================================
+   MAP CONTAINER
+   ========================================================================= */
+#bd-map {
+    height: 600px;
+    margin-bottom: 30px;
+    border: 1px solid var(--bd-border);
+    border-radius: var(--bd-radius-lg) !important;
+    overflow: hidden;
+    box-shadow: var(--bd-shadow-md);
+}
+
+/* ============================================================================
+   BUSINESS CARDS
+   ========================================================================= */
+#bd-business-list > div {
+    border: 1px solid var(--bd-border) !important;
+    padding: 24px !important;
+    margin-bottom: 16px !important;
+    border-radius: var(--bd-radius-md) !important;
+    background: var(--bd-surface) !important;
+    box-shadow: var(--bd-shadow-sm) !important;
+    transition: var(--bd-transition) !important;
+    cursor: pointer;
+}
+
+#bd-business-list > div:hover {
+    box-shadow: var(--bd-shadow-lg) !important;
+    transform: translateY(-2px);
+    border-color: var(--bd-primary) !important;
+}
+
+#bd-business-list h3 {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.02em !important;
+    margin-bottom: 12px !important;
+}
+
+#bd-business-list h3 a {
+    color: var(--bd-text-primary) !important;
+    text-decoration: none !important;
+    transition: var(--bd-transition) !important;
+}
+
+#bd-business-list h3 a:hover {
+    color: var(--bd-primary) !important;
+}
+
+/* Category pills */
+#bd-business-list span[style*="background"] {
+    background: var(--bd-surface-hover) !important;
+    color: var(--bd-text-primary) !important;
+    padding: 6px 12px !important;
+    border-radius: 20px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    transition: var(--bd-transition) !important;
+}
+
+#bd-business-list span[style*="background"]:hover {
+    background: var(--bd-primary) !important;
+    color: white !important;
+}
+
+/* View Details button */
+#bd-business-list a[style*="border"] {
+    display: inline-block !important;
+    margin-top: 12px !important;
+    color: var(--bd-primary) !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    padding: 10px 20px !important;
+    border: 2px solid var(--bd-primary) !important;
+    border-radius: var(--bd-radius-sm) !important;
+    transition: var(--bd-transition) !important;
+}
+
+#bd-business-list a[style*="border"]:hover {
+    background: var(--bd-primary) !important;
+    color: white !important;
+    transform: translateX(4px);
+}
+
+/* ============================================================================
+   LOADING STATE
+   ========================================================================= */
+.bd-loading {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--bd-text-secondary);
+    font-weight: 500;
+}
+
+.bd-loading::before {
+    content: '';
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--bd-border);
+    border-top-color: var(--bd-primary);
+    border-radius: 50%;
+    animation: bd-spin 0.6s linear infinite;
+}
+
+@keyframes bd-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================================================
+   FILTER COUNT BADGE
+   ========================================================================= */
+.bd-filter-count {
+    background: var(--bd-primary);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 12px;
+    min-width: 20px;
+    text-align: center;
+}
+
+/* ============================================================================
+   MOBILE STYLES
+   ========================================================================= */
+.bd-mobile-only {
+    display: none;
+}
+
+.bd-filter-toggle {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    background: var(--bd-surface);
+    border: 1.5px solid var(--bd-border);
+    border-radius: var(--bd-radius-md);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--bd-text-primary);
+    cursor: pointer;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 100;
+    box-shadow: var(--bd-shadow-lg);
+    transition: var(--bd-transition);
+}
+
+.bd-filter-toggle:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+@media (max-width: 768px) {
+    .bd-mobile-only {
+        display: block;
+    }
+    
+    .bd-filter-toggle {
+        display: flex;
+    }
+    
+    .bd-filter-panel {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 85%;
+        max-width: 380px;
+        height: 100vh;
+        max-height: 100vh;
+        z-index: 1000;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 8px 0 32px rgba(0, 0, 0, 0.2);
+        border-radius: 0;
+    }
+    
+    .bd-filter-panel.bd-filter-open {
+        left: 0;
+    }
+    
+    .bd-filter-close {
+        display: block;
+    }
+    
+    body.bd-filter-panel-open::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 999;
+        animation: bd-fade-in 0.3s;
+    }
+    
+    @keyframes bd-fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+}
+
+/* ============================================================================
+   FILTER ACTIONS
+   ========================================================================= */
+.bd-filter-actions {
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--bd-border);
+}

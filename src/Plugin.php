@@ -32,7 +32,7 @@ class Plugin {
             new Admin\MetaBoxes();
             new Admin\ImporterPage();
             new Admin\Settings();
-            new Moderation\SubmissionsQueue();
+              // new Moderation\SubmissionsQueue();
             new Moderation\ReviewsQueue();
         }
         

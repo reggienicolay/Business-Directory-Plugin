@@ -1,0 +1,157 @@
+
+/* ============================================================================
+   ENHANCED VISUAL DEPTH & INTEREST
+   ========================================================================= */
+
+/* Add subtle background texture */
+body.single-bd_business {
+    background: linear-gradient(180deg, #FAFAF8 0%, #FFF8F0 100%) !important;
+}
+
+/* Hero section with the title and description */
+.bd-business-detail-wrapper > h1:first-child,
+.page-header h1.entry-title {
+    background: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(2px 4px 8px rgba(107, 44, 62, 0.15));
+}
+
+/* Add a decorative pattern behind the title */
+.page-header {
+    position: relative;
+    padding: 40px 0 20px;
+}
+
+.page-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100px;
+    right: -100px;
+    height: 200px;
+    background: 
+        radial-gradient(circle at 20% 50%, rgba(201, 168, 106, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 30%, rgba(107, 44, 62, 0.03) 0%, transparent 50%);
+    z-index: -1;
+}
+
+/* Elevated description box */
+.page-content > p:first-child {
+    background: white !important;
+    padding: 24px 32px !important;
+    border-radius: 16px !important;
+    box-shadow: 
+        0 2px 8px rgba(107, 44, 62, 0.06),
+        0 8px 24px rgba(201, 168, 106, 0.08) !important;
+    border-left: 4px solid #C9A86A !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.page-content > p:first-child::before {
+    content: '"';
+    position: absolute;
+    top: -10px;
+    left: 20px;
+    font-size: 80px;
+    font-family: Georgia, serif;
+    color: rgba(201, 168, 106, 0.1);
+    line-height: 1;
+}
+
+/* Enhanced review cards with depth */
+.bd-review-card {
+    box-shadow: 0 2px 8px rgba(107, 44, 62, 0.08) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.bd-review-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(180deg, #C9A86A 0%, #E4D4B4 100%);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+.bd-review-card:hover::before {
+    transform: scaleY(1);
+}
+
+/* Form with elevated design */
+.bd-form {
+    box-shadow: 
+        0 4px 16px rgba(107, 44, 62, 0.08),
+        0 12px 32px rgba(201, 168, 106, 0.12) !important;
+    position: relative;
+}
+
+.bd-form::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, #C9A86A 0%, #E4D4B4 50%, #F7EFE2 100%);
+    border-radius: 18px;
+    z-index: -1;
+}
+
+/* Add decorative corner flourish */
+.bd-reviews-section::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    margin-top: -50px;
+    font-size: 24px;
+    color: #C9A86A;
+    opacity: 0.3;
+}
+
+/* Animated gradient on button hover */
+.bd-btn.bd-btn-primary:hover,
+.bd-form button[type="submit"]:hover {
+    background: linear-gradient(135deg, #8B3A52 0%, #B8935A 50%, #C9A86A 100%) !important;
+    box-shadow: 
+        0 8px 24px rgba(201, 168, 106, 0.4),
+        0 4px 12px rgba(107, 44, 62, 0.3) !important;
+}
+
+/* Star rating with glow effect */
+.bd-star-rating label:hover {
+    text-shadow: 0 0 12px rgba(201, 168, 106, 0.6) !important;
+}
+
+/* Subtle parallax effect on rating summary */
+.bd-rating-summary {
+    box-shadow: 0 4px 12px rgba(201, 168, 106, 0.15);
+    transform: translateZ(0);
+    transition: transform 0.3s ease;
+}
+
+.bd-rating-summary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(201, 168, 106, 0.2);
+}
+
+/* Add subtle texture to white backgrounds */
+.bd-form,
+.bd-review-card,
+.page-content > p:first-child {
+    background-image: 
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(201, 168, 106, 0.01) 10px,
+            rgba(201, 168, 106, 0.01) 20px
+        );
+}
+

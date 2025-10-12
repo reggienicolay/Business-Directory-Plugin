@@ -1,0 +1,1882 @@
+/**
+ * Business Directory - Premium Theme
+ * Sophisticated wine country elegance with modern vibrant touches
+ * Inspired by Vale & Vine aesthetic
+ */
+
+/* ============================================================================
+   CSS VARIABLES - WINE COUNTRY PALETTE
+   ========================================================================= */
+:root {
+    /* Primary Colors - Wine & Spirits */
+    --bd-burgundy: #6B2C3E;
+    --bd-burgundy-dark: #4A1F2C;
+    --bd-gold: #C9A86A;
+    --bd-gold-light: #E4D4B4;
+    --bd-gold-dark: #B8935A;
+
+    /* Accent Colors */
+    --bd-champagne: #F7EFE2;
+    --bd-cream: #FFF8F0;
+    --bd-copper: #B87333;
+    --bd-rose: #D4A5A5;
+
+    /* Gradients */
+    --bd-gradient-primary: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 50%, #B8935A 100%);
+    --bd-gradient-gold: linear-gradient(135deg, #C9A86A 0%, #E4D4B4 50%, #F7EFE2 100%);
+    --bd-gradient-elegant: linear-gradient(135deg, #4A1F2C 0%, #6B2C3E 50%, #8B3A52 100%);
+    --bd-gradient-accent: linear-gradient(135deg, #B87333 0%, #C9A86A 100%);
+
+    /* Neutrals */
+    --bd-surface: #FFFFFF;
+    --bd-surface-light: #FAFAF8;
+    --bd-surface-warm: #F5F1EB;
+    --bd-border: #E8DFD3;
+    --bd-border-gold: rgba(201, 168, 106, 0.3);
+    --bd-text-primary: #2C2420;
+    --bd-text-secondary: #6D5F52;
+    --bd-text-gold: #B8935A;
+
+    /* Shadows */
+    --bd-shadow-sm: 0 2px 8px rgba(107, 44, 62, 0.08);
+    --bd-shadow-md: 0 8px 24px rgba(107, 44, 62, 0.12);
+    --bd-shadow-lg: 0 16px 48px rgba(107, 44, 62, 0.18);
+    --bd-shadow-gold: 0 4px 16px rgba(201, 168, 106, 0.3);
+
+    /* Borders & Radius */
+    --bd-radius-sm: 8px;
+    --bd-radius-md: 12px;
+    --bd-radius-lg: 16px;
+
+    /* Transitions */
+    --bd-transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    --bd-transition-bounce: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================================================
+   RESET & BASE
+   ========================================================================= */
+.bd-directory-wrapper * {
+    box-sizing: border-box;
+}
+
+.bd-directory-wrapper {
+    font-family: 'Playfair Display', 'Georgia', serif;
+    color: var(--bd-text-primary);
+    line-height: 1.6;
+}
+
+/* Body text uses sans-serif for readability */
+.bd-directory-wrapper p,
+.bd-directory-wrapper label,
+.bd-directory-wrapper input,
+.bd-directory-wrapper button {
+    font-family: 'Inter', -apple-system, sans-serif;
+}
+
+/* Hide WordPress injected breaks */
+.bd-filter-panel br,
+.bd-checkbox-group br,
+.bd-radio-group br,
+.bd-filter-group br {
+    display: none !important;
+}
+
+/* ============================================================================
+   FILTER PANEL - ELEGANT CARD WITH GOLD TRIM
+   ========================================================================= */
+.bd-filter-panel {
+    background: var(--bd-surface);
+    border: 2px solid var(--bd-border-gold);
+    border-radius: var(--bd-radius-lg);
+    overflow: hidden;
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    box-shadow: var(--bd-shadow-md);
+    transition: var(--bd-transition);
+    position: relative;
+}
+
+/* Double border effect like Vale & Vine */
+.bd-filter-panel::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    border: 1px solid var(--bd-border-gold);
+    border-radius: calc(var(--bd-radius-lg) - 4px);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Gold corner accents */
+.bd-filter-panel::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--bd-gold) 0%, transparent 60%);
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+.bd-filter-panel:hover {
+    box-shadow: var(--bd-shadow-lg), var(--bd-shadow-gold);
+    transform: translateY(-2px);
+    border-color: var(--bd-gold);
+}
+
+.bd-filter-content {
+    padding: 32px 28px;
+    overflow-y: auto;
+    max-height: calc(100vh - 40px);
+    position: relative;
+    z-index: 2;
+}
+
+/* Custom scrollbar - elegant */
+.bd-filter-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.bd-filter-content::-webkit-scrollbar-track {
+    background: var(--bd-surface-warm);
+    border-radius: 4px;
+}
+
+.bd-filter-content::-webkit-scrollbar-thumb {
+    background: var(--bd-gradient-gold);
+    border-radius: 4px;
+}
+
+.bd-filter-content::-webkit-scrollbar-thumb:hover {
+    background: var(--bd-gradient-accent);
+}
+
+/* ============================================================================
+   FILTER HEADER - EMBOSSED TITLE
+   ========================================================================= */
+.bd-filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    padding-bottom: 24px;
+    position: relative;
+}
+
+/* Gold underline */
+.bd-filter-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--bd-gradient-gold);
+}
+
+.bd-filter-header h3 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--bd-burgundy);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    position: relative;
+    font-family: 'Playfair Display', serif;
+}
+
+/* Embossed text effect */
+.bd-filter-header h3::before {
+    content: attr(data-text);
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    color: var(--bd-gold-light);
+    opacity: 0.3;
+    z-index: -1;
+}
+
+.bd-filter-close {
+    display: none;
+    background: var(--bd-surface-warm);
+    border: 2px solid var(--bd-border-gold);
+    font-size: 20px;
+    color: var(--bd-burgundy);
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: var(--bd-transition);
+    font-weight: bold;
+}
+
+.bd-filter-close:hover {
+    background: var(--bd-gradient-elegant);
+    color: var(--bd-gold);
+    border-color: var(--bd-gold);
+    transform: rotate(90deg);
+}
+
+/* ============================================================================
+   FILTER GROUPS - REFINED SECTIONS
+   ========================================================================= */
+.bd-filter-group {
+    margin-bottom: 28px;
+    padding: 20px;
+    background: var(--bd-surface-light);
+    border-radius: var(--bd-radius-md);
+    border: 1px solid var(--bd-border);
+    transition: var(--bd-transition);
+    position: relative;
+}
+
+.bd-filter-group:hover {
+    background: var(--bd-cream);
+    border-color: var(--bd-border-gold);
+    box-shadow: var(--bd-shadow-sm);
+    transform: translateX(2px);
+}
+
+.bd-filter-group::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 0;
+    background: var(--bd-gradient-accent);
+    border-radius: 0 2px 2px 0;
+    transition: var(--bd-transition);
+}
+
+.bd-filter-group:hover::before {
+    height: 100%;
+}
+
+.bd-filter-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--bd-burgundy);
+    margin-bottom: 16px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Gold accent line */
+.bd-filter-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--bd-border-gold) 0%, transparent 100%);
+    margin-left: 12px;
+}
+
+/* ============================================================================
+   INPUT FIELDS - SOPHISTICATED
+   ========================================================================= */
+.bd-filter-input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--bd-border);
+    border-radius: var(--bd-radius-sm);
+    font-size: 15px;
+    background: var(--bd-surface);
+    color: var(--bd-text-primary);
+    transition: var(--bd-transition);
+    font-weight: 500;
+}
+
+.bd-filter-input:focus {
+    outline: none;
+    border-color: var(--bd-gold);
+    box-shadow: 0 0 0 4px rgba(201, 168, 106, 0.15);
+    background: var(--bd-cream);
+}
+
+.bd-filter-input::placeholder {
+    color: var(--bd-text-secondary);
+    font-style: italic;
+}
+
+.bd-select {
+    padding: 10px 14px;
+    border: 2px solid var(--bd-border);
+    border-radius: var(--bd-radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    background: var(--bd-surface);
+    color: var(--bd-text-primary);
+    cursor: pointer;
+    transition: var(--bd-transition);
+}
+
+.bd-select:hover {
+    border-color: var(--bd-gold);
+    background: var(--bd-cream);
+}
+
+.bd-select:focus {
+    outline: none;
+    border-color: var(--bd-gold);
+    box-shadow: 0 0 0 4px rgba(201, 168, 106, 0.15);
+}
+
+/* ============================================================================
+   CHECKBOXES & RADIOS - PREMIUM STYLE
+   ========================================================================= */
+.bd-checkbox-group,
+.bd-radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.bd-checkbox-label,
+.bd-radio-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--bd-text-primary);
+    cursor: pointer;
+    padding: 12px 14px;
+    border-radius: var(--bd-radius-sm);
+    background: white;
+    border: 1.5px solid var(--bd-border);
+    transition: var(--bd-transition);
+    position: relative;
+}
+
+.bd-checkbox-label:hover,
+.bd-radio-label:hover {
+    border-color: var(--bd-gold);
+    background: var(--bd-cream);
+    transform: translateX(4px);
+    box-shadow: var(--bd-shadow-sm);
+}
+
+/* Custom checkbox - gold accent */
+.bd-checkbox-label input[type="checkbox"],
+.bd-radio-label input[type="radio"] {
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--bd-border-gold);
+    border-radius: 5px;
+    cursor: pointer;
+    position: relative;
+    transition: var(--bd-transition);
+    flex-shrink: 0;
+    background: white;
+}
+
+.bd-radio-label input[type="radio"] {
+    border-radius: 50%;
+}
+
+.bd-checkbox-label input[type="checkbox"]:checked,
+.bd-radio-label input[type="radio"]:checked {
+    background: var(--bd-gradient-elegant);
+    border-color: var(--bd-gold);
+    box-shadow: 0 0 0 2px rgba(201, 168, 106, 0.2);
+}
+
+.bd-checkbox-label input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--bd-gold);
+    font-size: 14px;
+    font-weight: bold;
+    animation: bd-check-elegant 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes bd-check-elegant {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+.bd-radio-label input[type="radio"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: var(--bd-gold);
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px var(--bd-burgundy);
+}
+
+/* Checked state - gold highlight */
+.bd-checkbox-label:has(input:checked),
+.bd-radio-label:has(input:checked) {
+    background: linear-gradient(135deg, rgba(201, 168, 106, 0.08) 0%, rgba(247, 239, 226, 0.15) 100%);
+    border-color: var(--bd-gold);
+    font-weight: 600;
+    color: var(--bd-burgundy);
+}
+
+/* Toggle label - premium */
+.bd-toggle-label {
+    padding: 16px 18px;
+    background: var(--bd-surface-warm);
+    border-radius: var(--bd-radius-sm);
+    font-weight: 600;
+    border: 2px solid var(--bd-border);
+    transition: var(--bd-transition);
+}
+
+.bd-toggle-label:hover {
+    background: var(--bd-cream);
+    border-color: var(--bd-gold);
+}
+
+.bd-toggle-label input:checked~span {
+    color: var(--bd-burgundy);
+    font-weight: 700;
+}
+
+/* ============================================================================
+   BUTTONS - WINE BARREL INSPIRED
+   ========================================================================= */
+.bd-btn {
+    padding: 14px 24px;
+    border: none;
+    border-radius: var(--bd-radius-sm);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--bd-transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+}
+
+.bd-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.bd-btn:hover::before {
+    left: 100%;
+}
+
+.bd-btn-primary {
+    background: var(--bd-gradient-elegant);
+    color: var(--bd-gold);
+    flex: 1;
+    box-shadow: var(--bd-shadow-sm);
+    border: 2px solid var(--bd-gold-dark);
+}
+
+.bd-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--bd-shadow-gold);
+    border-color: var(--bd-gold);
+}
+
+.bd-btn-primary:active {
+    transform: translateY(0);
+}
+
+.bd-btn-secondary {
+    background: var(--bd-surface-warm);
+    color: var(--bd-burgundy);
+    flex: 1;
+    border: 2px solid var(--bd-border-gold);
+}
+
+.bd-btn-secondary:hover {
+    background: var(--bd-cream);
+    border-color: var(--bd-gold);
+    color: var(--bd-burgundy-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--bd-shadow-sm);
+}
+
+.bd-btn-small {
+    padding: 10px 18px;
+    font-size: 13px;
+}
+
+.bd-btn-block {
+    width: 100%;
+}
+
+/* ============================================================================
+   LOCATION CONTROLS - SOPHISTICATED
+   ========================================================================= */
+.bd-location-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.bd-location-display {
+    padding: 14px 18px;
+    background: linear-gradient(135deg, var(--bd-champagne) 0%, var(--bd-cream) 100%);
+    border: 2px solid var(--bd-border-gold);
+    border-radius: var(--bd-radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--bd-burgundy);
+    margin-top: 12px;
+    line-height: 1.6;
+    box-shadow: inset 0 1px 3px rgba(107, 44, 62, 0.05);
+}
+
+#bd-manual-location {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+/* ============================================================================
+   RADIUS SLIDER - ELEGANT
+   ========================================================================= */
+#bd-radius-container {
+    margin-top: 16px;
+    padding: 18px;
+    background: linear-gradient(135deg, rgba(201, 168, 106, 0.05) 0%, rgba(247, 239, 226, 0.1) 100%);
+    border-radius: var(--bd-radius-sm);
+    border: 1px solid var(--bd-border-gold);
+}
+
+.bd-radius-label {
+    display: block;
+    font-size: 13px;
+    color: var(--bd-burgundy);
+    margin-bottom: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.bd-slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--bd-gradient-gold);
+    outline: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    box-shadow: inset 0 1px 3px rgba(107, 44, 62, 0.1);
+}
+
+.bd-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(107, 44, 62, 0.3);
+    border: 3px solid var(--bd-gold);
+    transition: var(--bd-transition);
+}
+
+.bd-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(201, 168, 106, 0.5);
+    border-color: var(--bd-gold-light);
+}
+
+.bd-slider::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    border: 3px solid var(--bd-gold);
+    box-shadow: 0 2px 8px rgba(107, 44, 62, 0.3);
+    transition: var(--bd-transition);
+}
+
+/* ============================================================================
+   RESULTS INFO BAR - GOLD ACCENT
+   ========================================================================= */
+.bd-results-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 28px !important;
+    background: white !important;
+    border: 2px solid var(--bd-border-gold) !important;
+    border-radius: var(--bd-radius-md) !important;
+    margin-bottom: 24px !important;
+    box-shadow: var(--bd-shadow-sm);
+    position: relative;
+}
+
+/* Top gold accent */
+.bd-results-info::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--bd-gradient-gold);
+    border-radius: var(--bd-radius-md) var(--bd-radius-md) 0 0;
+}
+
+.bd-result-count {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--bd-burgundy);
+    letter-spacing: -0.01em;
+    font-family: 'Inter', sans-serif;
+}
+
+.bd-sort-options {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--bd-text-secondary);
+}
+
+/* ============================================================================
+   MAP CONTAINER - FRAMED ELEGANCE
+   ========================================================================= */
+#bd-map {
+    height: 600px;
+    margin-bottom: 32px;
+    border: 3px solid var(--bd-border-gold);
+    border-radius: var(--bd-radius-lg) !important;
+    overflow: hidden;
+    box-shadow: var(--bd-shadow-lg);
+    position: relative;
+}
+
+/* Double border effect */
+#bd-map::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    right: 6px;
+    bottom: 6px;
+    border: 1px solid rgba(201, 168, 106, 0.5);
+    border-radius: calc(var(--bd-radius-lg) - 6px);
+    pointer-events: none;
+    z-index: 1000;
+}
+
+/* ============================================================================
+   BUSINESS CARDS - PREMIUM PRESENTATION
+   ========================================================================= */
+#bd-business-list>div {
+    border: 2px solid var(--bd-border-gold) !important;
+    padding: 28px !important;
+    margin-bottom: 20px !important;
+    border-radius: var(--bd-radius-md) !important;
+    background: linear-gradient(135deg, white 0%, var(--bd-champagne) 100%) !important;
+    box-shadow: var(--bd-shadow-sm) !important;
+    transition: var(--bd-transition) !important;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Gold corner accent */
+#bd-business-list>div::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--bd-gold) 0%, transparent 60%);
+    opacity: 0.12;
+    transition: var(--bd-transition);
+}
+
+#bd-business-list>div:hover {
+    box-shadow: var(--bd-shadow-lg), var(--bd-shadow-gold) !important;
+    transform: translateY(-4px);
+    border-color: var(--bd-gold) !important;
+}
+
+#bd-business-list>div:hover::before {
+    opacity: 0.2;
+    width: 80px;
+    height: 80px;
+}
+
+#bd-business-list h3 {
+    font-size: 24px !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
+    margin-bottom: 14px !important;
+    font-family: 'Playfair Display', serif !important;
+    color: var(--bd-burgundy) !important;
+    text-shadow: 1px 1px 0 rgba(201, 168, 106, 0.1);
+}
+
+#bd-business-list h3 a {
+    color: var(--bd-burgundy) !important;
+    text-decoration: none !important;
+    transition: var(--bd-transition) !important;
+    background: linear-gradient(90deg, var(--bd-gold), var(--bd-copper));
+    background-size: 0% 2px;
+    background-repeat: no-repeat;
+    background-position: left bottom;
+}
+
+#bd-business-list h3 a:hover {
+    background-size: 100% 2px;
+    color: var(--bd-burgundy-dark) !important;
+}
+
+/* Category pills - gold accent */
+#bd-business-list span[style*="background"] {
+    background: var(--bd-gradient-accent) !important;
+    color: white !important;
+    padding: 6px 14px !important;
+    border-radius: 20px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    transition: var(--bd-transition) !important;
+    box-shadow: 0 2px 6px rgba(184, 115, 51, 0.3) !important;
+}
+
+#bd-business-list span[style*="background"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(184, 115, 51, 0.5) !important;
+}
+
+/* View Details button - elegant */
+#bd-business-list a[style*="border"] {
+    display: inline-block !important;
+    margin-top: 16px !important;
+    color: var(--bd-gold) !important;
+    text-decoration: none !important;
+    font-weight: 700 !important;
+    padding: 12px 28px !important;
+    background: var(--bd-gradient-elegant) !important;
+    border: 2px solid var(--bd-gold) !important;
+    border-radius: var(--bd-radius-sm) !important;
+    transition: var(--bd-transition) !important;
+    box-shadow: var(--bd-shadow-sm) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    font-size: 13px !important;
+    position: relative;
+    overflow: hidden;
+}
+
+#bd-business-list a[style*="border"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(201, 168, 106, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+#bd-business-list a[style*="border"]:hover::before {
+    left: 100%;
+}
+
+#bd-business-list a[style*="border"]:hover {
+    transform: translateX(4px);
+    box-shadow: var(--bd-shadow-gold) !important;
+    border-color: var(--bd-gold-light) !important;
+}
+
+/* ============================================================================
+   LOADING STATE - ELEGANT SPINNER
+   ========================================================================= */
+.bd-loading {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--bd-burgundy);
+    font-weight: 600;
+}
+
+.bd-loading::before {
+    content: '';
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--bd-border-gold);
+    border-top-color: var(--bd-gold);
+    border-right-color: var(--bd-copper);
+    border-radius: 50%;
+    animation: bd-spin-elegant 1s cubic-bezier(0.5, 0.2, 0.5, 0.8) infinite;
+}
+
+@keyframes bd-spin-elegant {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================================================
+   FILTER COUNT BADGE - GOLD
+   ========================================================================= */
+.bd-filter-count {
+    background: var(--bd-gradient-accent);
+    color: white;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 4px 10px;
+    border-radius: 12px;
+    min-width: 22px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(184, 115, 51, 0.4);
+    border: 1px solid var(--bd-gold-light);
+}
+
+/* ============================================================================
+   MOBILE STYLES
+   ========================================================================= */
+.bd-mobile-only {
+    display: none;
+}
+
+.bd-filter-toggle {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 24px;
+    background: var(--bd-gradient-elegant);
+    color: var(--bd-gold);
+    border: 2px solid var(--bd-gold);
+    border-radius: 50px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 100;
+    box-shadow: var(--bd-shadow-lg);
+    transition: var(--bd-transition);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.bd-filter-toggle:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--bd-shadow-gold);
+    border-color: var(--bd-gold-light);
+}
+
+@media (max-width: 768px) {
+    .bd-mobile-only {
+        display: block;
+    }
+
+    .bd-filter-toggle {
+        display: flex;
+    }
+
+    .bd-filter-panel {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 90%;
+        max-width: 400px;
+        height: 100vh;
+        max-height: 100vh;
+        z-index: 1000;
+        transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        box-shadow: 16px 0 48px rgba(107, 44, 62, 0.4);
+        border-radius: 0;
+        border-left: none;
+    }
+
+    .bd-filter-panel.bd-filter-open {
+        left: 0;
+    }
+
+    .bd-filter-close {
+        display: block;
+    }
+
+    body.bd-filter-panel-open::after {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(107, 44, 62, 0.7) 0%, rgba(74, 31, 44, 0.8) 100%);
+        backdrop-filter: blur(8px);
+        z-index: 999;
+        animation: bd-fade-in 0.3s;
+    }
+
+    @keyframes bd-fade-in {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+}
+
+/* ============================================================================
+   FILTER ACTIONS
+   ========================================================================= */
+.bd-filter-actions {
+    margin-top: 32px;
+    padding-top: 28px;
+    position: relative;
+}
+
+/* Gold separator */
+.bd-filter-actions::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--bd-gradient-gold);
+}
+
+/* ============================================================================
+   CLEAR FILTERS BUTTON - BURGUNDY THEME
+   ========================================================================= */
+#bd-clear-filters {
+    display: inline-block !important;
+    padding: 0 !important;
+    background: none !important;
+    color: #4A1F2C !important;
+    border: none !important;
+    border-radius: 0 !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    box-shadow: none !important;
+    font-family: 'Inter', sans-serif !important;
+    margin: 0 !important;
+    width: auto !important;
+    text-decoration: none !important;
+}
+
+#bd-clear-filters:hover {
+    text-decoration: underline !important;
+    color: #6B2C3E !important;
+    background: none !important;
+    transform: none !important;
+}
+
+#bd-clear-filters:active {
+    transform: none !important;
+}
+
+/* ============================================================================
+   SPECIAL TOUCHES - WINE COUNTRY ELEGANCE
+   ========================================================================= */
+
+/* Subtle texture overlay */
+.bd-filter-panel,
+#bd-business-list>div {
+    background-image:
+        repeating-linear-gradient(90deg,
+            transparent,
+            transparent 2px,
+            rgba(201, 168, 106, 0.02) 2px,
+            rgba(201, 168, 106, 0.02) 4px);
+}
+
+/* Star rating - gold */
+[style*="⭐"] {
+    color: var(--bd-gold) !important;
+    text-shadow: 0 0 2px rgba(201, 168, 106, 0.3);
+}
+
+/* Price level - copper */
+[style*="💰"] {
+    color: var(--bd-copper) !important;
+    font-weight: 700 !important;
+}
+
+/* Distance badge - burgundy */
+[style*="📍"] {
+    color: var(--bd-burgundy) !important;
+    font-weight: 600 !important;
+}
+
+/* ============================================================================
+   FIXES - GO BUTTON, TITLE, FONT AWESOME ICONS
+   ========================================================================= */
+
+/* FIX 1: GO Button - Always visible, themed properly */
+#bd-city-submit {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: var(--bd-gradient-elegant) !important;
+    color: var(--bd-gold) !important;
+    border: 2px solid var(--bd-gold) !important;
+    padding: 12px 24px !important;
+    border-radius: var(--bd-radius-sm) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    cursor: pointer !important;
+    transition: var(--bd-transition) !important;
+    box-shadow: var(--bd-shadow-sm) !important;
+    margin-top: 10px !important;
+    width: 100% !important;
+}
+
+#bd-city-submit:hover {
+    background: var(--bd-burgundy-dark) !important;
+    color: var(--bd-gold-light) !important;
+    border-color: var(--bd-gold-light) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: var(--bd-shadow-gold) !important;
+}
+
+#bd-city-submit:active {
+    transform: translateY(0) !important;
+}
+
+/* FIX 2: Business Directory Title - Elegant styling */
+.bd-directory-page h1,
+.entry-title,
+h1.page-title {
+    font-family: 'Playfair Display', serif !important;
+    color: var(--bd-burgundy) !important;
+    font-weight: 700 !important;
+    font-size: 42px !important;
+    letter-spacing: 0.02em !important;
+    margin-bottom: 32px !important;
+    text-align: center !important;
+    position: relative !important;
+    padding-bottom: 20px !important;
+}
+
+/* Gold underline for title */
+.bd-directory-page h1::after,
+.entry-title::after,
+h1.page-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 3px;
+    background: var(--bd-gradient-gold);
+    border-radius: 2px;
+}
+
+/* Embossed effect for title */
+.bd-directory-page h1::before,
+.entry-title::before,
+h1.page-title::before {
+    content: attr(data-text);
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    color: var(--bd-gold-light);
+    opacity: 0.2;
+    z-index: -1;
+}
+
+/* FIX 3: Font Awesome Icons - Replace Emojis */
+/* Search Icon */
+.bd-filter-label:has(+ #bd-keyword-search)::before {
+    content: '\f002' !important;
+    /* fa-search */
+    font-family: 'Font Awesome 5 Free' !important;
+    font-weight: 900 !important;
+    font-style: normal !important;
+    margin-right: 8px;
+    color: var(--bd-burgundy);
+}
+
+/* Location Icon */
+.bd-filter-group:has(#bd-near-me-btn) .bd-filter-label::before {
+    content: '\f3c5' !important;
+    /* fa-map-marker-alt */
+    font-family: 'Font Awesome 5 Free' !important;
+    font-weight: 900 !important;
+    margin-right: 8px;
+    color: var(--bd-burgundy);
+}
+
+/* Categories Icon */
+.bd-filter-group:has([name="categories[]"]) .bd-filter-label::before {
+    content: '\f02b' !important;
+    /* fa-tag */
+    font-family: 'Font Awesome 5 Free' !important;
+    font-weight: 900 !important;
+    margin-right: 8px;
+    color: var(--bd-burgundy);
+}
+
+/* Areas Icon */
+.bd-filter-group:has([name="areas[]"]) .bd-filter-label::before {
+    content: '\f279' !important;
+    /* fa-map */
+    font-family: 'Font Awesome 5 Free' !important;
+    font-weight: 900 !important;
+    margin-right: 8px;
+    color: var(--bd-burgundy);
+}
+
+/* Price Level Icon */
+.bd-filter-group:has([name="price_level[]"]) .bd-filter-label::before {
+    content: '\f155' !important;
+    /* fa-dollar-sign */
+    font-family: 'Font Awesome 5 Free' !important;
+    font-weight: 900 !important;
+    margin-right: 8px;
+    color: var(--bd-copper);
+}
+
+/* Rating Icon */
+.bd-filter-group:has([name="min_rating"]) .bd-filter-label::before {
+    content: '\f005' !important;
+    /* fa-star */
+    font-family: 'Font Awesome 5 Free' !important;
+    font-weight: 900 !important;
+    margin-right: 8px;
+    color: var(--bd-gold);
+}
+
+/* Open Now Icon */
+.bd-toggle-label::before {
+    content: '\f017' !important;
+    /* fa-clock */
+    font-family: 'Font Awesome 5 Free' !important;
+    font-weight: 900 !important;
+    margin-right: 8px;
+    color: var(--bd-burgundy);
+}
+
+/* Hide emoji text in labels */
+.bd-filter-label {
+    font-size: 0;
+    /* Hide emoji text */
+}
+
+.bd-filter-label::before {
+    font-size: 15px;
+    /* Show Font Awesome icon */
+}
+
+.bd-filter-label::after {
+    font-size: 15px;
+    /* Show label text */
+    content: attr(data-label);
+}
+
+/* Near Me button icon */
+#bd-near-me-btn::before {
+    content: '\f3c5';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    margin-right: 8px;
+}
+
+/* Remove emoji from button text */
+#bd-near-me-btn {
+    font-size: 0;
+}
+
+#bd-near-me-btn::after {
+    content: 'NEAR ME';
+    font-size: 14px;
+}
+
+/* ============================================================================
+   HIDE THEME HEADER - IMMERSIVE FULL-SCREEN EXPERIENCE
+   ========================================================================= */
+
+/* Hide site header on directory page only */
+body.page-template-directory #site-header,
+body[class*="page-id"] #site-header {
+    display: none !important;
+}
+
+/* Remove any top padding/margin from body */
+body.page-template-directory,
+body[class*="page-id"] {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* Remove padding from site container */
+body.page-template-directory .site,
+body.page-template-directory .site-content,
+body.page-template-directory .site-main {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* Full-width immersive experience */
+.bd-directory-page {
+    max-width: 100% !important;
+    padding: 40px 20px 60px !important;
+    margin: 0 !important;
+}
+
+/* Elegant top accent bar (replaces header) */
+body.page-template-directory::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--bd-gradient-gold);
+    z-index: 10000;
+    box-shadow: 0 2px 8px rgba(201, 168, 106, 0.3);
+}
+
+/* Add subtle page title for SEO/context */
+.bd-directory-page::before {
+    content: 'Business Directory';
+    display: block;
+    font-family: 'Playfair Display', serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--bd-burgundy);
+    text-align: center;
+    margin-bottom: 40px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    position: relative;
+    padding-bottom: 24px;
+}
+
+/* Gold underline for title */
+.bd-directory-page::after {
+    content: '';
+    position: absolute;
+    top: 95px;
+    /* Adjust based on title height */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 3px;
+    background: var(--bd-gradient-gold);
+    border-radius: 2px;
+}
+
+/* Hide any default WordPress page titles */
+.bd-directory-page h1.entry-title,
+.bd-directory-page .entry-header,
+body.page-template-directory .entry-title {
+    display: none !important;
+}
+
+/* Ensure directory wrapper is positioned for the gold bar */
+.bd-directory-wrapper {
+    position: relative;
+    padding-top: 4px;
+    /* Space for the fixed gold bar */
+}
+
+/* Optional: Add a subtle "back to home" link in top corner */
+.bd-directory-page::after {
+    content: '← Home';
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--bd-burgundy);
+    text-decoration: none;
+    padding: 10px 20px;
+    background: white;
+    border: 2px solid var(--bd-border-gold);
+    border-radius: 8px;
+    box-shadow: var(--bd-shadow-sm);
+    transition: var(--bd-transition);
+    z-index: 9999;
+    cursor: pointer;
+}
+
+.bd-directory-page::after:hover {
+    background: var(--bd-cream);
+    border-color: var(--bd-gold);
+    box-shadow: var(--bd-shadow-md);
+}
+
+
+/* ============================================================================
+   BEAUTIFUL CSS STARS FOR RATING OPTIONS
+   ========================================================================= */
+
+/* Star option container */
+.bd-star-option {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+}
+
+/* Create the star icon with CSS/SVG */
+.bd-star-option::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23C9A86A'%3E%3Cpath d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 4px rgba(201, 168, 106, 0.3));
+    transition: all 0.3s ease;
+}
+
+/* Hover effect - star glows and grows */
+.bd-radio-label:hover .bd-star-option::before {
+    transform: scale(1.2) rotate(-10deg);
+    filter: drop-shadow(0 4px 8px rgba(201, 168, 106, 0.6));
+}
+
+/* When radio is checked, star gets special treatment */
+.bd-radio-label:has(input:checked) .bd-star-option::before {
+    filter: drop-shadow(0 0 8px rgba(201, 168, 106, 0.8));
+    animation: star-sparkle 0.6s ease-in-out;
+}
+
+/* Sparkle animation when selected */
+@keyframes star-sparkle {
+
+    0%,
+    100% {
+        transform: scale(1) rotate(0deg);
+    }
+
+    25% {
+        transform: scale(1.3) rotate(-15deg);
+    }
+
+    50% {
+        transform: scale(1.1) rotate(15deg);
+    }
+
+    75% {
+        transform: scale(1.2) rotate(-5deg);
+    }
+}
+
+/* Remove "All ratings" star since it doesn't need one */
+.bd-radio-label:has([value=""]) .bd-star-option::before {
+    display: none;
+}
+
+/* Different star colors based on rating level */
+.bd-star-option[data-stars="4"]::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23E4D4B4'%3E%3Cpath d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'/%3E%3C/svg%3E");
+}
+
+.bd-star-option[data-stars="3"]::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23C9A86A'%3E%3Cpath d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'/%3E%3C/svg%3E");
+}
+
+.bd-star-option[data-stars="2"]::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23B8935A'%3E%3Cpath d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'/%3E%3C/svg%3E");
+}
+
+.bd-star-option[data-stars="1"]::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23B87333'%3E%3Cpath d='M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z'/%3E%3C/svg%3E");
+}
+
+/* Pulse effect on hover for all stars */
+.bd-radio-label:hover .bd-star-option::before {
+    animation: star-pulse 0.5s ease-in-out infinite;
+}
+
+@keyframes star-pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.7;
+    }
+}
+
+/* Stop pulsing when checked */
+.bd-radio-label:has(input:checked):hover .bd-star-option::before {
+    animation: none;
+}
+
+/* Optional: Add multiple stars for higher ratings */
+.bd-star-option[data-stars="4"]::after {
+    content: '✨';
+    font-size: 12px;
+    margin-left: -4px;
+    opacity: 0.6;
+}
+
+/* Make the star option text stand out when selected */
+.bd-radio-label:has(input:checked) .bd-star-option {
+    color: var(--bd-burgundy) !important;
+    font-weight: 700 !important;
+}
+
+/* Gradient background for selected rating */
+.bd-radio-label:has(input:checked) {
+    background: linear-gradient(135deg, rgba(201, 168, 106, 0.15) 0%, rgba(247, 239, 226, 0.2) 100%) !important;
+}
+
+/* ============================================================================
+   LEAFLET MAP POPUP - PREMIUM REDESIGN
+   ========================================================================= */
+
+/* Popup wrapper */
+.leaflet-popup-content-wrapper {
+    background: white !important;
+    border: none !important;
+    border-radius: 16px !important;
+    box-shadow: 0 12px 40px rgba(107, 44, 62, 0.2) !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    min-width: 320px !important;
+    max-width: 380px !important;
+}
+
+/* Gold accent bar at top */
+.leaflet-popup-content-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #C9A86A 0%, #E4D4B4 50%, #C9A86A 100%);
+    z-index: 1;
+}
+
+/* Popup content container */
+.leaflet-popup-content {
+    margin: 0 !important;
+    padding: 24px !important;
+    font-family: 'Inter', -apple-system, sans-serif !important;
+    line-height: 1.6 !important;
+}
+
+/* Custom popup content wrapper */
+.bd-popup-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Business Title */
+.bd-popup-title {
+    font-family: 'Playfair Display', serif !important;
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    color: #6B2C3E !important;
+    margin: 0 !important;
+    line-height: 1.3 !important;
+    letter-spacing: -0.02em !important;
+    padding-bottom: 12px !important;
+    border-bottom: 2px solid rgba(201, 168, 106, 0.2) !important;
+}
+
+.bd-popup-title a {
+    color: #6B2C3E !important;
+    text-decoration: none !important;
+    transition: color 0.3s ease !important;
+}
+
+.bd-popup-title a:hover {
+    color: #8B3A52 !important;
+}
+
+/* Meta row (rating + price side by side) */
+.bd-popup-meta {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    padding: 12px 0;
+}
+
+/* Rating */
+.bd-popup-rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.bd-popup-rating i {
+    color: #C9A86A;
+    font-size: 16px;
+    filter: drop-shadow(0 2px 4px rgba(201, 168, 106, 0.3));
+}
+
+.bd-popup-rating .rating-value {
+    color: #6B2C3E;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.bd-popup-rating .rating-count {
+    color: #6D5F52;
+    font-size: 13px;
+    font-weight: 400;
+}
+
+/* Price Level */
+.bd-popup-price {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #B87333;
+    padding-left: 16px;
+    border-left: 1px solid rgba(201, 168, 106, 0.3);
+}
+
+.bd-popup-price i {
+    color: #B87333;
+    font-size: 14px;
+}
+
+/* ============================================================================
+   ENHANCED SERVICES/CATEGORIES TAG IN POPUP
+   ========================================================================= */
+
+/* Categories box - elegant pill design */
+.bd-popup-categories {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(139, 58, 82, 0.08) 0%, rgba(107, 44, 62, 0.05) 100%);
+    border-radius: 10px;
+    font-size: 14px;
+    color: #6B2C3E;
+    font-weight: 600;
+    border: 1px solid rgba(107, 44, 62, 0.15);
+    box-shadow: inset 0 1px 3px rgba(107, 44, 62, 0.05);
+    transition: all 0.3s ease;
+}
+
+.bd-popup-categories:hover {
+    background: linear-gradient(135deg, rgba(139, 58, 82, 0.12) 0%, rgba(107, 44, 62, 0.08) 100%);
+    border-color: rgba(201, 168, 106, 0.4);
+    transform: translateX(2px);
+}
+
+.bd-popup-categories svg {
+    flex-shrink: 0;
+    filter: drop-shadow(0 1px 2px rgba(107, 44, 62, 0.2));
+}
+
+.bd-popup-categories span {
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.01em;
+}
+
+/* If there are multiple categories, show them as pills */
+.bd-popup-categories-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 0;
+}
+
+.bd-popup-category-pill {
+    display: inline-block;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 100%);
+    color: #E4D4B4;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: 1px solid #C9A86A;
+    box-shadow: 0 2px 4px rgba(107, 44, 62, 0.15);
+    transition: all 0.3s ease;
+}
+
+.bd-popup-category-pill:hover {
+    background: linear-gradient(135deg, #8B3A52 0%, #6B2C3E 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(201, 168, 106, 0.3);
+}
+
+/* SVG icons in popup - ensure they render properly */
+.bd-popup-content svg {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Star icon specific */
+.bd-popup-rating svg {
+    filter: drop-shadow(0 2px 4px rgba(201, 168, 106, 0.4));
+}
+
+/* Dollar icon specific */
+.bd-popup-price svg {
+    opacity: 0.9;
+}
+
+/* Pin icon specific */
+.bd-popup-distance svg {
+    filter: drop-shadow(0 1px 3px rgba(139, 58, 82, 0.3));
+}
+
+.bd-popup-categories i {
+    color: #6B2C3E;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+/* Distance */
+.bd-popup-distance {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #6B2C3E;
+    padding: 8px 0;
+}
+
+.bd-popup-distance i {
+    color: #8B3A52;
+    font-size: 16px;
+}
+
+/* CTA Button */
+.bd-popup-cta {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    padding: 14px 24px !important;
+    background: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 100%) !important;
+    color: #E4D4B4 !important;
+    text-decoration: none !important;
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    font-size: 15px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    border: 2px solid #C9A86A !important;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    margin-top: 8px !important;
+    box-shadow: 0 4px 12px rgba(107, 44, 62, 0.2) !important;
+}
+
+.bd-popup-cta:hover {
+    background: linear-gradient(135deg, #8B3A52 0%, #6B2C3E 100%) !important;
+    border-color: #E4D4B4 !important;
+    color: white !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 20px rgba(201, 168, 106, 0.4) !important;
+}
+
+.bd-popup-cta i {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+.bd-popup-cta:hover i {
+    transform: translateX(4px);
+}
+
+/* Close Button */
+.leaflet-popup-close-button {
+    color: #6B2C3E !important;
+    font-size: 28px !important;
+    font-weight: 300 !important;
+    padding: 4px !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    transition: all 0.3s ease !important;
+    right: 12px !important;
+    top: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+}
+
+.leaflet-popup-close-button:hover {
+    background: rgba(201, 168, 106, 0.2) !important;
+    color: #8B3A52 !important;
+    transform: rotate(90deg) !important;
+}
+
+/* Popup Tip (Arrow) */
+.leaflet-popup-tip {
+    background: white !important;
+    border: none !important;
+    box-shadow: 0 4px 8px rgba(107, 44, 62, 0.15) !important;
+}
+
+/* Animation when popup opens */
+.leaflet-popup {
+    animation: popup-appear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popup-appear {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ============================================================================
+   ADD BUSINESS CTA BUTTON
+   ========================================================================= */
+
+.bd-add-business-cta {
+    margin-bottom: 24px;
+}
+
+.bd-add-business-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+    padding: 16px 24px !important;
+    background: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 50%, #B8935A 100%) !important;
+    color: #E4D4B4 !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-family: 'Inter', -apple-system, sans-serif !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 16px rgba(107, 44, 62, 0.3) !important;
+    line-height: 1 !important;
+}
+
+.bd-add-business-btn:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 24px rgba(201, 168, 106, 0.5) !important;
+    background: linear-gradient(135deg, #8B3A52 0%, #B8935A 50%, #C9A86A 100%) !important;
+    animation: none !important;
+}
+
+.bd-add-business-btn svg {
+    width: 18px !important;
+    height: 18px !important;
+    flex-shrink: 0 !important;
+    display: block !important;
+}
+
+/* Pulsing effect to draw attention */
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 4px 16px rgba(107, 44, 62, 0.3);
+    }
+
+    50% {
+        box-shadow: 0 4px 24px rgba(201, 168, 106, 0.6);
+    }
+}
+
+.bd-add-business-btn {
+    animation: pulse-glow 3s ease-in-out infinite;
+}
+
+.bd-add-business-btn:hover {
+    animation: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .leaflet-popup-content-wrapper {
+        min-width: 280px !important;
+        max-width: 320px !important;
+    }
+
+    .bd-popup-title {
+        font-size: 20px !important;
+    }
+
+    .bd-popup-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .bd-popup-price {
+        padding-left: 0;
+        border-left: none;
+    }
+}

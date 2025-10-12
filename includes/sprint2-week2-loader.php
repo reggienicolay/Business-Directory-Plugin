@@ -18,26 +18,28 @@ require_once plugin_dir_path(__FILE__) . '../src/Utils/Cache.php';
 // Load and initialize API
 require_once plugin_dir_path(__FILE__) . '../src/API/BusinessEndpoint.php';
 
-// Load database indexes
-if (file_exists(plugin_dir_path(__FILE__) . '../includes/database-indexes.php')) {
-    require_once plugin_dir_path(__FILE__) . '../includes/database-indexes.php';
-}
+// Load and initialize Frontend
+require_once plugin_dir_path(__FILE__) . '../src/Frontend/Filters.php';
 
-// Enqueue scripts and styles for filter shortcodes
+// Enqueue scripts and styles
 add_action('wp_enqueue_scripts', function() {
     global $post;
     
-    // Check if page has either shortcode
-    $has_filters = false;
+    $plugin_url = plugin_dir_url(dirname(__FILE__));
+    
+    // Check if we're on a directory page
+    $has_directory = false;
     if (is_a($post, 'WP_Post')) {
-        $has_filters = has_shortcode($post->post_content, 'business_filters') || 
-              has_shortcode($post->post_content, 'business_directory_complete') ||
-              has_shortcode($post->post_content, 'bd_directory');
+        $has_directory = has_shortcode($post->post_content, 'business_filters') || 
+                        has_shortcode($post->post_content, 'business_directory_complete') ||
+                        has_shortcode($post->post_content, 'bd_directory');
     }
+    
+    // Check if we're on a single business page
+    $is_business_page = is_singular('bd_business') || is_singular('business');
 
-    if ($has_filters) {
-        $plugin_url = plugins_url('', dirname(__FILE__));
-        
+    // Load directory assets
+    if ($has_directory) {
         // Enqueue Leaflet CSS
         wp_enqueue_style(
             'leaflet',
@@ -57,16 +59,24 @@ add_action('wp_enqueue_scripts', function() {
         wp_enqueue_style(
             'leaflet-markercluster-default',
             'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css',
-            ['leaflet'],
+            ['leaflet-markercluster'],
             '1.5.3'
+        );
+        
+        // Font Awesome
+        wp_enqueue_style(
+            'font-awesome',
+            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css',
+            [],
+            '5.15.4'
         );
         
         // Enqueue filter CSS
         wp_enqueue_style(
             'bd-filters',
-            $plugin_url . '/assets/css/filters.css',
-            [],
-            '1.0.4'
+            $plugin_url . 'assets/css/filters-premium.css',
+            ['font-awesome'],
+            '3.1.0'
         );
         
         // Enqueue Leaflet JS
@@ -86,29 +96,51 @@ add_action('wp_enqueue_scripts', function() {
             '1.5.3',
             true
         );
-
-        // Enqueue map JS
-        wp_enqueue_script(
-            'bd-map',
-            $plugin_url . '/assets/js/directory-map.js',
-            ['jquery', 'leaflet', 'leaflet-markercluster'],
-            '1.0.4',
-            true
-        );
         
-        // Enqueue filter JS
+        // Enqueue our unified directory JS
         wp_enqueue_script(
-            'bd-filters',
-            $plugin_url . '/assets/js/directory-filters.js',
-            ['jquery', 'bd-map'],
-            '1.0.4',
+            'bd-directory',
+            $plugin_url . 'assets/js/business-directory.js',
+            ['jquery', 'leaflet', 'leaflet-markercluster'],
+            '2.1.0',
             true
         );
 
         // Pass API URL and nonce to JavaScript
-        wp_localize_script('bd-filters', 'bdVars', [
-            'apiUrl' => home_url('/wp-json/bd/v1/'),
+        wp_localize_script('bd-directory', 'bdVars', [
+            'apiUrl' => rest_url('bd/v1/'),
             'nonce' => wp_create_nonce('wp_rest'),
         ]);
     }
-}, 20);
+    
+    // Load business detail page assets
+    if ($is_business_page) {
+        // Font Awesome (if not already loaded)
+        if (!wp_style_is('font-awesome', 'enqueued')) {
+            wp_enqueue_style(
+                'font-awesome',
+                'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css',
+                [],
+                '5.15.4'
+            );
+        }
+        
+        // Business detail premium CSS
+        wp_enqueue_style(
+            'bd-business-detail',
+            $plugin_url . 'assets/css/business-detail-premium.css',
+            ['font-awesome'],
+            '1.0.1'
+        );
+
+        // Enqueue business detail JS
+        wp_enqueue_script(
+            'bd-business-detail',
+            $plugin_url . 'assets/js/business-detail.js',
+            ['jquery'],
+            '1.0.0',
+            true
+        );
+    }
+}, 20);        
+        

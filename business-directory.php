@@ -59,12 +59,6 @@ add_action('plugins_loaded', function() {
     Plugin::instance();
 });
 
-// Load Sprint 2 Week 2 Features
-
-
-
-
-
 // Load Sprint 2 Week 2 - Search Infrastructure
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/sprint2-week2-loader.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/sprint2-week2-loader.php';
@@ -79,3 +73,23 @@ if (file_exists(plugin_dir_path(__FILE__) . 'includes/sprint2-week2-script2-load
 if (file_exists(plugin_dir_path(__FILE__) . 'includes/sprint2-week2-script3-loader.php')) {
     require_once plugin_dir_path(__FILE__) . 'includes/sprint2-week2-script3-loader.php';
 }
+
+/**
+ * Custom template for single business pages
+ */
+add_filter('single_template', 'BD\bd_custom_business_template');
+function bd_custom_business_template($single_template) {
+    global $post;
+    
+    if (isset($post->post_type) && ($post->post_type == 'bd_business' || $post->post_type == 'business')) {
+        $plugin_template = plugin_dir_path(__FILE__) . 'templates/single-business-premium.php';
+        if (file_exists($plugin_template)) {
+            return $plugin_template;
+        }
+    }
+    
+    return $single_template;
+}
+
+// Load submission endpoint
+require_once plugin_dir_path(__FILE__) . 'src/API/SubmissionEndpoint.php';

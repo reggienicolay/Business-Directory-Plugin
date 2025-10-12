@@ -26,7 +26,13 @@
     padding: 4px 0 !important;
     margin: 0 !important;
 }
-
+/* Remove WordPress auto-injected line breaks */
+.bd-filter-panel br,
+.bd-checkbox-group br,
+.bd-radio-group br,
+.bd-filter-group br {
+    display: none !important;
+}
 /* ============================================================================
    Filter Panel Container
    ========================================================================= */
