@@ -5,384 +5,384 @@
 
 /* Modal Overlay */
 .bd-claim-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 100000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    pointer-events: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	pointer-events: none;
 }
 
 .bd-claim-modal.active {
-    opacity: 1;
-    pointer-events: all;
+	opacity: 1;
+	pointer-events: all;
 }
 
 .bd-claim-modal-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(107, 44, 62, 0.85);
-    backdrop-filter: blur(4px);
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(107, 44, 62, 0.85);
+	backdrop-filter: blur(4px);
 }
 
 /* Modal Content */
 .bd-claim-modal-content {
-    position: relative;
-    background: white;
-    border-radius: 16px;
-    max-width: 600px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    transform: scale(0.9);
-    transition: transform 0.3s ease;
+	position: relative;
+	background: white;
+	border-radius: 16px;
+	max-width: 600px;
+	width: 100%;
+	max-height: 90vh;
+	overflow-y: auto;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+	transform: scale(0.9);
+	transition: transform 0.3s ease;
 }
 
 .bd-claim-modal.active .bd-claim-modal-content {
-    transform: scale(1);
+	transform: scale(1);
 }
 
 /* Modal Header */
 .bd-claim-modal-header {
-    text-align: center;
-    padding: 40px 40px 32px;
-    background: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 100%);
-    color: white;
-    position: relative;
+	text-align: center;
+	padding: 40px 40px 32px;
+	background: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 100%);
+	color: white;
+	position: relative;
 }
 
 .bd-claim-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto 16px;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(10px);
+	width: 64px;
+	height: 64px;
+	margin: 0 auto 16px;
+	background: rgba(255, 255, 255, 0.15);
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	backdrop-filter: blur(10px);
 }
 
 .bd-claim-icon svg {
-    color: #C9A86A;
+	color: #C9A86A;
 }
 
 .bd-claim-modal-header h2 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 32px;
-    font-weight: 700;
-    margin: 0 0 8px 0;
-    color: #E4D4B4;
+	font-family: 'Playfair Display', Georgia, serif;
+	font-size: 32px;
+	font-weight: 700;
+	margin: 0 0 8px 0;
+	color: #E4D4B4;
 }
 
 .bd-claim-subtitle {
-    font-size: 16px;
-    color: rgba(255, 255, 255, 0.9);
-    margin: 0;
+	font-size: 16px;
+	color: rgba(255, 255, 255, 0.9);
+	margin: 0;
 }
 
 .bd-claim-close {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.1);
-    border: none;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s;
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	width: 40px;
+	height: 40px;
+	background: rgba(255, 255, 255, 0.1);
+	border: none;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.2s;
 }
 
 .bd-claim-close:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: rotate(90deg);
+	background: rgba(255, 255, 255, 0.2);
+	transform: rotate(90deg);
 }
 
 .bd-claim-close svg {
-    stroke: white;
+	stroke: white;
 }
 
 /* Form Sections */
 .bd-claim-form {
-    padding: 32px 40px 40px;
+	padding: 32px 40px 40px;
 }
 
 .bd-claim-section {
-    margin-bottom: 32px;
+	margin-bottom: 32px;
 }
 
 .bd-claim-section h3 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 20px;
-    color: #6B2C3E;
-    margin: 0 0 16px 0;
+	font-family: 'Playfair Display', Georgia, serif;
+	font-size: 20px;
+	color: #6B2C3E;
+	margin: 0 0 16px 0;
 }
 
 .bd-claim-help {
-    font-size: 14px;
-    color: #6D5F52;
-    margin: -8px 0 16px 0;
-    line-height: 1.5;
+	font-size: 14px;
+	color: #6D5F52;
+	margin: -8px 0 16px 0;
+	line-height: 1.5;
 }
 
 /* Form Fields */
 .bd-claim-field {
-    margin-bottom: 20px;
+	margin-bottom: 20px;
 }
 
 .bd-claim-field label {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    color: #2C2420;
-    margin-bottom: 8px;
+	display: block;
+	font-size: 14px;
+	font-weight: 600;
+	color: #2C2420;
+	margin-bottom: 8px;
 }
 
 .bd-claim-field input,
 .bd-claim-section textarea {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #E8DFD3;
-    border-radius: 8px;
-    font-size: 15px;
-    font-family: 'Inter', sans-serif;
-    color: #2C2420;
-    transition: all 0.2s;
+	width: 100%;
+	padding: 12px 16px;
+	border: 2px solid #E8DFD3;
+	border-radius: 8px;
+	font-size: 15px;
+	font-family: 'Inter', sans-serif;
+	color: #2C2420;
+	transition: all 0.2s;
 }
 
 .bd-claim-field input:focus,
 .bd-claim-section textarea:focus {
-    outline: none;
-    border-color: #C9A86A;
-    box-shadow: 0 0 0 3px rgba(201, 168, 106, 0.1);
+	outline: none;
+	border-color: #C9A86A;
+	box-shadow: 0 0 0 3px rgba(201, 168, 106, 0.1);
 }
 
 .required {
-    color: #d63638;
+	color: #d63638;
 }
 
 /* Radio Group */
 .bd-claim-radio-group {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 }
 
 .bd-claim-radio {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    padding: 16px;
-    border: 2px solid #E8DFD3;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s;
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 16px;
+	border: 2px solid #E8DFD3;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: all 0.2s;
 }
 
 .bd-claim-radio:hover {
-    border-color: #C9A86A;
-    background: #FFF8F0;
+	border-color: #C9A86A;
+	background: #FFF8F0;
 }
 
 .bd-claim-radio input[type="radio"] {
-    margin-top: 2px;
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
+	margin-top: 2px;
+	width: 20px;
+	height: 20px;
+	cursor: pointer;
 }
 
 .bd-claim-radio input[type="radio"]:checked + .bd-radio-label {
-    color: #6B2C3E;
+	color: #6B2C3E;
 }
 
 .bd-claim-radio:has(input:checked) {
-    border-color: #C9A86A;
-    background: linear-gradient(135deg, rgba(201, 168, 106, 0.05) 0%, rgba(107, 44, 62, 0.03) 100%);
+	border-color: #C9A86A;
+	background: linear-gradient(135deg, rgba(201, 168, 106, 0.05) 0%, rgba(107, 44, 62, 0.03) 100%);
 }
 
 .bd-radio-label {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
 }
 
 .bd-radio-label strong {
-    font-size: 15px;
-    color: #2C2420;
+	font-size: 15px;
+	color: #2C2420;
 }
 
 .bd-radio-label small {
-    font-size: 13px;
-    color: #6D5F52;
+	font-size: 13px;
+	color: #6D5F52;
 }
 
 /* File Upload */
 .bd-claim-file-upload {
-    text-align: center;
+	text-align: center;
 }
 
 .bd-file-upload-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 14px 28px;
-    background: white;
-    border: 2px dashed #C9A86A;
-    border-radius: 8px;
-    color: #6B2C3E;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 14px 28px;
+	background: white;
+	border: 2px dashed #C9A86A;
+	border-radius: 8px;
+	color: #6B2C3E;
+	font-size: 15px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
 }
 
 .bd-file-upload-btn:hover {
-    background: #FFF8F0;
-    border-color: #B8935A;
+	background: #FFF8F0;
+	border-color: #B8935A;
 }
 
 .bd-file-list {
-    margin-top: 16px;
-    text-align: left;
+	margin-top: 16px;
+	text-align: left;
 }
 
 .bd-file-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px;
-    background: #FAFAF8;
-    border: 1px solid #E8DFD3;
-    border-radius: 6px;
-    margin-bottom: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px;
+	background: #FAFAF8;
+	border: 1px solid #E8DFD3;
+	border-radius: 6px;
+	margin-bottom: 8px;
 }
 
 .bd-file-name {
-    font-size: 14px;
-    color: #2C2420;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+	font-size: 14px;
+	color: #2C2420;
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .bd-file-name svg {
-    color: #C9A86A;
+	color: #C9A86A;
 }
 
 .bd-file-remove {
-    background: none;
-    border: none;
-    color: #d63638;
-    cursor: pointer;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 4px;
-    transition: background 0.2s;
+	background: none;
+	border: none;
+	color: #d63638;
+	cursor: pointer;
+	padding: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 4px;
+	transition: background 0.2s;
 }
 
 .bd-file-remove:hover {
-    background: rgba(214, 54, 56, 0.1);
+	background: rgba(214, 54, 56, 0.1);
 }
 
 .bd-file-hint {
-    font-size: 12px;
-    color: #6D5F52;
-    margin-top: 12px;
+	font-size: 12px;
+	color: #6D5F52;
+	margin-top: 12px;
 }
 
 /* Actions */
 .bd-claim-actions {
-    margin-top: 32px;
+	margin-top: 32px;
 }
 
 .bd-btn-large {
-    width: 100%;
-    padding: 16px 32px !important;
-    font-size: 16px !important;
-    justify-content: center !important;
+	width: 100%;
+	padding: 16px 32px !important;
+	font-size: 16px !important;
+	justify-content: center !important;
 }
 
 /* Messages */
 .bd-claim-message {
-    margin-top: 20px;
-    padding: 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    display: none;
+	margin-top: 20px;
+	padding: 16px;
+	border-radius: 8px;
+	font-size: 14px;
+	display: none;
 }
 
 .bd-claim-message.success {
-    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
-    border: 2px solid #4CAF50;
-    color: #2E7D32;
-    display: block;
+	background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
+	border: 2px solid #4CAF50;
+	color: #2E7D32;
+	display: block;
 }
 
 .bd-claim-message.error {
-    background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(244, 67, 54, 0.05) 100%);
-    border: 2px solid #F44336;
-    color: #C62828;
-    display: block;
+	background: linear-gradient(135deg, rgba(244, 67, 54, 0.1) 0%, rgba(244, 67, 54, 0.05) 100%);
+	border: 2px solid #F44336;
+	color: #C62828;
+	display: block;
 }
 
 /* Loading State */
 .bd-claim-form.loading {
-    opacity: 0.6;
-    pointer-events: none;
+	opacity: 0.6;
+	pointer-events: none;
 }
 
 .bd-claim-form.loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 40px;
-    height: 40px;
-    margin: -20px 0 0 -20px;
-    border: 4px solid #E8DFD3;
-    border-top-color: #C9A86A;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 40px;
+	height: 40px;
+	margin: -20px 0 0 -20px;
+	border: 4px solid #E8DFD3;
+	border-top-color: #C9A86A;
+	border-radius: 50%;
+	animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+	to { transform: rotate(360deg); }
 }
 
 /* Responsive */
 @media (max-width: 640px) {
-    .bd-claim-modal-content {
-        max-width: calc(100% - 32px);
-        max-height: 95vh;
-    }
-    
-    .bd-claim-modal-header,
-    .bd-claim-form {
-        padding: 24px;
-    }
-    
-    .bd-claim-modal-header h2 {
-        font-size: 24px;
-    }
-    
-    .bd-claim-section h3 {
-        font-size: 18px;
-    }
+	.bd-claim-modal-content {
+		max-width: calc(100% - 32px);
+		max-height: 95vh;
+	}
+
+	.bd-claim-modal-header,
+	.bd-claim-form {
+		padding: 24px;
+	}
+
+	.bd-claim-modal-header h2 {
+		font-size: 24px;
+	}
+
+	.bd-claim-section h3 {
+		font-size: 18px;
+	}
 }

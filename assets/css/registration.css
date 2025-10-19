@@ -1,386 +1,386 @@
 /* Love Livermore Registration Page - Premium Burgundy/Gold Theme */
 
 :root {
-    --bd-burgundy: #6B2C3E;
-    --bd-burgundy-dark: #4A1F2C;
-    --bd-burgundy-light: #8B3A52;
-    --bd-gold: #C9A86A;
-    --bd-gold-dark: #B8935A;
-    --bd-gold-light: #E4D4B4;
-    --bd-cream: #F7EFE2;
+	--bd-burgundy: #6B2C3E;
+	--bd-burgundy-dark: #4A1F2C;
+	--bd-burgundy-light: #8B3A52;
+	--bd-gold: #C9A86A;
+	--bd-gold-dark: #B8935A;
+	--bd-gold-light: #E4D4B4;
+	--bd-cream: #F7EFE2;
 }
 
 /* Remove page title */
 body.page .site-branding .site-title {
-    display: none !important;
+	display: none !important;
 }
 
 .ll-registration-page {
-    min-height: 100vh;
-    background: linear-gradient(135deg, var(--bd-burgundy) 0%, var(--bd-burgundy-light) 100%);
-    padding: 40px 20px;
-    width: 100vw !important;
-    max-width: 100vw !important;
-    margin-left: calc(50% - 50vw) !important;
-    position: relative;
+	min-height: 100vh;
+	background: linear-gradient(135deg, var(--bd-burgundy) 0%, var(--bd-burgundy-light) 100%);
+	padding: 40px 20px;
+	width: 100vw !important;
+	max-width: 100vw !important;
+	margin-left: calc(50% - 50vw) !important;
+	position: relative;
 }
 
 /* Gold accent bar at top */
 .ll-registration-page::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--bd-gold) 0%, var(--bd-gold-light) 50%, var(--bd-cream) 100%);
-    z-index: 10000;
-    box-shadow: 0 2px 8px rgba(201, 168, 106, 0.3);
+	content: '';
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 4px;
+	background: linear-gradient(90deg, var(--bd-gold) 0%, var(--bd-gold-light) 50%, var(--bd-cream) 100%);
+	z-index: 10000;
+	box-shadow: 0 2px 8px rgba(201, 168, 106, 0.3);
 }
 
 /* Decorative background pattern */
 .ll-registration-page::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 800px;
-    height: 800px;
-    background: radial-gradient(circle, rgba(201, 168, 106, 0.15) 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
+	content: '';
+	position: absolute;
+	top: -50%;
+	right: -20%;
+	width: 800px;
+	height: 800px;
+	background: radial-gradient(circle, rgba(201, 168, 106, 0.15) 0%, transparent 70%);
+	border-radius: 50%;
+	pointer-events: none;
 }
 
 .ll-reg-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    align-items: center;
-    position: relative;
-    z-index: 1;
+	max-width: 1200px;
+	margin: 0 auto;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 60px;
+	align-items: center;
+	position: relative;
+	z-index: 1;
 }
 
 @media (max-width: 968px) {
-    .ll-reg-container {
-        grid-template-columns: 1fr;
-        gap: 40px;
-    }
-    
-    .ll-reg-benefits {
-        text-align: center;
-    }
+	.ll-reg-container {
+		grid-template-columns: 1fr;
+		gap: 40px;
+	}
+
+	.ll-reg-benefits {
+		text-align: center;
+	}
 }
 
 /* ============================================================================
-   LEFT SIDE - Benefits
-   ========================================================================= */
+	LEFT SIDE - Benefits
+	========================================================================= */
 
 .ll-reg-benefits {
-    color: white;
+	color: white;
 }
 
 .ll-reg-logo {
-    margin-bottom: 30px;
+	margin-bottom: 30px;
 }
 
 .ll-reg-logo img {
-    max-width: 200px;
-    height: auto;
+	max-width: 200px;
+	height: auto;
 }
 
 .ll-reg-benefits h1 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 48px;
-    font-weight: 700;
-    margin-bottom: 16px;
-    color: var(--bd-gold-light);
-    text-shadow: 2px 4px 8px rgba(0, 0, 0, 0.3);
+	font-family: 'Playfair Display', Georgia, serif;
+	font-size: 48px;
+	font-weight: 700;
+	margin-bottom: 16px;
+	color: var(--bd-gold-light);
+	text-shadow: 2px 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .ll-reg-subtitle {
-    font-size: 20px;
-    opacity: 0.9;
-    margin-bottom: 40px;
-    color: rgba(255, 255, 255, 0.95);
+	font-size: 20px;
+	opacity: 0.9;
+	margin-bottom: 40px;
+	color: rgba(255, 255, 255, 0.95);
 }
 
 .ll-reg-features {
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-    margin-bottom: 40px;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	margin-bottom: 40px;
 }
 
 .ll-feature {
-    display: flex;
-    align-items: flex-start;
-    gap: 16px;
-    padding: 16px;
-    background: rgba(201, 168, 106, 0.1);
-    border-radius: 12px;
-    border-left: 3px solid var(--bd-gold);
-    transition: all 0.3s ease;
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+	padding: 16px;
+	background: rgba(201, 168, 106, 0.1);
+	border-radius: 12px;
+	border-left: 3px solid var(--bd-gold);
+	transition: all 0.3s ease;
 }
 
 .ll-feature:hover {
-    background: rgba(201, 168, 106, 0.15);
-    transform: translateX(8px);
+	background: rgba(201, 168, 106, 0.15);
+	transform: translateX(8px);
 }
 
 .ll-feature-icon {
-    font-size: 32px;
-    line-height: 1;
+	font-size: 32px;
+	line-height: 1;
 }
 
 .ll-feature-text h3 {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: var(--bd-gold-light);
+	font-size: 18px;
+	font-weight: 600;
+	margin-bottom: 4px;
+	color: var(--bd-gold-light);
 }
 
 .ll-feature-text p {
-    font-size: 14px;
-    opacity: 0.85;
-    margin: 0;
-    color: rgba(255, 255, 255, 0.9);
+	font-size: 14px;
+	opacity: 0.85;
+	margin: 0;
+	color: rgba(255, 255, 255, 0.9);
 }
 
 .ll-badge-preview {
-    background: rgba(201, 168, 106, 0.15);
-    border: 2px solid rgba(201, 168, 106, 0.3);
-    border-radius: 12px;
-    padding: 24px;
-    backdrop-filter: blur(10px);
+	background: rgba(201, 168, 106, 0.15);
+	border: 2px solid rgba(201, 168, 106, 0.3);
+	border-radius: 12px;
+	padding: 24px;
+	backdrop-filter: blur(10px);
 }
 
 .ll-preview-label {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--bd-gold-light);
+	font-size: 14px;
+	font-weight: 600;
+	margin-bottom: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: var(--bd-gold-light);
 }
 
 .ll-badge-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 8px;
 }
 
 .ll-badge-mini {
-    background: rgba(201, 168, 106, 0.25);
-    border: 1px solid rgba(201, 168, 106, 0.4);
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    text-align: center;
-    cursor: help;
-    transition: all 0.2s;
-    color: var(--bd-gold-light);
+	background: rgba(201, 168, 106, 0.25);
+	border: 1px solid rgba(201, 168, 106, 0.4);
+	padding: 8px 12px;
+	border-radius: 8px;
+	font-size: 12px;
+	font-weight: 600;
+	text-align: center;
+	cursor: help;
+	transition: all 0.2s;
+	color: var(--bd-gold-light);
 }
 
 .ll-badge-mini:hover {
-    background: rgba(201, 168, 106, 0.35);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(201, 168, 106, 0.3);
+	background: rgba(201, 168, 106, 0.35);
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(201, 168, 106, 0.3);
 }
 
 /* ============================================================================
-   RIGHT SIDE - Form
-   ========================================================================= */
+	RIGHT SIDE - Form
+	========================================================================= */
 
 .ll-reg-form-card {
-    background: white;
-    border-radius: 16px;
-    padding: 48px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-    border-top: 4px solid var(--bd-gold);
+	background: white;
+	border-radius: 16px;
+	padding: 48px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+	border-top: 4px solid var(--bd-gold);
 }
 
 .ll-reg-form-card h2 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 28px;
-    font-weight: 700;
-    margin-bottom: 24px;
-    color: var(--bd-burgundy);
+	font-family: 'Playfair Display', Georgia, serif;
+	font-size: 28px;
+	font-weight: 700;
+	margin-bottom: 24px;
+	color: var(--bd-burgundy);
 }
 
 .ll-reg-notice {
-    padding: 16px;
-    border-radius: 8px;
-    margin-bottom: 24px;
-    font-size: 14px;
+	padding: 16px;
+	border-radius: 8px;
+	margin-bottom: 24px;
+	font-size: 14px;
 }
 
 .ll-notice-success {
-    background: #d4edda;
-    border: 1px solid #c3e6cb;
-    color: #155724;
+	background: #d4edda;
+	border: 1px solid #c3e6cb;
+	color: #155724;
 }
 
 .ll-notice-error {
-    background: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
+	background: #f8d7da;
+	border: 1px solid #f5c6cb;
+	color: #721c24;
 }
 
 .ll-social-login {
-    margin-bottom: 24px;
+	margin-bottom: 24px;
 }
 
 .ll-divider {
-    text-align: center;
-    margin: 24px 0;
-    position: relative;
+	text-align: center;
+	margin: 24px 0;
+	position: relative;
 }
 
 .ll-divider::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: #E8DFD3;
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 0;
+	right: 0;
+	height: 1px;
+	background: #E8DFD3;
 }
 
 .ll-divider span {
-    position: relative;
-    background: white;
-    padding: 0 16px;
-    color: #6D5F52;
-    font-size: 14px;
+	position: relative;
+	background: white;
+	padding: 0 16px;
+	color: #6D5F52;
+	font-size: 14px;
 }
 
 .ll-form-group {
-    margin-bottom: 20px;
+	margin-bottom: 20px;
 }
 
 .ll-form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: var(--bd-burgundy);
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+	display: block;
+	font-weight: 600;
+	margin-bottom: 8px;
+	color: var(--bd-burgundy);
+	font-size: 14px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
 }
 
 .ll-form-group input[type="text"],
 .ll-form-group input[type="email"],
 .ll-form-group input[type="password"] {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #E8DFD3;
-    border-radius: 8px;
-    font-size: 16px;
-    transition: all 0.2s;
-    font-family: inherit;
+	width: 100%;
+	padding: 12px 16px;
+	border: 2px solid #E8DFD3;
+	border-radius: 8px;
+	font-size: 16px;
+	transition: all 0.2s;
+	font-family: inherit;
 }
 
 .ll-form-group input:focus {
-    outline: none;
-    border-color: var(--bd-gold);
-    box-shadow: 0 0 0 3px rgba(201, 168, 106, 0.15);
+	outline: none;
+	border-color: var(--bd-gold);
+	box-shadow: 0 0 0 3px rgba(201, 168, 106, 0.15);
 }
 
 .ll-form-hint {
-    display: block;
-    margin-top: 6px;
-    font-size: 12px;
-    color: #6D5F52;
+	display: block;
+	margin-top: 6px;
+	font-size: 12px;
+	color: #6D5F52;
 }
 
 .ll-checkbox-group {
-    margin-bottom: 20px;
+	margin-bottom: 20px;
 }
 
 .ll-checkbox-group label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: normal;
-    color: #2C2420;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-weight: normal;
+	color: #2C2420;
 }
 
 .ll-checkbox-group input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--bd-burgundy);
+	width: 18px;
+	height: 18px;
+	accent-color: var(--bd-burgundy);
 }
 
 .ll-checkbox-group a {
-    color: var(--bd-burgundy);
-    font-weight: 600;
+	color: var(--bd-burgundy);
+	font-weight: 600;
 }
 
 .ll-btn {
-    display: inline-block;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none;
-    font-size: 16px;
-    text-decoration: none;
+	display: inline-block;
+	padding: 12px 24px;
+	border-radius: 8px;
+	font-weight: 600;
+	text-align: center;
+	cursor: pointer;
+	transition: all 0.2s;
+	border: none;
+	font-size: 16px;
+	text-decoration: none;
 }
 
 .ll-btn-primary {
-    background: linear-gradient(135deg, var(--bd-burgundy) 0%, var(--bd-burgundy-light) 100%);
-    color: var(--bd-gold-light);
-    box-shadow: 0 4px 12px rgba(107, 44, 62, 0.3);
+	background: linear-gradient(135deg, var(--bd-burgundy) 0%, var(--bd-burgundy-light) 100%);
+	color: var(--bd-gold-light);
+	box-shadow: 0 4px 12px rgba(107, 44, 62, 0.3);
 }
 
 .ll-btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(107, 44, 62, 0.4);
+	transform: translateY(-2px);
+	box-shadow: 0 10px 25px rgba(107, 44, 62, 0.4);
 }
 
 .ll-btn-large {
-    width: 100%;
-    padding: 16px;
-    font-size: 18px;
+	width: 100%;
+	padding: 16px;
+	font-size: 18px;
 }
 
 .ll-reg-footer {
-    text-align: center;
-    margin-top: 24px;
-    color: #6D5F52;
-    font-size: 14px;
+	text-align: center;
+	margin-top: 24px;
+	color: #6D5F52;
+	font-size: 14px;
 }
 
 .ll-reg-footer a {
-    color: var(--bd-burgundy);
-    font-weight: 600;
-    text-decoration: none;
+	color: var(--bd-burgundy);
+	font-weight: 600;
+	text-decoration: none;
 }
 
 .ll-reg-footer a:hover {
-    text-decoration: underline;
-    color: var(--bd-burgundy-dark);
+	text-decoration: underline;
+	color: var(--bd-burgundy-dark);
 }
 
 /* ============================================================================
-   REMOVE THEME CONSTRAINTS
-   ========================================================================= */
+	REMOVE THEME CONSTRAINTS
+	========================================================================= */
 
 /* Override theme content padding */
 .site-content,
 .entry-content,
 .elementor-section-wrap {
-    padding: 0 !important;
+	padding: 0 !important;
 }
 
 /* Override Elementor containers */
 body.page .elementor-section,
 body.page .elementor-container {
-    max-width: none !important;
-    padding: 0 !important;
+	max-width: none !important;
+	padding: 0 !important;
 }

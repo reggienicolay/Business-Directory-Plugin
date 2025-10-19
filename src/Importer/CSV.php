@@ -5,177 +5,175 @@ namespace BD\Importer;
 /**
  * CSV Importer for bulk business import
  */
-class CSV
-{
+class CSV {
 
-    /**
-     * Import businesses from CSV file
-     */
-    public static function import($file_path, $options = [])
-    {
-        if (!file_exists($file_path)) {
-            return new \WP_Error('file_not_found', 'CSV file not found');
-        }
 
-        $defaults = [
-            'create_terms' => true,
-            'dry_run' => false,
-        ];
+	/**
+	 * Import businesses from CSV file
+	 */
+	public static function import( $file_path, $options = array() ) {
+		if ( ! file_exists( $file_path ) ) {
+			return new \WP_Error( 'file_not_found', 'CSV file not found' );
+		}
 
-        $options = wp_parse_args($options, $defaults);
+		$defaults = array(
+			'create_terms' => true,
+			'dry_run'      => false,
+		);
 
-        $results = [
-            'imported' => 0,
-            'skipped' => 0,
-            'errors' => [],
-        ];
+		$options = wp_parse_args( $options, $defaults );
 
-        $handle = fopen($file_path, 'r');
-        if (!$handle) {
-            return new \WP_Error('file_open_error', 'Could not open CSV file');
-        }
+		$results = array(
+			'imported' => 0,
+			'skipped'  => 0,
+			'errors'   => array(),
+		);
 
-        // Read header row
-        $headers = fgetcsv($handle);
-        if (!$headers) {
-            fclose($handle);
-            return new \WP_Error('invalid_csv', 'CSV has no header row');
-        }
+		$handle = fopen( $file_path, 'r' );
+		if ( ! $handle ) {
+			return new \WP_Error( 'file_open_error', 'Could not open CSV file' );
+		}
 
-        $headers = array_map('trim', $headers);
+		// Read header row
+		$headers = fgetcsv( $handle );
+		if ( ! $headers ) {
+			fclose( $handle );
+			return new \WP_Error( 'invalid_csv', 'CSV has no header row' );
+		}
 
-        // Process rows
-        $row_number = 1;
-        while (($data = fgetcsv($handle)) !== false) {
-            $row_number++;
+		$headers = array_map( 'trim', $headers );
 
-            // Skip empty rows
-            if (empty(array_filter($data))) {
-                continue;
-            }
+		// Process rows
+		$row_number = 1;
+		while ( ( $data = fgetcsv( $handle ) ) !== false ) {
+			++$row_number;
 
-            // Combine headers with data
-            $row = array_combine($headers, $data);
+			// Skip empty rows
+			if ( empty( array_filter( $data ) ) ) {
+				continue;
+			}
 
-            // Validate required fields
-            if (empty($row['title']) || empty($row['lat']) || empty($row['lng'])) {
-                $results['skipped']++;
-                $results['errors'][] = "Row $row_number: Missing required fields (title, lat, lng)";
-                continue;
-            }
+			// Combine headers with data
+			$row = array_combine( $headers, $data );
 
-            if (!$options['dry_run']) {
-                $business_id = self::import_business($row, $options);
+			// Validate required fields
+			if ( empty( $row['title'] ) || empty( $row['lat'] ) || empty( $row['lng'] ) ) {
+				++$results['skipped'];
+				$results['errors'][] = "Row $row_number: Missing required fields (title, lat, lng)";
+				continue;
+			}
 
-                if (is_wp_error($business_id)) {
-                    $results['skipped']++;
-                    $results['errors'][] = "Row $row_number: " . $business_id->get_error_message();
-                } else {
-                    $results['imported']++;
-                }
-            } else {
-                $results['imported']++;
-            }
-        }
+			if ( ! $options['dry_run'] ) {
+				$business_id = self::import_business( $row, $options );
 
-        fclose($handle);
+				if ( is_wp_error( $business_id ) ) {
+					++$results['skipped'];
+					$results['errors'][] = "Row $row_number: " . $business_id->get_error_message();
+				} else {
+					++$results['imported'];
+				}
+			} else {
+				++$results['imported'];
+			}
+		}
 
-        return $results;
-    }
+		fclose( $handle );
 
-    /**
-     * Import a single business
-     */
-    private static function import_business($data, $options)
-    {
-        // Create post
-        $post_data = [
-            'post_title' => sanitize_text_field($data['title']),
-            'post_content' => isset($data['description']) ? wp_kses_post($data['description']) : '',
-            'post_type' => 'bd_business',
-            'post_status' => 'publish',
-        ];
+		return $results;
+	}
 
-        $business_id = wp_insert_post($post_data);
+	/**
+	 * Import a single business
+	 */
+	private static function import_business( $data, $options ) {
+		// Create post
+		$post_data = array(
+			'post_title'   => sanitize_text_field( $data['title'] ),
+			'post_content' => isset( $data['description'] ) ? wp_kses_post( $data['description'] ) : '',
+			'post_type'    => 'bd_business',
+			'post_status'  => 'publish',
+		);
 
-        if (is_wp_error($business_id)) {
-            return $business_id;
-        }
+		$business_id = wp_insert_post( $post_data );
 
-        // Add category
-        if (!empty($data['category']) && $options['create_terms']) {
-            $term = get_term_by('name', $data['category'], 'bd_category');
-            if (!$term) {
-                $term_data = wp_insert_term($data['category'], 'bd_category');
-                if (!is_wp_error($term_data)) {
-                    wp_set_object_terms($business_id, (int)$term_data['term_id'], 'bd_category');
-                }
-            } else {
-                wp_set_object_terms($business_id, $term->term_id, 'bd_category');
-            }
-        }
+		if ( is_wp_error( $business_id ) ) {
+			return $business_id;
+		}
 
-        // Add area
-        if (!empty($data['area']) && $options['create_terms']) {
-            $term = get_term_by('name', $data['area'], 'bd_area');
-            if (!$term) {
-                $term_data = wp_insert_term($data['area'], 'bd_area');
-                if (!is_wp_error($term_data)) {
-                    wp_set_object_terms($business_id, (int)$term_data['term_id'], 'bd_area');
-                }
-            } else {
-                wp_set_object_terms($business_id, $term->term_id, 'bd_area');
-            }
-        }
+		// Add category
+		if ( ! empty( $data['category'] ) && $options['create_terms'] ) {
+			$term = get_term_by( 'name', $data['category'], 'bd_category' );
+			if ( ! $term ) {
+				$term_data = wp_insert_term( $data['category'], 'bd_category' );
+				if ( ! is_wp_error( $term_data ) ) {
+					wp_set_object_terms( $business_id, (int) $term_data['term_id'], 'bd_category' );
+				}
+			} else {
+				wp_set_object_terms( $business_id, $term->term_id, 'bd_category' );
+			}
+		}
 
-        // ✅ NEW: Save location as bd_location meta field (unified format)
-        $location = [
-            'lat' => floatval($data['lat']),
-            'lng' => floatval($data['lng']),
-            'address' => isset($data['address']) ? sanitize_text_field($data['address']) : '',
-            'city' => isset($data['city']) ? sanitize_text_field($data['city']) : '',
-            'state' => isset($data['state']) ? sanitize_text_field($data['state']) : '',
-            'zip' => isset($data['zip']) ? sanitize_text_field($data['zip']) : '',
-        ];
-        update_post_meta($business_id, 'bd_location', $location);
+		// Add area
+		if ( ! empty( $data['area'] ) && $options['create_terms'] ) {
+			$term = get_term_by( 'name', $data['area'], 'bd_area' );
+			if ( ! $term ) {
+				$term_data = wp_insert_term( $data['area'], 'bd_area' );
+				if ( ! is_wp_error( $term_data ) ) {
+					wp_set_object_terms( $business_id, (int) $term_data['term_id'], 'bd_area' );
+				}
+			} else {
+				wp_set_object_terms( $business_id, $term->term_id, 'bd_area' );
+			}
+		}
 
-        // ✅ NEW: Save contact as bd_contact meta field (unified format)
-        $contact = [
-            'phone' => isset($data['phone']) ? sanitize_text_field($data['phone']) : '',
-            'website' => isset($data['website']) ? esc_url_raw($data['website']) : '',
-            'email' => isset($data['email']) ? sanitize_email($data['email']) : '',
-        ];
-        update_post_meta($business_id, 'bd_contact', $contact);
+		// ✅ NEW: Save location as bd_location meta field (unified format)
+		$location = array(
+			'lat'     => floatval( $data['lat'] ),
+			'lng'     => floatval( $data['lng'] ),
+			'address' => isset( $data['address'] ) ? sanitize_text_field( $data['address'] ) : '',
+			'city'    => isset( $data['city'] ) ? sanitize_text_field( $data['city'] ) : '',
+			'state'   => isset( $data['state'] ) ? sanitize_text_field( $data['state'] ) : '',
+			'zip'     => isset( $data['zip'] ) ? sanitize_text_field( $data['zip'] ) : '',
+		);
+		update_post_meta( $business_id, 'bd_location', $location );
 
-        // ✅ NEW: Save price level if present
-        if (!empty($data['price_level'])) {
-            update_post_meta($business_id, 'bd_price_level', sanitize_text_field($data['price_level']));
-        }
+		// ✅ NEW: Save contact as bd_contact meta field (unified format)
+		$contact = array(
+			'phone'   => isset( $data['phone'] ) ? sanitize_text_field( $data['phone'] ) : '',
+			'website' => isset( $data['website'] ) ? esc_url_raw( $data['website'] ) : '',
+			'email'   => isset( $data['email'] ) ? sanitize_email( $data['email'] ) : '',
+		);
+		update_post_meta( $business_id, 'bd_contact', $contact );
 
-        // ✅ NEW: Save hours if present
-        if (!empty($data['hours_monday']) || !empty($data['hours_tuesday'])) {
-            $hours = [];
-            $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+		// ✅ NEW: Save price level if present
+		if ( ! empty( $data['price_level'] ) ) {
+			update_post_meta( $business_id, 'bd_price_level', sanitize_text_field( $data['price_level'] ) );
+		}
 
-            foreach ($days as $day) {
-                $hours_key = 'hours_' . $day;
-                if (!empty($data[$hours_key])) {
-                    // Parse hours format "09:00-17:00" or "9am-5pm"
-                    $times = explode('-', $data[$hours_key]);
-                    if (count($times) === 2) {
-                        $hours[$day] = [
-                            'open' => trim($times[0]),
-                            'close' => trim($times[1]),
-                        ];
-                    }
-                }
-            }
+		// ✅ NEW: Save hours if present
+		if ( ! empty( $data['hours_monday'] ) || ! empty( $data['hours_tuesday'] ) ) {
+			$hours = array();
+			$days  = array( 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday' );
 
-            if (!empty($hours)) {
-                update_post_meta($business_id, 'bd_hours', $hours);
-            }
-        }
+			foreach ( $days as $day ) {
+				$hours_key = 'hours_' . $day;
+				if ( ! empty( $data[ $hours_key ] ) ) {
+					// Parse hours format "09:00-17:00" or "9am-5pm"
+					$times = explode( '-', $data[ $hours_key ] );
+					if ( count( $times ) === 2 ) {
+						$hours[ $day ] = array(
+							'open'  => trim( $times[0] ),
+							'close' => trim( $times[1] ),
+						);
+					}
+				}
+			}
 
-        return $business_id;
-    }
+			if ( ! empty( $hours ) ) {
+				update_post_meta( $business_id, 'bd_hours', $hours );
+			}
+		}
+
+		return $business_id;
+	}
 }

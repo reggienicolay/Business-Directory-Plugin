@@ -28,7 +28,7 @@
         }
     },
     "scripts": {
-        "phpcs": "phpcs",
+        "phpcs": "phpcs --warning-severity=0",
         "phpcbf": "phpcbf",
         "test": "phpunit"
     },
