@@ -1,0 +1,946 @@
+/* ============================================
+   BADGE SYSTEM STYLES - FONT AWESOME UPGRADE
+   Love Livermore Wine Country Theme
+   ============================================ */
+
+/* Load Font Awesome 5 */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+/* ============================================
+   FONT AWESOME ICON SETUP
+   ============================================ */
+.bd-badge-icon,
+.bd-badge-card-icon,
+.bd-rank-icon,
+.bd-rank-icon-large,
+.bd-stat-icon {
+    font-family: 'Font Awesome 5 Free', 'Font Awesome 5 Brands' !important;
+    font-weight: 900 !important;
+    font-style: normal !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   INLINE BADGES (for reviews, comments)
+   ============================================ */
+.bd-user-badges {
+    display: inline-flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 6px;
+}
+
+.bd-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    cursor: help;
+}
+
+.bd-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.bd-badge-icon {
+    font-size: 14px;
+    line-height: 1;
+}
+
+.bd-badge-icon i {
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.bd-badge:hover .bd-badge-icon i {
+    transform: scale(1.1);
+}
+
+.bd-badge-name {
+    line-height: 1;
+}
+
+/* ============================================
+   RARITY-BASED STYLING - WINE THEME
+   ============================================ */
+.bd-badge-common {
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    border: 2px solid #e5e7eb;
+    color: #4b5563;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.bd-badge-rare {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border: 2px solid #60a5fa;
+    color: #1e40af;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.bd-badge-epic {
+    background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+    border: 2px solid #c084fc;
+    color: #7e22ce;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.bd-badge-legendary {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border: 2px solid #fbbf24;
+    color: #b45309;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+}
+
+.bd-badge-special {
+    background: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 100%);
+    border: 2px solid #C9A86A;
+    color: #E4D4B4;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+}
+
+.bd-badge-more {
+    background: #e5e7eb !important;
+    color: #6b7280 !important;
+    cursor: pointer;
+}
+
+.bd-badge-more:hover {
+    background: #d1d5db !important;
+}
+
+/* Tooltip */
+.bd-badge[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 12px;
+    background: #1f2937;
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.bd-badge[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #1f2937;
+    margin-bottom: 4px;
+}
+
+/* ============================================
+   RANK BADGE
+   ============================================ */
+.bd-rank-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    transition: all 0.2s;
+    position: relative;
+    cursor: help;
+}
+
+.bd-rank-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.bd-rank-icon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+.bd-rank-name {
+    line-height: 1;
+}
+
+/* Rank-specific colors */
+.bd-rank-badge[data-rank="newcomer"] {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    color: #6b7280;
+    border: 2px solid #d1d5db;
+}
+
+.bd-rank-badge[data-rank="contributor"] {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e40af;
+    border: 2px solid #60a5fa;
+}
+
+.bd-rank-badge[data-rank="regular"] {
+    background: linear-gradient(135deg, #fae8ff 0%, #f3e8ff 100%);
+    color: #7e22ce;
+    border: 2px solid #c084fc;
+}
+
+.bd-rank-badge[data-rank="enthusiast"] {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #b45309;
+    border: 2px solid #fbbf24;
+}
+
+.bd-rank-badge[data-rank="expert"] {
+    background: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 100%);
+    color: #E4D4B4;
+    border: 2px solid #C9A86A;
+}
+
+.bd-rank-badge[data-rank="legend"] {
+    background: linear-gradient(135deg, #C9A86A 0%, #E4D4B4 50%, #F7EFE2 100%);
+    color: #4A1F2C;
+    border: 3px solid #6B2C3E;
+    animation: rank-legendary-glow 2s ease-in-out infinite;
+}
+
+@keyframes rank-legendary-glow {
+    0%, 100% {
+        box-shadow: 0 4px 16px rgba(201, 168, 106, 0.5);
+    }
+    50% {
+        box-shadow: 0 8px 28px rgba(201, 168, 106, 0.8);
+    }
+}
+
+.bd-rank-badge[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 12px;
+    background: #1f2937;
+    color: white;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.bd-rank-badge[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #1f2937;
+    margin-bottom: 4px;
+}
+
+/* ============================================
+   PROFILE BADGES SECTION
+   ============================================ */
+.bd-profile-badges-section {
+    background: white;
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.bd-profile-rank-display {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 24px;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    border-radius: 12px;
+    margin-bottom: 32px;
+}
+
+.bd-rank-icon-large {
+    font-size: 72px;
+    line-height: 1;
+}
+
+.bd-rank-info {
+    flex: 1;
+}
+
+.bd-rank-info h3 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: #1f2937;
+}
+
+.bd-rank-points {
+    font-size: 16px;
+    color: #6b7280;
+    margin: 0 0 16px 0;
+}
+
+.bd-rank-progress {
+    margin-top: 16px;
+}
+
+.bd-progress-bar {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.bd-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6B2C3E 0%, #C9A86A 100%);
+    border-radius: 4px;
+    transition: width 0.5s ease;
+}
+
+.bd-progress-text {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* ============================================
+   STATS GRID
+   ============================================ */
+.bd-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.bd-stat-card {
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.2s;
+}
+
+.bd-stat-card:hover {
+    border-color: #C9A86A;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(201, 168, 106, 0.2);
+}
+
+.bd-stat-icon {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.bd-stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.bd-stat-label {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* ============================================
+   BADGE GRID (Profile Page) - WINE COUNTRY COLORS
+   ============================================ */
+.bd-badges-section {
+    margin-bottom: 32px;
+}
+
+.bd-badges-section h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 20px 0;
+}
+
+.bd-badge-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+}
+
+.bd-badge-card {
+    background: white;
+    border: 2px solid;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.bd-badge-card-earned {
+    cursor: pointer;
+}
+
+.bd-badge-card-earned:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+/* Shine effect on hover */
+.bd-badge-card-earned::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 70%
+    );
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    transition: transform 0.6s;
+    pointer-events: none;
+}
+
+.bd-badge-card-earned:hover::after {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+}
+
+/* Badge Icon Circle with Gradient Backgrounds */
+.bd-badge-card-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 36px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+/* Common badges - Light gray with blue accent */
+.bd-badge-card[data-rarity="common"] {
+    border-color: #e5e7eb;
+}
+
+.bd-badge-card[data-rarity="common"] .bd-badge-card-icon {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+/* Rare badges - Blue gradient */
+.bd-badge-card[data-rarity="rare"] {
+    border-color: #60a5fa;
+}
+
+.bd-badge-card[data-rarity="rare"] .bd-badge-card-icon {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e40af;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+}
+
+/* Epic badges - Purple gradient */
+.bd-badge-card[data-rarity="epic"] {
+    border-color: #8b5cf6;
+}
+
+.bd-badge-card[data-rarity="epic"] .bd-badge-card-icon {
+    background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+    color: #7e22ce;
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+    animation: icon-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes icon-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Legendary badges - Gold gradient (Wine Country premium) */
+.bd-badge-card[data-rarity="legendary"] {
+    border-color: #C9A86A;
+}
+
+.bd-badge-card[data-rarity="legendary"] .bd-badge-card-icon {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #b45309;
+    box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+    animation: legendary-pulse 2s ease-in-out infinite;
+}
+
+@keyframes legendary-pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 6px 20px rgba(201, 168, 106, 0.4);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 8px 28px rgba(201, 168, 106, 0.6);
+    }
+}
+
+/* Special badges - Wine Country burgundy & gold */
+.bd-badge-card[data-rarity="special"] {
+    border-color: #C9A86A;
+    background: linear-gradient(135deg, rgba(201, 168, 106, 0.05) 0%, rgba(247, 239, 226, 0.1) 100%);
+}
+
+.bd-badge-card[data-rarity="special"] .bd-badge-card-icon {
+    background: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 100%);
+    color: #E4D4B4;
+    box-shadow: 0 6px 24px rgba(107, 44, 62, 0.4);
+    border: 3px solid #C9A86A;
+    animation: legendary-pulse 2s ease-in-out infinite;
+}
+
+/* Hover effects */
+.bd-badge-card-earned:hover .bd-badge-card-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Rarity labels */
+.bd-badge-rarity {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 8px;
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.bd-rarity-rare {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.bd-rarity-epic {
+    background: #fae8ff;
+    color: #7e22ce;
+}
+
+.bd-rarity-legendary,
+.bd-rarity-special {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.bd-badge-card-name {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #1f2937;
+}
+
+.bd-badge-card-desc {
+    font-size: 11px;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+/* Locked badges */
+.bd-badge-card-locked {
+    opacity: 0.5;
+    border-color: #d1d5db !important;
+}
+
+.bd-badge-card-locked .bd-badge-card-icon {
+    background: #f3f4f6 !important;
+    color: #9ca3af !important;
+    filter: grayscale(100%);
+    box-shadow: none !important;
+    animation: none !important;
+}
+
+.bd-badge-card-locked:hover .bd-badge-card-icon {
+    transform: none !important;
+}
+
+.bd-badge-lock {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 20px;
+    opacity: 0.5;
+}
+
+/* ============================================
+   REVIEW AUTHOR DISPLAY
+   ============================================ */
+.bd-review-author {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.bd-review-author-avatar {
+    flex-shrink: 0;
+}
+
+.bd-review-author-avatar img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+.bd-avatar-placeholder {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6B2C3E 0%, #C9A86A 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.bd-review-author-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.bd-review-author-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: #1f2937;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.bd-review-author-stats {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 6px;
+}
+
+.bd-review-date {
+    font-size: 12px;
+    color: #9ca3af;
+    white-space: nowrap;
+}
+
+/* ============================================
+   LEADERBOARD WIDGET
+   ============================================ */
+.bd-leaderboard-widget {
+    background: white;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.bd-leaderboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+.bd-leaderboard-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.bd-leaderboard-period {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6B2C3E;
+    background: rgba(201, 168, 106, 0.1);
+    padding: 4px 12px;
+    border-radius: 12px;
+}
+
+.bd-leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.bd-leaderboard-empty {
+    text-align: center;
+    color: #9ca3af;
+    padding: 20px;
+    font-size: 14px;
+}
+
+.bd-leaderboard-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.bd-leaderboard-item:hover {
+    background: #f3f4f6;
+    transform: translateX(4px);
+}
+
+.bd-leaderboard-rank {
+    font-size: 20px;
+    font-weight: 700;
+    min-width: 40px;
+    text-align: center;
+}
+
+.bd-rank-1 {
+    color: #fbbf24;
+    font-size: 32px;
+}
+
+.bd-rank-2 {
+    color: #9ca3af;
+    font-size: 28px;
+}
+
+.bd-rank-3 {
+    color: #b87333;
+    font-size: 28px;
+}
+
+.bd-leaderboard-avatar {
+    flex-shrink: 0;
+}
+
+.bd-leaderboard-avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.bd-leaderboard-user {
+    flex: 1;
+    min-width: 0;
+}
+
+.bd-leaderboard-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1f2937;
+    margin-bottom: 2px;
+}
+
+.bd-leaderboard-stats {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.bd-leaderboard-badges {
+    flex-shrink: 0;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .bd-profile-rank-display {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+    }
+    
+    .bd-rank-icon-large {
+        font-size: 56px;
+    }
+    
+    .bd-rank-info h3 {
+        font-size: 24px;
+    }
+    
+    .bd-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .bd-badge-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    }
+    
+    .bd-badge-card {
+        padding: 16px;
+    }
+    
+    .bd-badge-card-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 28px;
+    }
+    
+    .bd-badge-icon {
+        font-size: 14px !important;
+    }
+    
+    .bd-rank-icon {
+        font-size: 16px !important;
+    }
+    
+    .bd-review-author {
+        gap: 10px;
+    }
+    
+    .bd-review-author-avatar img,
+    .bd-avatar-placeholder {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .bd-leaderboard-widget {
+        padding: 16px;
+    }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes badge-earned {
+    0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2) rotate(10deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.bd-badge-new {
+    animation: badge-earned 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ============================================
+   NOTIFICATION STYLES (for new badges)
+   ============================================ */
+.bd-badge-notification {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    z-index: 9999;
+    max-width: 320px;
+    animation: slideInRight 0.4s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.bd-badge-notification-header {
+    font-size: 14px;
+    font-weight: 700;
+    color: #6B2C3E;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.bd-badge-notification-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.bd-badge-notification-icon {
+    font-size: 48px;
+}
+
+.bd-badge-notification-text h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 4px 0;
+}
+
+.bd-badge-notification-text p {
+    font-size: 13px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.bd-badge-notification-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.bd-badge-notification-close:hover {
+    color: #1f2937;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+    .bd-badge-icon,
+    .bd-badge-card-icon,
+    .bd-rank-badge,
+    .bd-badge,
+    .bd-badge-card {
+        animation: none !important;
+        transition: none !important;
+    }
+    
+    .bd-badge:hover .bd-badge-icon i,
+    .bd-badge-card:hover .bd-badge-card-icon i {
+        transform: none !important;
+    }
+}

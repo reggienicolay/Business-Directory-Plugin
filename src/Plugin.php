@@ -34,6 +34,7 @@ class Plugin {
             new Admin\Settings();
             new Moderation\ReviewsQueue();
             new Admin\ClaimsQueue();
+            // BadgeAdmin is loaded by gamification-loader.php
         }
         
         // Frontend components
@@ -41,6 +42,10 @@ class Plugin {
         new Forms\BusinessSubmission();
         new Forms\ReviewSubmission();
         new Forms\ClaimRequest();
+        
+        // NOTE: Gamification components are loaded via includes/gamification-loader.php
+        // This includes: GamificationHooks, BadgeAdmin, ProfileShortcode
+        // Do NOT initialize them here to avoid duplicates
     }
     
     public function register_post_types() {

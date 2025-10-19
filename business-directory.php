@@ -50,6 +50,10 @@ spl_autoload_register(function ($class) {
     }
 });
 
+// Explicitly load gamification files early (they have constants accessed statically)
+require_once BD_PLUGIN_DIR . 'src/Gamification/BadgeSystem.php';
+require_once BD_PLUGIN_DIR . 'src/Gamification/ActivityTracker.php';
+
 // Activation/Deactivation hooks
 register_activation_hook(__FILE__, [DB\Installer::class, 'activate']);
 register_deactivation_hook(__FILE__, [DB\Installer::class, 'deactivate']);
@@ -93,3 +97,8 @@ function bd_custom_business_template($single_template) {
 
 // Load submission endpoint
 require_once plugin_dir_path(__FILE__) . 'src/API/SubmissionEndpoint.php';
+
+// Load Gamification System
+if (file_exists(plugin_dir_path(__FILE__) . 'includes/gamification-loader.php')) {
+    require_once plugin_dir_path(__FILE__) . 'includes/gamification-loader.php';
+}

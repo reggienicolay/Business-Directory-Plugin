@@ -1,9 +1,12 @@
 <?php
 namespace BD\REST;
 
+error_log('SubmitReviewController class loaded!'); // ADD THIS
+
 class SubmitReviewController {
     
     public static function register() {
+        error_log('SubmitReviewController::register() called!'); // ADD THIS
         register_rest_route('bd/v1', '/submit-review', [
             'methods' => 'POST',
             'callback' => [__CLASS__, 'submit'],
@@ -72,6 +75,7 @@ class SubmitReviewController {
         
         $review_data = [
             'business_id' => $business_id,
+            'user_id' => get_current_user_id() ?: null,
             'rating' => $rating,
             'author_name' => sanitize_text_field($request->get_param('author_name')),
             'author_email' => sanitize_email($request->get_param('author_email')),
@@ -89,9 +93,21 @@ class SubmitReviewController {
         
         \BD\Notifications\Email::notify_new_review($review_id);
         
+        // If review is auto-approved, trigger gamification
+        global $wpdb;
+        $reviews_table = $wpdb->prefix . 'bd_reviews';
+        $review = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM $reviews_table WHERE id = %d",
+            $review_id
+        ), ARRAY_A);
+        
+        if ($review && $review['status'] === 'approved') {
+            do_action('bd_review_approved', $review_id);
+        }
+        
         return rest_ensure_response([
             'success' => true,
             'message' => __('Thank you! Your review is pending approval.', 'business-directory'),
         ]);
     }
-}
+}  

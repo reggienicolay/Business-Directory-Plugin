@@ -608,6 +608,10 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
     padding-top: 40px;
     border-top: 2px solid rgba(201, 168, 106, 0.2);
     position: relative;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: block !important;
+    transform: none !important;
 }
 
 .bd-reviews-section::before {

@@ -1,6 +1,8 @@
 <?php
 namespace BD\Moderation;
 
+use BD\Gamification\ActivityTracker;
+
 class ReviewsQueue {
     
     public function __construct() {
@@ -114,6 +116,14 @@ class ReviewsQueue {
         $review_id = absint($_POST['review_id']);
         $table = $wpdb->prefix . 'bd_reviews';
         
+        // Get review data before approving
+        $review = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE id = %d", $review_id), ARRAY_A);
+        
+        if (!$review) {
+            wp_die(__('Review not found', 'business-directory'));
+        }
+        
+        // Approve the review
         $wpdb->update(
             $table,
             ['status' => 'approved'],
@@ -122,11 +132,21 @@ class ReviewsQueue {
             ['%d']
         );
         
-        // Update aggregate rating
-        $review = $wpdb->get_row($wpdb->prepare("SELECT * FROM $table WHERE id = %d", $review_id), ARRAY_A);
-        if ($review) {
-            $this->update_aggregate_rating($review['business_id']);
+        // Award points for the review
+        if ($review['user_id']) {
+            ActivityTracker::track($review['user_id'], 'review_created', $review_id);
+            
+            if (!empty($review['photo_ids'])) {
+                ActivityTracker::track($review['user_id'], 'review_with_photo', $review_id);
+            }
+            
+            if (strlen($review['content']) > 100) {
+                ActivityTracker::track($review['user_id'], 'review_detailed', $review_id);
+            }
         }
+        
+        // Update aggregate rating
+        $this->update_aggregate_rating($review['business_id']);
         
         wp_redirect(admin_url('admin.php?page=bd-pending-reviews&approved=1'));
         exit;

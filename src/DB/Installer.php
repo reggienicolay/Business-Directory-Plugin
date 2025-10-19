@@ -3,7 +3,7 @@ namespace BD\DB;
 
 class Installer {
     
-    const DB_VERSION = '2.1.0';  // ← BUMPED VERSION
+    const DB_VERSION = '2.1.0'; // Bumped version for gamification tables
     
     public static function activate() {
         self::create_tables();
@@ -80,14 +80,61 @@ class Installer {
             KEY idx_created (created_at)
         ) $charset_collate;";
         
-        // NEW: Claim Requests table
-        require_once plugin_dir_path(__FILE__) . 'ClaimRequestsTable.php';
-        ClaimRequestsTable::create_table();
+        // NEW: Gamification Tables
+        $user_reputation_table = $wpdb->prefix . 'bd_user_reputation';
+        $user_reputation_sql = "CREATE TABLE IF NOT EXISTS $user_reputation_table (
+            user_id bigint(20) UNSIGNED NOT NULL,
+            total_points int(11) NOT NULL DEFAULT 0,
+            total_reviews int(11) NOT NULL DEFAULT 0,
+            helpful_votes int(11) NOT NULL DEFAULT 0,
+            lists_created int(11) NOT NULL DEFAULT 0,
+            photos_uploaded int(11) NOT NULL DEFAULT 0,
+            categories_reviewed int(11) NOT NULL DEFAULT 0,
+            badges text DEFAULT NULL,
+            badge_count int(11) NOT NULL DEFAULT 0,
+            rank varchar(50) NOT NULL DEFAULT 'newcomer',
+            created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (user_id),
+            KEY idx_points (total_points),
+            KEY idx_rank (rank)
+        ) $charset_collate;";
+        
+        $user_activity_table = $wpdb->prefix . 'bd_user_activity';
+        $user_activity_sql = "CREATE TABLE IF NOT EXISTS $user_activity_table (
+            id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) UNSIGNED NOT NULL,
+            activity_type varchar(50) NOT NULL,
+            points int(11) NOT NULL DEFAULT 0,
+            reference_id bigint(20) UNSIGNED DEFAULT NULL,
+            created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_user (user_id),
+            KEY idx_type (activity_type),
+            KEY idx_created (created_at)
+        ) $charset_collate;";
+        
+        $badge_awards_table = $wpdb->prefix . 'bd_badge_awards';
+        $badge_awards_sql = "CREATE TABLE IF NOT EXISTS $badge_awards_table (
+            id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) UNSIGNED NOT NULL,
+            badge_key varchar(100) NOT NULL,
+            awarded_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            awarded_by bigint(20) UNSIGNED DEFAULT NULL,
+            PRIMARY KEY (id),
+            UNIQUE KEY idx_user_badge (user_id, badge_key),
+            KEY idx_user (user_id),
+            KEY idx_badge (badge_key),
+            KEY idx_awarded (awarded_at)
+        ) $charset_collate;";
         
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($locations_sql);
         dbDelta($reviews_sql);
         dbDelta($submissions_sql);
+        dbDelta($user_reputation_sql);
+        dbDelta($user_activity_sql);
+        dbDelta($badge_awards_sql);
     }
     
     private static function upgrade_database($from_version) {
@@ -110,11 +157,9 @@ class Installer {
             }
         }
         
-        // NEW: Version 2.1.0 upgrades
+        // Run gamification table creation if upgrading from pre-2.1.0
         if (version_compare($from_version, '2.1.0', '<')) {
-            // Create claim requests table if upgrading
-            require_once plugin_dir_path(__FILE__) . 'ClaimRequestsTable.php';
-            ClaimRequestsTable::create_table();
+            self::create_tables(); // This will create missing tables
         }
     }
     
