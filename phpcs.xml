@@ -27,6 +27,9 @@
         
         <!-- Allow assignment in conditions -->
         <exclude name="Generic.CodeAnalysis.AssignmentInCondition"/>
+        
+        <!-- Exclude filename requirements (using PSR-4 autoloading) -->
+        <exclude name="WordPress.Files.FileName"/>
     </rule>
     
     <file>.</file>
