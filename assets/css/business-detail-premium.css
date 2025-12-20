@@ -10,12 +10,12 @@
 	--bd-primary: #0F2A43;
 	--bd-primary-dark: #0A1F33;
 	--bd-primary-light: #133453;
-	
+
 	/* Accent Teal */
 	--bd-accent: #2CB1BC;
 	--bd-accent-dark: #239AA3;
 	--bd-accent-light: #829AB1;
-	
+
 	/* Legacy variable names (for compatibility) */
 	--bd-burgundy: #0F2A43;
 	--bd-burgundy-dark: #0A1F33;
@@ -24,7 +24,7 @@
 	--bd-gold-dark: #239AA3;
 	--bd-gold-light: #829AB1;
 	--bd-copper: #2CB1BC;
-	
+
 	/* Neutrals */
 	--bd-cream: #F5F7FA;
 	--bd-surface: #FFFFFF;
@@ -1563,386 +1563,386 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	========================================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700&display=swap');/* ============================================================================
-   MOBILE RESPONSIVE FIXES - Business Detail Page
-   Add this to the END of business-detail-premium.css
-   ========================================================================= */
+	MOBILE RESPONSIVE FIXES - Business Detail Page
+	Add this to the END of business-detail-premium.css
+	========================================================================= */
 
 /* ============================================================================
-   TABLET BREAKPOINT (968px)
-   ========================================================================= */
+	TABLET BREAKPOINT (968px)
+	========================================================================= */
 @media (max-width: 968px) {
-    /* Hero section - stack layout */
-    .bd-business-hero-content {
-        flex-direction: column;
-        padding: 0 24px;
-        gap: 24px;
-    }
-    
-    .bd-business-hero h1 {
-        font-size: 42px !important;
-    }
-    
-    .bd-business-hero-actions {
-        flex-direction: row;
-        flex-wrap: wrap;
-        min-width: 0;
-        width: 100%;
-    }
-    
-    .bd-business-hero-actions .bd-btn {
-        flex: 1;
-        min-width: 140px;
-    }
-    
-    /* Content wrapper */
-    .bd-business-content-wrapper {
-        padding: 0 24px 40px;
-    }
-    
-    /* Business grid - stack sidebar below main */
-    .bd-business-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
-    }
-    
-    /* Sidebar no longer sticky on tablet */
-    .bd-business-sidebar {
-        position: relative;
-        top: 0;
-    }
-    
-    /* Info cards */
-    .bd-info-card {
-        padding: 24px;
-    }
-    
-    .bd-info-card h2 {
-        font-size: 26px;
-    }
-    
-    .bd-info-card h3 {
-        font-size: 20px;
-    }
-    
-    /* Reviews section */
-    .bd-reviews-section {
-        padding: 40px 24px;
-    }
-    
-    .bd-reviews-section h2 {
-        font-size: 28px !important;
-    }
+	/* Hero section - stack layout */
+	.bd-business-hero-content {
+		flex-direction: column;
+		padding: 0 24px;
+		gap: 24px;
+	}
+
+	.bd-business-hero h1 {
+		font-size: 42px !important;
+	}
+
+	.bd-business-hero-actions {
+		flex-direction: row;
+		flex-wrap: wrap;
+		min-width: 0;
+		width: 100%;
+	}
+
+	.bd-business-hero-actions .bd-btn {
+		flex: 1;
+		min-width: 140px;
+	}
+
+	/* Content wrapper */
+	.bd-business-content-wrapper {
+		padding: 0 24px 40px;
+	}
+
+	/* Business grid - stack sidebar below main */
+	.bd-business-grid {
+		grid-template-columns: 1fr;
+		gap: 24px;
+	}
+
+	/* Sidebar no longer sticky on tablet */
+	.bd-business-sidebar {
+		position: relative;
+		top: 0;
+	}
+
+	/* Info cards */
+	.bd-info-card {
+		padding: 24px;
+	}
+
+	.bd-info-card h2 {
+		font-size: 26px;
+	}
+
+	.bd-info-card h3 {
+		font-size: 20px;
+	}
+
+	/* Reviews section */
+	.bd-reviews-section {
+		padding: 40px 24px;
+	}
+
+	.bd-reviews-section h2 {
+		font-size: 28px !important;
+	}
 }
 
 /* ============================================================================
-   MOBILE BREAKPOINT (768px)
-   ========================================================================= */
+	MOBILE BREAKPOINT (768px)
+	========================================================================= */
 @media (max-width: 768px) {
-    /* Back button - inline instead of fixed */
-    .bd-back-link {
-        position: relative !important;
-        top: auto !important;
-        right: auto !important;
-        margin: 16px 16px 0 16px !important;
-        display: inline-flex !important;
-    }
-    
-    /* Hero section */
-    .bd-business-hero {
-        padding: 40px 0 40px;
-        margin-bottom: 24px;
-    }
-    
-    .bd-business-hero-content {
-        padding: 0 16px;
-    }
-    
-    .bd-business-hero h1 {
-        font-size: 32px !important;
-        margin-bottom: 16px !important;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        hyphens: auto;
-    }
-    
-    .bd-business-meta {
-        gap: 10px;
-    }
-    
-    .bd-rating-badge {
-        padding: 6px 12px;
-    }
-    
-    .bd-rating-number {
-        font-size: 16px;
-    }
-    
-    .bd-rating-stars .filled,
-    .bd-rating-stars .empty {
-        font-size: 14px;
-    }
-    
-    .bd-review-count {
-        font-size: 12px;
-    }
-    
-    .bd-price-badge,
-    .bd-category-badge {
-        padding: 6px 12px;
-        font-size: 12px;
-    }
-    
-    .bd-location-quick {
-        font-size: 14px;
-    }
-    
-    /* Hero buttons - full width stack */
-    .bd-business-hero-actions {
-        flex-direction: column;
-        width: 100%;
-    }
-    
-    .bd-business-hero-actions .bd-btn {
-        width: 100%;
-        padding: 12px 20px !important;
-        font-size: 14px !important;
-    }
-    
-    /* Content wrapper */
-    .bd-business-content-wrapper {
-        padding: 0 16px 32px;
-    }
-    
-    /* Info cards */
-    .bd-info-card {
-        padding: 20px;
-        border-radius: 12px;
-        margin-bottom: 16px;
-    }
-    
-    .bd-info-card h2 {
-        font-size: 22px;
-        padding-bottom: 12px;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-    }
-    
-    .bd-info-card h3 {
-        font-size: 18px;
-    }
-    
-    /* About section description */
-    .bd-about-section .bd-description {
-        font-size: 15px;
-        line-height: 1.7;
-    }
-    
-    /* Hours rows */
-    .bd-hours-row {
-        padding: 10px;
-        font-size: 14px;
-    }
-    
-    /* Contact items */
-    .bd-contact-item {
-        gap: 12px;
-    }
-    
-    .bd-contact-item p {
-        font-size: 14px;
-    }
-    
-    /* Reviews section */
-    .bd-reviews-section {
-        padding: 32px 16px;
-        margin-top: 32px;
-        border-radius: 12px;
-    }
-    
-    .bd-reviews-section h2 {
-        font-size: 24px !important;
-    }
-    
-    .bd-reviews-section h3 {
-        font-size: 20px !important;
-    }
-    
-    /* Review form */
-    .bd-form {
-        padding: 20px;
-        border-radius: 12px;
-    }
-    
-    /* Similar businesses */
-    .bd-similar-businesses {
-        margin: 32px 0 24px;
-        padding: 32px 16px;
-        border-radius: 12px;
-    }
-    
-    .bd-similar-grid {
-        gap: 16px;
-    }
-    
-    .bd-similar-content {
-        padding: 16px;
-    }
-    
-    .bd-similar-content h3 {
-        font-size: 18px;
-    }
-    
-    /* Social sharing */
-    .bd-social-sharing {
-        padding: 20px 16px;
-    }
-    
-    .bd-social-sharing h3 {
-        font-size: 18px;
-    }
-    
-    /* Section titles */
-    .bd-section-title {
-        font-size: 22px;
-    }
+	/* Back button - inline instead of fixed */
+	.bd-back-link {
+		position: relative !important;
+		top: auto !important;
+		right: auto !important;
+		margin: 16px 16px 0 16px !important;
+		display: inline-flex !important;
+	}
+
+	/* Hero section */
+	.bd-business-hero {
+		padding: 40px 0 40px;
+		margin-bottom: 24px;
+	}
+
+	.bd-business-hero-content {
+		padding: 0 16px;
+	}
+
+	.bd-business-hero h1 {
+		font-size: 32px !important;
+		margin-bottom: 16px !important;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+		hyphens: auto;
+	}
+
+	.bd-business-meta {
+		gap: 10px;
+	}
+
+	.bd-rating-badge {
+		padding: 6px 12px;
+	}
+
+	.bd-rating-number {
+		font-size: 16px;
+	}
+
+	.bd-rating-stars .filled,
+	.bd-rating-stars .empty {
+		font-size: 14px;
+	}
+
+	.bd-review-count {
+		font-size: 12px;
+	}
+
+	.bd-price-badge,
+	.bd-category-badge {
+		padding: 6px 12px;
+		font-size: 12px;
+	}
+
+	.bd-location-quick {
+		font-size: 14px;
+	}
+
+	/* Hero buttons - full width stack */
+	.bd-business-hero-actions {
+		flex-direction: column;
+		width: 100%;
+	}
+
+	.bd-business-hero-actions .bd-btn {
+		width: 100%;
+		padding: 12px 20px !important;
+		font-size: 14px !important;
+	}
+
+	/* Content wrapper */
+	.bd-business-content-wrapper {
+		padding: 0 16px 32px;
+	}
+
+	/* Info cards */
+	.bd-info-card {
+		padding: 20px;
+		border-radius: 12px;
+		margin-bottom: 16px;
+	}
+
+	.bd-info-card h2 {
+		font-size: 22px;
+		padding-bottom: 12px;
+		word-wrap: break-word;
+		overflow-wrap: break-word;
+	}
+
+	.bd-info-card h3 {
+		font-size: 18px;
+	}
+
+	/* About section description */
+	.bd-about-section .bd-description {
+		font-size: 15px;
+		line-height: 1.7;
+	}
+
+	/* Hours rows */
+	.bd-hours-row {
+		padding: 10px;
+		font-size: 14px;
+	}
+
+	/* Contact items */
+	.bd-contact-item {
+		gap: 12px;
+	}
+
+	.bd-contact-item p {
+		font-size: 14px;
+	}
+
+	/* Reviews section */
+	.bd-reviews-section {
+		padding: 32px 16px;
+		margin-top: 32px;
+		border-radius: 12px;
+	}
+
+	.bd-reviews-section h2 {
+		font-size: 24px !important;
+	}
+
+	.bd-reviews-section h3 {
+		font-size: 20px !important;
+	}
+
+	/* Review form */
+	.bd-form {
+		padding: 20px;
+		border-radius: 12px;
+	}
+
+	/* Similar businesses */
+	.bd-similar-businesses {
+		margin: 32px 0 24px;
+		padding: 32px 16px;
+		border-radius: 12px;
+	}
+
+	.bd-similar-grid {
+		gap: 16px;
+	}
+
+	.bd-similar-content {
+		padding: 16px;
+	}
+
+	.bd-similar-content h3 {
+		font-size: 18px;
+	}
+
+	/* Social sharing */
+	.bd-social-sharing {
+		padding: 20px 16px;
+	}
+
+	.bd-social-sharing h3 {
+		font-size: 18px;
+	}
+
+	/* Section titles */
+	.bd-section-title {
+		font-size: 22px;
+	}
 }
 
 /* ============================================================================
-   SMALL MOBILE BREAKPOINT (480px)
-   ========================================================================= */
+	SMALL MOBILE BREAKPOINT (480px)
+	========================================================================= */
 @media (max-width: 480px) {
-    /* Hero */
-    .bd-business-hero {
-        padding: 32px 0;
-    }
-    
-    .bd-business-hero h1 {
-        font-size: 26px !important;
-        line-height: 1.2 !important;
-    }
-    
-    .bd-business-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-    
-    .bd-rating-badge {
-        width: 100%;
-        justify-content: flex-start;
-    }
-    
-    /* Content wrapper */
-    .bd-business-content-wrapper {
-        padding: 0 12px 24px;
-    }
-    
-    /* Info cards */
-    .bd-info-card {
-        padding: 16px;
-    }
-    
-    .bd-info-card h2 {
-        font-size: 20px;
-    }
-    
-    .bd-info-card h3 {
-        font-size: 16px;
-    }
-    
-    .bd-about-section .bd-description {
-        font-size: 14px;
-    }
-    
-    /* Photo gallery on very small screens */
-    .bd-gallery-main {
-        height: 200px;
-    }
-    
-    .bd-gallery-grid {
-        grid-template-rows: repeat(2, 100px);
-    }
-    
-    .bd-gallery-more-overlay span {
-        font-size: 22px;
-    }
-    
-    /* Reviews */
-    .bd-reviews-section {
-        padding: 24px 12px;
-    }
-    
-    .bd-reviews-section h2 {
-        font-size: 20px !important;
-    }
-    
-    .bd-rating-summary {
-        padding: 12px 16px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-    
-    /* Review cards */
-    .bd-review-card {
-        padding: 16px;
-    }
-    
-    /* Form */
-    .bd-form {
-        padding: 16px;
-    }
-    
-    .bd-star-rating label {
-        font-size: 24px !important;
-    }
-    
-    /* Similar businesses */
-    .bd-similar-businesses {
-        padding: 24px 12px;
-    }
-    
-    .bd-similar-image {
-        height: 150px;
-    }
-    
-    .bd-similar-content {
-        padding: 12px;
-    }
-    
-    .bd-similar-content h3 {
-        font-size: 16px;
-    }
-    
-    /* Lightbox */
-    .bd-lightbox-prev,
-    .bd-lightbox-next {
-        width: 44px;
-        height: 44px;
-    }
-    
-    .bd-lightbox-close {
-        width: 44px;
-        height: 44px;
-        font-size: 24px;
-        top: 12px;
-        right: 12px;
-    }
+	/* Hero */
+	.bd-business-hero {
+		padding: 32px 0;
+	}
+
+	.bd-business-hero h1 {
+		font-size: 26px !important;
+		line-height: 1.2 !important;
+	}
+
+	.bd-business-meta {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+	}
+
+	.bd-rating-badge {
+		width: 100%;
+		justify-content: flex-start;
+	}
+
+	/* Content wrapper */
+	.bd-business-content-wrapper {
+		padding: 0 12px 24px;
+	}
+
+	/* Info cards */
+	.bd-info-card {
+		padding: 16px;
+	}
+
+	.bd-info-card h2 {
+		font-size: 20px;
+	}
+
+	.bd-info-card h3 {
+		font-size: 16px;
+	}
+
+	.bd-about-section .bd-description {
+		font-size: 14px;
+	}
+
+	/* Photo gallery on very small screens */
+	.bd-gallery-main {
+		height: 200px;
+	}
+
+	.bd-gallery-grid {
+		grid-template-rows: repeat(2, 100px);
+	}
+
+	.bd-gallery-more-overlay span {
+		font-size: 22px;
+	}
+
+	/* Reviews */
+	.bd-reviews-section {
+		padding: 24px 12px;
+	}
+
+	.bd-reviews-section h2 {
+		font-size: 20px !important;
+	}
+
+	.bd-rating-summary {
+		padding: 12px 16px;
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 8px;
+	}
+
+	/* Review cards */
+	.bd-review-card {
+		padding: 16px;
+	}
+
+	/* Form */
+	.bd-form {
+		padding: 16px;
+	}
+
+	.bd-star-rating label {
+		font-size: 24px !important;
+	}
+
+	/* Similar businesses */
+	.bd-similar-businesses {
+		padding: 24px 12px;
+	}
+
+	.bd-similar-image {
+		height: 150px;
+	}
+
+	.bd-similar-content {
+		padding: 12px;
+	}
+
+	.bd-similar-content h3 {
+		font-size: 16px;
+	}
+
+	/* Lightbox */
+	.bd-lightbox-prev,
+	.bd-lightbox-next {
+		width: 44px;
+		height: 44px;
+	}
+
+	.bd-lightbox-close {
+		width: 44px;
+		height: 44px;
+		font-size: 24px;
+		top: 12px;
+		right: 12px;
+	}
 }
 
 /* ============================================================================
-   PREVENT HORIZONTAL OVERFLOW (All breakpoints)
-   ========================================================================= */
+	PREVENT HORIZONTAL OVERFLOW (All breakpoints)
+	========================================================================= */
 body.single-bd_business {
-    overflow-x: hidden;
+	overflow-x: hidden;
 }
 
 .bd-business-hero,
 .bd-business-content-wrapper,
 .bd-reviews-section,
 .bd-similar-businesses {
-    max-width: 100vw;
-    overflow-x: hidden;
+	max-width: 100vw;
+	overflow-x: hidden;
 }
 
 /* Ensure long text wraps properly */
@@ -1950,158 +1950,158 @@ body.single-bd_business {
 .bd-info-card h3,
 .bd-business-hero h1,
 .bd-similar-content h3 {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    hyphens: auto;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	hyphens: auto;
 }
 /* ============================================================================
-   ADDITIONAL MOBILE FIXES - Card overflow issues
-   Add this to the END of business-detail-premium.css
-   ========================================================================= */
+	ADDITIONAL MOBILE FIXES - Card overflow issues
+	Add this to the END of business-detail-premium.css
+	========================================================================= */
 
 @media (max-width: 768px) {
-    /* Fix reviews section decorative element pushing content */
-    .bd-reviews-section::before {
-        display: none;
-    }
-    
-    .bd-reviews-section {
-        margin-left: 0;
-        margin-right: 0;
-        padding-left: 16px;
-        padding-right: 16px;
-    }
-    
-    /* Fix info cards that might have left borders */
-    .bd-info-card {
-        margin-left: 0;
-        margin-right: 0;
-        box-sizing: border-box;
-        width: 100%;
-        max-width: 100%;
-    }
-    
-    /* Fix rating summary left border */
-    .bd-rating-summary {
-        border-left-width: 3px;
-        margin-left: 0;
-        margin-right: 0;
-    }
-    
-    /* Fix social sharing section */
-    .bd-social-sharing {
-        margin-left: 0;
-        margin-right: 0;
-        padding-left: 16px;
-        padding-right: 16px;
-    }
-    
-    .bd-share-buttons {
-        gap: 12px;
-    }
-    
-    .bd-share-btn {
-        margin-left: 0;
-        margin-right: 0;
-    }
-    
-    /* Fix claim CTA section */
-    .bd-claim-cta-section,
-    .bd-claim-cta-card {
-        margin-left: 0;
-        margin-right: 0;
-        padding-left: 16px;
-        padding-right: 16px;
-        box-sizing: border-box;
-        max-width: 100%;
-    }
-    
-    /* Fix hours card - ensure times don't overflow */
-    .bd-hours-row {
-        flex-wrap: nowrap;
-    }
-    
-    .bd-time {
-        text-align: right;
-        white-space: nowrap;
-    }
-    
-    /* Fix contact card */
-    .bd-contact-card {
-        margin-left: 0;
-        margin-right: 0;
-    }
-    
-    .bd-contact-item p {
-        word-break: break-word;
-    }
-    
-    /* Fix map preview */
-    .bd-map-preview {
-        margin-left: 0;
-        margin-right: 0;
-    }
-    
-    /* Fix similar businesses section */
-    .bd-similar-businesses {
-        margin-left: 0;
-        margin-right: 0;
-        padding-left: 16px;
-        padding-right: 16px;
-    }
-    
-    /* Ensure all children of content wrapper respect bounds */
-    .bd-business-content-wrapper > * {
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-    
-    /* Fix form inputs */
-    .bd-form input,
-    .bd-form textarea,
-    .bd-form select {
-        max-width: 100%;
-        box-sizing: border-box;
-    }
-    
-    /* Fix any absolute positioned decorations */
-    .bd-reviews-section h2::after {
-        max-width: 60px;
-    }
+	/* Fix reviews section decorative element pushing content */
+	.bd-reviews-section::before {
+		display: none;
+	}
+
+	.bd-reviews-section {
+		margin-left: 0;
+		margin-right: 0;
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	/* Fix info cards that might have left borders */
+	.bd-info-card {
+		margin-left: 0;
+		margin-right: 0;
+		box-sizing: border-box;
+		width: 100%;
+		max-width: 100%;
+	}
+
+	/* Fix rating summary left border */
+	.bd-rating-summary {
+		border-left-width: 3px;
+		margin-left: 0;
+		margin-right: 0;
+	}
+
+	/* Fix social sharing section */
+	.bd-social-sharing {
+		margin-left: 0;
+		margin-right: 0;
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	.bd-share-buttons {
+		gap: 12px;
+	}
+
+	.bd-share-btn {
+		margin-left: 0;
+		margin-right: 0;
+	}
+
+	/* Fix claim CTA section */
+	.bd-claim-cta-section,
+	.bd-claim-cta-card {
+		margin-left: 0;
+		margin-right: 0;
+		padding-left: 16px;
+		padding-right: 16px;
+		box-sizing: border-box;
+		max-width: 100%;
+	}
+
+	/* Fix hours card - ensure times don't overflow */
+	.bd-hours-row {
+		flex-wrap: nowrap;
+	}
+
+	.bd-time {
+		text-align: right;
+		white-space: nowrap;
+	}
+
+	/* Fix contact card */
+	.bd-contact-card {
+		margin-left: 0;
+		margin-right: 0;
+	}
+
+	.bd-contact-item p {
+		word-break: break-word;
+	}
+
+	/* Fix map preview */
+	.bd-map-preview {
+		margin-left: 0;
+		margin-right: 0;
+	}
+
+	/* Fix similar businesses section */
+	.bd-similar-businesses {
+		margin-left: 0;
+		margin-right: 0;
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+
+	/* Ensure all children of content wrapper respect bounds */
+	.bd-business-content-wrapper > * {
+		max-width: 100%;
+		box-sizing: border-box;
+	}
+
+	/* Fix form inputs */
+	.bd-form input,
+	.bd-form textarea,
+	.bd-form select {
+		max-width: 100%;
+		box-sizing: border-box;
+	}
+
+	/* Fix any absolute positioned decorations */
+	.bd-reviews-section h2::after {
+		max-width: 60px;
+	}
 }
 
 @media (max-width: 480px) {
-    /* Even tighter on small screens */
-    .bd-reviews-section,
-    .bd-social-sharing,
-    .bd-similar-businesses,
-    .bd-claim-cta-section {
-        padding-left: 12px;
-        padding-right: 12px;
-    }
-    
-    .bd-info-card {
-        padding-left: 12px;
-        padding-right: 12px;
-    }
-    
-    /* Hours - stack if needed */
-    .bd-hours-row {
-        font-size: 13px;
-    }
-    
-    .bd-day {
-        min-width: 70px;
-    }
+	/* Even tighter on small screens */
+	.bd-reviews-section,
+	.bd-social-sharing,
+	.bd-similar-businesses,
+	.bd-claim-cta-section {
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+
+	.bd-info-card {
+		padding-left: 12px;
+		padding-right: 12px;
+	}
+
+	/* Hours - stack if needed */
+	.bd-hours-row {
+		font-size: 13px;
+	}
+
+	.bd-day {
+		min-width: 70px;
+	}
 }
 
 /* Global fix - prevent ANY horizontal overflow */
 @media (max-width: 768px) {
-    .bd-business-content-wrapper,
-    .bd-business-main,
-    .bd-business-sidebar,
-    .bd-business-grid {
-        overflow-x: hidden;
-        max-width: 100vw;
-    }
+	.bd-business-content-wrapper,
+	.bd-business-main,
+	.bd-business-sidebar,
+	.bd-business-grid {
+		overflow-x: hidden;
+		max-width: 100vw;
+	}
 }

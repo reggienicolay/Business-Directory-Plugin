@@ -5,8 +5,8 @@
  */
 
 /* ============================================================================
-   CSS VARIABLES
-   ========================================================================= */
+	CSS VARIABLES
+	========================================================================= */
 
 .bd-feature-grid,
 .bd-feature-list,
@@ -26,8 +26,8 @@
 }
 
 /* ============================================================================
-   CARD LAYOUT
-   ========================================================================= */
+	CARD LAYOUT
+	========================================================================= */
 
 .bd-feature-grid {
 	display: grid;
@@ -196,8 +196,8 @@
 }
 
 /* ============================================================================
-   LIST LAYOUT
-   ========================================================================= */
+	LIST LAYOUT
+	========================================================================= */
 
 .bd-feature-list {
 	display: flex;
@@ -336,8 +336,8 @@
 }
 
 /* ============================================================================
-   INLINE LAYOUT
-   ========================================================================= */
+	INLINE LAYOUT
+	========================================================================= */
 
 .bd-feature-inline-group {
 	display: inline;
@@ -379,8 +379,8 @@
 }
 
 /* ============================================================================
-   MINI LAYOUT
-   ========================================================================= */
+	MINI LAYOUT
+	========================================================================= */
 
 .bd-feature-mini-group {
 	display: inline;
@@ -408,8 +408,8 @@
 }
 
 /* ============================================================================
-   RESPONSIVE
-   ========================================================================= */
+	RESPONSIVE
+	========================================================================= */
 
 @media (max-width: 1024px) {
 	.bd-feature-grid.bd-feature-columns-4 {
@@ -422,30 +422,30 @@
 	.bd-feature-grid.bd-feature-columns-4 {
 		grid-template-columns: repeat(2, 1fr);
 	}
-	
+
 	.bd-feature-grid {
 		gap: 16px;
 	}
-	
+
 	.bd-feature-content {
 		padding: 16px;
 	}
-	
+
 	.bd-feature-title {
 		font-size: 18px;
 	}
-	
+
 	/* List adjustments */
 	.bd-feature-list-item {
 		grid-template-columns: 60px 1fr auto;
 		gap: 12px;
 	}
-	
+
 	.bd-feature-list-thumb {
 		width: 60px;
 		height: 60px;
 	}
-	
+
 	.bd-feature-list-meta {
 		flex-direction: row;
 		gap: 12px;
@@ -458,22 +458,22 @@
 	.bd-feature-grid.bd-feature-columns-4 {
 		grid-template-columns: 1fr;
 	}
-	
+
 	.bd-feature-list-item {
 		grid-template-columns: 1fr;
 		text-align: center;
 	}
-	
+
 	.bd-feature-list-thumb {
 		width: 100%;
 		height: 150px;
 		margin: 0 auto 12px;
 	}
-	
+
 	.bd-feature-list-info {
 		align-items: center;
 	}
-	
+
 	.bd-feature-list-meta {
 		flex-direction: column;
 		align-items: center;
@@ -482,8 +482,8 @@
 }
 
 /* ============================================================================
-   DARK MODE SUPPORT (if theme supports it)
-   ========================================================================= */
+	DARK MODE SUPPORT (if theme supports it)
+	========================================================================= */
 
 @media (prefers-color-scheme: dark) {
 	.bd-feature-grid,
@@ -501,8 +501,8 @@
 }
 
 /* ============================================================================
-   NO IMAGE PLACEHOLDER
-   ========================================================================= */
+	NO IMAGE PLACEHOLDER
+	========================================================================= */
 
 .bd-feature-card .bd-feature-image-link:empty,
 .bd-feature-list-item .bd-feature-thumb-link:empty {

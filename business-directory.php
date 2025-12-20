@@ -111,5 +111,5 @@ if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/gamification-loader.ph
 
 // Load Feature Embed System
 if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/feature-embed-loader.php' ) ) {
-    require_once plugin_dir_path( __FILE__ ) . 'includes/feature-embed-loader.php';
+	require_once plugin_dir_path( __FILE__ ) . 'includes/feature-embed-loader.php';
 }

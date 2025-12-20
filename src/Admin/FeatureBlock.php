@@ -26,23 +26,23 @@ class FeatureBlock {
 			array(
 				'render_callback' => array( __CLASS__, 'render_block' ),
 				'attributes'      => array(
-					'ids'      => array(
+					'ids'     => array(
 						'type'    => 'string',
 						'default' => '',
 					),
-					'layout'   => array(
+					'layout'  => array(
 						'type'    => 'string',
 						'default' => 'card',
 					),
-					'columns'  => array(
+					'columns' => array(
 						'type'    => 'string',
 						'default' => '3',
 					),
-					'ctaText'  => array(
+					'ctaText' => array(
 						'type'    => 'string',
 						'default' => 'View Details',
 					),
-					'show'     => array(
+					'show'    => array(
 						'type'    => 'string',
 						'default' => 'image,title,rating,excerpt,category,cta',
 					),
@@ -65,9 +65,9 @@ class FeatureBlock {
 		);
 
 		// Check if cross-site source is configured
-		$source_url = get_option( 'bd_feature_source_url', '' );
+		$source_url    = get_option( 'bd_feature_source_url', '' );
 		$is_cross_site = ! empty( $source_url );
-		
+
 		// Determine API URL (local or remote)
 		if ( $is_cross_site ) {
 			$api_url = 'https://' . ltrim( $source_url, 'https://' ) . '/wp-json/bd/v1/';
