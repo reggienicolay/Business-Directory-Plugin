@@ -3,7 +3,7 @@
  * Plugin Name: Business Directory Pro
  * Plugin URI: https://github.com/reggienicolay/Business-Directory-Plugin
  * Description: Modern, map-first local business directory with geolocation, reviews, and multi-city support.
- * Version: 0.1.0
+ * Version: 0.1.1
  * Author: Reggie Nicolay
  * Author URI: https://narrpr.com
  * Text Domain: business-directory
@@ -107,4 +107,9 @@ require_once plugin_dir_path( __FILE__ ) . 'src/API/SubmissionEndpoint.php';
 // Load Gamification System
 if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/gamification-loader.php' ) ) {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/gamification-loader.php';
+}
+
+// Load Feature Embed System
+if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/feature-embed-loader.php' ) ) {
+    require_once plugin_dir_path( __FILE__ ) . 'includes/feature-embed-loader.php';
 }
