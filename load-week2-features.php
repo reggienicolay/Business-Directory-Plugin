@@ -33,7 +33,7 @@ add_action(
 	function () {
 		if ( is_page() || is_singular( 'business' ) ) {
 			wp_enqueue_style( 'bd-filters', plugins_url( 'assets/css/filters.css', __FILE__ ), array(), '1.0.0' );
-			wp_enqueue_script( 'bd-filters', plugins_url( 'assets/js/directory-filters.js', __FILE__ ), array( 'jquery' ), '1.0.0', true );
+			wp_enqueue_script( 'bd-filters', plugins_url( 'assets/js/business-directory.js', __FILE__ ), array( 'jquery' ), '1.0.0', true );
 			wp_enqueue_script( 'bd-geolocation', plugins_url( 'assets/js/geolocation.js', __FILE__ ), array( 'jquery' ), '1.0.0', true );
 
 			wp_localize_script(

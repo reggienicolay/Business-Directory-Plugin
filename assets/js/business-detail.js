@@ -1,6 +1,7 @@
 /**
  * Business Detail Page - Interactive Features
  * Handles: Photo Lightbox, Social Sharing, Map
+ * Updated with blue/teal color scheme
  */
 
 (function() {
@@ -165,23 +166,23 @@
                 maxZoom: 19
             }).addTo(this.map);
             
-            // Add custom marker
+            // Add custom marker - UPDATED COLORS: Navy/Teal
             const customIcon = L.divIcon({
                 className: 'bd-custom-marker',
                 html: `
                     <div style="
                         width: 40px;
                         height: 40px;
-                        background: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 100%);
-                        border: 3px solid #C9A86A;
+                        background: linear-gradient(135deg, #0F2A43 0%, #133453 100%);
+                        border: 3px solid #2CB1BC;
                         border-radius: 50% 50% 50% 0;
                         transform: rotate(-45deg);
-                        box-shadow: 0 4px 12px rgba(107, 44, 62, 0.4);
+                        box-shadow: 0 4px 12px rgba(15, 42, 67, 0.4);
                         display: flex;
                         align-items: center;
                         justify-content: center;
                     ">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="#C9A86A" style="transform: rotate(45deg);">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="#2CB1BC" style="transform: rotate(45deg);">
                             <path d="M10 0C6.5 0 3.75 2.75 3.75 6.25c0 4.375 6.25 13.75 6.25 13.75s6.25-9.375 6.25-13.75C16.25 2.75 13.5 0 10 0zm0 9.375c-1.75 0-3.125-1.375-3.125-3.125S8.25 3.125 10 3.125s3.125 1.375 3.125 3.125S11.75 9.375 10 9.375z"/>
                         </svg>
                     </div>

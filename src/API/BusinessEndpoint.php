@@ -25,6 +25,7 @@ class BusinessEndpoint {
 					'radius_km'   => array( 'type' => 'number' ),
 					'categories'  => array( 'type' => 'string' ),
 					'areas'       => array( 'type' => 'string' ),
+					'tags'        => array( 'type' => 'string' ),
 					'price_level' => array( 'type' => 'string' ),
 					'min_rating'  => array( 'type' => 'number' ),
 					'open_now'    => array( 'type' => 'boolean' ),
@@ -83,6 +84,9 @@ class BusinessEndpoint {
 
 		$bounds = self::calculate_bounds( $businesses );
 
+		// Collect unique tags from results for dynamic tag bar
+		$unique_tags = self::collect_unique_tags( $businesses );
+
 		$response = array(
 			'businesses'      => $businesses,
 			'total'           => $result['total'],
@@ -90,6 +94,7 @@ class BusinessEndpoint {
 			'page'            => $filters['page'],
 			'per_page'        => $filters['per_page'],
 			'bounds'          => $bounds,
+			'available_tags'  => $unique_tags,
 			'filters_applied' => self::get_applied_filters( $filters ),
 		);
 
@@ -125,6 +130,19 @@ class BusinessEndpoint {
 			$contact = array();
 		}
 
+		// Get tags with full term data
+		$tags      = array();
+		$tag_terms = wp_get_post_terms( $business_id, 'bd_tag', array( 'fields' => 'all' ) );
+		if ( ! is_wp_error( $tag_terms ) ) {
+			foreach ( $tag_terms as $term ) {
+				$tags[] = array(
+					'id'   => $term->term_id,
+					'name' => $term->name,
+					'slug' => $term->slug,
+				);
+			}
+		}
+
 		return array(
 			'id'             => $business_id,
 			'title'          => get_the_title( $business_id ),
@@ -137,10 +155,45 @@ class BusinessEndpoint {
 			'price_level'    => get_post_meta( $business_id, 'bd_price_level', true ),
 			'categories'     => wp_get_post_terms( $business_id, 'bd_category', array( 'fields' => 'names' ) ),
 			'areas'          => wp_get_post_terms( $business_id, 'bd_area', array( 'fields' => 'names' ) ),
+			'tags'           => $tags,
 			'location'       => $location,
 			'phone'          => $contact['phone'] ?? '',
 			'is_open_now'    => FilterHandler::is_open_now( $business_id ),
 		);
+	}
+
+	/**
+	 * Collect unique tags from business results for dynamic tag bar
+	 */
+	private static function collect_unique_tags( $businesses ) {
+		$tags_map = array();
+
+		foreach ( $businesses as $business ) {
+			if ( ! empty( $business['tags'] ) ) {
+				foreach ( $business['tags'] as $tag ) {
+					$tag_id = $tag['id'];
+					if ( ! isset( $tags_map[ $tag_id ] ) ) {
+						$tags_map[ $tag_id ] = array(
+							'id'    => $tag['id'],
+							'name'  => $tag['name'],
+							'slug'  => $tag['slug'],
+							'count' => 0,
+						);
+					}
+					++$tags_map[ $tag_id ]['count'];
+				}
+			}
+		}
+
+		// Sort by count descending
+		usort(
+			$tags_map,
+			function ( $a, $b ) {
+				return $b['count'] - $a['count'];
+			}
+		);
+
+		return array_values( $tags_map );
 	}
 
 	private static function calculate_bounds( $businesses ) {
@@ -178,6 +231,9 @@ class BusinessEndpoint {
 		}
 		if ( ! empty( $filters['areas'] ) ) {
 			$applied['areas'] = count( $filters['areas'] );
+		}
+		if ( ! empty( $filters['tags'] ) ) {
+			$applied['tags'] = count( $filters['tags'] );
 		}
 		if ( ! empty( $filters['price_level'] ) ) {
 			$applied['price_level'] = $filters['price_level'];

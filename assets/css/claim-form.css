@@ -1,6 +1,6 @@
 /**
  * Claim Form Modal Styles
- * Reuses premium burgundy/gold theme
+ * Modern blue/teal theme
  */
 
 /* Modal Overlay */
@@ -31,7 +31,7 @@
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: rgba(107, 44, 62, 0.85);
+	background: rgba(15, 42, 67, 0.85);
 	backdrop-filter: blur(4px);
 }
 
@@ -57,7 +57,7 @@
 .bd-claim-modal-header {
 	text-align: center;
 	padding: 40px 40px 32px;
-	background: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 100%);
+	background: linear-gradient(135deg, #0F2A43 0%, #133453 100%);
 	color: white;
 	position: relative;
 }
@@ -75,15 +75,15 @@
 }
 
 .bd-claim-icon svg {
-	color: #C9A86A;
+	color: #2CB1BC;
 }
 
 .bd-claim-modal-header h2 {
-	font-family: 'Playfair Display', Georgia, serif;
+	font-family: 'Inter', -apple-system, sans-serif;
 	font-size: 32px;
 	font-weight: 700;
 	margin: 0 0 8px 0;
-	color: #E4D4B4;
+	color: white;
 }
 
 .bd-claim-subtitle {
@@ -127,15 +127,15 @@
 }
 
 .bd-claim-section h3 {
-	font-family: 'Playfair Display', Georgia, serif;
+	font-family: 'Inter', -apple-system, sans-serif;
 	font-size: 20px;
-	color: #6B2C3E;
+	color: #0F2A43;
 	margin: 0 0 16px 0;
 }
 
 .bd-claim-help {
 	font-size: 14px;
-	color: #6D5F52;
+	color: #829AB1;
 	margin: -8px 0 16px 0;
 	line-height: 1.5;
 }
@@ -149,7 +149,7 @@
 	display: block;
 	font-size: 14px;
 	font-weight: 600;
-	color: #2C2420;
+	color: #0F2A43;
 	margin-bottom: 8px;
 }
 
@@ -157,19 +157,19 @@
 .bd-claim-section textarea {
 	width: 100%;
 	padding: 12px 16px;
-	border: 2px solid #E8DFD3;
+	border: 2px solid #E2E8F0;
 	border-radius: 8px;
 	font-size: 15px;
 	font-family: 'Inter', sans-serif;
-	color: #2C2420;
+	color: #0F2A43;
 	transition: all 0.2s;
 }
 
 .bd-claim-field input:focus,
 .bd-claim-section textarea:focus {
 	outline: none;
-	border-color: #C9A86A;
-	box-shadow: 0 0 0 3px rgba(201, 168, 106, 0.1);
+	border-color: #2CB1BC;
+	box-shadow: 0 0 0 3px rgba(44, 177, 188, 0.1);
 }
 
 .required {
@@ -188,15 +188,15 @@
 	align-items: flex-start;
 	gap: 12px;
 	padding: 16px;
-	border: 2px solid #E8DFD3;
+	border: 2px solid #E2E8F0;
 	border-radius: 8px;
 	cursor: pointer;
 	transition: all 0.2s;
 }
 
 .bd-claim-radio:hover {
-	border-color: #C9A86A;
-	background: #FFF8F0;
+	border-color: #2CB1BC;
+	background: #F8FAFC;
 }
 
 .bd-claim-radio input[type="radio"] {
@@ -207,12 +207,12 @@
 }
 
 .bd-claim-radio input[type="radio"]:checked + .bd-radio-label {
-	color: #6B2C3E;
+	color: #0F2A43;
 }
 
 .bd-claim-radio:has(input:checked) {
-	border-color: #C9A86A;
-	background: linear-gradient(135deg, rgba(201, 168, 106, 0.05) 0%, rgba(107, 44, 62, 0.03) 100%);
+	border-color: #2CB1BC;
+	background: linear-gradient(135deg, rgba(44, 177, 188, 0.05) 0%, rgba(15, 42, 67, 0.03) 100%);
 }
 
 .bd-radio-label {
@@ -223,12 +223,12 @@
 
 .bd-radio-label strong {
 	font-size: 15px;
-	color: #2C2420;
+	color: #0F2A43;
 }
 
 .bd-radio-label small {
 	font-size: 13px;
-	color: #6D5F52;
+	color: #829AB1;
 }
 
 /* File Upload */
@@ -242,9 +242,9 @@
 	gap: 8px;
 	padding: 14px 28px;
 	background: white;
-	border: 2px dashed #C9A86A;
+	border: 2px dashed #2CB1BC;
 	border-radius: 8px;
-	color: #6B2C3E;
+	color: #0F2A43;
 	font-size: 15px;
 	font-weight: 600;
 	cursor: pointer;
@@ -252,8 +252,8 @@
 }
 
 .bd-file-upload-btn:hover {
-	background: #FFF8F0;
-	border-color: #B8935A;
+	background: #F8FAFC;
+	border-color: #239AA3;
 }
 
 .bd-file-list {
@@ -266,22 +266,22 @@
 	align-items: center;
 	justify-content: space-between;
 	padding: 12px;
-	background: #FAFAF8;
-	border: 1px solid #E8DFD3;
+	background: #FAFAFA;
+	border: 1px solid #E2E8F0;
 	border-radius: 6px;
 	margin-bottom: 8px;
 }
 
 .bd-file-name {
 	font-size: 14px;
-	color: #2C2420;
+	color: #0F2A43;
 	display: flex;
 	align-items: center;
 	gap: 8px;
 }
 
 .bd-file-name svg {
-	color: #C9A86A;
+	color: #2CB1BC;
 }
 
 .bd-file-remove {
@@ -303,7 +303,7 @@
 
 .bd-file-hint {
 	font-size: 12px;
-	color: #6D5F52;
+	color: #829AB1;
 	margin-top: 12px;
 }
 
@@ -356,8 +356,8 @@
 	width: 40px;
 	height: 40px;
 	margin: -20px 0 0 -20px;
-	border: 4px solid #E8DFD3;
-	border-top-color: #C9A86A;
+	border: 4px solid #E2E8F0;
+	border-top-color: #2CB1BC;
 	border-radius: 50%;
 	animation: spin 0.8s linear infinite;
 }

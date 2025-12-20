@@ -86,6 +86,16 @@ class QueryBuilder {
 			);
 		}
 
+		// Tags
+		if ( ! empty( $this->filters['tags'] ) ) {
+			$tax_query[] = array(
+				'taxonomy' => 'bd_tag',
+				'field'    => 'term_id',
+				'terms'    => $this->filters['tags'],
+				'operator' => 'IN',
+			);
+		}
+
 		return count( $tax_query ) > 1 ? $tax_query : array();
 	}
 

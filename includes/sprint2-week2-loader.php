@@ -140,7 +140,7 @@ add_action(
 				'bd-business-detail',
 				$plugin_url . 'assets/css/business-detail-premium.css',
 				array( 'font-awesome' ),
-				'1.0.2'  // ← Bumped version for cache busting
+				'1.0.3'  // ← Bumped version for cache busting
 			);
 
 			// Enqueue Leaflet for the map (if not already loaded)

@@ -54,7 +54,7 @@ add_action(
 			// Enqueue filter JS
 			wp_enqueue_script(
 				'bd-filters',
-				plugins_url( 'assets/js/directory-filters.js', __DIR__ ),
+				plugins_url( 'assets/js/business-directory.js', __DIR__ ),
 				array( 'jquery' ),
 				'1.0.0',
 				true

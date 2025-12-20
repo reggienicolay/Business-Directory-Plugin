@@ -23,7 +23,7 @@ while ( have_posts() ) :
 	?>
 
 	<!-- Back to Directory Button -->
-	<a href="<?php echo home_url( '/business-directory/' ); ?>" class="bd-back-link">
+	<a href="<?php echo home_url( '/local/' ); ?>" class="bd-back-link">
 		<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
 			<path d="M8 0L0 8l8 8V0z"/>
 		</svg>

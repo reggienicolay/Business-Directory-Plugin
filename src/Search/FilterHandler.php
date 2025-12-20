@@ -21,6 +21,12 @@ class FilterHandler {
 			$sanitized['areas'] = array_map( 'intval', array_filter( $areas ) );
 		}
 
+		// Tags (array of term IDs)
+		if ( ! empty( $filters['tags'] ) ) {
+			$tags              = is_array( $filters['tags'] ) ? $filters['tags'] : explode( ',', $filters['tags'] );
+			$sanitized['tags'] = array_map( 'intval', array_filter( $tags ) );
+		}
+
 		// Price levels (array of strings)
 		if ( ! empty( $filters['price_level'] ) ) {
 			$valid_prices             = array( '$', '$$', '$$$', '$$$$' );
@@ -84,6 +90,7 @@ class FilterHandler {
 		$metadata = array(
 			'categories'    => self::get_category_counts(),
 			'areas'         => self::get_area_counts(),
+			'tags'          => self::get_tag_counts(),
 			'price_levels'  => self::get_price_level_counts(),
 			'rating_ranges' => self::get_rating_counts(),
 		);
@@ -130,6 +137,36 @@ class FilterHandler {
 			array(
 				'taxonomy'   => 'bd_area',
 				'hide_empty' => true,
+			)
+		);
+
+		if ( is_wp_error( $terms ) ) {
+			return array();
+		}
+
+		$counts = array();
+		foreach ( $terms as $term ) {
+			$counts[] = array(
+				'id'    => $term->term_id,
+				'name'  => $term->name,
+				'slug'  => $term->slug,
+				'count' => $term->count,
+			);
+		}
+
+		return $counts;
+	}
+
+	/**
+	 * Get tag counts
+	 */
+	private static function get_tag_counts() {
+		$terms = get_terms(
+			array(
+				'taxonomy'   => 'bd_tag',
+				'hide_empty' => true,
+				'orderby'    => 'count',
+				'order'      => 'DESC',
 			)
 		);
 

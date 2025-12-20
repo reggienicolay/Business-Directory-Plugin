@@ -1,5 +1,6 @@
 /**
  * Business Directory - Map Marker Styles
+ * Modern blue/teal theme
  */
 
 /* ============================================================================
@@ -13,9 +14,11 @@
 .bd-marker-pin {
 	width: 30px;
 	height: 40px;
+	background: linear-gradient(135deg, #0F2A43 0%, #133453 100%);
 	border-radius: 50% 50% 50% 0;
 	transform: rotate(-45deg);
-	box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+	box-shadow: 0 2px 8px rgba(15, 42, 67, 0.4);
+	border: 2px solid #2CB1BC;
 }
 
 .bd-marker-pin::after {
@@ -23,11 +26,16 @@
 	width: 12px;
 	height: 12px;
 	border-radius: 50%;
-	background: white;
+	background: #2CB1BC;
 	position: absolute;
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+}
+
+/* Hover state for markers */
+.bd-marker-pin:hover {
+	box-shadow: 0 4px 12px rgba(44, 177, 188, 0.5);
 }
 
 .bd-user-marker {
@@ -35,22 +43,23 @@
 	border: none;
 }
 
+/* User location marker - keeping distinct blue for "you are here" */
 .bd-user-pin {
 	width: 20px;
 	height: 20px;
-	background: #3b82f6;
+	background: #2CB1BC;
 	border: 3px solid white;
 	border-radius: 50%;
-	box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+	box-shadow: 0 2px 8px rgba(15, 42, 67, 0.3);
 	animation: bd-pulse 2s infinite;
 }
 
 @keyframes bd-pulse {
 	0%, 100% {
-		box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+		box-shadow: 0 0 0 0 rgba(44, 177, 188, 0.7);
 	}
 	50% {
-		box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+		box-shadow: 0 0 0 10px rgba(44, 177, 188, 0);
 	}
 }
 
@@ -73,31 +82,39 @@
 	margin: 0 0 8px 0;
 	font-size: 16px;
 	font-weight: 600;
-	color: #111827;
+	color: #0F2A43;
 }
 
 .bd-popup-rating,
 .bd-popup-distance,
 .bd-popup-price {
 	font-size: 13px;
-	color: #6b7280;
+	color: #829AB1;
 	margin-bottom: 6px;
+}
+
+.bd-popup-rating {
+	color: #2CB1BC;
 }
 
 .bd-popup-link {
 	display: inline-block;
 	margin-top: 10px;
-	padding: 6px 12px;
-	background: #3b82f6;
+	padding: 8px 16px;
+	background: linear-gradient(135deg, #0F2A43 0%, #133453 100%);
 	color: white !important;
 	text-decoration: none;
-	border-radius: 4px;
+	border-radius: 6px;
 	font-size: 13px;
-	font-weight: 500;
+	font-weight: 600;
+	border: 2px solid #2CB1BC;
+	transition: all 0.3s ease;
 }
 
 .bd-popup-link:hover {
-	background: #2563eb;
+	background: linear-gradient(135deg, #133453 0%, #2CB1BC 100%);
+	transform: translateY(-1px);
+	box-shadow: 0 4px 12px rgba(44, 177, 188, 0.3);
 }
 
 /* ============================================================================
@@ -106,14 +123,15 @@
 .bd-btn-link {
 	background: none;
 	border: none;
-	color: #3b82f6;
+	color: #2CB1BC;
 	font-size: 12px;
 	text-decoration: underline;
 	cursor: pointer;
 	padding: 0;
 	margin-left: 8px;
+	transition: color 0.2s ease;
 }
 
 .bd-btn-link:hover {
-	color: #2563eb;
+	color: #239AA3;
 }

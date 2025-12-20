@@ -10,7 +10,7 @@ get_header();
 <main id="content" class="site-main business-detail-page">
 	
 	<!-- Back to Directory Button -->
-	<a href="<?php echo home_url( '/business-directory/' ); ?>" class="bd-back-to-directory">
+	<a href="<?php echo home_url( '/local/' ); ?>" class="bd-back-to-directory">
 		← Back to Directory
 	</a>
 	

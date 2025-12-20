@@ -40,43 +40,102 @@ class Filters {
 		<div class="bd-directory-wrapper" style="display: flex; gap: 20px; flex-wrap: wrap;">
 
 			<!-- Filters Sidebar -->
-			<aside class="bd-directory-sidebar" style="flex: 0 0 280px;">
+			<aside class="bd-directory-sidebar">
 
-<!-- Add Business CTA Button -->
-<div class="bd-add-business-cta" style="margin-bottom: 24px;"><a href="<?php echo home_url( '/add-your-business/' ); ?>" class="bd-add-business-btn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> ADD YOUR BUSINESS</a></div>
+				<!-- Add Business CTA Button -->
+				<div class="bd-add-business-cta" style="margin-bottom: 24px;">
+					<a href="<?php echo home_url( '/add-your-business/' ); ?>" class="bd-add-business-btn">
+						<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+							<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+						</svg> 
+						ADD YOUR BUSINESS
+					</a>
+				</div>
 				<?php echo self::render_filter_panel( $metadata ); ?>
 			</aside>
 
 			<!-- Main Content Area -->
 			<main class="bd-directory-main" style="flex: 1; min-width: 300px;">
 
-				<!-- Results Info Bar -->
-				<div id="bd-results-info" class="bd-results-info" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: white; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 20px;">
+				<!-- Results Count Bar (simplified - count only) -->
+				<div id="bd-results-info" class="bd-results-info bd-results-count-only">
 					<div class="bd-result-count">
 						<span id="bd-result-count-text">Loading...</span>
-					</div>
-					<div class="bd-sort-options" style="display: flex; align-items: center; gap: 8px;">
-						<label for="bd-sort-select" style="font-size: 14px; color: #6b7280;">Sort by:</label>
-						<select id="bd-sort-select" class="bd-select" style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
-							<option value="distance">Distance</option>
-							<option value="rating">Rating</option>
-							<option value="newest">Newest</option>
-							<option value="name">Name (A-Z)</option>
-						</select>
 					</div>
 				</div>
 
 				<!-- Map Container -->
-				<div id="bd-map" style="height: 600px; margin-bottom: 30px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f5f5f5;"></div>
+				<div id="bd-map" style="height: 600px; margin-bottom: 20px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f5f5f5;"></div>
+
+				<!-- View Controls Bar (above tags/results) -->
+				<div class="bd-view-controls-bar">
+					<div class="bd-results-controls">
+						<!-- View Toggle Buttons -->
+						<div class="bd-view-toggle" role="group" aria-label="View options">
+							<button type="button" class="bd-view-btn active" data-view="list" aria-pressed="true" title="List View">
+								<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+									<path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+								</svg>
+								<span class="bd-view-label">List</span>
+							</button>
+							<button type="button" class="bd-view-btn" data-view="grid" aria-pressed="false" title="Grid View">
+								<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+									<path d="M3 3v8h8V3H3zm6 6H5V5h4v4zm-6 4v8h8v-8H3zm6 6H5v-4h4v4zm4-16v8h8V3h-8zm6 6h-4V5h4v4zm-6 4v8h8v-8h-8zm6 6h-4v-4h4v4z"/>
+								</svg>
+								<span class="bd-view-label">Grid</span>
+							</button>
+						</div>
+						<!-- Sort Dropdown -->
+						<div class="bd-sort-options">
+							<label for="bd-sort-select">Sort:</label>
+							<select id="bd-sort-select" class="bd-select">
+								<option value="distance">Distance</option>
+								<option value="rating">Rating</option>
+								<option value="newest">Newest</option>
+								<option value="name">Name (A-Z)</option>
+							</select>
+						</div>
+					</div>
+				</div>
+
+				<!-- Tag Bar - Horizontal Scrollable -->
+				<div id="bd-tag-bar" class="bd-tag-bar">
+					<div class="bd-tag-bar-inner">
+						<span class="bd-tag-bar-label">
+							<svg width="14" height="14" viewBox="0 0 512 512" fill="currentColor">
+								<path d="M345 39.1L472.8 168.4c52.4 53 52.4 138.2 0 191.2L360.8 472.9c-9.3 9.4-24.5 9.5-33.9 .2s-9.5-24.5-.2-33.9L438.6 325.9c33.9-34.3 33.9-89.4 0-123.7L310.9 72.9c-9.3-9.4-9.2-24.6 .2-33.9s24.6-9.2 33.9 .2zM0 229.5V80C0 53.5 21.5 32 48 32H197.5c17 0 33.3 6.7 45.3 18.7l168 168c25 25 25 65.5 0 90.5L277.3 442.7c-25 25-65.5 25-90.5 0l-168-168C6.7 262.7 0 246.5 0 229.5zM144 144a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/>
+							</svg>
+							Tags:
+						</span>
+						<div class="bd-tag-scroll-container">
+							<div class="bd-tag-list" id="bd-tag-list">
+								<!-- Tags populated by JavaScript -->
+							</div>
+						</div>
+						<button type="button" class="bd-tag-expand-btn" id="bd-tag-expand-btn" style="display: none;" title="Show all tags">
+							<span class="bd-tag-more-count">+0</span>
+						</button>
+					</div>
+					<!-- Expanded Tag Panel (hidden by default) -->
+					<div class="bd-tag-expanded-panel" id="bd-tag-expanded-panel" style="display: none;">
+						<div class="bd-tag-expanded-list" id="bd-tag-expanded-list"></div>
+					</div>
+				</div>
 
 				<!-- Business List Container -->
-				<div id="bd-business-list" style="margin-top: 20px;">
+				<div id="bd-business-list" class="bd-view-list" data-view="list">
 					<p style="text-align: center; padding: 40px; color: #6b7280;">Loading businesses...</p>
 				</div>
 
 			</main>
 
 		</div>
+
+		<!-- Mobile Filter Toggle Button - OUTSIDE the panel so it's always visible -->
+		<button class="bd-filter-toggle bd-mobile-only" aria-label="Toggle Filters">
+			<span>Filters</span>
+			<span class="bd-filter-count" style="display: none;"></span>
+		</button>
 		<?php
 		return ob_get_clean();
 	}
@@ -96,12 +155,6 @@ class Filters {
 		ob_start();
 		?>
 		<div id="bd-filter-panel" class="bd-filter-panel">
-
-			<!-- Mobile Toggle Button -->
-			<button class="bd-filter-toggle bd-mobile-only" aria-label="Toggle Filters">
-				<span>Filters</span>
-				<span class="bd-filter-count" style="display: none;"></span>
-			</button>
 
 			<div class="bd-filter-content">
 
@@ -220,6 +273,11 @@ class Filters {
 
 			</div>
 		</div>
+
+		<!-- Hidden container for tag metadata (used by JS) -->
+		<script type="application/json" id="bd-tags-data">
+			<?php echo wp_json_encode( $metadata['tags'] ?? array() ); ?>
+		</script>
 		<?php
 		return ob_get_clean();
 	}
