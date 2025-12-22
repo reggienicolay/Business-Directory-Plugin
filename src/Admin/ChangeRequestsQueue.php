@@ -40,6 +40,7 @@ class ChangeRequestsQueue {
 			'edit.php?post_type=bd_business',
 			__( 'Pending Changes', 'business-directory' ),
 			sprintf(
+				// translators: %s is the pending count badge HTML.
 				__( 'Pending Changes %s', 'business-directory' ),
 				$pending_count > 0 ? '<span class="awaiting-mod count-' . $pending_count . '"><span class="pending-count">' . number_format_i18n( $pending_count ) . '</span></span>' : ''
 			),

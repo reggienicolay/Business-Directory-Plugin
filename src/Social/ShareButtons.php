@@ -250,17 +250,19 @@ class ShareButtons {
 		ob_start();
 		?>
 		<div class="bd-share-buttons bd-share-<?php echo esc_attr( $args['style'] ); ?>"
-			 data-share-type="<?php echo esc_attr( $args['type'] ); ?>"
-			 data-object-id="<?php echo esc_attr( $args['object_id'] ); ?>"
-			 data-share-url="<?php echo esc_attr( $args['url'] ); ?>">
+			data-share-type="<?php echo esc_attr( $args['type'] ); ?>"
+			data-object-id="<?php echo esc_attr( $args['object_id'] ); ?>"
+			data-share-url="<?php echo esc_attr( $args['url'] ); ?>">
 			
 			<span class="bd-share-label"><?php esc_html_e( 'Share:', 'business-directory' ); ?></span>
 			
 			<div class="bd-share-buttons-list">
 				<?php foreach ( $args['platforms'] as $platform ) : ?>
-					<?php if ( ! isset( self::PLATFORMS[ $platform ] ) ) {
+					<?php
+					if ( ! isset( self::PLATFORMS[ $platform ] ) ) {
 						continue;
-					} ?>
+					}
+					?>
 					<?php $p = self::PLATFORMS[ $platform ]; ?>
 					
 					<?php
@@ -287,16 +289,16 @@ class ShareButtons {
 					?>
 					
 					<a href="<?php echo esc_url( $share_href ); ?>"
-					   class="bd-share-btn bd-share-<?php echo esc_attr( $platform ); ?>"
-					   data-platform="<?php echo esc_attr( $platform ); ?>"
-					   data-share-url="<?php echo esc_attr( $args['url'] ); ?>"
-					   data-share-text="<?php echo esc_attr( $args['text'] ); ?>"
-					   data-share-title="<?php echo esc_attr( $args['title'] ); ?>"
-					   title="<?php echo esc_attr( $p['name'] ); ?>"
-					   style="--btn-color: <?php echo esc_attr( $p['color'] ); ?>"
-					   <?php if ( 'email' !== $platform && 'copy_link' !== $platform ) : ?>
-					   target="_blank" rel="noopener noreferrer"
-					   <?php endif; ?>>
+						class="bd-share-btn bd-share-<?php echo esc_attr( $platform ); ?>"
+						data-platform="<?php echo esc_attr( $platform ); ?>"
+						data-share-url="<?php echo esc_attr( $args['url'] ); ?>"
+						data-share-text="<?php echo esc_attr( $args['text'] ); ?>"
+						data-share-title="<?php echo esc_attr( $args['title'] ); ?>"
+						title="<?php echo esc_attr( $p['name'] ); ?>"
+						style="--btn-color: <?php echo esc_attr( $p['color'] ); ?>"
+						<?php if ( 'email' !== $platform && 'copy_link' !== $platform ) : ?>
+						target="_blank" rel="noopener noreferrer"
+						<?php endif; ?>>
 						<i class="<?php echo esc_attr( $p['icon'] ); ?>"></i>
 						<span class="bd-share-btn-text"><?php echo esc_html( $p['name'] ); ?></span>
 					</a>

@@ -128,7 +128,7 @@ class ShareTracker {
 				$limit_reached = true;
 			} else {
 				// Award points.
-				$points        = ShareButtons::SHARE_POINTS[ 'share_' . $type ] ?? 5;
+				$points         = ShareButtons::SHARE_POINTS[ 'share_' . $type ] ?? 5;
 				$points_awarded = $points;
 
 				// Track activity if ActivityTracker is available.
@@ -291,7 +291,7 @@ class ShareTracker {
 
 		$remaining = array();
 		foreach ( self::DAILY_LIMITS as $type => $limit ) {
-			$used              = 0;
+			$used = 0;
 			foreach ( $today_by_type as $row ) {
 				if ( $row['share_type'] === $type ) {
 					$used = (int) $row['count'];

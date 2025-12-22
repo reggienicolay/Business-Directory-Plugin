@@ -141,7 +141,7 @@ class ToolsDashboard {
 
 		// Get this month's reviews.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		$monthly_reviews = $wpdb->get_var(
+		$monthly_reviews          = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$reviews_table} 
 				WHERE business_id = %d 
@@ -201,7 +201,7 @@ class ToolsDashboard {
 		}
 
 		// Estimate views from post meta or analytics.
-		$views = get_post_meta( $business_id, 'bd_view_count', true );
+		$views          = get_post_meta( $business_id, 'bd_view_count', true );
 		$stats['views'] = $views ? (int) $views : 0;
 
 		return $stats;
@@ -252,13 +252,13 @@ class ToolsDashboard {
 			<?php foreach ( $businesses as $index => $business ) : ?>
 				<?php $stats = self::get_business_stats( $business->ID ); ?>
 				<div class="bd-tools-business-panel" 
-					 data-business-id="<?php echo esc_attr( $business->ID ); ?>"
-					 style="<?php echo $index > 0 ? 'display: none;' : ''; ?>">
+					data-business-id="<?php echo esc_attr( $business->ID ); ?>"
+					style="<?php echo $index > 0 ? 'display: none;' : ''; ?>">
 					
 					<div class="bd-tools-header">
 						<h2><?php echo esc_html( $business->post_title ); ?></h2>
 						<a href="<?php echo esc_url( get_permalink( $business->ID ) ); ?>" 
-						   class="bd-tools-view-listing" target="_blank">
+							class="bd-tools-view-listing" target="_blank">
 							<?php esc_html_e( 'View Listing →', 'business-directory' ); ?>
 						</a>
 					</div>
@@ -411,7 +411,7 @@ class ToolsDashboard {
 
 					<label><?php esc_html_e( 'Allowed Domains:', 'business-directory' ); ?></label>
 					<textarea id="widget-domains" class="bd-tools-textarea" 
-							  placeholder="example.com&#10;www.example.com"></textarea>
+								placeholder="example.com&#10;www.example.com"></textarea>
 					<p class="bd-tools-help"><?php esc_html_e( 'One domain per line. The widget will only work on these domains.', 'business-directory' ); ?></p>
 				</div>
 
@@ -545,7 +545,7 @@ class ToolsDashboard {
 
 					<label><?php esc_html_e( 'Email Address:', 'business-directory' ); ?></label>
 					<input type="email" id="email-address" class="bd-tools-input" 
-						   value="<?php echo esc_attr( wp_get_current_user()->user_email ); ?>">
+							value="<?php echo esc_attr( wp_get_current_user()->user_email ); ?>">
 
 					<label class="bd-tools-checkbox">
 						<input type="checkbox" id="email-reviews" checked>

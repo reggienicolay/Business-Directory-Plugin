@@ -73,7 +73,7 @@ class ShortcodesAdmin {
 			// =============================================
 			// CORE DIRECTORY
 			// =============================================
-			'directory'          => array(
+			'directory'           => array(
 				'name'        => 'Business Directory',
 				'shortcode'   => 'business_directory',
 				'description' => 'Displays the main business directory with map, filters, and listings.',
@@ -115,7 +115,7 @@ class ShortcodesAdmin {
 					'[business_directory category="restaurants" show_map="no"]',
 				),
 			),
-			'search_box'         => array(
+			'search_box'          => array(
 				'name'        => 'Search Box',
 				'shortcode'   => 'bd_search',
 				'description' => 'Displays a standalone business search box.',
@@ -138,7 +138,7 @@ class ShortcodesAdmin {
 					'[bd_search placeholder="Find a local business..."]',
 				),
 			),
-			'category_list'      => array(
+			'category_list'       => array(
 				'name'        => 'Category List',
 				'shortcode'   => 'bd_categories',
 				'description' => 'Displays a list or grid of business categories.',
@@ -201,7 +201,7 @@ class ShortcodesAdmin {
 			// =============================================
 			// USER LISTS
 			// =============================================
-			'my_lists'           => array(
+			'my_lists'            => array(
 				'name'        => 'My Lists',
 				'shortcode'   => 'bd_my_lists',
 				'description' => 'Displays the current user\'s saved business lists with management options.',
@@ -225,7 +225,7 @@ class ShortcodesAdmin {
 					'[bd_my_lists show_create="no"]',
 				),
 			),
-			'public_lists'       => array(
+			'public_lists'        => array(
 				'name'        => 'Community Lists',
 				'shortcode'   => 'bd_public_lists',
 				'description' => 'Displays public lists from all users. Great for a "Community Lists" or "Discover" page.',
@@ -255,7 +255,7 @@ class ShortcodesAdmin {
 					'[bd_public_lists show_featured="no"]',
 				),
 			),
-			'single_list'        => array(
+			'single_list'         => array(
 				'name'        => 'Single List View',
 				'shortcode'   => 'bd_list',
 				'description' => 'Displays a single list with all its businesses. Used for the list detail page.',
@@ -279,7 +279,7 @@ class ShortcodesAdmin {
 					'[bd_list slug="best-coffee-shops"]',
 				),
 			),
-			'save_button'        => array(
+			'save_button'         => array(
 				'name'        => 'Save to List Button',
 				'shortcode'   => 'bd_save_button',
 				'description' => 'Displays a "Save" button that opens the list selector modal. Use on business pages.',
@@ -307,7 +307,7 @@ class ShortcodesAdmin {
 			// =============================================
 			// GAMIFICATION
 			// =============================================
-			'user_profile'       => array(
+			'user_profile'        => array(
 				'name'        => 'User Profile',
 				'shortcode'   => 'bd_user_profile',
 				'description' => 'Displays a user profile with stats, badges, reviews, and activity.',
@@ -343,7 +343,7 @@ class ShortcodesAdmin {
 					'[bd_user_profile show_reviews="no" show_activity="no"]',
 				),
 			),
-			'badge_gallery'      => array(
+			'badge_gallery'       => array(
 				'name'        => 'Badge Gallery',
 				'shortcode'   => 'bd_badge_gallery',
 				'description' => 'Displays the complete badge collection with user progress.',
@@ -360,7 +360,7 @@ class ShortcodesAdmin {
 					'[bd_badge_gallery show_ranks="no"]',
 				),
 			),
-			'leaderboard'        => array(
+			'leaderboard'         => array(
 				'name'        => 'Leaderboard',
 				'shortcode'   => 'bd_leaderboard',
 				'description' => 'Displays top contributors leaderboard.',
@@ -388,7 +388,7 @@ class ShortcodesAdmin {
 			// =============================================
 			// BUSINESS FEATURES
 			// =============================================
-			'business_embed'     => array(
+			'business_embed'      => array(
 				'name'        => 'Business Embed',
 				'shortcode'   => 'bd_business_embed',
 				'description' => 'Embed a business card from the directory on any page/site.',
@@ -418,7 +418,7 @@ class ShortcodesAdmin {
 					'[bd_business_embed id="123" layout="full" show_map="yes"]',
 				),
 			),
-			'business_hours'     => array(
+			'business_hours'      => array(
 				'name'        => 'Business Hours',
 				'shortcode'   => 'bd_business_hours',
 				'description' => 'Displays business hours with open/closed status.',
@@ -441,7 +441,7 @@ class ShortcodesAdmin {
 					'[bd_business_hours business_id="123"]',
 				),
 			),
-			'social_share'       => array(
+			'social_share'        => array(
 				'name'        => 'Social Share Buttons',
 				'shortcode'   => 'bd_social_share',
 				'description' => 'Displays social sharing buttons for the current business or page.',
@@ -471,7 +471,7 @@ class ShortcodesAdmin {
 					'[bd_social_share style="buttons"]',
 				),
 			),
-			'qr_code'            => array(
+			'qr_code'             => array(
 				'name'        => 'QR Code',
 				'shortcode'   => 'bd_qr_code',
 				'description' => 'Generates a QR code for the business page URL.',
@@ -499,7 +499,7 @@ class ShortcodesAdmin {
 			// =============================================
 			// FORMS
 			// =============================================
-			'submit_business'    => array(
+			'submit_business'     => array(
 				'name'        => 'Submit Business Form',
 				'shortcode'   => 'bd_submit_business',
 				'description' => 'Displays the business submission form for users.',
@@ -523,7 +523,7 @@ class ShortcodesAdmin {
 					'[bd_submit_business redirect="/thank-you/"]',
 				),
 			),
-			'claim_business'     => array(
+			'claim_business'      => array(
 				'name'        => 'Claim Business Form',
 				'shortcode'   => 'bd_claim_form',
 				'description' => 'Displays the business claim form (typically on single business pages).',
@@ -540,7 +540,7 @@ class ShortcodesAdmin {
 					'[bd_claim_form business_id="123"]',
 				),
 			),
-			'review_form'        => array(
+			'review_form'         => array(
 				'name'        => 'Review Form',
 				'shortcode'   => 'bd_review_form',
 				'description' => 'Displays the review submission form for a business.',
@@ -568,7 +568,7 @@ class ShortcodesAdmin {
 			// =============================================
 			// REVIEWS & RATINGS
 			// =============================================
-			'business_reviews'   => array(
+			'business_reviews'    => array(
 				'name'        => 'Business Reviews',
 				'shortcode'   => 'bd_reviews',
 				'description' => 'Displays reviews for a specific business.',
@@ -598,7 +598,7 @@ class ShortcodesAdmin {
 					'[bd_reviews show_form="no"]',
 				),
 			),
-			'recent_reviews'     => array(
+			'recent_reviews'      => array(
 				'name'        => 'Recent Reviews',
 				'shortcode'   => 'bd_recent_reviews',
 				'description' => 'Displays the most recent reviews across all businesses.',

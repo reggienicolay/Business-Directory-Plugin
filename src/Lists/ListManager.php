@@ -87,7 +87,7 @@ class ListManager {
 		$update_data = array(
 			'updated_at' => current_time( 'mysql' ),
 		);
-		$formats = array( '%s' );
+		$formats     = array( '%s' );
 
 		if ( isset( $data['title'] ) ) {
 			$update_data['title'] = sanitize_text_field( $data['title'] );
@@ -675,7 +675,7 @@ class ListManager {
 	public static function get_list_url( $list ) {
 		// Check if we have a lists page set
 		$lists_page = get_option( 'bd_lists_page_id' );
-		
+
 		// If not set, try to find a page with [bd_list] shortcode
 		if ( ! $lists_page ) {
 			global $wpdb;
@@ -686,13 +686,13 @@ class ListManager {
 				AND post_content LIKE '%[bd_list]%' 
 				LIMIT 1"
 			);
-			
+
 			// Cache it for future use
 			if ( $lists_page ) {
 				update_option( 'bd_lists_page_id', $lists_page );
 			}
 		}
-		
+
 		if ( $lists_page ) {
 			return add_query_arg( 'list', $list['slug'], get_permalink( $lists_page ) );
 		}

@@ -17,37 +17,37 @@
 
 namespace BD;
 
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 // Define plugin constants
-define('BD_VERSION', '0.1.0');
-define('BD_PLUGIN_FILE', __FILE__);
-define('BD_PLUGIN_DIR', plugin_dir_path(__FILE__));
-define('BD_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('BD_PLUGIN_BASENAME', plugin_basename(__FILE__));
+define( 'BD_VERSION', '0.1.0' );
+define( 'BD_PLUGIN_FILE', __FILE__ );
+define( 'BD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'BD_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'BD_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 // Composer autoload
-if (file_exists(BD_PLUGIN_DIR . 'vendor/autoload.php')) {
+if ( file_exists( BD_PLUGIN_DIR . 'vendor/autoload.php' ) ) {
 	require_once BD_PLUGIN_DIR . 'vendor/autoload.php';
 }
 
 // Manual autoload fallback
 spl_autoload_register(
-	function ($class) {
+	function ( $class ) {
 		$prefix   = 'BD\\';
 		$base_dir = BD_PLUGIN_DIR . 'src/';
 
-		$len = strlen($prefix);
-		if (strncmp($prefix, $class, $len) !== 0) {
+		$len = strlen( $prefix );
+		if ( strncmp( $prefix, $class, $len ) !== 0 ) {
 			return;
 		}
 
-		$relative_class = substr($class, $len);
-		$file           = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+		$relative_class = substr( $class, $len );
+		$file           = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
 
-		if (file_exists($file)) {
+		if ( file_exists( $file ) ) {
 			require $file;
 		}
 	}
@@ -65,19 +65,22 @@ require_once plugin_dir_path( __FILE__ ) . 'src/Admin/ListsAdmin.php';
 require_once plugin_dir_path( __FILE__ ) . 'src/Frontend/ListDisplay.php';
 
 // Activation/Deactivation hooks
-register_activation_hook(__FILE__, function () {
-	// Existing installer
-	DB\Installer::activate();
+register_activation_hook(
+	__FILE__,
+	function () {
+		// Existing installer
+		DB\Installer::activate();
 
-	// Create change requests table
-	\BD\DB\ChangeRequestsTable::create_table();
+		// Create change requests table
+		\BD\DB\ChangeRequestsTable::create_table();
 
-	// Install frontend editor
-	\BD\Install\FrontendEditorInstaller::install();
-});
+		// Install frontend editor
+		\BD\Install\FrontendEditorInstaller::install();
+	}
+);
 
 // Deactivation hook (separate, not nested)
-register_deactivation_hook(__FILE__, array(DB\Installer::class, 'deactivate'));
+register_deactivation_hook( __FILE__, array( DB\Installer::class, 'deactivate' ) );
 
 // Initialize plugin
 add_action(
@@ -92,37 +95,36 @@ add_action(
 		\BD\Frontend\BadgeDisplay::init();
 		\BD\Admin\ReviewsAdmin::init();
 		\BD\Admin\ShortcodesAdmin::init();
-   		\BD\Admin\ListsAdmin::init();
-   		\BD\Frontend\ListDisplay::init();
+		\BD\Admin\ListsAdmin::init();
+		\BD\Frontend\ListDisplay::init();
 	}
 );
 
 // Load Sprint 2 Week 2 - Search Infrastructure
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/sprint2-week2-loader.php')) {
-	require_once plugin_dir_path(__FILE__) . 'includes/sprint2-week2-loader.php';
+if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/sprint2-week2-loader.php' ) ) {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/sprint2-week2-loader.php';
 }
 
 // Load Sprint 2 Week 2 Script 2 - Filter UI
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/sprint2-week2-script2-loader.php')) {
-	require_once plugin_dir_path(__FILE__) . 'includes/sprint2-week2-script2-loader.php';
+if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/sprint2-week2-script2-loader.php' ) ) {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/sprint2-week2-script2-loader.php';
 }
 
 // Load Sprint 2 Week 2 Script 3 - Geolocation & Performance
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/sprint2-week2-script3-loader.php')) {
-	require_once plugin_dir_path(__FILE__) . 'includes/sprint2-week2-script3-loader.php';
+if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/sprint2-week2-script3-loader.php' ) ) {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/sprint2-week2-script3-loader.php';
 }
 
 /**
  * Custom template for single business pages
  */
-add_filter('single_template', 'BD\bd_custom_business_template');
-function bd_custom_business_template($single_template)
-{
+add_filter( 'single_template', 'BD\bd_custom_business_template' );
+function bd_custom_business_template( $single_template ) {
 	global $post;
 
-	if (isset($post->post_type) && ($post->post_type == 'bd_business' || $post->post_type == 'business')) {
-		$plugin_template = plugin_dir_path(__FILE__) . 'templates/single-business-premium.php';
-		if (file_exists($plugin_template)) {
+	if ( isset( $post->post_type ) && ( $post->post_type == 'bd_business' || $post->post_type == 'business' ) ) {
+		$plugin_template = plugin_dir_path( __FILE__ ) . 'templates/single-business-premium.php';
+		if ( file_exists( $plugin_template ) ) {
 			return $plugin_template;
 		}
 	}
@@ -131,24 +133,24 @@ function bd_custom_business_template($single_template)
 }
 
 // Load submission endpoint
-require_once plugin_dir_path(__FILE__) . 'src/API/SubmissionEndpoint.php';
+require_once plugin_dir_path( __FILE__ ) . 'src/API/SubmissionEndpoint.php';
 
 // Load Gamification System
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/gamification-loader.php')) {
-	require_once plugin_dir_path(__FILE__) . 'includes/gamification-loader.php';
+if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/gamification-loader.php' ) ) {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/gamification-loader.php';
 }
 
 // Load Feature Embed System
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/feature-embed-loader.php')) {
-	require_once plugin_dir_path(__FILE__) . 'includes/feature-embed-loader.php';
+if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/feature-embed-loader.php' ) ) {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/feature-embed-loader.php';
 }
 
 // Load Social Sharing System
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/social-sharing-loader.php')) {
-	require_once plugin_dir_path(__FILE__) . 'includes/social-sharing-loader.php';
+if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/social-sharing-loader.php' ) ) {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/social-sharing-loader.php';
 }
 
 // Load Business Owner Tools
-if (file_exists(plugin_dir_path(__FILE__) . 'includes/business-tools-loader.php')) {
-	require_once plugin_dir_path(__FILE__) . 'includes/business-tools-loader.php';
+if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/business-tools-loader.php' ) ) {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/business-tools-loader.php';
 }

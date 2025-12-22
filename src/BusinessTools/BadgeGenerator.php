@@ -150,9 +150,9 @@ class BadgeGenerator {
 			return '';
 		}
 
-		$badge_url   = home_url( '/badge/' . $business->post_name . '.svg?style=' . $style );
+		$badge_url    = home_url( '/badge/' . $business->post_name . '.svg?style=' . $style );
 		$business_url = get_permalink( $business_id );
-		$width       = self::SIZES[ $size ] ?? 200;
+		$width        = self::SIZES[ $size ] ?? 200;
 
 		// Get rating for alt text.
 		$rating = get_post_meta( $business_id, 'bd_rating_avg', true );
@@ -257,8 +257,8 @@ class BadgeGenerator {
 	private static function svg_rating( $rating, $site_name, $colors ) {
 		$stars = '';
 		for ( $i = 1; $i <= 5; $i++ ) {
-			$fill = $i <= round( $rating ) ? $colors['star'] : $colors['light'];
-			$x    = 15 + ( $i - 1 ) * 18;
+			$fill   = $i <= round( $rating ) ? $colors['star'] : $colors['light'];
+			$x      = 15 + ( $i - 1 ) * 18;
 			$stars .= '<polygon points="' . $x . ',8 ' . ( $x + 4 ) . ',16 ' . ( $x + 13 ) . ',17 ' . ( $x + 6 ) . ',22 ' . ( $x + 8 ) . ',31 ' . $x . ',26 ' . ( $x - 8 ) . ',31 ' . ( $x - 6 ) . ',22 ' . ( $x - 13 ) . ',17 ' . ( $x - 4 ) . ',16" fill="' . $fill . '"/>';
 		}
 
@@ -296,8 +296,8 @@ class BadgeGenerator {
 	private static function svg_reviews( $rating, $review_count, $site_name, $colors ) {
 		$stars = '';
 		for ( $i = 1; $i <= 5; $i++ ) {
-			$fill = $i <= round( $rating ) ? $colors['star'] : $colors['light'];
-			$x    = 12 + ( $i - 1 ) * 16;
+			$fill   = $i <= round( $rating ) ? $colors['star'] : $colors['light'];
+			$x      = 12 + ( $i - 1 ) * 16;
 			$stars .= '<polygon points="' . $x . ',7 ' . ( $x + 3.5 ) . ',14 ' . ( $x + 11 ) . ',15 ' . ( $x + 5 ) . ',19 ' . ( $x + 7 ) . ',27 ' . $x . ',23 ' . ( $x - 7 ) . ',27 ' . ( $x - 5 ) . ',19 ' . ( $x - 11 ) . ',15 ' . ( $x - 3.5 ) . ',14" fill="' . $fill . '"/>';
 		}
 

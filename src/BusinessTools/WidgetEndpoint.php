@@ -191,15 +191,15 @@ class WidgetEndpoint {
 
 		// Brand colors.
 		$colors = array(
-			'primary'     => '#1a3a4a',
-			'secondary'   => '#7a9eb8',
-			'accent'      => '#1e4258',
-			'light'       => '#a8c4d4',
-			'text'        => '#1a1a1a',
-			'text_light'  => '#5d7a8c',
-			'star'        => '#f59e0b',
-			'white'       => '#ffffff',
-			'light_bg'    => '#f0f5f8',
+			'primary'    => '#1a3a4a',
+			'secondary'  => '#7a9eb8',
+			'accent'     => '#1e4258',
+			'light'      => '#a8c4d4',
+			'text'       => '#1a1a1a',
+			'text_light' => '#5d7a8c',
+			'star'       => '#f59e0b',
+			'white'      => '#ffffff',
+			'light_bg'   => '#f0f5f8',
 		);
 
 		$js = <<<JAVASCRIPT

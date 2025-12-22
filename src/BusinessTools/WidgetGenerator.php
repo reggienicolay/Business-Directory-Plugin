@@ -39,7 +39,7 @@ class WidgetGenerator {
 	public static function generate_embed_code( $business_id, $style = 'compact', $theme = 'light', $reviews = 5 ) {
 		$widget_url = rest_url( 'bd/v1/widget/embed.js' );
 		$slug       = get_post_field( 'post_name', $business_id );
-
+		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript -- Embed code for external sites.
 		$code = sprintf(
 			'<!-- LoveTriValley Review Widget -->
 <div id="ltv-widget-%1$d"></div>
@@ -80,6 +80,7 @@ class WidgetGenerator {
 				$business_id
 			)
 		);
+		// phpcs:enable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 
 		return $domains ?: array();
 	}
@@ -223,12 +224,12 @@ class WidgetGenerator {
 		return array_map(
 			function ( $review ) {
 				return array(
-					'id'          => $review['id'],
-					'rating'      => (int) $review['rating'],
-					'content'     => wp_trim_words( $review['content'], 30 ),
-					'author'      => $review['author_name'] ?: __( 'Anonymous', 'business-directory' ),
-					'date'        => human_time_diff( strtotime( $review['created_at'] ) ) . ' ' . __( 'ago', 'business-directory' ),
-					'date_iso'    => gmdate( 'c', strtotime( $review['created_at'] ) ),
+					'id'       => $review['id'],
+					'rating'   => (int) $review['rating'],
+					'content'  => wp_trim_words( $review['content'], 30 ),
+					'author'   => $review['author_name'] ?: __( 'Anonymous', 'business-directory' ),
+					'date'     => human_time_diff( strtotime( $review['created_at'] ) ) . ' ' . __( 'ago', 'business-directory' ),
+					'date_iso' => gmdate( 'c', strtotime( $review['created_at'] ) ),
 				);
 			},
 			$reviews ?: array()
@@ -264,20 +265,20 @@ class WidgetGenerator {
 		);
 
 		return array(
-			'business'     => array(
+			'business'   => array(
 				'id'   => $business_id,
 				'name' => $business->post_title,
 				'slug' => $business->post_name,
 				'url'  => get_permalink( $business_id ),
 			),
-			'rating'       => array(
+			'rating'     => array(
 				'average' => $stats['avg'] ? round( (float) $stats['avg'], 1 ) : 0,
 				'count'   => (int) $stats['count'],
 			),
-			'reviews'      => self::get_widget_reviews( $business_id, $review_count ),
-			'review_url'   => get_permalink( $business_id ) . '#write-review',
-			'site_name'    => get_bloginfo( 'name' ),
-			'site_url'     => home_url(),
+			'reviews'    => self::get_widget_reviews( $business_id, $review_count ),
+			'review_url' => get_permalink( $business_id ) . '#write-review',
+			'site_name'  => get_bloginfo( 'name' ),
+			'site_url'   => home_url(),
 		);
 	}
 

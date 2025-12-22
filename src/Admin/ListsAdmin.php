@@ -120,7 +120,7 @@ class ListsAdmin {
 		// Sorting
 		$orderby = in_array( $args['orderby'], array( 'title', 'created_at', 'updated_at', 'view_count' ), true )
 			? $args['orderby'] : 'updated_at';
-		$order = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
+		$order   = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
 
 		// Total count
 		$total = $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE $where" );

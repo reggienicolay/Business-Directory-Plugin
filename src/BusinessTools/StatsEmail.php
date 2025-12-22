@@ -137,13 +137,13 @@ class StatsEmail {
 		global $wpdb;
 
 		$stats = array(
-			'views'           => 0,
-			'views_change'    => 0,
-			'reviews'         => 0,
-			'reviews_change'  => 0,
-			'rating'          => 0,
-			'widget_clicks'   => 0,
-			'qr_scans'        => 0,
+			'views'          => 0,
+			'views_change'   => 0,
+			'reviews'        => 0,
+			'reviews_change' => 0,
+			'rating'         => 0,
+			'widget_clicks'  => 0,
+			'qr_scans'       => 0,
 		);
 
 		// Current month dates.
@@ -187,7 +187,7 @@ class StatsEmail {
 
 		// Current rating.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		$rating = $wpdb->get_var(
+		$rating          = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT AVG(rating) FROM {$reviews_table} 
 				WHERE business_id = %d AND status = 'approved'",
@@ -415,7 +415,7 @@ class StatsEmail {
 										</div>
 									<?php endforeach; ?>
 									<a href="<?php echo esc_url( $business_url . '#reviews' ); ?>" 
-									   style="display: inline-block; margin-top: 10px; color: <?php echo $secondary; ?>; text-decoration: none;">
+										style="display: inline-block; margin-top: 10px; color: <?php echo $secondary; ?>; text-decoration: none;">
 										<?php esc_html_e( 'View All Reviews →', 'business-directory' ); ?>
 									</a>
 								</td>
@@ -442,7 +442,7 @@ class StatsEmail {
 							<tr>
 								<td style="padding: 0 30px 30px; text-align: center;">
 									<a href="<?php echo esc_url( $tools_url ); ?>" 
-									   style="display: inline-block; background: <?php echo $primary; ?>; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+										style="display: inline-block; background: <?php echo $primary; ?>; color: #ffffff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600;">
 										<?php esc_html_e( 'View Marketing Tools', 'business-directory' ); ?>
 									</a>
 								</td>

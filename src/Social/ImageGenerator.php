@@ -321,7 +321,6 @@ class ImageGenerator {
 		$dst_y = (int) ( ( self::HEIGHT - $new_h ) / 2 );
 
 		imagecopyresampled( $image, $source, $dst_x, $dst_y, 0, 0, $new_w, $new_h, $src_w, $src_h );
-		imagedestroy( $source );
 
 		return $image;
 	}
@@ -389,10 +388,10 @@ class ImageGenerator {
 			return;
 		}
 
-		$words         = explode( ' ', $text );
-		$lines         = array();
-		$current_line  = '';
-		$line_height   = $size * 1.5;
+		$words        = explode( ' ', $text );
+		$lines        = array();
+		$current_line = '';
+		$line_height  = $size * 1.5;
 
 		foreach ( $words as $word ) {
 			$test_line = $current_line ? $current_line . ' ' . $word : $word;
@@ -509,7 +508,6 @@ class ImageGenerator {
 		header( 'Content-Type: image/png' );
 		header( 'Cache-Control: public, max-age=86400' );
 		imagepng( $image );
-		imagedestroy( $image );
 	}
 
 	/**

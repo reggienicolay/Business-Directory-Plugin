@@ -97,26 +97,26 @@ class ReviewsAdmin {
 
 		$args = wp_parse_args( $args, $defaults );
 
-		$table = $wpdb->base_prefix . 'bd_reviews';
-		$where = array( '1=1' );
+		$table  = $wpdb->base_prefix . 'bd_reviews';
+		$where  = array( '1=1' );
 		$values = array();
 
 		// Status filter.
 		if ( ! empty( $args['status'] ) ) {
-			$where[] = 'status = %s';
+			$where[]  = 'status = %s';
 			$values[] = $args['status'];
 		}
 
 		// Business filter.
 		if ( ! empty( $args['business_id'] ) ) {
-			$where[] = 'business_id = %d';
+			$where[]  = 'business_id = %d';
 			$values[] = absint( $args['business_id'] );
 		}
 
 		// Search filter.
 		if ( ! empty( $args['search'] ) ) {
-			$search = '%' . $wpdb->esc_like( $args['search'] ) . '%';
-			$where[] = '(author_name LIKE %s OR author_email LIKE %s OR title LIKE %s OR content LIKE %s)';
+			$search   = '%' . $wpdb->esc_like( $args['search'] ) . '%';
+			$where[]  = '(author_name LIKE %s OR author_email LIKE %s OR title LIKE %s OR content LIKE %s)';
 			$values[] = $search;
 			$values[] = $search;
 			$values[] = $search;
@@ -134,12 +134,12 @@ class ReviewsAdmin {
 
 		// Sanitize orderby.
 		$allowed_orderby = array( 'id', 'created_at', 'rating', 'author_name', 'status', 'helpful_count' );
-		$orderby = in_array( $args['orderby'], $allowed_orderby, true ) ? $args['orderby'] : 'created_at';
-		$order = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
+		$orderby         = in_array( $args['orderby'], $allowed_orderby, true ) ? $args['orderby'] : 'created_at';
+		$order           = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
 
 		// Pagination.
 		$offset = ( absint( $args['page'] ) - 1 ) * absint( $args['per_page'] );
-		$limit = absint( $args['per_page'] );
+		$limit  = absint( $args['per_page'] );
 
 		// Get reviews.
 		$query = "SELECT * FROM $table WHERE $where_clause ORDER BY $orderby $order LIMIT $offset, $limit";
@@ -178,7 +178,7 @@ class ReviewsAdmin {
 
 		foreach ( $results as $row ) {
 			$counts[ $row['status'] ] = (int) $row['count'];
-			$counts['all'] += (int) $row['count'];
+			$counts['all']           += (int) $row['count'];
 		}
 
 		return $counts;
@@ -195,7 +195,7 @@ class ReviewsAdmin {
 		}
 
 		$review_id = absint( $_POST['review_id'] ?? 0 );
-		$action = sanitize_text_field( $_POST['review_action'] ?? '' );
+		$action    = sanitize_text_field( $_POST['review_action'] ?? '' );
 
 		if ( ! $review_id || ! $action ) {
 			wp_send_json_error( array( 'message' => 'Invalid request' ) );
@@ -259,15 +259,15 @@ class ReviewsAdmin {
 	public static function render_page() {
 		// Get filter values.
 		$current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'] ) : '';
-		$search = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
-		$business_id = isset( $_GET['business_id'] ) ? absint( $_GET['business_id'] ) : 0;
-		$orderby = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['orderby'] ) : 'created_at';
-		$order = isset( $_GET['order'] ) ? sanitize_text_field( $_GET['order'] ) : 'DESC';
-		$paged = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
+		$search         = isset( $_GET['s'] ) ? sanitize_text_field( $_GET['s'] ) : '';
+		$business_id    = isset( $_GET['business_id'] ) ? absint( $_GET['business_id'] ) : 0;
+		$orderby        = isset( $_GET['orderby'] ) ? sanitize_text_field( $_GET['orderby'] ) : 'created_at';
+		$order          = isset( $_GET['order'] ) ? sanitize_text_field( $_GET['order'] ) : 'DESC';
+		$paged          = isset( $_GET['paged'] ) ? absint( $_GET['paged'] ) : 1;
 
 		// Get data.
 		$status_counts = self::get_status_counts();
-		$result = self::get_reviews(
+		$result        = self::get_reviews(
 			array(
 				'status'      => $current_status,
 				'search'      => $search,
@@ -278,7 +278,7 @@ class ReviewsAdmin {
 			)
 		);
 
-		$reviews = $result['reviews'];
+		$reviews     = $result['reviews'];
 		$total_pages = $result['pages'];
 		$total_items = $result['total'];
 
@@ -421,10 +421,10 @@ class ReviewsAdmin {
 					<?php else : ?>
 						<?php foreach ( $reviews as $review ) : ?>
 							<?php
-							$business = get_post( $review['business_id'] );
+							$business       = get_post( $review['business_id'] );
 							$business_title = $business ? $business->post_title : __( 'Unknown Business', 'developer-developer-developer' );
-							$business_url = $business ? get_permalink( $business->ID ) : '#';
-							$edit_url = $business ? get_edit_post_link( $business->ID ) : '#';
+							$business_url   = $business ? get_permalink( $business->ID ) : '#';
+							$edit_url       = $business ? get_edit_post_link( $business->ID ) : '#';
 							?>
 							<tr data-review-id="<?php echo esc_attr( $review['id'] ); ?>">
 								<td class="column-business">

@@ -2,8 +2,8 @@
 
 namespace BD\Gamification;
 
-class BadgeSystem
-{
+class BadgeSystem {
+
 
 
 	// Badge definitions
@@ -246,7 +246,7 @@ class BadgeSystem
 		// ============================================
 		// LIST BADGES
 		// ============================================
-		'curator' => array(
+		'curator'                 => array(
 			'name'        => 'List Curator',
 			'description' => 'Created your first list',
 			'requirement' => 'Create your first list',
@@ -257,7 +257,7 @@ class BadgeSystem
 			'check'       => 'list_count',
 			'threshold'   => 1,
 		),
-		'list_master' => array(
+		'list_master'             => array(
 			'name'        => 'List Master',
 			'description' => 'Created 5 lists with 5+ businesses each',
 			'requirement' => 'Create 5 lists with at least 5 businesses each',
@@ -307,9 +307,8 @@ class BadgeSystem
 	/**
 	 * Check and award badges after user activity
 	 */
-	public static function check_and_award_badges($user_id, $activity_type = null)
-	{
-		if (! $user_id) {
+	public static function check_and_award_badges( $user_id, $activity_type = null ) {
+		if ( ! $user_id ) {
 			return;
 		}
 
@@ -325,53 +324,53 @@ class BadgeSystem
 			ARRAY_A
 		);
 
-		if (! $stats) {
+		if ( ! $stats ) {
 			return;
 		}
 
 		// Get current badges
-		$current_badges = ! empty($stats['badges']) ? json_decode($stats['badges'], true) : array();
+		$current_badges = ! empty( $stats['badges'] ) ? json_decode( $stats['badges'], true ) : array();
 		$new_badges     = array();
 
 		// Check each badge
-		foreach (self::BADGES as $badge_key => $badge) {
+		foreach ( self::BADGES as $badge_key => $badge ) {
 			// Skip if already earned
-			if (in_array($badge_key, $current_badges, true)) {
+			if ( in_array( $badge_key, $current_badges, true ) ) {
 				continue;
 			}
 
 			// Skip manual badges
-			if (! empty($badge['manual'])) {
+			if ( ! empty( $badge['manual'] ) ) {
 				continue;
 			}
 
 			// Check if requirements met
-			if (self::check_badge_requirement($user_id, $badge, $stats)) {
+			if ( self::check_badge_requirement( $user_id, $badge, $stats ) ) {
 				$new_badges[]     = $badge_key;
 				$current_badges[] = $badge_key;
 
 				// Award bonus points
-				if (! empty($badge['points'])) {
-					self::award_bonus_points($user_id, $badge['points'], "Badge earned: {$badge['name']}");
+				if ( ! empty( $badge['points'] ) ) {
+					self::award_bonus_points( $user_id, $badge['points'], "Badge earned: {$badge['name']}" );
 				}
 			}
 		}
 
 		// Update badges if any new ones earned
-		if (! empty($new_badges)) {
+		if ( ! empty( $new_badges ) ) {
 			$wpdb->update(
 				$reputation_table,
 				array(
-					'badges'      => wp_json_encode($current_badges),
-					'badge_count' => count($current_badges),
+					'badges'      => wp_json_encode( $current_badges ),
+					'badge_count' => count( $current_badges ),
 				),
-				array('user_id' => $user_id),
-				array('%s', '%d'),
-				array('%d')
+				array( 'user_id' => $user_id ),
+				array( '%s', '%d' ),
+				array( '%d' )
 			);
 
 			// Trigger notification action
-			do_action('bd_badges_earned', $user_id, $new_badges);
+			do_action( 'bd_badges_earned', $user_id, $new_badges );
 		}
 
 		return $new_badges;
@@ -380,13 +379,12 @@ class BadgeSystem
 	/**
 	 * Check if badge requirement is met
 	 */
-	private static function check_badge_requirement($user_id, $badge, $stats)
-	{
-		if (empty($badge['check'])) {
+	private static function check_badge_requirement( $user_id, $badge, $stats ) {
+		if ( empty( $badge['check'] ) ) {
 			return false;
 		}
 
-		switch ($badge['check']) {
+		switch ( $badge['check'] ) {
 			case 'review_count':
 				return $stats['total_reviews'] >= $badge['threshold'];
 
@@ -400,29 +398,29 @@ class BadgeSystem
 				return $stats['lists_created'] >= $badge['threshold'];
 
 			case 'qualifying_lists':
-				return \BD\Lists\ListManager::get_user_qualifying_lists_count($user_id) >= $badge['threshold'];
+				return \BD\Lists\ListManager::get_user_qualifying_lists_count( $user_id ) >= $badge['threshold'];
 
 			case 'category_diversity':
-				$categories = ! empty($stats['categories_reviewed']) ? json_decode($stats['categories_reviewed'], true) : array();
-				return count($categories) >= $badge['threshold'];
+				$categories = ! empty( $stats['categories_reviewed'] ) ? json_decode( $stats['categories_reviewed'], true ) : array();
+				return count( $categories ) >= $badge['threshold'];
 
 			case 'category_specialist':
-				return self::check_category_specialist($user_id, $badge['threshold']);
+				return self::check_category_specialist( $user_id, $badge['threshold'] );
 
 			case 'hidden_gems':
-				return self::check_hidden_gems($user_id, $badge['threshold']);
+				return self::check_hidden_gems( $user_id, $badge['threshold'] );
 
 			case 'first_reviews':
-				return self::check_first_reviews($user_id, $badge['threshold']);
+				return self::check_first_reviews( $user_id, $badge['threshold'] );
 
 			case 'early_reviews':
-				return self::check_time_based_reviews($user_id, $badge['threshold'], 0, 9);
+				return self::check_time_based_reviews( $user_id, $badge['threshold'], 0, 9 );
 
 			case 'late_reviews':
-				return self::check_time_based_reviews($user_id, $badge['threshold'], 21, 23);
+				return self::check_time_based_reviews( $user_id, $badge['threshold'], 21, 23 );
 
 			case 'weekend_reviews':
-				return self::check_weekend_reviews($user_id, $badge['threshold']);
+				return self::check_weekend_reviews( $user_id, $badge['threshold'] );
 		}
 
 		return false;
@@ -431,8 +429,7 @@ class BadgeSystem
 	/**
 	 * Check if user is specialist in any category
 	 */
-	private static function check_category_specialist($user_id, $threshold)
-	{
+	private static function check_category_specialist( $user_id, $threshold ) {
 		global $wpdb;
 		$reviews_table = $wpdb->prefix . 'bd_reviews';
 
@@ -460,8 +457,7 @@ class BadgeSystem
 	/**
 	 * Check hidden gems (businesses with < 10 reviews)
 	 */
-	private static function check_hidden_gems($user_id, $threshold)
-	{
+	private static function check_hidden_gems( $user_id, $threshold ) {
 		global $wpdb;
 		$reviews_table = $wpdb->prefix . 'bd_reviews';
 
@@ -489,8 +485,7 @@ class BadgeSystem
 	/**
 	 * Check first reviews
 	 */
-	private static function check_first_reviews($user_id, $threshold)
-	{
+	private static function check_first_reviews( $user_id, $threshold ) {
 		global $wpdb;
 		$reviews_table = $wpdb->prefix . 'bd_reviews';
 
@@ -519,8 +514,7 @@ class BadgeSystem
 	/**
 	 * Check time-based reviews
 	 */
-	private static function check_time_based_reviews($user_id, $threshold, $hour_start, $hour_end)
-	{
+	private static function check_time_based_reviews( $user_id, $threshold, $hour_start, $hour_end ) {
 		global $wpdb;
 		$reviews_table = $wpdb->prefix . 'bd_reviews';
 
@@ -546,8 +540,7 @@ class BadgeSystem
 	/**
 	 * Check weekend reviews
 	 */
-	private static function check_weekend_reviews($user_id, $threshold)
-	{
+	private static function check_weekend_reviews( $user_id, $threshold ) {
 		global $wpdb;
 		$reviews_table = $wpdb->prefix . 'bd_reviews';
 
@@ -570,8 +563,7 @@ class BadgeSystem
 	/**
 	 * Award bonus points
 	 */
-	private static function award_bonus_points($user_id, $points, $reason)
-	{
+	private static function award_bonus_points( $user_id, $points, $reason ) {
 		global $wpdb;
 		$activity_table = $wpdb->prefix . 'bd_user_activity';
 
@@ -583,7 +575,7 @@ class BadgeSystem
 				'points'        => $points,
 				'metadata'      => $reason,
 			),
-			array('%d', '%s', '%d', '%s')
+			array( '%d', '%s', '%d', '%s' )
 		);
 
 		// Update total points
@@ -600,8 +592,7 @@ class BadgeSystem
 	/**
 	 * Get user's badges
 	 */
-	public static function get_user_badges($user_id)
-	{
+	public static function get_user_badges( $user_id ) {
 		global $wpdb;
 		$table = $wpdb->prefix . 'bd_user_reputation';
 
@@ -612,8 +603,8 @@ class BadgeSystem
 			)
 		);
 
-		if ($row && $row->badges) {
-			return json_decode($row->badges, true);
+		if ( $row && $row->badges ) {
+			return json_decode( $row->badges, true );
 		}
 
 		return array();
@@ -622,8 +613,7 @@ class BadgeSystem
 	/**
 	 * Get user's rank
 	 */
-	public static function get_user_rank($user_id)
-	{
+	public static function get_user_rank( $user_id ) {
 		global $wpdb;
 		$table = $wpdb->prefix . 'bd_user_reputation';
 
@@ -638,26 +628,25 @@ class BadgeSystem
 
 		// Find appropriate rank
 		$rank_key = 0;
-		foreach (self::RANKS as $threshold => $rank) {
-			if ($points >= $threshold) {
+		foreach ( self::RANKS as $threshold => $rank ) {
+			if ( $points >= $threshold ) {
 				$rank_key = $threshold;
 			}
 		}
 
-		return self::RANKS[$rank_key];
+		return self::RANKS[ $rank_key ];
 	}
 
 	/**
 	 * Manually award a badge (for Nicole)
 	 */
-	public static function award_manual_badge($user_id, $badge_key)
-	{
-		if (! isset(self::BADGES[$badge_key])) {
+	public static function award_manual_badge( $user_id, $badge_key ) {
+		if ( ! isset( self::BADGES[ $badge_key ] ) ) {
 			return false;
 		}
 
-		$badge = self::BADGES[$badge_key];
-		if (empty($badge['manual'])) {
+		$badge = self::BADGES[ $badge_key ];
+		if ( empty( $badge['manual'] ) ) {
 			return false;
 		}
 
@@ -672,9 +661,9 @@ class BadgeSystem
 			)
 		);
 
-		$badges = $row && $row->badges ? json_decode($row->badges, true) : array();
+		$badges = $row && $row->badges ? json_decode( $row->badges, true ) : array();
 
-		if (in_array($badge_key, $badges, true)) {
+		if ( in_array( $badge_key, $badges, true ) ) {
 			return false; // Already has it
 		}
 
@@ -683,15 +672,15 @@ class BadgeSystem
 		$wpdb->update(
 			$reputation_table,
 			array(
-				'badges'      => wp_json_encode($badges),
-				'badge_count' => count($badges),
+				'badges'      => wp_json_encode( $badges ),
+				'badge_count' => count( $badges ),
 			),
-			array('user_id' => $user_id),
-			array('%s', '%d'),
-			array('%d')
+			array( 'user_id' => $user_id ),
+			array( '%s', '%d' ),
+			array( '%d' )
 		);
 
-		do_action('bd_manual_badge_awarded', $user_id, $badge_key);
+		do_action( 'bd_manual_badge_awarded', $user_id, $badge_key );
 
 		return true;
 	}
@@ -699,8 +688,7 @@ class BadgeSystem
 	/**
 	 * Remove a badge
 	 */
-	public static function remove_badge($user_id, $badge_key)
-	{
+	public static function remove_badge( $user_id, $badge_key ) {
 		global $wpdb;
 		$reputation_table = $wpdb->prefix . 'bd_user_reputation';
 
@@ -711,10 +699,10 @@ class BadgeSystem
 			)
 		);
 
-		$badges = $row && $row->badges ? json_decode($row->badges, true) : array();
+		$badges = $row && $row->badges ? json_decode( $row->badges, true ) : array();
 		$badges = array_filter(
 			$badges,
-			function ($b) use ($badge_key) {
+			function ( $b ) use ( $badge_key ) {
 				return $b !== $badge_key;
 			}
 		);
@@ -722,12 +710,12 @@ class BadgeSystem
 		$wpdb->update(
 			$reputation_table,
 			array(
-				'badges'      => wp_json_encode(array_values($badges)),
-				'badge_count' => count($badges),
+				'badges'      => wp_json_encode( array_values( $badges ) ),
+				'badge_count' => count( $badges ),
 			),
-			array('user_id' => $user_id),
-			array('%s', '%d'),
-			array('%d')
+			array( 'user_id' => $user_id ),
+			array( '%s', '%d' ),
+			array( '%d' )
 		);
 
 		return true;

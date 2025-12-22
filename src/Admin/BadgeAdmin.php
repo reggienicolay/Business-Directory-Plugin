@@ -74,7 +74,7 @@ class BadgeAdmin {
 		// Get badge counts
 		$badge_counts = array();
 		foreach ( BadgeSystem::BADGES as $key => $badge ) {
-			$count = $wpdb->get_var(
+			$count                = $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT COUNT(*) FROM $reputation_table WHERE badges LIKE %s",
 					'%"' . $key . '"%'

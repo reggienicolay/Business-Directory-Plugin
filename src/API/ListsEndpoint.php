@@ -563,10 +563,10 @@ class ListsEndpoint {
 
 		return rest_ensure_response(
 			array(
-				'success'   => true,
-				'message'   => 'Saved to "' . $list['title'] . '"!',
-				'list'      => $list,
-				'new_list'  => ! empty( $new_list ),
+				'success'  => true,
+				'message'  => 'Saved to "' . $list['title'] . '"!',
+				'list'     => $list,
+				'new_list' => ! empty( $new_list ),
 			)
 		);
 	}

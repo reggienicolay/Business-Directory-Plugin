@@ -174,10 +174,10 @@ add_action(
 				'restUrl' => rest_url( 'bd/v1/' ),
 				'nonce'   => wp_create_nonce( 'bd_tools_nonce' ),
 				'i18n'    => array(
-					'copied'       => __( 'Copied to clipboard!', 'business-directory' ),
-					'generating'   => __( 'Generating...', 'business-directory' ),
+					'copied'        => __( 'Copied to clipboard!', 'business-directory' ),
+					'generating'    => __( 'Generating...', 'business-directory' ),
 					'downloadReady' => __( 'Download ready!', 'business-directory' ),
-					'error'        => __( 'An error occurred. Please try again.', 'business-directory' ),
+					'error'         => __( 'An error occurred. Please try again.', 'business-directory' ),
 				),
 			)
 		);

@@ -198,7 +198,7 @@ class QRGenerator {
 
 		// Generate QR code string.
 		$qr_code = self::encode_qr_code( $business_id, $type );
-		
+
 		// Use REST endpoint URL (more reliable than rewrite rules).
 		$qr_url = rest_url( 'bd/v1/qr/go/' . $qr_code );
 
@@ -260,7 +260,7 @@ class QRGenerator {
 			return false;
 		}
 
-		$type_char   = substr( $code, -1 );
+		$type_char    = substr( $code, -1 );
 		$business_b36 = substr( $code, 0, -1 );
 
 		$business_id = base_convert( $business_b36, 36, 10 );

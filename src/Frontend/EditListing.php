@@ -125,9 +125,9 @@ class EditListing {
 		$features = get_post_meta( $business_id, 'bd_features', true ) ?: array();
 		$photos   = get_post_meta( $business_id, 'bd_photos', true ) ?: array();
 
-		$categories    = wp_get_object_terms( $business_id, 'bd_category', array( 'fields' => 'ids' ) );
-		$tags          = wp_get_object_terms( $business_id, 'bd_tag', array( 'fields' => 'ids' ) );
-		$featured_id   = get_post_thumbnail_id( $business_id );
+		$categories  = wp_get_object_terms( $business_id, 'bd_category', array( 'fields' => 'ids' ) );
+		$tags        = wp_get_object_terms( $business_id, 'bd_tag', array( 'fields' => 'ids' ) );
+		$featured_id = get_post_thumbnail_id( $business_id );
 
 		ob_start();
 		?>
@@ -794,7 +794,7 @@ class EditListing {
 		if ( isset( $_POST['hours'] ) && is_array( $_POST['hours'] ) ) {
 			$new_hours = array();
 			foreach ( $_POST['hours'] as $day => $times ) {
-				$day = sanitize_key( $day );
+				$day               = sanitize_key( $day );
 				$new_hours[ $day ] = array(
 					'closed' => ! empty( $times['closed'] ),
 					'open'   => sanitize_text_field( $times['open'] ?? '' ),
@@ -871,6 +871,7 @@ class EditListing {
 
 		// Create summary string.
 		$summary_text = sprintf(
+			// translators: %s is a comma-separated list of updated fields.
 			__( 'Updated: %s', 'business-directory' ),
 			implode( ', ', $summary )
 		);
