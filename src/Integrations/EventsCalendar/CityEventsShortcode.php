@@ -325,7 +325,7 @@ class CityEventsShortcode {
 	private static function render_grid( $events, $show_image, $show_venue, $show_time, $show_business, $columns ) {
 		// Calculate column width percentage
 		$col_width = floor( 100 / $columns ) - 2;
-		
+
 		ob_start();
 		?>
 		<div style="display: flex; flex-wrap: wrap; gap: 25px; margin: 0 -5px;">

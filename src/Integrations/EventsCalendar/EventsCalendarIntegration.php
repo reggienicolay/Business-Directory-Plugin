@@ -346,21 +346,21 @@ class EventsCalendarIntegration {
 		}
 
 		// Inline styles for network site compatibility (CSS files may not be available).
-		$container_style = 'margin: 30px 0; padding: 25px; background: #f9f9f9; ';
+		$container_style  = 'margin: 30px 0; padding: 25px; background: #f9f9f9; ';
 		$container_style .= 'border-radius: 8px; border: 1px solid #e0e0e0;';
 
-		$title_style = 'margin: 0 0 20px 0; font-size: 1.25rem; font-weight: 600; ';
+		$title_style  = 'margin: 0 0 20px 0; font-size: 1.25rem; font-weight: 600; ';
 		$title_style .= 'color: #1a1a1a; display: flex; align-items: center; gap: 8px;';
 
-		$link_style = 'display: flex; align-items: center; padding: 12px 15px; ';
+		$link_style  = 'display: flex; align-items: center; padding: 12px 15px; ';
 		$link_style .= 'background: #fff; border-radius: 6px; border: 1px solid #e5e5e5; ';
 		$link_style .= 'text-decoration: none; color: inherit;';
 
-		$date_style = 'min-width: 60px; padding: 4px 10px; background: #1a3a4a; ';
+		$date_style  = 'min-width: 60px; padding: 4px 10px; background: #1a3a4a; ';
 		$date_style .= 'color: #fff; font-size: 0.8rem; font-weight: 600; ';
 		$date_style .= 'text-align: center; border-radius: 4px; margin-right: 15px;';
 
-		$btn_style = 'display: inline-block; margin-top: 15px; padding: 10px 20px; ';
+		$btn_style  = 'display: inline-block; margin-top: 15px; padding: 10px 20px; ';
 		$btn_style .= 'background: #1a3a4a; color: #fff; text-decoration: none; ';
 		$btn_style .= 'border-radius: 5px; font-size: 0.9rem; font-weight: 500;';
 
@@ -943,7 +943,7 @@ class EventsCalendarIntegration {
 	 * @return string HTML.
 	 */
 	private static function render_admin_error( $message ) {
-		$style = 'padding: 15px; background: #fff3cd; border: 1px solid #ffc107; ';
+		$style  = 'padding: 15px; background: #fff3cd; border: 1px solid #ffc107; ';
 		$style .= 'border-radius: 6px; color: #856404;';
 		return '<p style="' . esc_attr( $style ) . '">' . esc_html( $message ) . '</p>';
 	}
