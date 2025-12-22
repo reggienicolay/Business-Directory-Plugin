@@ -42,7 +42,8 @@ add_action(
 		// Only load on gamification admin pages
 		if ( strpos( $hook, 'bd-gamification' ) !== false ||
 		strpos( $hook, 'bd-user-badges' ) !== false ||
-		strpos( $hook, 'bd-leaderboard' ) !== false ) {
+		strpos( $hook, 'bd-leaderboard' ) !== false ||
+		strpos( $hook, 'bd-badge-catalog' ) !== false ) {
 
 			$plugin_url = plugin_dir_url( __DIR__ );
 
@@ -78,7 +79,8 @@ add_action(
 		if ( is_a( $post, 'WP_Post' ) ) {
 			$has_profile = has_shortcode( $post->post_content, 'user_profile' ) ||
 						has_shortcode( $post->post_content, 'bd_profile' ) ||
-						has_shortcode( $post->post_content, 'bd_user_profile' );
+						has_shortcode( $post->post_content, 'bd_user_profile' ) ||
+						has_shortcode( $post->post_content, 'bd_badge_gallery' );
 		}
 
 		// Also load on author archives (user profile pages)

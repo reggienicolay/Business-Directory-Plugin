@@ -1,34 +1,39 @@
 <?php
+
 namespace BD\DB;
 
-class Installer {
+class Installer
+{
 
-	const DB_VERSION = '2.1.0'; // Bumped version for gamification tables
+    const DB_VERSION = '2.2.0';  // Bumped version for lists tables
 
-	public static function activate() {
-		self::create_tables();
-		self::create_roles();
-		self::flush_rewrite_rules();
+    public static function activate()
+    {
+        self::create_tables();
+        self::create_roles();
+        self::flush_rewrite_rules();
 
-		$current_version = get_option( 'bd_db_version', '1.0.0' );
-		if ( version_compare( $current_version, self::DB_VERSION, '<' ) ) {
-			self::upgrade_database( $current_version );
-		}
+        $current_version = get_option('bd_db_version', '1.0.0');
+        if (version_compare($current_version, self::DB_VERSION, '<')) {
+            self::upgrade_database($current_version);
+        }
 
-		update_option( 'bd_db_version', self::DB_VERSION );
-	}
+        update_option('bd_db_version', self::DB_VERSION);
+    }
 
-	public static function deactivate() {
-		flush_rewrite_rules();
-	}
+    public static function deactivate()
+    {
+        flush_rewrite_rules();
+    }
 
-	private static function create_tables() {
-		global $wpdb;
-		$charset_collate = $wpdb->get_charset_collate();
+    private static function create_tables()
+    {
+        global $wpdb;
+        $charset_collate = $wpdb->get_charset_collate();
 
-		// Existing tables
-		$locations_table = $wpdb->prefix . 'bd_locations';
-		$locations_sql   = "CREATE TABLE IF NOT EXISTS $locations_table (
+        // Existing tables
+        $locations_table = $wpdb->prefix . 'bd_locations';
+        $locations_sql   = "CREATE TABLE IF NOT EXISTS $locations_table (
             business_id bigint(20) UNSIGNED NOT NULL,
             lat double NOT NULL,
             lng double NOT NULL,
@@ -44,8 +49,8 @@ class Installer {
             KEY idx_geohash (geohash)
         ) $charset_collate;";
 
-		$reviews_table = $wpdb->prefix . 'bd_reviews';
-		$reviews_sql   = "CREATE TABLE IF NOT EXISTS $reviews_table (
+        $reviews_table = $wpdb->prefix . 'bd_reviews';
+        $reviews_sql   = "CREATE TABLE IF NOT EXISTS $reviews_table (
             id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             business_id bigint(20) UNSIGNED NOT NULL,
             user_id bigint(20) UNSIGNED DEFAULT NULL,
@@ -64,8 +69,8 @@ class Installer {
             KEY idx_created (created_at)
         ) $charset_collate;";
 
-		$submissions_table = $wpdb->prefix . 'bd_submissions';
-		$submissions_sql   = "CREATE TABLE IF NOT EXISTS $submissions_table (
+        $submissions_table = $wpdb->prefix . 'bd_submissions';
+        $submissions_sql   = "CREATE TABLE IF NOT EXISTS $submissions_table (
             id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             business_data longtext NOT NULL,
             submitted_by bigint(20) UNSIGNED DEFAULT NULL,
@@ -80,9 +85,9 @@ class Installer {
             KEY idx_created (created_at)
         ) $charset_collate;";
 
-		// NEW: Gamification Tables
-		$user_reputation_table = $wpdb->prefix . 'bd_user_reputation';
-		$user_reputation_sql   = "CREATE TABLE IF NOT EXISTS $user_reputation_table (
+        // NEW: Gamification Tables
+        $user_reputation_table = $wpdb->prefix . 'bd_user_reputation';
+        $user_reputation_sql   = "CREATE TABLE IF NOT EXISTS $user_reputation_table (
             user_id bigint(20) UNSIGNED NOT NULL,
             total_points int(11) NOT NULL DEFAULT 0,
             total_reviews int(11) NOT NULL DEFAULT 0,
@@ -100,8 +105,8 @@ class Installer {
             KEY idx_rank (rank)
         ) $charset_collate;";
 
-		$user_activity_table = $wpdb->prefix . 'bd_user_activity';
-		$user_activity_sql   = "CREATE TABLE IF NOT EXISTS $user_activity_table (
+        $user_activity_table = $wpdb->prefix . 'bd_user_activity';
+        $user_activity_sql   = "CREATE TABLE IF NOT EXISTS $user_activity_table (
             id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             user_id bigint(20) UNSIGNED NOT NULL,
             activity_type varchar(50) NOT NULL,
@@ -114,8 +119,8 @@ class Installer {
             KEY idx_created (created_at)
         ) $charset_collate;";
 
-		$badge_awards_table = $wpdb->prefix . 'bd_badge_awards';
-		$badge_awards_sql   = "CREATE TABLE IF NOT EXISTS $badge_awards_table (
+        $badge_awards_table = $wpdb->prefix . 'bd_badge_awards';
+        $badge_awards_sql   = "CREATE TABLE IF NOT EXISTS $badge_awards_table (
             id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             user_id bigint(20) UNSIGNED NOT NULL,
             badge_key varchar(100) NOT NULL,
@@ -128,50 +133,92 @@ class Installer {
             KEY idx_awarded (awarded_at)
         ) $charset_collate;";
 
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		dbDelta( $locations_sql );
-		dbDelta( $reviews_sql );
-		dbDelta( $submissions_sql );
-		dbDelta( $user_reputation_sql );
-		dbDelta( $user_activity_sql );
-		dbDelta( $badge_awards_sql );
-	}
+        // NEW: Lists Tables
+        $lists_table = $wpdb->prefix . 'bd_lists';
+        $lists_sql   = "CREATE TABLE IF NOT EXISTS $lists_table (
+            id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) UNSIGNED NOT NULL,
+            title varchar(200) NOT NULL,
+            slug varchar(200) NOT NULL,
+            description text DEFAULT NULL,
+            cover_image_id bigint(20) UNSIGNED DEFAULT NULL,
+            visibility varchar(20) NOT NULL DEFAULT 'private',
+            featured tinyint(1) NOT NULL DEFAULT 0,
+            view_count int(11) NOT NULL DEFAULT 0,
+            created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY idx_slug (slug),
+            KEY idx_user (user_id),
+            KEY idx_visibility (visibility),
+            KEY idx_featured (featured),
+            KEY idx_updated (updated_at)
+        ) $charset_collate;";
 
-	private static function upgrade_database( $from_version ) {
-		global $wpdb;
+        $list_items_table = $wpdb->prefix . 'bd_list_items';
+        $list_items_sql   = "CREATE TABLE IF NOT EXISTS $list_items_table (
+            id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+            list_id bigint(20) UNSIGNED NOT NULL,
+            business_id bigint(20) UNSIGNED NOT NULL,
+            user_note text DEFAULT NULL,
+            sort_order int(11) NOT NULL DEFAULT 0,
+            added_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY idx_list_business (list_id, business_id),
+            KEY idx_list (list_id),
+            KEY idx_business (business_id),
+            KEY idx_sort (sort_order)
+        ) $charset_collate;";
 
-		if ( version_compare( $from_version, '2.0.0', '<' ) ) {
-			$reviews_table = $wpdb->prefix . 'bd_reviews';
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta($locations_sql);
+        dbDelta($reviews_sql);
+        dbDelta($submissions_sql);
+        dbDelta($user_reputation_sql);
+        dbDelta($user_activity_sql);
+        dbDelta($badge_awards_sql);
+        dbDelta($lists_sql);
+        dbDelta($list_items_sql);
+    }
 
-			$columns      = $wpdb->get_results( "SHOW COLUMNS FROM $reviews_table" );
-			$column_names = array_column( $columns, 'Field' );
+    private static function upgrade_database($from_version)
+    {
+        global $wpdb;
 
-			if ( ! in_array( 'photo_ids', $column_names, true ) ) {
-				$wpdb->query( "ALTER TABLE $reviews_table ADD COLUMN photo_ids text DEFAULT NULL AFTER content" );
-			}
-			if ( ! in_array( 'author_email', $column_names, true ) ) {
-				$wpdb->query( "ALTER TABLE $reviews_table ADD COLUMN author_email varchar(120) DEFAULT NULL AFTER author_name" );
-			}
-			if ( ! in_array( 'ip_address', $column_names, true ) ) {
-				$wpdb->query( "ALTER TABLE $reviews_table ADD COLUMN ip_address varchar(45) DEFAULT NULL AFTER status" );
-			}
-		}
+        if (version_compare($from_version, '2.0.0', '<')) {
+            $reviews_table = $wpdb->prefix . 'bd_reviews';
 
-		// Run gamification table creation if upgrading from pre-2.1.0
-		if ( version_compare( $from_version, '2.1.0', '<' ) ) {
-			self::create_tables(); // This will create missing tables
-		}
-	}
+            $columns      = $wpdb->get_results("SHOW COLUMNS FROM $reviews_table");
+            $column_names = array_column($columns, 'Field');
 
-	private static function create_roles() {
-		\BD\Roles\Manager::create();
-	}
+            if (! in_array('photo_ids', $column_names, true)) {
+                $wpdb->query("ALTER TABLE $reviews_table ADD COLUMN photo_ids text DEFAULT NULL AFTER content");
+            }
+            if (! in_array('author_email', $column_names, true)) {
+                $wpdb->query("ALTER TABLE $reviews_table ADD COLUMN author_email varchar(120) DEFAULT NULL AFTER author_name");
+            }
+            if (! in_array('ip_address', $column_names, true)) {
+                $wpdb->query("ALTER TABLE $reviews_table ADD COLUMN ip_address varchar(45) DEFAULT NULL AFTER status");
+            }
+        }
 
-	private static function flush_rewrite_rules() {
-		\BD\PostTypes\Business::register();
-		\BD\Taxonomies\Category::register();
-		\BD\Taxonomies\Area::register();
-		\BD\Taxonomies\Tag::register();
-		flush_rewrite_rules();
-	}
+        // Run gamification table creation if upgrading from pre-2.1.0
+        if (version_compare($from_version, '2.1.0', '<')) {
+            self::create_tables(); // This will create missing tables
+        }
+    }
+
+    private static function create_roles()
+    {
+        \BD\Roles\Manager::create();
+    }
+
+    private static function flush_rewrite_rules()
+    {
+        \BD\PostTypes\Business::register();
+        \BD\Taxonomies\Category::register();
+        \BD\Taxonomies\Area::register();
+        \BD\Taxonomies\Tag::register();
+        flush_rewrite_rules();
+    }
 }

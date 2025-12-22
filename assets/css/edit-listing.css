@@ -1,0 +1,880 @@
+/**
+ * Edit Listing Frontend Form Styles
+ * Premium design matching Love Tri Valley brand
+ */
+
+/* ============================================================================
+   WRAPPER & LAYOUT
+   ========================================================================= */
+
+.bd-edit-listing-wrapper {
+	max-width: 900px;
+	margin: 0 auto;
+	padding: 24px;
+	font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ============================================================================
+   NOTICE BANNERS
+   ========================================================================= */
+
+.bd-edit-notice {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 16px 20px;
+	border-radius: 12px;
+	margin-bottom: 24px;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.bd-edit-notice svg {
+	flex-shrink: 0;
+}
+
+.bd-edit-notice-warning {
+	background: linear-gradient(135deg, #FFF8E1 0%, #FFECB3 100%);
+	border: 1px solid #FFB300;
+	color: #5D4037;
+}
+
+.bd-edit-notice-warning svg {
+	color: #FF8F00;
+}
+
+.bd-edit-notice-success {
+	background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+	border: 1px solid #4CAF50;
+	color: #2E7D32;
+}
+
+.bd-edit-notice-error {
+	background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+	border: 1px solid #E53935;
+	color: #C62828;
+}
+
+/* ============================================================================
+   HEADER
+   ========================================================================= */
+
+.bd-edit-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 24px;
+	padding: 32px;
+	background: var(--global-palette4, #2D3748);
+	border-radius: 16px;
+	margin-bottom: 32px;
+	color: white;
+}
+
+.bd-edit-header h1 {
+	margin: 0 0 8px 0;
+	font-size: 28px;
+	font-weight: 700;
+	color: white;
+}
+
+.bd-edit-subtitle {
+	margin: 0;
+	font-size: 16px;
+	color: rgba(255, 255, 255, 0.8);
+}
+
+.bd-view-listing-link {
+	color: #a8c4d4;
+	text-decoration: none;
+	margin-left: 12px;
+	font-weight: 500;
+}
+
+.bd-view-listing-link:hover {
+	color: #fff;
+	text-decoration: underline;
+}
+
+.bd-edit-header-actions {
+	flex-shrink: 0;
+}
+
+/* ============================================================================
+   FORM SECTIONS
+   ========================================================================= */
+
+.bd-edit-sections {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.bd-edit-section {
+	background: white;
+	border-radius: 16px;
+	box-shadow: 0 2px 12px rgba(26, 58, 74, 0.08);
+	border: 1px solid #E2E8F0;
+	overflow: hidden;
+}
+
+.bd-edit-section-header {
+	padding: 20px 24px;
+	background: #F8FAFC;
+	border-bottom: 1px solid #E2E8F0;
+}
+
+.bd-edit-section-header h2 {
+	margin: 0;
+	font-size: 18px;
+	font-weight: 600;
+	color: #1a3a4a;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.bd-edit-section-header h2 svg {
+	color: #7a9eb8;
+}
+
+.bd-edit-section-content {
+	padding: 24px;
+}
+
+/* ============================================================================
+   FORM ELEMENTS
+   ========================================================================= */
+
+.bd-form-row {
+	margin-bottom: 20px;
+}
+
+.bd-form-row:last-child {
+	margin-bottom: 0;
+}
+
+.bd-form-row label {
+	display: block;
+	font-size: 14px;
+	font-weight: 600;
+	color: #1a3a4a;
+	margin-bottom: 8px;
+}
+
+.bd-form-row label .required {
+	color: #E53935;
+	margin-left: 2px;
+}
+
+.bd-field-help {
+	font-size: 13px;
+	color: #64748B;
+	margin: 0 0 8px 0;
+}
+
+.bd-form-row input[type="text"],
+.bd-form-row input[type="email"],
+.bd-form-row input[type="tel"],
+.bd-form-row input[type="url"],
+.bd-form-row input[type="time"],
+.bd-form-row textarea,
+.bd-form-row select {
+	width: 100%;
+	padding: 12px 16px;
+	border: 2px solid #E2E8F0;
+	border-radius: 8px;
+	font-size: 15px;
+	font-family: inherit;
+	color: #1a3a4a;
+	background: white;
+	transition: all 0.2s ease;
+	box-sizing: border-box;
+}
+
+.bd-form-row input:focus,
+.bd-form-row textarea:focus,
+.bd-form-row select:focus {
+	outline: none;
+	border-color: #1a3a4a;
+	box-shadow: 0 0 0 4px rgba(26, 58, 74, 0.15);
+}
+
+.bd-form-row input::placeholder,
+.bd-form-row textarea::placeholder {
+	color: #94A3B8;
+}
+
+/* Grid layouts */
+.bd-form-grid {
+	display: grid;
+	gap: 16px;
+}
+
+.bd-form-grid-2 {
+	grid-template-columns: repeat(2, 1fr);
+}
+
+.bd-form-grid-3 {
+	grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 640px) {
+	.bd-form-grid-2,
+	.bd-form-grid-3 {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* Social media inputs with icons */
+.bd-form-row-icon label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.bd-form-row-icon label svg {
+	flex-shrink: 0;
+}
+
+/* ============================================================================
+   CHECKBOX GRID (Categories/Tags)
+   ========================================================================= */
+
+.bd-checkbox-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+	gap: 12px;
+}
+
+.bd-checkbox-grid-sm {
+	grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+
+.bd-checkbox-item {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 16px;
+	background: #F8FAFC;
+	border: 2px solid #E2E8F0;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	font-weight: normal;
+	margin: 0;
+}
+
+.bd-checkbox-item:hover {
+	border-color: #1a3a4a;
+	background: #f0f4f7;
+}
+
+.bd-checkbox-item input[type="checkbox"] {
+	width: 18px;
+	height: 18px;
+	margin: 0;
+	accent-color: #1a3a4a;
+}
+
+.bd-checkbox-item input[type="checkbox"]:checked + span {
+	color: #1a3a4a;
+	font-weight: 500;
+}
+
+.bd-checkbox-item:has(input:checked) {
+	border-color: #1a3a4a;
+	background: linear-gradient(135deg, #f0f4f7 0%, #e8f0f4 100%);
+}
+
+/* ============================================================================
+   HOURS EDITOR
+   ========================================================================= */
+
+.bd-hours-editor {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.bd-hours-row {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 12px 16px;
+	background: #F8FAFC;
+	border-radius: 8px;
+	border: 1px solid #E2E8F0;
+}
+
+.bd-hours-day {
+	width: 100px;
+	font-weight: 600;
+	color: #1a3a4a;
+	flex-shrink: 0;
+}
+
+.bd-hours-inputs {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	flex: 1;
+}
+
+.bd-hours-closed {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+	font-weight: normal;
+	margin: 0;
+	white-space: nowrap;
+}
+
+.bd-hours-closed input[type="checkbox"] {
+	width: 16px;
+	height: 16px;
+	margin: 0;
+	accent-color: #E53935;
+}
+
+.bd-hours-times {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.bd-hours-times.bd-hidden {
+	opacity: 0.4;
+	pointer-events: none;
+}
+
+.bd-hours-times input[type="time"] {
+	width: 120px;
+	padding: 8px 12px;
+	border: 2px solid #E2E8F0;
+	border-radius: 6px;
+	font-size: 14px;
+}
+
+.bd-hours-separator {
+	color: #64748B;
+	font-size: 14px;
+}
+
+@media (max-width: 640px) {
+	.bd-hours-row {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 12px;
+	}
+
+	.bd-hours-day {
+		width: auto;
+	}
+
+	.bd-hours-inputs {
+		width: 100%;
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.bd-hours-times {
+		width: 100%;
+	}
+
+	.bd-hours-times input[type="time"] {
+		flex: 1;
+	}
+}
+
+/* ============================================================================
+   PHOTO GRID
+   ========================================================================= */
+
+.bd-photo-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+	gap: 16px;
+}
+
+.bd-photo-item {
+	position: relative;
+	aspect-ratio: 1;
+	border-radius: 12px;
+	overflow: hidden;
+	background: #F1F5F9;
+	border: 2px solid #E2E8F0;
+	cursor: grab;
+}
+
+.bd-photo-item:active {
+	cursor: grabbing;
+}
+
+.bd-photo-item img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.bd-photo-badge {
+	position: absolute;
+	top: 8px;
+	left: 8px;
+	padding: 4px 10px;
+	background: linear-gradient(135deg, #1a3a4a 0%, #1e4258 100%);
+	color: white;
+	font-size: 11px;
+	font-weight: 600;
+	border-radius: 6px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.bd-photo-remove {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.6);
+	border: none;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	transition: opacity 0.2s ease;
+}
+
+.bd-photo-item:hover .bd-photo-remove {
+	opacity: 1;
+}
+
+.bd-photo-remove svg {
+	color: white;
+}
+
+.bd-photo-remove:hover {
+	background: #E53935;
+}
+
+.bd-photo-drag-handle {
+	position: absolute;
+	bottom: 8px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 32px;
+	height: 24px;
+	background: rgba(0, 0, 0, 0.5);
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	transition: opacity 0.2s ease;
+}
+
+.bd-photo-item:hover .bd-photo-drag-handle {
+	opacity: 1;
+}
+
+.bd-photo-drag-handle svg {
+	color: white;
+}
+
+.bd-photo-add {
+	aspect-ratio: 1;
+	border: 2px dashed #CBD5E1;
+	border-radius: 12px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	color: #64748B;
+}
+
+.bd-photo-add:hover {
+	border-color: #1a3a4a;
+	background: #f0f4f7;
+	color: #1a3a4a;
+}
+
+.bd-photo-add span {
+	font-size: 14px;
+	font-weight: 500;
+}
+
+/* Drag and drop states */
+.bd-photo-item.bd-dragging {
+	opacity: 0.5;
+	transform: scale(0.95);
+}
+
+.bd-photo-item.bd-drag-over {
+	border-color: #1a3a4a;
+	border-style: solid;
+}
+
+/* ============================================================================
+   BUTTONS
+   ========================================================================= */
+
+.bd-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 14px 28px;
+	border-radius: 8px;
+	font-size: 15px;
+	font-weight: 600;
+	font-family: inherit;
+	text-decoration: none;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	border: none;
+}
+
+.bd-btn-primary {
+	background: linear-gradient(135deg, #1a3a4a 0%, #1e4258 100%);
+	color: white;
+	box-shadow: 0 4px 12px rgba(26, 58, 74, 0.3);
+}
+
+.bd-btn-primary:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 20px rgba(26, 58, 74, 0.4);
+}
+
+.bd-btn-primary:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
+}
+
+.bd-btn-secondary {
+	background: white;
+	color: #1a3a4a;
+	border: 2px solid #E2E8F0;
+}
+
+.bd-btn-secondary:hover {
+	border-color: #1a3a4a;
+	background: #f0f4f7;
+}
+
+/* ============================================================================
+   STICKY FOOTER
+   ========================================================================= */
+
+.bd-edit-footer {
+	position: sticky;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: white;
+	border-top: 1px solid #E2E8F0;
+	padding: 16px 24px;
+	margin-top: 32px;
+	margin-left: -24px;
+	margin-right: -24px;
+	box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+	z-index: 100;
+}
+
+.bd-edit-footer-content {
+	max-width: 900px;
+	margin: 0 auto;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 16px;
+}
+
+.bd-edit-note {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0;
+	font-size: 14px;
+	color: #64748B;
+}
+
+.bd-edit-note svg {
+	color: #7a9eb8;
+	flex-shrink: 0;
+}
+
+@media (max-width: 640px) {
+	.bd-edit-footer-content {
+		flex-direction: column;
+		text-align: center;
+	}
+
+	.bd-edit-footer .bd-btn {
+		width: 100%;
+	}
+}
+
+/* ============================================================================
+   MESSAGE SCREENS (Login, Select, Denied, Not Found)
+   ========================================================================= */
+
+.bd-edit-message {
+	max-width: 480px;
+	margin: 60px auto;
+	text-align: center;
+	padding: 48px 32px;
+	background: white;
+	border-radius: 16px;
+	box-shadow: 0 4px 24px rgba(26, 58, 74, 0.1);
+}
+
+.bd-edit-message-icon {
+	width: 80px;
+	height: 80px;
+	margin: 0 auto 24px;
+	background: linear-gradient(135deg, #e8f0f4 0%, #d4e2eb 100%);
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #1a3a4a;
+}
+
+.bd-edit-icon-error {
+	background: linear-gradient(135deg, #FFEBEE 0%, #FFCDD2 100%);
+	color: #E53935;
+}
+
+.bd-edit-message h2 {
+	margin: 0 0 12px 0;
+	font-size: 24px;
+	font-weight: 700;
+	color: #1a3a4a;
+}
+
+.bd-edit-message p {
+	margin: 0 0 24px 0;
+	font-size: 16px;
+	color: #64748B;
+	line-height: 1.6;
+}
+
+/* Business Selector List */
+.bd-business-select-list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-top: 24px;
+	text-align: left;
+}
+
+.bd-business-select-item {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 16px;
+	background: #F8FAFC;
+	border: 2px solid #E2E8F0;
+	border-radius: 12px;
+	text-decoration: none;
+	color: inherit;
+	transition: all 0.2s ease;
+}
+
+.bd-business-select-item:hover {
+	border-color: #1a3a4a;
+	background: white;
+	transform: translateX(4px);
+}
+
+.bd-business-select-image {
+	width: 60px;
+	height: 60px;
+	border-radius: 8px;
+	overflow: hidden;
+	flex-shrink: 0;
+}
+
+.bd-business-select-image img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.bd-business-select-info {
+	flex: 1;
+}
+
+.bd-business-select-info h3 {
+	margin: 0 0 4px 0;
+	font-size: 16px;
+	font-weight: 600;
+	color: #1a3a4a;
+}
+
+.bd-business-select-info p {
+	margin: 0;
+	font-size: 14px;
+	color: #64748B;
+}
+
+.bd-business-select-item > svg {
+	color: #CBD5E1;
+	flex-shrink: 0;
+	transition: color 0.2s ease;
+}
+
+.bd-business-select-item:hover > svg {
+	color: #1a3a4a;
+}
+
+/* ============================================================================
+   SUCCESS/ERROR TOAST MESSAGES
+   ========================================================================= */
+
+#bd-edit-messages {
+	position: fixed;
+	top: 100px;
+	right: 24px;
+	z-index: 10000;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.bd-toast {
+	padding: 16px 24px;
+	border-radius: 12px;
+	font-size: 14px;
+	font-weight: 500;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+	animation: bdSlideIn 0.3s ease;
+	max-width: 400px;
+}
+
+.bd-toast-success {
+	background: #10B981;
+	color: white;
+}
+
+.bd-toast-error {
+	background: #EF4444;
+	color: white;
+}
+
+@keyframes bdSlideIn {
+	from {
+		transform: translateX(100%);
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}
+
+/* ============================================================================
+   WYSIWYG EDITOR OVERRIDES
+   ========================================================================= */
+
+.bd-edit-section .wp-editor-wrap {
+	border: 2px solid #E2E8F0;
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.bd-edit-section .wp-editor-wrap:focus-within {
+	border-color: #1a3a4a;
+	box-shadow: 0 0 0 4px rgba(26, 58, 74, 0.15);
+}
+
+.bd-edit-section .mce-toolbar-grp {
+	background: #F8FAFC;
+	border-bottom: 1px solid #E2E8F0;
+}
+
+.bd-edit-section .wp-editor-container textarea {
+	border: none !important;
+}
+
+/* ============================================================================
+   LOADING STATES
+   ========================================================================= */
+
+.bd-loading {
+	position: relative;
+	pointer-events: none;
+}
+
+.bd-loading::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(255, 255, 255, 0.8);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.bd-spinner {
+	width: 32px;
+	height: 32px;
+	border: 3px solid #E2E8F0;
+	border-top-color: #1a3a4a;
+	border-radius: 50%;
+	animation: bdSpin 0.8s linear infinite;
+}
+
+@keyframes bdSpin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* ============================================================================
+   RESPONSIVE
+   ========================================================================= */
+
+@media (max-width: 768px) {
+	.bd-edit-listing-wrapper {
+		padding: 16px;
+	}
+
+	.bd-edit-header {
+		flex-direction: column;
+		padding: 24px;
+		text-align: center;
+	}
+
+	.bd-edit-header h1 {
+		font-size: 24px;
+	}
+
+	.bd-edit-header-actions {
+		width: 100%;
+	}
+
+	.bd-edit-header-actions .bd-btn {
+		width: 100%;
+	}
+
+	.bd-edit-section-content {
+		padding: 16px;
+	}
+
+	.bd-photo-grid {
+		grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+		gap: 12px;
+	}
+}

@@ -35,6 +35,15 @@
 	backdrop-filter: blur(4px);
 }
 
+.bd-claim-card {
+	position: relative;
+	z-index: 1;
+}
+
+.bd-info-card {
+	position: relative;
+}
+
 /* Modal Content */
 .bd-claim-modal-content {
 	position: relative;
@@ -106,6 +115,7 @@
 	justify-content: center;
 	cursor: pointer;
 	transition: all 0.2s;
+	color: var(--bd-text-muted);
 }
 
 .bd-claim-close:hover {
@@ -115,6 +125,7 @@
 
 .bd-claim-close svg {
 	stroke: white;
+	color: white;
 }
 
 /* Form Sections */
@@ -206,7 +217,7 @@
 	cursor: pointer;
 }
 
-.bd-claim-radio input[type="radio"]:checked + .bd-radio-label {
+.bd-claim-radio input[type="radio"]:checked+.bd-radio-label {
 	color: #0F2A43;
 }
 
@@ -363,7 +374,9 @@
 }
 
 @keyframes spin {
-	to { transform: rotate(360deg); }
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 /* Responsive */

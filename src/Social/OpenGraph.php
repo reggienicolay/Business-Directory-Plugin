@@ -1,0 +1,353 @@
+<?php
+/**
+ * Open Graph Meta Tags
+ *
+ * Generates Open Graph meta tags for rich social media previews.
+ *
+ * @package BusinessDirectory
+ */
+
+namespace BD\Social;
+
+class OpenGraph {
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
+		add_action( 'wp_head', array( $this, 'output_meta_tags' ), 5 );
+	}
+
+	/**
+	 * Output Open Graph meta tags.
+	 */
+	public function output_meta_tags() {
+		// Only on business pages.
+		if ( ! is_singular( 'bd_business' ) ) {
+			return;
+		}
+
+		$post = get_queried_object();
+		if ( ! $post ) {
+			return;
+		}
+
+		$tags = $this->generate_business_tags( $post );
+		$this->render_tags( $tags );
+	}
+
+	/**
+	 * Generate OG tags for a business.
+	 *
+	 * @param \WP_Post $post Business post.
+	 * @return array Tags.
+	 */
+	private function generate_business_tags( $post ) {
+		$tags = array();
+
+		// Basic OG tags.
+		$tags['og:type']      = 'business.business';
+		$tags['og:url']       = get_permalink( $post->ID );
+		$tags['og:title']     = $this->get_business_title( $post );
+		$tags['og:site_name'] = get_bloginfo( 'name' );
+
+		// Description.
+		$tags['og:description'] = $this->get_business_description( $post );
+
+		// Image.
+		$image = $this->get_share_image( $post );
+		if ( $image ) {
+			$tags['og:image']        = $image['url'];
+			$tags['og:image:width']  = $image['width'] ?? 1200;
+			$tags['og:image:height'] = $image['height'] ?? 630;
+			$tags['og:image:alt']    = $post->post_title;
+		}
+
+		// Business-specific tags.
+		$location = get_post_meta( $post->ID, 'bd_location', true );
+		if ( is_array( $location ) ) {
+			if ( ! empty( $location['lat'] ) && ! empty( $location['lng'] ) ) {
+				$tags['place:location:latitude']  = $location['lat'];
+				$tags['place:location:longitude'] = $location['lng'];
+			}
+			if ( ! empty( $location['address'] ) ) {
+				$tags['business:contact_data:street_address'] = $location['address'];
+			}
+			if ( ! empty( $location['city'] ) ) {
+				$tags['business:contact_data:locality'] = $location['city'];
+			}
+			if ( ! empty( $location['state'] ) ) {
+				$tags['business:contact_data:region'] = $location['state'];
+			}
+			if ( ! empty( $location['zip'] ) ) {
+				$tags['business:contact_data:postal_code'] = $location['zip'];
+			}
+			if ( ! empty( $location['country'] ) ) {
+				$tags['business:contact_data:country_name'] = $location['country'];
+			}
+		}
+
+		// Contact info.
+		$contact = get_post_meta( $post->ID, 'bd_contact', true );
+		if ( is_array( $contact ) ) {
+			if ( ! empty( $contact['phone'] ) ) {
+				$tags['business:contact_data:phone_number'] = $contact['phone'];
+			}
+			if ( ! empty( $contact['website'] ) ) {
+				$tags['business:contact_data:website'] = $contact['website'];
+			}
+		}
+
+		// Rating.
+		$rating       = get_post_meta( $post->ID, 'bd_rating_avg', true );
+		$review_count = get_post_meta( $post->ID, 'bd_review_count', true );
+		if ( $rating ) {
+			// Schema.org for Google.
+			$tags['rating']      = $rating;
+			$tags['ratingCount'] = $review_count ? $review_count : 0;
+		}
+
+		// Facebook-specific.
+		$fb_app_id = get_option( 'bd_facebook_app_id', '' );
+		if ( $fb_app_id ) {
+			$tags['fb:app_id'] = $fb_app_id;
+		}
+
+		// LinkedIn-specific.
+		$tags['linkedin:owner'] = get_option( 'bd_linkedin_company_id', '' );
+
+		return array_filter( $tags );
+	}
+
+	/**
+	 * Get optimized title for sharing.
+	 *
+	 * @param \WP_Post $post Business post.
+	 * @return string Title.
+	 */
+	private function get_business_title( $post ) {
+		$title = $post->post_title;
+
+		// Add rating if available.
+		$rating = get_post_meta( $post->ID, 'bd_rating_avg', true );
+		if ( $rating ) {
+			$title .= ' ⭐ ' . number_format( (float) $rating, 1 );
+		}
+
+		// Add category.
+		$categories = wp_get_post_terms( $post->ID, 'bd_category', array( 'fields' => 'names' ) );
+		if ( ! empty( $categories ) ) {
+			$title .= ' · ' . $categories[0];
+		}
+
+		// Add area.
+		$areas = wp_get_post_terms( $post->ID, 'bd_area', array( 'fields' => 'names' ) );
+		if ( ! empty( $areas ) ) {
+			$title .= ' · ' . $areas[0];
+		}
+
+		return $title;
+	}
+
+	/**
+	 * Get description for sharing.
+	 *
+	 * @param \WP_Post $post Business post.
+	 * @return string Description.
+	 */
+	private function get_business_description( $post ) {
+		// Use excerpt if available.
+		if ( $post->post_excerpt ) {
+			return wp_trim_words( $post->post_excerpt, 30 );
+		}
+
+		// Use content.
+		if ( $post->post_content ) {
+			return wp_trim_words( wp_strip_all_tags( $post->post_content ), 30 );
+		}
+
+		// Build from meta.
+		$parts = array();
+
+		$review_count = get_post_meta( $post->ID, 'bd_review_count', true );
+		if ( $review_count ) {
+			$parts[] = sprintf(
+				// translators: %d is number of reviews.
+				_n( '%d review', '%d reviews', $review_count, 'business-directory' ),
+				$review_count
+			);
+		}
+
+		$location = get_post_meta( $post->ID, 'bd_location', true );
+		if ( is_array( $location ) ) {
+			$address_parts = array_filter(
+				array(
+					$location['address'] ?? '',
+					$location['city'] ?? '',
+					$location['state'] ?? '',
+				)
+			);
+			if ( $address_parts ) {
+				$parts[] = implode( ', ', $address_parts );
+			}
+		}
+
+		$contact = get_post_meta( $post->ID, 'bd_contact', true );
+		if ( is_array( $contact ) && ! empty( $contact['phone'] ) ) {
+			$parts[] = $contact['phone'];
+		}
+
+		return implode( ' · ', $parts );
+	}
+
+	/**
+	 * Get share image URL.
+	 *
+	 * @param \WP_Post $post Business post.
+	 * @return array|null Image data or null.
+	 */
+	private function get_share_image( $post ) {
+		// Check for dynamic share image.
+		$dynamic_image = $this->get_dynamic_share_image_url( $post->ID );
+		if ( $dynamic_image ) {
+			return array(
+				'url'    => $dynamic_image,
+				'width'  => 1200,
+				'height' => 630,
+			);
+		}
+
+		// Fall back to featured image.
+		$thumbnail_id = get_post_thumbnail_id( $post->ID );
+		if ( $thumbnail_id ) {
+			$image = wp_get_attachment_image_src( $thumbnail_id, 'large' );
+			if ( $image ) {
+				return array(
+					'url'    => $image[0],
+					'width'  => $image[1],
+					'height' => $image[2],
+				);
+			}
+		}
+
+		// Fall back to site default.
+		$default_image = get_option( 'bd_default_share_image', '' );
+		if ( $default_image ) {
+			return array(
+				'url'    => $default_image,
+				'width'  => 1200,
+				'height' => 630,
+			);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Get dynamic share image URL.
+	 *
+	 * @param int $business_id Business ID.
+	 * @return string|null Image URL or null.
+	 */
+	private function get_dynamic_share_image_url( $business_id ) {
+		// Check if dynamic image exists.
+		$upload_dir = wp_upload_dir();
+		$image_path = $upload_dir['basedir'] . '/bd-share-images/' . $business_id . '.png';
+
+		if ( file_exists( $image_path ) ) {
+			return $upload_dir['baseurl'] . '/bd-share-images/' . $business_id . '.png';
+		}
+
+		// Return URL to dynamic generator.
+		return add_query_arg(
+			array(
+				'bd_share_image' => 1,
+				'business_id'    => $business_id,
+			),
+			home_url()
+		);
+	}
+
+	/**
+	 * Render meta tags.
+	 *
+	 * @param array $tags Tags array.
+	 */
+	private function render_tags( $tags ) {
+		echo "\n<!-- Business Directory Open Graph Tags -->\n";
+
+		foreach ( $tags as $property => $content ) {
+			if ( empty( $content ) ) {
+				continue;
+			}
+
+			// Determine if it's a name or property attribute.
+			$attr = strpos( $property, ':' ) !== false ? 'property' : 'name';
+
+			printf(
+				'<meta %s="%s" content="%s" />' . "\n",
+				esc_attr( $attr ),
+				esc_attr( $property ),
+				esc_attr( $content )
+			);
+		}
+
+		echo "<!-- /Business Directory Open Graph Tags -->\n\n";
+	}
+
+	/**
+	 * Generate OG tags for a review (used in share URLs).
+	 *
+	 * @param array $review Review data.
+	 * @return array Tags.
+	 */
+	public static function generate_review_tags( $review ) {
+		$business = get_post( $review['business_id'] );
+		if ( ! $business ) {
+			return array();
+		}
+
+		$stars = str_repeat( '⭐', (int) $review['rating'] );
+
+		return array(
+			'og:type'        => 'article',
+			'og:title'       => sprintf(
+				// translators: %1$s is stars, %2$s is business name.
+				__( '%1$s Review of %2$s', 'business-directory' ),
+				$stars,
+				$business->post_title
+			),
+			'og:description' => wp_trim_words( $review['content'], 30 ),
+			'og:url'         => get_permalink( $business->ID ) . '#review-' . $review['id'],
+			'og:site_name'   => get_bloginfo( 'name' ),
+		);
+	}
+
+	/**
+	 * Generate OG tags for a badge achievement.
+	 *
+	 * @param string $badge_key Badge key.
+	 * @param array  $badge Badge data.
+	 * @param int    $user_id User ID.
+	 * @return array Tags.
+	 */
+	public static function generate_badge_tags( $badge_key, $badge, $user_id ) {
+		$user = get_userdata( $user_id );
+		if ( ! $user ) {
+			return array();
+		}
+
+		return array(
+			'og:type'        => 'article',
+			'og:title'       => sprintf(
+				// translators: %1$s is user name, %2$s is badge name, %3$s is site name.
+				__( '%1$s earned the "%2$s" badge on %3$s!', 'business-directory' ),
+				$user->display_name,
+				$badge['name'],
+				get_bloginfo( 'name' )
+			),
+			'og:description' => $badge['description'] ?? '',
+			'og:site_name'   => get_bloginfo( 'name' ),
+		);
+	}
+}

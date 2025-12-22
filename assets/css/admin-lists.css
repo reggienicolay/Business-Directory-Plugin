@@ -1,0 +1,144 @@
+/**
+ * Lists Admin Styles
+ */
+
+.bd-lists-admin {
+	max-width: 1200px;
+}
+
+/* Visibility Badges */
+.bd-visibility-badge {
+	display: inline-block;
+	padding: 4px 10px;
+	border-radius: 12px;
+	font-size: 12px;
+	font-weight: 500;
+}
+
+.bd-visibility-public {
+	background: #e8f5e9;
+	color: #2e7d32;
+}
+
+.bd-visibility-private {
+	background: #fce4ec;
+	color: #c62828;
+}
+
+.bd-visibility-unlisted {
+	background: #e3f2fd;
+	color: #1565c0;
+}
+
+/* Featured Star */
+.bd-featured-star {
+	margin-right: 6px;
+}
+
+/* List Description */
+.bd-list-description {
+	margin: 4px 0 0 0;
+	font-size: 13px;
+	color: #666;
+	font-weight: normal;
+}
+
+/* Item Count */
+.bd-item-count {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 28px;
+	height: 28px;
+	padding: 0 8px;
+	background: #f0f5f8;
+	border-radius: 14px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #1a3a4a;
+}
+
+/* Table Columns */
+.bd-lists-table .column-title {
+	width: 30%;
+}
+
+.bd-lists-table .column-author {
+	width: 15%;
+}
+
+.bd-lists-table .column-items {
+	width: 8%;
+	text-align: center;
+}
+
+.bd-lists-table .column-visibility {
+	width: 10%;
+}
+
+.bd-lists-table .column-views {
+	width: 10%;
+}
+
+.bd-lists-table .column-date {
+	width: 12%;
+}
+
+.bd-lists-table .column-actions {
+	width: 15%;
+}
+
+/* Actions */
+.bd-lists-table .column-actions {
+	white-space: nowrap;
+}
+
+.bd-lists-table .column-actions .button {
+	margin-right: 4px;
+}
+
+/* No Items */
+.bd-no-items {
+	text-align: center;
+	padding: 40px 20px;
+	color: #666;
+	font-style: italic;
+}
+
+/* Search Box Positioning */
+.bd-lists-admin .search-box {
+	float: right;
+	margin: 10px 0;
+}
+
+/* Sortable Column Headers */
+.bd-lists-admin .sortable {
+	cursor: pointer;
+}
+
+.bd-lists-admin .sorted.asc .sorting-indicator::before {
+	content: "▲";
+	font-size: 10px;
+	margin-left: 4px;
+}
+
+.bd-lists-admin .sorted.desc .sorting-indicator::before {
+	content: "▼";
+	font-size: 10px;
+	margin-left: 4px;
+}
+
+/* Row Hover */
+.bd-lists-table tbody tr:hover {
+	background: #f8fafc;
+}
+
+/* Button Hover States */
+.bd-feature-btn:hover,
+.bd-unfeature-btn:hover {
+	background: #fff3cd !important;
+}
+
+.bd-delete-btn:hover {
+	background: #fee2e2 !important;
+}

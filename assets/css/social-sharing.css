@@ -1,0 +1,607 @@
+/**
+ * Social Sharing Styles
+ * Love Tri Valley brand theme
+ *
+ * Brand Colors:
+ * - Dark Navy:   #1a3a4a
+ * - Medium Navy: #1e4258
+ * - Steel Blue:  #7a9eb8
+ * - Light Blue:  #a8c4d4
+ * - Slate Gray:  #5d7a8c
+ * - Black:       #1a1a1a
+ */
+
+/* ==========================================================================
+   SHARE BUTTONS CONTAINER
+   ========================================================================== */
+
+.bd-share-buttons {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin: 24px 0;
+	padding: 16px 20px;
+	background: linear-gradient(135deg, rgba(26, 58, 74, 0.03) 0%, rgba(122, 158, 184, 0.08) 100%);
+	border-radius: 12px;
+	border: 1px solid rgba(122, 158, 184, 0.25);
+}
+
+.bd-share-horizontal {
+	flex-direction: row;
+}
+
+.bd-share-compact {
+	padding: 12px 16px;
+	margin: 16px 0;
+	gap: 8px;
+}
+
+.bd-share-compact .bd-share-label {
+	font-size: 13px;
+}
+
+.bd-share-compact .bd-share-btn {
+	width: 36px;
+	height: 36px;
+	font-size: 14px;
+}
+
+.bd-share-compact .bd-share-btn-text {
+	display: none;
+}
+
+/* ==========================================================================
+   SHARE LABEL
+   ========================================================================== */
+
+.bd-share-label {
+	font-family: 'Inter', -apple-system, sans-serif;
+	font-size: 14px;
+	font-weight: 600;
+	color: #1a3a4a;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   SHARE BUTTONS LIST
+   ========================================================================== */
+
+.bd-share-buttons-list {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   INDIVIDUAL SHARE BUTTON
+   ========================================================================== */
+
+.bd-share-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	width: 42px;
+	height: 42px;
+	border-radius: 50%;
+	background: var(--btn-color, #1a3a4a);
+	color: #ffffff;
+	text-decoration: none;
+	font-size: 16px;
+	transition: all 0.3s ease;
+	cursor: pointer;
+	border: none;
+	position: relative;
+	overflow: hidden;
+}
+
+.bd-share-btn::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%);
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.bd-share-btn:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.bd-share-btn:hover::before {
+	opacity: 1;
+}
+
+.bd-share-btn:active {
+	transform: translateY(-1px);
+}
+
+.bd-share-btn i {
+	position: relative;
+	z-index: 1;
+}
+
+.bd-share-btn-text {
+	display: none;
+}
+
+/* Show text on larger screens for horizontal layout */
+@media (min-width: 768px) {
+	.bd-share-horizontal .bd-share-btn {
+		width: auto;
+		padding: 10px 18px;
+		border-radius: 24px;
+	}
+
+	.bd-share-horizontal .bd-share-btn-text {
+		display: inline;
+		font-size: 13px;
+		font-weight: 500;
+	}
+}
+
+/* ==========================================================================
+   PLATFORM-SPECIFIC COLORS (fallbacks)
+   ========================================================================== */
+
+.bd-share-facebook {
+	--btn-color: #1877F2;
+}
+
+.bd-share-linkedin {
+	--btn-color: #0A66C2;
+}
+
+.bd-share-nextdoor {
+	--btn-color: #00B636;
+}
+
+.bd-share-email {
+	--btn-color: #1a3a4a;
+}
+
+.bd-share-copy_link {
+	--btn-color: #5d7a8c;
+}
+
+/* ==========================================================================
+   POINTS HINT
+   ========================================================================== */
+
+.bd-share-points-hint {
+	font-size: 12px;
+	color: #1e4258;
+	font-weight: 600;
+	padding: 4px 10px;
+	background: rgba(122, 158, 184, 0.15);
+	border-radius: 12px;
+	margin-left: auto;
+}
+
+/* ==========================================================================
+   TOAST NOTIFICATIONS
+   ========================================================================== */
+
+.bd-share-toast {
+	position: fixed;
+	bottom: 24px;
+	left: 50%;
+	transform: translateX(-50%) translateY(100px);
+	background: #1a3a4a;
+	color: #ffffff;
+	padding: 14px 28px;
+	border-radius: 8px;
+	font-size: 14px;
+	font-weight: 500;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+	z-index: 99999;
+	opacity: 0;
+	transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.bd-share-toast.bd-toast-visible {
+	transform: translateX(-50%) translateY(0);
+	opacity: 1;
+}
+
+.bd-share-toast.bd-toast-success {
+	background: linear-gradient(135deg, #00a32a 0%, #008a23 100%);
+}
+
+.bd-share-toast.bd-toast-success::before {
+	content: '✓';
+	font-weight: bold;
+}
+
+.bd-share-toast.bd-toast-error {
+	background: linear-gradient(135deg, #d63638 0%, #b32d2e 100%);
+}
+
+.bd-share-toast.bd-toast-error::before {
+	content: '✕';
+	font-weight: bold;
+}
+
+.bd-share-toast.bd-toast-points {
+	background: linear-gradient(135deg, #1a3a4a 0%, #1e4258 100%);
+}
+
+.bd-share-toast.bd-toast-points::before {
+	content: '🎉';
+}
+
+/* ==========================================================================
+   SHARE MODAL (for copy link)
+   ========================================================================== */
+
+.bd-share-modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.6);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 99998;
+	opacity: 0;
+	visibility: hidden;
+	transition: all 0.3s ease;
+}
+
+.bd-share-modal-overlay.bd-modal-visible {
+	opacity: 1;
+	visibility: visible;
+}
+
+.bd-share-modal {
+	background: #ffffff;
+	border-radius: 16px;
+	padding: 32px;
+	max-width: 480px;
+	width: 90%;
+	box-shadow: 0 24px 64px rgba(0, 0, 0, 0.3);
+	transform: scale(0.9);
+	transition: transform 0.3s ease;
+}
+
+.bd-share-modal-overlay.bd-modal-visible .bd-share-modal {
+	transform: scale(1);
+}
+
+.bd-share-modal h3 {
+	font-family: 'Playfair Display', Georgia, serif;
+	font-size: 24px;
+	color: #1a3a4a;
+	margin: 0 0 16px 0;
+}
+
+.bd-share-modal-close {
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	background: none;
+	border: none;
+	font-size: 24px;
+	color: #666;
+	cursor: pointer;
+	padding: 4px;
+	line-height: 1;
+}
+
+.bd-share-modal-close:hover {
+	color: #1a3a4a;
+}
+
+.bd-share-copy-input-wrapper {
+	display: flex;
+	gap: 8px;
+	margin-top: 16px;
+}
+
+.bd-share-copy-input {
+	flex: 1;
+	padding: 12px 16px;
+	border: 2px solid #E8DFD3;
+	border-radius: 8px;
+	font-size: 14px;
+	color: #2C2420;
+	background: #FAFAF8;
+}
+
+.bd-share-copy-input:focus {
+	outline: none;
+	border-color: #7a9eb8;
+}
+
+.bd-share-copy-btn {
+	padding: 12px 24px;
+	background: #1a3a4a;
+	color: #ffffff;
+	border: none;
+	border-radius: 8px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background 0.3s ease;
+}
+
+.bd-share-copy-btn:hover {
+	background: #1e4258;
+}
+
+.bd-share-copy-btn.bd-copied {
+	background: #00a32a;
+}
+
+/* ==========================================================================
+   SHARE PROMPT (after review/badge)
+   ========================================================================== */
+
+.bd-share-prompt {
+	background: linear-gradient(135deg, #f0f5f8 0%, #ffffff 100%);
+	border: 2px solid #7a9eb8;
+	border-radius: 16px;
+	padding: 24px;
+	margin: 24px 0;
+	text-align: center;
+	animation: bd-prompt-pulse 2s ease-in-out infinite;
+}
+
+@keyframes bd-prompt-pulse {
+	0%, 100% {
+		box-shadow: 0 4px 20px rgba(122, 158, 184, 0.2);
+	}
+	50% {
+		box-shadow: 0 8px 32px rgba(122, 158, 184, 0.4);
+	}
+}
+
+.bd-share-prompt h4 {
+	font-family: 'Playfair Display', Georgia, serif;
+	font-size: 22px;
+	color: #1a3a4a;
+	margin: 0 0 8px 0;
+}
+
+.bd-share-prompt p {
+	color: #6D5F52;
+	margin: 0 0 16px 0;
+}
+
+.bd-share-prompt .bd-share-buttons {
+	justify-content: center;
+	background: transparent;
+	border: none;
+	padding: 0;
+	margin: 0;
+}
+
+.bd-share-prompt .bd-share-points-hint {
+	display: block;
+	margin: 12px auto 0;
+	width: fit-content;
+}
+
+/* ==========================================================================
+   BADGE SHARE CARD
+   ========================================================================== */
+
+.bd-badge-share-card {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+	background: linear-gradient(135deg, #1a3a4a 0%, #1e4258 100%);
+	border-radius: 12px;
+	padding: 20px 24px;
+	margin: 16px 0;
+	color: #ffffff;
+}
+
+.bd-badge-share-icon {
+	font-size: 48px;
+	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.bd-badge-share-info h4 {
+	font-family: 'Playfair Display', Georgia, serif;
+	font-size: 20px;
+	color: #ffffff;
+	margin: 0 0 4px 0;
+}
+
+.bd-badge-share-info p {
+	font-size: 14px;
+	color: #a8c4d4;
+	margin: 0;
+}
+
+.bd-badge-share-card .bd-share-buttons {
+	margin-left: auto;
+	background: transparent;
+	border: none;
+	padding: 0;
+	margin-bottom: 0;
+	margin-top: 0;
+}
+
+.bd-badge-share-card .bd-share-label {
+	color: #a8c4d4;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 600px) {
+	.bd-share-buttons {
+		padding: 12px 16px;
+		gap: 8px;
+	}
+
+	.bd-share-label {
+		width: 100%;
+		margin-bottom: 4px;
+	}
+
+	.bd-share-btn {
+		width: 40px;
+		height: 40px;
+		font-size: 15px;
+	}
+
+	.bd-share-points-hint {
+		width: 100%;
+		text-align: center;
+		margin-top: 8px;
+		margin-left: 0;
+	}
+
+	.bd-share-toast {
+		left: 16px;
+		right: 16px;
+		transform: translateX(0) translateY(100px);
+		text-align: center;
+	}
+
+	.bd-share-toast.bd-toast-visible {
+		transform: translateX(0) translateY(0);
+	}
+
+	.bd-badge-share-card {
+		flex-direction: column;
+		text-align: center;
+	}
+
+	.bd-badge-share-card .bd-share-buttons {
+		margin-left: 0;
+		justify-content: center;
+	}
+}
+
+/* ==========================================================================
+   FLOATING SHARE SIDEBAR
+   ========================================================================== */
+
+.bd-share-floating-sidebar {
+	position: fixed;
+	left: 20px;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 1000;
+	opacity: 0;
+	visibility: hidden;
+	transition: all 0.3s ease;
+}
+
+.bd-share-floating-sidebar.bd-floating-visible {
+	opacity: 1;
+	visibility: visible;
+}
+
+.bd-share-floating-sidebar__inner {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	background: #ffffff;
+	padding: 12px;
+	border-radius: 28px;
+	box-shadow: 0 4px 24px rgba(26, 58, 74, 0.15);
+	border: 1px solid rgba(122, 158, 184, 0.2);
+}
+
+.bd-share-floating-sidebar .bd-share-btn {
+	width: 44px;
+	height: 44px;
+	font-size: 18px;
+}
+
+.bd-share-floating-sidebar .bd-share-btn:hover {
+	transform: scale(1.1);
+}
+
+/* Hide floating sidebar on mobile - use sticky bottom bar instead */
+@media (max-width: 1024px) {
+	.bd-share-floating-sidebar {
+		display: none;
+	}
+}
+
+/* ==========================================================================
+   MOBILE STICKY SHARE BAR
+   ========================================================================== */
+
+.bd-share-mobile-bar {
+	display: none;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: #ffffff;
+	padding: 12px 16px;
+	box-shadow: 0 -4px 20px rgba(26, 58, 74, 0.15);
+	z-index: 1000;
+	border-top: 1px solid rgba(122, 158, 184, 0.2);
+}
+
+.bd-share-mobile-bar__inner {
+	display: flex;
+	justify-content: center;
+	gap: 12px;
+	max-width: 400px;
+	margin: 0 auto;
+}
+
+.bd-share-mobile-bar .bd-share-btn {
+	flex: 1;
+	max-width: 60px;
+}
+
+@media (max-width: 1024px) {
+	.bd-share-mobile-bar {
+		display: block;
+	}
+	
+	/* Add padding to body so content isn't hidden behind sticky bar */
+	body.bd-has-share-bar {
+		padding-bottom: 80px;
+	}
+}
+
+/* ==========================================================================
+   DARK MODE SUPPORT
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+	.bd-share-buttons {
+		background: rgba(26, 58, 74, 0.15);
+		border-color: rgba(122, 158, 184, 0.3);
+	}
+
+	.bd-share-label {
+		color: #a8c4d4;
+	}
+}
+
+/* ==========================================================================
+   PRINT STYLES
+   ========================================================================== */
+
+@media print {
+	.bd-share-buttons,
+	.bd-share-toast,
+	.bd-share-modal-overlay,
+	.bd-share-prompt {
+		display: none !important;
+	}
+}

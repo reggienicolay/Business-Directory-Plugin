@@ -29,6 +29,16 @@ class BadgeAdmin {
 			array( $this, 'render_overview_page' )
 		);
 
+		// Badge Catalog - NEW
+		add_submenu_page(
+			'edit.php?post_type=bd_business',
+			__( 'Badge Catalog', 'business-directory' ),
+			__( '🎖️ Badge Catalog', 'business-directory' ),
+			'manage_options',
+			'bd-badge-catalog',
+			array( $this, 'render_badge_catalog_page' )
+		);
+
 		// User badges management
 		add_submenu_page(
 			'edit.php?post_type=bd_business',
@@ -48,6 +58,238 @@ class BadgeAdmin {
 			'bd-leaderboard',
 			array( $this, 'render_leaderboard_page' )
 		);
+	}
+
+	/**
+	 * Render Badge Catalog page - shows ALL available badges
+	 */
+	public function render_badge_catalog_page() {
+		global $wpdb;
+		$reputation_table = $wpdb->prefix . 'bd_user_reputation';
+
+		// Get total users with reputation
+		$total_users = $wpdb->get_var( "SELECT COUNT(*) FROM $reputation_table WHERE total_points > 0" );
+		$total_users = max( $total_users, 1 ); // Avoid division by zero
+
+		// Get badge counts
+		$badge_counts = array();
+		foreach ( BadgeSystem::BADGES as $key => $badge ) {
+			$count = $wpdb->get_var(
+				$wpdb->prepare(
+					"SELECT COUNT(*) FROM $reputation_table WHERE badges LIKE %s",
+					'%"' . $key . '"%'
+				)
+			);
+			$badge_counts[ $key ] = (int) $count;
+		}
+
+		// Group badges by category
+		$categories = array(
+			'community'  => array(
+				'name'   => 'Community Status',
+				'icon'   => '🏘️',
+				'badges' => array( 'love_livermore_verified', 'founding_member' ),
+			),
+			'reviews'    => array(
+				'name'   => 'Review Milestones',
+				'icon'   => '✍️',
+				'badges' => array( 'first_review', 'reviewer', 'super_reviewer', 'elite_reviewer', 'legend' ),
+			),
+			'quality'    => array(
+				'name'   => 'Quality & Engagement',
+				'icon'   => '⭐',
+				'badges' => array( 'helpful_reviewer', 'super_helpful', 'photo_lover', 'photographer' ),
+			),
+			'discovery'  => array(
+				'name'   => 'Discovery',
+				'icon'   => '🔍',
+				'badges' => array( 'explorer', 'local_expert', 'hidden_gem_hunter', 'first_reviewer' ),
+			),
+			'engagement' => array(
+				'name'   => 'Engagement',
+				'icon'   => '📅',
+				'badges' => array( 'curator', 'list_master', 'early_bird', 'night_owl', 'weekend_warrior' ),
+			),
+			'special'    => array(
+				'name'   => 'Special Recognition',
+				'icon'   => '🌟',
+				'badges' => array( 'nicoles_pick', 'community_champion' ),
+			),
+		);
+
+		// Calculate totals
+		$total_badges        = count( BadgeSystem::BADGES );
+		$total_badges_earned = array_sum( $badge_counts );
+		$auto_badges         = 0;
+		$manual_badges       = 0;
+		foreach ( BadgeSystem::BADGES as $badge ) {
+			if ( ! empty( $badge['manual'] ) ) {
+				++$manual_badges;
+			} else {
+				++$auto_badges;
+			}
+		}
+
+		// Allowed HTML for icons
+		$allowed_html = array(
+			'i' => array(
+				'class'       => array(),
+				'aria-hidden' => array(),
+			),
+		);
+
+		?>
+		<div class="wrap">
+			<h1>🎖️ Badge Catalog</h1>
+			<p style="color: #6b7280; margin-bottom: 20px;">Complete reference of all badges available in the directory. Use shortcode <code>[bd_badge_gallery]</code> to display this on the frontend.</p>
+
+			<!-- Summary Stats -->
+			<div class="bd-admin-stats-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 20px 0;">
+				<div class="bd-admin-stat-card" style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #8b5cf6;">
+					<div style="font-size: 32px; font-weight: 700; color: #1f2937;"><?php echo $total_badges; ?></div>
+					<div style="color: #6b7280; font-size: 14px;">Total Badges</div>
+				</div>
+				<div class="bd-admin-stat-card" style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #10b981;">
+					<div style="font-size: 32px; font-weight: 700; color: #1f2937;"><?php echo $auto_badges; ?></div>
+					<div style="color: #6b7280; font-size: 14px;">Auto-Awarded</div>
+				</div>
+				<div class="bd-admin-stat-card" style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b;">
+					<div style="font-size: 32px; font-weight: 700; color: #1f2937;"><?php echo $manual_badges; ?></div>
+					<div style="color: #6b7280; font-size: 14px;">Manual Only</div>
+				</div>
+				<div class="bd-admin-stat-card" style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+					<div style="font-size: 32px; font-weight: 700; color: #1f2937;"><?php echo number_format( $total_badges_earned ); ?></div>
+					<div style="color: #6b7280; font-size: 14px;">Times Earned</div>
+				</div>
+			</div>
+
+			<!-- Ranks Section -->
+			<div class="bd-admin-card" style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+				<h2 style="margin-top: 0;">📊 Rank Progression</h2>
+				<p style="color: #6b7280;">Users earn ranks based on total points accumulated.</p>
+				<div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 15px;">
+					<?php foreach ( BadgeSystem::RANKS as $threshold => $rank ) : ?>
+						<div style="background: #f8fafc; border: 2px solid <?php echo esc_attr( $rank['color'] ); ?>; border-radius: 12px; padding: 15px 20px; text-align: center; min-width: 120px;">
+							<div style="font-size: 28px; color: <?php echo esc_attr( $rank['color'] ); ?>;">
+								<?php echo wp_kses( $rank['icon'], $allowed_html ); ?>
+							</div>
+							<div style="font-weight: 700; color: #1f2937; margin: 8px 0 4px;">
+								<?php echo esc_html( $rank['name'] ); ?>
+							</div>
+							<div style="font-size: 12px; color: #6b7280;">
+								<?php echo number_format( $threshold ); ?>+ pts
+							</div>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			</div>
+
+			<!-- Badge Categories -->
+			<?php foreach ( $categories as $cat_key => $category ) : ?>
+				<div class="bd-admin-card" style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+					<h2 style="margin-top: 0; display: flex; align-items: center; gap: 10px;">
+						<span style="font-size: 24px;"><?php echo $category['icon']; ?></span>
+						<?php echo esc_html( $category['name'] ); ?>
+						<span style="background: #e5e7eb; color: #6b7280; font-size: 12px; padding: 4px 10px; border-radius: 12px; font-weight: normal;">
+							<?php echo count( $category['badges'] ); ?> badges
+						</span>
+					</h2>
+
+					<table class="widefat striped" style="margin-top: 15px;">
+						<thead>
+							<tr>
+								<th style="width: 50px;">Icon</th>
+								<th>Badge</th>
+								<th>Requirement</th>
+								<th style="width: 80px;">Rarity</th>
+								<th style="width: 70px;">Points</th>
+								<th style="width: 80px;">Earned</th>
+								<th style="width: 70px;">% Users</th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php
+							foreach ( $category['badges'] as $badge_key ) :
+								if ( ! isset( BadgeSystem::BADGES[ $badge_key ] ) ) {
+									continue;
+								}
+								$badge     = BadgeSystem::BADGES[ $badge_key ];
+								$count     = $badge_counts[ $badge_key ] ?? 0;
+								$percent   = round( ( $count / $total_users ) * 100, 1 );
+								$is_manual = ! empty( $badge['manual'] );
+								$points    = $badge['points'] ?? 0;
+
+								// Rarity colors
+								$rarity_colors = array(
+									'common'    => '#94a3b8',
+									'rare'      => '#3b82f6',
+									'epic'      => '#8b5cf6',
+									'legendary' => '#f59e0b',
+									'special'   => '#ec4899',
+								);
+								$rarity        = $badge['rarity'] ?? 'common';
+								$rarity_color  = $rarity_colors[ $rarity ] ?? '#94a3b8';
+								?>
+								<tr>
+									<td style="text-align: center;">
+										<span style="font-size: 24px; color: <?php echo esc_attr( $badge['color'] ); ?>;">
+											<?php echo wp_kses( $badge['icon'], $allowed_html ); ?>
+										</span>
+									</td>
+									<td>
+										<strong style="color: #1f2937;"><?php echo esc_html( $badge['name'] ); ?></strong>
+										<?php if ( $is_manual ) : ?>
+											<span style="background: #fef3c7; color: #92400e; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">MANUAL</span>
+										<?php endif; ?>
+										<br>
+										<span style="color: #6b7280; font-size: 13px;"><?php echo esc_html( $badge['description'] ); ?></span>
+									</td>
+									<td style="color: #4b5563; font-size: 13px;">
+										<?php echo esc_html( $badge['requirement'] ); ?>
+									</td>
+									<td>
+										<span style="background: <?php echo esc_attr( $rarity_color ); ?>; color: white; font-size: 11px; padding: 3px 8px; border-radius: 10px; text-transform: uppercase; font-weight: 600;">
+											<?php echo esc_html( $rarity ); ?>
+										</span>
+									</td>
+									<td style="text-align: center; font-weight: 600; color: #10b981;">
+										<?php echo $points > 0 ? '+' . $points : '—'; ?>
+									</td>
+									<td style="text-align: center; font-weight: 700; color: #1f2937;">
+										<?php echo number_format( $count ); ?>
+									</td>
+									<td style="text-align: center;">
+										<?php if ( $count > 0 ) : ?>
+											<span style="color: <?php echo $percent < 10 ? '#ef4444' : ( $percent < 30 ? '#f59e0b' : '#10b981' ); ?>; font-weight: 600;">
+												<?php echo $percent; ?>%
+											</span>
+										<?php else : ?>
+											<span style="color: #d1d5db;">0%</span>
+										<?php endif; ?>
+									</td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
+			<?php endforeach; ?>
+
+			<!-- Shortcode Info -->
+			<div class="bd-admin-card" style="background: #f0f9ff; padding: 20px; border-radius: 8px; border: 1px solid #bae6fd;">
+				<h3 style="margin-top: 0; color: #0369a1;">📄 Frontend Display</h3>
+				<p style="color: #0c4a6e;">To display the badge gallery on the frontend, use the shortcode:</p>
+				<code style="background: white; padding: 10px 15px; border-radius: 6px; display: inline-block; font-size: 14px;">[bd_badge_gallery]</code>
+				<p style="color: #6b7280; margin-bottom: 0; margin-top: 15px;">This will show all badges with earned/locked status for logged-in users, motivating community engagement.</p>
+			</div>
+		</div>
+
+		<style>
+			.bd-admin-card table td,
+			.bd-admin-card table th {
+				vertical-align: middle;
+			}
+		</style>
+		<?php
 	}
 
 	/**
@@ -134,6 +376,7 @@ class BadgeAdmin {
 				<!-- Badge Distribution -->
 				<div class="bd-admin-card" style="background: white; padding: 20px; border-radius: 8px;">
 					<h2>Badge Distribution</h2>
+					<p style="margin-top: 0;"><a href="<?php echo admin_url( 'edit.php?post_type=bd_business&page=bd-badge-catalog' ); ?>">View full Badge Catalog →</a></p>
 					<table class="widefat" style="margin-top: 15px;">
 						<thead>
 							<tr>
@@ -246,99 +489,77 @@ class BadgeAdmin {
 						</div>
 					</div>
 
-					<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
-						<div>
+					<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding: 20px 0; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb;">
+						<div style="text-align: center;">
 							<div style="font-size: 24px; font-weight: 700;"><?php echo number_format( $stats['total_reviews'] ); ?></div>
-							<div style="color: #6b7280; font-size: 14px;">Reviews</div>
+							<div style="color: #6b7280; font-size: 13px;">Reviews</div>
 						</div>
-						<div>
+						<div style="text-align: center;">
 							<div style="font-size: 24px; font-weight: 700;"><?php echo number_format( $stats['helpful_votes'] ); ?></div>
-							<div style="color: #6b7280; font-size: 14px;">Helpful Votes</div>
+							<div style="color: #6b7280; font-size: 13px;">Helpful Votes</div>
 						</div>
-						<div>
+						<div style="text-align: center;">
 							<div style="font-size: 24px; font-weight: 700;"><?php echo number_format( $stats['photos_uploaded'] ); ?></div>
-							<div style="color: #6b7280; font-size: 14px;">Photos</div>
+							<div style="color: #6b7280; font-size: 13px;">Photos</div>
 						</div>
-						<div>
+						<div style="text-align: center;">
 							<div style="font-size: 24px; font-weight: 700;"><?php echo count( $badges ); ?></div>
-							<div style="color: #6b7280; font-size: 14px;">Badges</div>
+							<div style="color: #6b7280; font-size: 13px;">Badges</div>
 						</div>
 					</div>
-				</div>
 
-				<!-- Current Badges -->
-				<div class="bd-admin-card" style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-					<h2>Current Badges</h2>
+					<!-- Current Badges -->
+					<h3 style="margin-top: 20px;">Current Badges</h3>
 					<?php if ( empty( $badges ) ) : ?>
 						<p style="color: #6b7280;">No badges earned yet.</p>
 					<?php else : ?>
-						<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 15px;">
+						<div style="display: flex; gap: 10px; flex-wrap: wrap;">
 							<?php foreach ( $badges as $badge_key ) : ?>
-								<?php $badge = BadgeSystem::BADGES[ $badge_key ] ?? null; ?>
 								<?php
+								$badge = BadgeSystem::BADGES[ $badge_key ] ?? null;
 								if ( ! $badge ) {
-									continue;}
+									continue;
+								}
 								?>
-								<div style="border: 2px solid <?php echo $badge['color']; ?>; border-radius: 8px; padding: 15px; text-align: center;">
-									<div style="font-size: 36px; margin-bottom: 8px;">
-									<?php
-																						// Allow only Font Awesome icon tags
-																						$allowed_html = array(
-																							'i' => array(
-																								'class' => array(),
-																								'aria-hidden' => array(),
-																							),
-																						);
-																						echo wp_kses( $badge['icon'], $allowed_html );
-																						?>
-																						</div>
-									<div style="font-weight: 600; margin-bottom: 4px;"><?php echo esc_html( $badge['name'] ); ?></div>
-									<?php if ( ! empty( $badge['manual'] ) ) : ?>
-										<form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>" style="margin-top: 10px;">
-											<input type="hidden" name="action" value="bd_remove_badge">
-											<input type="hidden" name="user_id" value="<?php echo $user->ID; ?>">
-											<input type="hidden" name="badge_key" value="<?php echo esc_attr( $badge_key ); ?>">
-											<?php wp_nonce_field( 'bd_remove_badge_' . $user->ID ); ?>
-											<button type="submit" class="button button-small"
-												onclick="return confirm('Remove this badge?')">Remove</button>
-										</form>
-									<?php endif; ?>
+								<div style="background: <?php echo $badge['color']; ?>20; border: 2px solid <?php echo $badge['color']; ?>; border-radius: 8px; padding: 10px 15px; display: flex; align-items: center; gap: 8px;">
+									<span style="font-size: 20px; color: <?php echo $badge['color']; ?>;">
+										<?php echo wp_kses( $badge['icon'], $allowed_html ); ?>
+									</span>
+									<span style="font-weight: 600;"><?php echo esc_html( $badge['name'] ); ?></span>
+									<form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>" style="display: inline; margin-left: 10px;">
+										<input type="hidden" name="action" value="bd_remove_badge">
+										<input type="hidden" name="user_id" value="<?php echo $user->ID; ?>">
+										<input type="hidden" name="badge_key" value="<?php echo esc_attr( $badge_key ); ?>">
+										<?php wp_nonce_field( 'bd_remove_badge_' . $user->ID ); ?>
+										<button type="submit" class="button button-small" onclick="return confirm('Remove this badge?');">×</button>
+									</form>
 								</div>
 							<?php endforeach; ?>
 						</div>
 					<?php endif; ?>
 				</div>
 
-				<!-- Award Special Badges -->
+				<!-- Award Manual Badges -->
 				<div class="bd-admin-card" style="background: white; padding: 20px; border-radius: 8px; margin: 20px 0;">
-					<h2>Award Special Badge</h2>
-					<p style="color: #6b7280;">These badges can only be awarded manually by admins.</p>
-
-					<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px;">
-						<?php foreach ( BadgeSystem::BADGES as $key => $badge ) : ?>
-							<?php
+					<h3 style="margin-top: 0;">Award Manual Badges</h3>
+					<p style="color: #6b7280;">These badges can only be awarded manually by administrators.</p>
+					<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px;">
+						<?php
+						foreach ( BadgeSystem::BADGES as $key => $badge ) :
 							if ( empty( $badge['manual'] ) ) {
-								continue;}
+								continue;
+							}
+							$has_badge = in_array( $key, $badges, true );
 							?>
-							<?php $has_badge = in_array( $key, $badges ); ?>
-							<div style="border: 2px solid <?php echo $has_badge ? '#d1d5db' : $badge['color']; ?>; 
-										border-radius: 8px; padding: 15px; text-align: center;
-										opacity: <?php echo $has_badge ? '0.4' : '1'; ?>;">
-								<div style="font-size: 36px; margin-bottom: 8px;">
-								<?php
-																					// Allow only Font Awesome icon tags
-																					$allowed_html = array(
-																						'i' => array(
-																							'class' => array(),
-																							'aria-hidden' => array(),
-																						),
-																					);
-																					echo wp_kses( $badge['icon'], $allowed_html );
-																					?>
-																					</div>
-								<div style="font-weight: 600; margin-bottom: 8px;"><?php echo esc_html( $badge['name'] ); ?></div>
-								<div style="font-size: 12px; color: #6b7280; margin-bottom: 10px;">
-									<?php echo esc_html( $badge['description'] ); ?>
+							<div style="background: #f8fafc; border-radius: 8px; padding: 15px; display: flex; align-items: center; gap: 15px; <?php echo $has_badge ? 'opacity: 0.6;' : ''; ?>">
+								<span style="font-size: 32px; color: <?php echo $badge['color']; ?>;">
+									<?php echo wp_kses( $badge['icon'], $allowed_html ); ?>
+								</span>
+								<div style="flex: 1;">
+									<strong><?php echo esc_html( $badge['name'] ); ?></strong><br>
+									<span style="color: #6b7280; font-size: 13px;">
+										<?php echo esc_html( $badge['description'] ); ?>
+									</span>
 								</div>
 								<?php if ( ! $has_badge ) : ?>
 									<form method="post" action="<?php echo admin_url( 'admin-post.php' ); ?>" style="display: inline;">

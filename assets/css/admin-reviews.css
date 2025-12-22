@@ -1,0 +1,213 @@
+/**
+ * Reviews Admin Styles
+ */
+
+.bd-reviews-admin .search-form {
+	float: right;
+	margin-bottom: 0;
+}
+
+.bd-reviews-admin .search-box input[type="search"] {
+	width: 280px;
+}
+
+.bd-reviews-admin .subsubsub {
+	margin-bottom: 10px;
+}
+
+/* Table Styles */
+.bd-reviews-table {
+	margin-top: 15px;
+}
+
+.bd-reviews-table .column-business strong a {
+	color: #1a3a4a;
+	text-decoration: none;
+}
+
+.bd-reviews-table .column-business strong a:hover {
+	color: #7a9eb8;
+}
+
+.bd-reviews-table .row-actions {
+	visibility: hidden;
+	padding: 2px 0 0;
+}
+
+.bd-reviews-table tr:hover .row-actions {
+	visibility: visible;
+}
+
+.bd-reviews-table .row-actions a {
+	color: #2271b1;
+	text-decoration: none;
+	font-size: 12px;
+}
+
+/* Author Column */
+.bd-user-badge,
+.bd-guest-badge {
+	display: inline-block;
+	padding: 2px 6px;
+	border-radius: 3px;
+	font-size: 11px;
+	font-weight: 600;
+	margin-top: 4px;
+}
+
+.bd-user-badge {
+	background: #e7f5e7;
+	color: #1e7e34;
+}
+
+.bd-guest-badge {
+	background: #f0f0f1;
+	color: #50575e;
+}
+
+/* Rating Stars */
+.bd-rating-stars {
+	color: #7a9eb8;
+	font-size: 14px;
+	letter-spacing: 1px;
+}
+
+/* Status Badges */
+.bd-status {
+	display: inline-block;
+	padding: 4px 10px;
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.bd-status-approved {
+	background: #d4edda;
+	color: #155724;
+}
+
+.bd-status-pending {
+	background: #fff3cd;
+	color: #856404;
+}
+
+.bd-status-rejected {
+	background: #f8d7da;
+	color: #721c24;
+}
+
+/* Photos Badge */
+.bd-has-photos {
+	display: inline-block;
+	margin-top: 6px;
+	font-size: 12px;
+	color: #50575e;
+}
+
+/* Date/Time */
+.bd-time {
+	color: #50575e;
+	font-size: 12px;
+}
+
+/* Actions Row */
+.bd-actions-row {
+	background: #f6f7f7 !important;
+}
+
+.bd-actions-row td {
+	padding: 8px 10px !important;
+	border-top: 1px dashed #c3c4c7;
+}
+
+.bd-review-actions {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+}
+
+.bd-review-actions .button {
+	margin: 0;
+}
+
+.bd-review-actions .button-link-delete {
+	color: #b32d2e;
+}
+
+.bd-review-actions .button-link-delete:hover {
+	color: #a00;
+	background: #f8d7da;
+}
+
+/* Sorting Indicator */
+.sorting-indicator {
+	display: inline-block;
+	width: 0;
+	height: 0;
+	margin-left: 5px;
+	vertical-align: middle;
+}
+
+.sorting-indicator.asc {
+	border-left: 4px solid transparent;
+	border-right: 4px solid transparent;
+	border-bottom: 4px solid #1a3a4a;
+}
+
+.sorting-indicator.desc {
+	border-left: 4px solid transparent;
+	border-right: 4px solid transparent;
+	border-top: 4px solid #1a3a4a;
+}
+
+/* Column headers with sorting */
+.bd-reviews-table th a {
+	color: #1d2327;
+	text-decoration: none;
+}
+
+.bd-reviews-table th a:hover {
+	color: #2271b1;
+}
+
+/* Pagination */
+.tablenav-pages .button {
+	min-width: 30px;
+	text-align: center;
+}
+
+/* Loading State */
+.bd-loading {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+/* Success/Error Messages */
+.bd-action-success {
+	background: #d4edda !important;
+	transition: background 0.3s ease;
+}
+
+.bd-action-error {
+	background: #f8d7da !important;
+	transition: background 0.3s ease;
+}
+
+/* Responsive */
+@media screen and (max-width: 782px) {
+	.bd-reviews-admin .search-form {
+		float: none;
+		margin: 10px 0;
+	}
+
+	.bd-reviews-admin .search-box input[type="search"] {
+		width: 100%;
+		max-width: 280px;
+	}
+
+	.bd-reviews-table .column-helpful,
+	.bd-reviews-table .column-date {
+		display: none;
+	}
+}

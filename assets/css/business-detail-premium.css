@@ -1067,6 +1067,23 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	box-shadow: 0 8px 20px rgba(15, 42, 67, 0.25);
 }
 
+.bd-info-card.bd-owned .bd-btn-block {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.bd-info-card.bd-owned .bd-btn-secondary {
+	background: #f0f5f8;
+	color: #1a3a4a;
+	border: 2px solid #a8c4d4;
+}
+
+.bd-info-card.bd-owned .bd-btn-secondary:hover {
+	background: #e5edf2;
+	border-color: #7a9eb8;
+}
+
 /* Responsive */
 @media (max-width: 968px) {
 	.bd-business-grid {

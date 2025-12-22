@@ -1,4 +1,5 @@
 /* Review Section Styles with Helpful Votes */
+/* TriValley Vine Color Palette */
 
 .bd-reviews-section {
 	margin: 60px 0;
@@ -8,7 +9,7 @@
 	font-family: 'Playfair Display', Georgia, serif;
 	font-size: 32px;
 	font-weight: 700;
-	color: #6B2C3E;
+	color: #1a3a4a;
 	margin-bottom: 24px;
 }
 
@@ -18,20 +19,20 @@
 	gap: 12px;
 	margin-bottom: 32px;
 	padding: 20px;
-	background: #F7EFE2;
+	background: #f0f5f8;
 	border-radius: 12px;
-	border-left: 4px solid #C9A86A;
+	border-left: 4px solid #7a9eb8;
 }
 
 .bd-rating-summary .bd-stars {
 	font-size: 24px;
-	color: #C9A86A;
+	color: #7a9eb8;
 }
 
 .bd-rating-summary span {
 	font-size: 18px;
 	font-weight: 600;
-	color: #6B2C3E;
+	color: #1a3a4a;
 }
 
 /* Reviews List */
@@ -46,13 +47,13 @@
 	background: white;
 	border-radius: 12px;
 	padding: 24px;
-	box-shadow: 0 4px 12px rgba(107, 44, 62, 0.08);
-	border-left: 3px solid #C9A86A;
+	box-shadow: 0 4px 12px rgba(26, 58, 74, 0.08);
+	border-left: 3px solid #7a9eb8;
 	transition: all 0.3s ease;
 }
 
 .bd-review-card:hover {
-	box-shadow: 0 8px 24px rgba(107, 44, 62, 0.12);
+	box-shadow: 0 8px 24px rgba(26, 58, 74, 0.12);
 	transform: translateY(-2px);
 }
 
@@ -71,37 +72,37 @@
 
 .bd-review-author-info img {
 	border-radius: 50%;
-	border: 2px solid #E8DFD3;
+	border: 2px solid #a8c4d4;
 }
 
 .bd-review-author-info strong {
 	font-size: 16px;
 	font-weight: 600;
-	color: #6B2C3E;
+	color: #1a3a4a;
 }
 
 .bd-review-date {
 	font-size: 13px;
-	color: #6D5F52;
+	color: #5d7a8c;
 	margin-top: 2px;
 }
 
 .bd-review-header .bd-stars {
 	font-size: 18px;
-	color: #C9A86A;
+	color: #7a9eb8;
 }
 
 .bd-review-title {
 	font-size: 18px;
 	font-weight: 700;
-	color: #6B2C3E;
+	color: #1a3a4a;
 	margin: 0 0 12px 0;
 }
 
 .bd-review-content {
 	font-size: 15px;
 	line-height: 1.7;
-	color: #2C2420;
+	color: #1a1a1a;
 	margin: 0 0 16px 0;
 }
 
@@ -133,7 +134,7 @@
 	align-items: center;
 	gap: 12px;
 	padding-top: 16px;
-	border-top: 1px solid #E8DFD3;
+	border-top: 1px solid #a8c4d4;
 }
 
 .bd-helpful-btn {
@@ -142,9 +143,9 @@
 	gap: 8px;
 	padding: 8px 16px;
 	background: white;
-	border: 2px solid #C9A86A;
+	border: 2px solid #7a9eb8;
 	border-radius: 8px;
-	color: #6B2C3E;
+	color: #1a3a4a;
 	font-size: 14px;
 	font-weight: 600;
 	cursor: pointer;
@@ -152,20 +153,25 @@
 }
 
 .bd-helpful-btn:hover {
-	background: #F7EFE2;
-	border-color: #B8935A;
+	background: #f0f5f8;
+	border-color: #5d7a8c;
+	color: #2CB1BC;
 	transform: translateY(-2px);
+}
+
+.bd-helpful-btn:hover svg {
+	stroke: white;
 }
 
 .bd-helpful-btn svg {
 	width: 16px;
 	height: 16px;
-	stroke: #C9A86A;
+	stroke: #7a9eb8;
 	transition: all 0.2s ease;
 }
 
 .bd-helpful-btn:hover svg {
-	stroke: #B8935A;
+	stroke: #5d7a8c;
 }
 
 .bd-helpful-count {
@@ -175,18 +181,18 @@
 	min-width: 24px;
 	height: 24px;
 	padding: 0 6px;
-	background: #F7EFE2;
+	background: #f0f5f8;
 	border-radius: 12px;
 	font-size: 12px;
 	font-weight: 700;
-	color: #6B2C3E;
+	color: #1a3a4a;
 }
 
 /* Voted State */
 .bd-helpful-btn.bd-helpful-voted {
-	background: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 100%);
-	border-color: #6B2C3E;
-	color: #C9A86A;
+	background: linear-gradient(135deg, #1a3a4a 0%, #1e4258 100%);
+	border-color: #1a3a4a;
+	color: #a8c4d4;
 	cursor: default;
 }
 
@@ -195,13 +201,13 @@
 }
 
 .bd-helpful-btn.bd-helpful-voted svg {
-	fill: #C9A86A;
-	stroke: #C9A86A;
+	fill: #a8c4d4;
+	stroke: #a8c4d4;
 }
 
 .bd-helpful-btn.bd-helpful-voted .bd-helpful-count {
-	background: rgba(201, 168, 106, 0.2);
-	color: #E4D4B4;
+	background: rgba(168, 196, 212, 0.2);
+	color: #a8c4d4;
 }
 
 /* Animation when clicked */
@@ -222,9 +228,9 @@
 .bd-no-reviews {
 	text-align: center;
 	padding: 48px 24px;
-	background: #F7EFE2;
+	background: var(--global-palette1);
 	border-radius: 12px;
-	color: #6D5F52;
+	color: #5d7a8c;
 	font-size: 16px;
 	font-style: italic;
 }
@@ -234,7 +240,7 @@
 	font-family: 'Playfair Display', Georgia, serif;
 	font-size: 24px;
 	font-weight: 700;
-	color: #6B2C3E;
+	color: #1a3a4a;
 	margin: 48px 0 24px 0;
 }
 
@@ -243,8 +249,8 @@
 	background: white;
 	padding: 32px;
 	border-radius: 12px;
-	box-shadow: 0 4px 12px rgba(107, 44, 62, 0.08);
-	border-top: 3px solid #C9A86A;
+	box-shadow: 0 4px 12px rgba(26, 58, 74, 0.08);
+	border-top: 3px solid #7a9eb8;
 }
 
 .bd-form-row {
@@ -255,14 +261,14 @@
 	display: block;
 	font-size: 14px;
 	font-weight: 600;
-	color: #6B2C3E;
+	color: #1a3a4a;
 	margin-bottom: 8px;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 }
 
 .bd-form-row .required {
-	color: #B87333;
+	color: #1e4258;
 }
 
 .bd-form-row input[type="text"],
@@ -270,7 +276,7 @@
 .bd-form-row textarea {
 	width: 100%;
 	padding: 12px 16px;
-	border: 2px solid #E8DFD3;
+	border: 2px solid #a8c4d4;
 	border-radius: 8px;
 	font-size: 15px;
 	font-family: inherit;
@@ -280,8 +286,8 @@
 .bd-form-row input:focus,
 .bd-form-row textarea:focus {
 	outline: none;
-	border-color: #C9A86A;
-	box-shadow: 0 0 0 3px rgba(201, 168, 106, 0.1);
+	border-color: #7a9eb8;
+	box-shadow: 0 0 0 3px rgba(122, 158, 184, 0.15);
 }
 
 .bd-form-row textarea {
@@ -291,7 +297,7 @@
 
 .bd-form-row .description {
 	font-size: 13px;
-	color: #6D5F52;
+	color: #5d7a8c;
 	margin-top: 6px;
 	font-style: italic;
 }
@@ -310,7 +316,7 @@
 
 .bd-star-rating label {
 	font-size: 32px;
-	color: #E8DFD3;
+	color: #a8c4d4;
 	cursor: pointer;
 	transition: all 0.2s ease;
 }
@@ -318,7 +324,7 @@
 .bd-star-rating label:hover,
 .bd-star-rating label:hover ~ label,
 .bd-star-rating input:checked ~ label {
-	color: #C9A86A;
+	color: #7a9eb8;
 }
 
 /* Submit Button */
@@ -335,14 +341,14 @@
 }
 
 .bd-btn-primary {
-	background: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 100%);
-	color: #C9A86A;
-	box-shadow: 0 4px 12px rgba(107, 44, 62, 0.3);
+	background: linear-gradient(135deg, #1a3a4a 0%, #1e4258 100%);
+	color: #a8c4d4;
+	box-shadow: 0 4px 12px rgba(26, 58, 74, 0.3);
 }
 
 .bd-btn-primary:hover {
 	transform: translateY(-2px);
-	box-shadow: 0 8px 20px rgba(107, 44, 62, 0.4);
+	box-shadow: 0 8px 20px rgba(26, 58, 74, 0.4);
 }
 
 .bd-btn-primary:disabled {

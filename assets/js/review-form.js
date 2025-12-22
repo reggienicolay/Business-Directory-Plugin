@@ -38,7 +38,7 @@
 						}
 					},
 					error: function (xhr) {
-						const error = xhr.responseJSON ? .message || 'Submission failed. Please try again.';
+						const error = xhr.responseJSON?.message || 'Submission failed. Please try again.';
 						message.html( '<div class="bd-error">' + error + '</div>' );
 						if (window.turnstile) {
 							turnstile.reset();
@@ -116,7 +116,7 @@
 						} else {
 							// Re-enable if there was an error
 							$btn.prop( 'disabled', false );
-							alert( response.data || 'Could not mark as helpful. Please try again.' );
+							alert( response.data?.message || response.data || 'Could not mark as helpful. Please try again.' );
 						}
 					},
 					error: function () {

@@ -1,6 +1,14 @@
 /* ============================================
-	BADGE SYSTEM STYLES - FONT AWESOME UPGRADE
-	Love Livermore Wine Country Theme
+	BADGE SYSTEM STYLES - FONT AWESOME
+	TriValley Vine Color Palette
+	
+	Colors:
+	- Dark Navy:   #1a3a4a
+	- Medium Navy: #1e4258
+	- Steel Blue:  #7a9eb8
+	- Light Blue:  #a8c4d4
+	- Slate Gray:  #5d7a8c
+	- Black:       #1a1a1a
 	============================================ */
 
 /* Load Font Awesome 5 */
@@ -70,7 +78,7 @@
 }
 
 /* ============================================
-	RARITY-BASED STYLING - WINE THEME
+	RARITY-BASED STYLING
 	============================================ */
 .bd-badge-common {
 	background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
@@ -95,15 +103,15 @@
 
 .bd-badge-legendary {
 	background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-	border: 2px solid #fbbf24;
+	border: 2px solid #f59e0b;
 	color: #b45309;
 	box-shadow: 0 3px 8px rgba(0,0,0,0.25);
 }
 
 .bd-badge-special {
-	background: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 100%);
-	border: 2px solid #C9A86A;
-	color: #E4D4B4;
+	background: linear-gradient(135deg, #1a3a4a 0%, #1e4258 100%);
+	border: 2px solid #7a9eb8;
+	color: #a8c4d4;
 	box-shadow: 0 3px 8px rgba(0,0,0,0.25);
 }
 
@@ -125,7 +133,7 @@
 	left: 50%;
 	transform: translateX(-50%);
 	padding: 8px 12px;
-	background: #1f2937;
+	background: #1a1a1a;
 	color: white;
 	font-size: 11px;
 	font-weight: 500;
@@ -143,7 +151,7 @@
 	left: 50%;
 	transform: translateX(-50%);
 	border: 4px solid transparent;
-	border-top-color: #1f2937;
+	border-top-color: #1a1a1a;
 	margin-bottom: 4px;
 }
 
@@ -185,7 +193,8 @@
 	border: 2px solid #d1d5db;
 }
 
-.bd-rank-badge[data-rank="contributor"] {
+.bd-rank-badge[data-rank="contributor"],
+.bd-rank-badge[data-rank="local"] {
 	background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
 	color: #1e40af;
 	border: 2px solid #60a5fa;
@@ -197,31 +206,33 @@
 	border: 2px solid #c084fc;
 }
 
-.bd-rank-badge[data-rank="enthusiast"] {
+.bd-rank-badge[data-rank="enthusiast"],
+.bd-rank-badge[data-rank="insider"] {
 	background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
 	color: #b45309;
-	border: 2px solid #fbbf24;
+	border: 2px solid #f59e0b;
 }
 
-.bd-rank-badge[data-rank="expert"] {
-	background: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 100%);
-	color: #E4D4B4;
-	border: 2px solid #C9A86A;
+.bd-rank-badge[data-rank="expert"],
+.bd-rank-badge[data-rank="vip"] {
+	background: linear-gradient(135deg, #1a3a4a 0%, #1e4258 100%);
+	color: #a8c4d4;
+	border: 2px solid #7a9eb8;
 }
 
 .bd-rank-badge[data-rank="legend"] {
-	background: linear-gradient(135deg, #C9A86A 0%, #E4D4B4 50%, #F7EFE2 100%);
-	color: #4A1F2C;
-	border: 3px solid #6B2C3E;
+	background: linear-gradient(135deg, #7a9eb8 0%, #a8c4d4 50%, #e2e8f0 100%);
+	color: #1a3a4a;
+	border: 3px solid #1a3a4a;
 	animation: rank-legendary-glow 2s ease-in-out infinite;
 }
 
 @keyframes rank-legendary-glow {
 	0%, 100% {
-		box-shadow: 0 4px 16px rgba(201, 168, 106, 0.5);
+		box-shadow: 0 4px 16px rgba(122, 158, 184, 0.5);
 	}
 	50% {
-		box-shadow: 0 8px 28px rgba(201, 168, 106, 0.8);
+		box-shadow: 0 8px 28px rgba(122, 158, 184, 0.8);
 	}
 }
 
@@ -232,7 +243,7 @@
 	left: 50%;
 	transform: translateX(-50%);
 	padding: 8px 12px;
-	background: #1f2937;
+	background: #1a1a1a;
 	color: white;
 	font-size: 11px;
 	font-weight: 500;
@@ -250,7 +261,7 @@
 	left: 50%;
 	transform: translateX(-50%);
 	border: 4px solid transparent;
-	border-top-color: #1f2937;
+	border-top-color: #1a1a1a;
 	margin-bottom: 4px;
 }
 
@@ -287,12 +298,12 @@
 	font-size: 28px;
 	font-weight: 700;
 	margin: 0 0 8px 0;
-	color: #1f2937;
+	color: #1a1a1a;
 }
 
 .bd-rank-points {
 	font-size: 16px;
-	color: #6b7280;
+	color: #5d7a8c;
 	margin: 0 0 16px 0;
 }
 
@@ -310,14 +321,14 @@
 
 .bd-progress-fill {
 	height: 100%;
-	background: linear-gradient(90deg, #6B2C3E 0%, #C9A86A 100%);
+	background: linear-gradient(90deg, #1a3a4a 0%, #7a9eb8 100%);
 	border-radius: 4px;
 	transition: width 0.5s ease;
 }
 
 .bd-progress-text {
 	font-size: 13px;
-	color: #6b7280;
+	color: #5d7a8c;
 	margin: 0;
 }
 
@@ -341,9 +352,9 @@
 }
 
 .bd-stat-card:hover {
-	border-color: #C9A86A;
+	border-color: #7a9eb8;
 	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(201, 168, 106, 0.2);
+	box-shadow: 0 4px 12px rgba(122, 158, 184, 0.2);
 }
 
 .bd-stat-icon {
@@ -354,18 +365,18 @@
 .bd-stat-value {
 	font-size: 28px;
 	font-weight: 700;
-	color: #1f2937;
+	color: #1a1a1a;
 	margin-bottom: 4px;
 }
 
 .bd-stat-label {
 	font-size: 13px;
-	color: #6b7280;
+	color: #5d7a8c;
 	font-weight: 500;
 }
 
 /* ============================================
-	BADGE GRID (Profile Page) - WINE COUNTRY COLORS
+	BADGE GRID (Profile Page)
 	============================================ */
 .bd-badges-section {
 	margin-bottom: 32px;
@@ -374,7 +385,7 @@
 .bd-badges-section h3 {
 	font-size: 20px;
 	font-weight: 700;
-	color: #1f2937;
+	color: #1a1a1a;
 	margin: 0 0 20px 0;
 }
 
@@ -480,40 +491,40 @@
 	50% { transform: scale(1.05); }
 }
 
-/* Legendary badges - Gold gradient (Wine Country premium) */
+/* Legendary badges - Gold/Amber gradient */
 .bd-badge-card[data-rarity="legendary"] {
-	border-color: #C9A86A;
+	border-color: #f59e0b;
 }
 
 .bd-badge-card[data-rarity="legendary"] .bd-badge-card-icon {
 	background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
 	color: #b45309;
-	box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+	box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
 	animation: legendary-pulse 2s ease-in-out infinite;
 }
 
 @keyframes legendary-pulse {
 	0%, 100% {
 		transform: scale(1);
-		box-shadow: 0 6px 20px rgba(201, 168, 106, 0.4);
+		box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
 	}
 	50% {
 		transform: scale(1.05);
-		box-shadow: 0 8px 28px rgba(201, 168, 106, 0.6);
+		box-shadow: 0 8px 28px rgba(245, 158, 11, 0.6);
 	}
 }
 
-/* Special badges - Wine Country burgundy & gold */
+/* Special badges - Navy & Steel Blue */
 .bd-badge-card[data-rarity="special"] {
-	border-color: #C9A86A;
-	background: linear-gradient(135deg, rgba(201, 168, 106, 0.05) 0%, rgba(247, 239, 226, 0.1) 100%);
+	border-color: #7a9eb8;
+	background: linear-gradient(135deg, rgba(122, 158, 184, 0.05) 0%, rgba(168, 196, 212, 0.1) 100%);
 }
 
 .bd-badge-card[data-rarity="special"] .bd-badge-card-icon {
-	background: linear-gradient(135deg, #6B2C3E 0%, #8B3A52 100%);
-	color: #E4D4B4;
-	box-shadow: 0 6px 24px rgba(107, 44, 62, 0.4);
-	border: 3px solid #C9A86A;
+	background: linear-gradient(135deg, #1a3a4a 0%, #1e4258 100%);
+	color: #a8c4d4;
+	box-shadow: 0 6px 24px rgba(26, 58, 74, 0.4);
+	border: 3px solid #7a9eb8;
 	animation: legendary-pulse 2s ease-in-out infinite;
 }
 
@@ -547,22 +558,26 @@
 	color: #7e22ce;
 }
 
-.bd-rarity-legendary,
-.bd-rarity-special {
+.bd-rarity-legendary {
 	background: #fef3c7;
 	color: #b45309;
+}
+
+.bd-rarity-special {
+	background: #1a3a4a;
+	color: #a8c4d4;
 }
 
 .bd-badge-card-name {
 	font-weight: 700;
 	font-size: 14px;
 	margin-bottom: 6px;
-	color: #1f2937;
+	color: #1a1a1a;
 }
 
 .bd-badge-card-desc {
 	font-size: 11px;
-	color: #6b7280;
+	color: #5d7a8c;
 	line-height: 1.5;
 }
 
@@ -616,7 +631,7 @@
 	width: 48px;
 	height: 48px;
 	border-radius: 50%;
-	background: linear-gradient(135deg, #6B2C3E 0%, #C9A86A 100%);
+	background: linear-gradient(135deg, #1a3a4a 0%, #7a9eb8 100%);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -633,7 +648,7 @@
 .bd-review-author-name {
 	font-weight: 700;
 	font-size: 15px;
-	color: #1f2937;
+	color: #1a1a1a;
 	margin-bottom: 4px;
 	display: flex;
 	align-items: center;
@@ -643,7 +658,7 @@
 
 .bd-review-author-stats {
 	font-size: 12px;
-	color: #6b7280;
+	color: #5d7a8c;
 	margin-bottom: 6px;
 }
 
@@ -675,15 +690,15 @@
 .bd-leaderboard-header h3 {
 	font-size: 18px;
 	font-weight: 700;
-	color: #1f2937;
+	color: #1a1a1a;
 	margin: 0;
 }
 
 .bd-leaderboard-period {
 	font-size: 12px;
 	font-weight: 600;
-	color: #6B2C3E;
-	background: rgba(201, 168, 106, 0.1);
+	color: #1a3a4a;
+	background: rgba(122, 158, 184, 0.15);
 	padding: 4px 12px;
 	border-radius: 12px;
 }
@@ -724,7 +739,7 @@
 }
 
 .bd-rank-1 {
-	color: #fbbf24;
+	color: #f59e0b;
 	font-size: 32px;
 }
 
@@ -756,13 +771,13 @@
 .bd-leaderboard-name {
 	font-weight: 600;
 	font-size: 14px;
-	color: #1f2937;
+	color: #1a1a1a;
 	margin-bottom: 2px;
 }
 
 .bd-leaderboard-stats {
 	font-size: 12px;
-	color: #6b7280;
+	color: #5d7a8c;
 }
 
 .bd-leaderboard-badges {
@@ -880,7 +895,7 @@
 .bd-badge-notification-header {
 	font-size: 14px;
 	font-weight: 700;
-	color: #6B2C3E;
+	color: #1a3a4a;
 	margin-bottom: 12px;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
@@ -899,13 +914,13 @@
 .bd-badge-notification-text h4 {
 	font-size: 16px;
 	font-weight: 700;
-	color: #1f2937;
+	color: #1a1a1a;
 	margin: 0 0 4px 0;
 }
 
 .bd-badge-notification-text p {
 	font-size: 13px;
-	color: #6b7280;
+	color: #5d7a8c;
 	margin: 0;
 }
 
@@ -923,7 +938,7 @@
 }
 
 .bd-badge-notification-close:hover {
-	color: #1f2937;
+	color: #1a1a1a;
 }
 
 /* ============================================
@@ -942,5 +957,431 @@
 	.bd-badge:hover .bd-badge-icon i,
 	.bd-badge-card:hover .bd-badge-card-icon i {
 		transform: none !important;
+	}
+}
+
+/* ============================================
+   BADGE GALLERY STYLES
+   For [bd_badge_gallery] shortcode
+   ============================================ */
+
+/* Gallery Container */
+.bd-badge-gallery {
+	max-width: 1000px;
+	margin: 0 auto;
+	padding: 20px;
+}
+
+/* Header */
+.bd-badge-gallery-header {
+	text-align: center;
+	margin-bottom: 40px;
+	padding: 40px;
+	background: linear-gradient(135deg, #1a3a4a 0%, #1e4258 100%);
+	border-radius: 16px;
+	color: white;
+	position: relative;
+	overflow: hidden;
+}
+
+.bd-badge-gallery-header::before {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 4px;
+	background: linear-gradient(90deg, #7a9eb8 0%, #a8c4d4 50%, #7a9eb8 100%);
+}
+
+.bd-badge-gallery-header h1 {
+	margin: 0 0 10px 0;
+	font-size: 32px;
+	color: #a8c4d4;
+}
+
+.bd-badge-gallery-header h1 i {
+	color: #7a9eb8;
+	margin-right: 10px;
+}
+
+.bd-badge-gallery-header p {
+	margin: 0;
+	opacity: 0.9;
+	font-size: 16px;
+	color: #e2e8f0;
+}
+
+/* Progress Summary */
+.bd-badge-progress-summary {
+	margin-top: 24px;
+	background: rgba(122, 158, 184, 0.15);
+	padding: 16px 24px;
+	border-radius: 12px;
+	border: 1px solid rgba(122, 158, 184, 0.3);
+}
+
+.bd-badge-earned-count {
+	display: block;
+	margin-bottom: 10px;
+	color: #e2e8f0;
+}
+
+.bd-badge-earned-count strong {
+	color: #a8c4d4;
+	font-size: 1.2em;
+}
+
+.bd-badge-gallery .bd-progress-bar {
+	height: 10px;
+	background: rgba(255, 255, 255, 0.15);
+	border-radius: 5px;
+	overflow: hidden;
+}
+
+.bd-badge-gallery .bd-progress-fill {
+	height: 100%;
+	background: linear-gradient(90deg, #7a9eb8 0%, #a8c4d4 100%);
+	border-radius: 5px;
+	transition: width 0.5s ease;
+}
+
+.bd-badge-login-prompt {
+	margin-top: 20px;
+}
+
+.bd-badge-login-prompt a {
+	color: #a8c4d4;
+	text-decoration: underline;
+	font-weight: 600;
+}
+
+.bd-badge-login-prompt a:hover {
+	color: #e2e8f0;
+}
+
+/* Section Headers */
+.bd-badges-section h3 {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: 0 0 8px 0;
+	font-size: 22px;
+	color: #1a3a4a;
+}
+
+.bd-badges-section h3 i {
+	color: #7a9eb8;
+}
+
+.bd-section-desc {
+	color: #5d7a8c;
+	margin: 0 0 20px 0;
+}
+
+/* Ranks Grid */
+.bd-ranks-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+	gap: 16px;
+}
+
+.bd-rank-card {
+	position: relative;
+	background: #f8fafc;
+	border: 2px solid #e2e8f0;
+	border-radius: 12px;
+	padding: 20px 15px;
+	text-align: center;
+	transition: all 0.3s ease;
+}
+
+.bd-rank-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.bd-rank-card.bd-rank-achieved {
+	background: white;
+	border-color: #7a9eb8;
+}
+
+.bd-rank-card.bd-rank-current {
+	border-color: #1a3a4a;
+	border-width: 3px;
+	background: linear-gradient(135deg, rgba(26, 58, 74, 0.05) 0%, rgba(122, 158, 184, 0.1) 100%);
+}
+
+.bd-rank-card.bd-rank-locked {
+	opacity: 0.5;
+}
+
+.bd-rank-current-label {
+	position: absolute;
+	top: -12px;
+	left: 50%;
+	transform: translateX(-50%);
+	background: linear-gradient(135deg, #1a3a4a 0%, #1e4258 100%);
+	color: #a8c4d4;
+	font-size: 10px;
+	font-weight: 700;
+	padding: 4px 14px;
+	border-radius: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	border: 2px solid #7a9eb8;
+}
+
+.bd-rank-card-icon {
+	font-size: 36px;
+	margin-bottom: 8px;
+	transition: transform 0.3s ease;
+}
+
+.bd-rank-card:hover .bd-rank-card-icon {
+	transform: scale(1.1);
+}
+
+.bd-rank-card-name {
+	font-weight: 700;
+	color: #1a1a1a;
+	margin-bottom: 4px;
+}
+
+.bd-rank-card-points {
+	font-size: 13px;
+	color: #5d7a8c;
+}
+
+.bd-rank-card-togo {
+	font-size: 11px;
+	color: #7a9eb8;
+	margin-top: 6px;
+	font-weight: 600;
+}
+
+.bd-rank-card-check {
+	font-size: 11px;
+	color: #10b981;
+	margin-top: 6px;
+	font-weight: 600;
+}
+
+/* Rarity Legend */
+.bd-rarity-legend {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+	flex-wrap: wrap;
+	padding: 16px 20px;
+	background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+	border-radius: 10px;
+	margin-bottom: 30px;
+	border: 1px solid #e2e8f0;
+}
+
+.bd-rarity-label {
+	font-weight: 600;
+	color: #1a3a4a;
+}
+
+.bd-rarity-label i {
+	margin-right: 6px;
+	color: #7a9eb8;
+}
+
+.bd-rarity-item {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13px;
+	color: #5d7a8c;
+}
+
+.bd-rarity-dot {
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Badge Cards - Gallery */
+.bd-badge-check {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	width: 26px;
+	height: 26px;
+	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+	color: white;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 12px;
+	box-shadow: 0 2px 6px rgba(16, 185, 129, 0.4);
+}
+
+.bd-badge-card-points {
+	margin-top: 10px;
+	font-size: 12px;
+	font-weight: 700;
+	color: #10b981;
+	background: rgba(16, 185, 129, 0.1);
+	padding: 4px 10px;
+	border-radius: 12px;
+	display: inline-block;
+}
+
+.bd-badge-manual {
+	margin-top: 8px;
+	font-size: 10px;
+	color: #1a3a4a;
+	font-style: italic;
+}
+
+.bd-badge-manual i {
+	color: #7a9eb8;
+	margin-right: 4px;
+}
+
+/* Call to Action */
+.bd-badge-cta {
+	text-align: center;
+	padding: 40px;
+	background: linear-gradient(135deg, #1a3a4a 0%, #1e4258 100%);
+	border-radius: 16px;
+	margin-top: 40px;
+	position: relative;
+	overflow: hidden;
+}
+
+.bd-badge-cta h3 {
+	margin: 0 0 10px 0;
+	color: #a8c4d4;
+	font-size: 24px;
+	position: relative;
+}
+
+.bd-badge-cta h3 i {
+	color: #7a9eb8;
+	margin-right: 8px;
+}
+
+.bd-badge-cta p {
+	margin: 0 0 24px 0;
+	color: #e2e8f0;
+	opacity: 0.9;
+	position: relative;
+}
+
+.bd-badge-cta .bd-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 14px 28px;
+	border-radius: 8px;
+	font-weight: 600;
+	text-decoration: none;
+	margin: 0 8px;
+	transition: all 0.3s ease;
+	position: relative;
+}
+
+.bd-badge-cta .bd-btn-primary {
+	background: linear-gradient(135deg, #7a9eb8 0%, #a8c4d4 100%);
+	color: #1a3a4a;
+	border: 2px solid #7a9eb8;
+}
+
+.bd-badge-cta .bd-btn-primary:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 8px 20px rgba(122, 158, 184, 0.4);
+}
+
+.bd-badge-cta .bd-btn-secondary {
+	background: transparent;
+	color: #a8c4d4;
+	border: 2px solid rgba(122, 158, 184, 0.5);
+}
+
+.bd-badge-cta .bd-btn-secondary:hover {
+	background: rgba(122, 158, 184, 0.1);
+	border-color: #7a9eb8;
+}
+
+/* Gallery Responsive */
+@media (max-width: 768px) {
+	.bd-badge-gallery {
+		padding: 15px;
+	}
+
+	.bd-badge-gallery-header {
+		padding: 30px 20px;
+	}
+
+	.bd-badge-gallery-header h1 {
+		font-size: 26px;
+	}
+
+	.bd-ranks-grid {
+		grid-template-columns: repeat(3, 1fr);
+		gap: 12px;
+	}
+
+	.bd-rank-card {
+		padding: 15px 10px;
+	}
+
+	.bd-rank-card-icon {
+		font-size: 28px;
+	}
+
+	.bd-rank-card-name {
+		font-size: 12px;
+	}
+
+	.bd-rarity-legend {
+		justify-content: center;
+		gap: 12px;
+	}
+
+	.bd-badge-cta .bd-btn {
+		display: block;
+		margin: 8px auto;
+		max-width: 250px;
+	}
+}
+
+@media (max-width: 480px) {
+	.bd-badge-gallery-header h1 {
+		font-size: 22px;
+	}
+
+	.bd-ranks-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.bd-badge-gallery .bd-badge-grid {
+		grid-template-columns: repeat(2, 1fr) !important;
+		gap: 10px;
+	}
+
+	.bd-badge-gallery .bd-badge-card {
+		padding: 16px 10px 12px;
+	}
+
+	.bd-badge-gallery .bd-badge-card-icon {
+		font-size: 32px !important;
+		width: 60px !important;
+		height: 60px !important;
+	}
+
+	.bd-badge-gallery .bd-badge-card-name {
+		font-size: 12px;
+	}
+
+	.bd-badge-gallery .bd-badge-card-desc {
+		font-size: 10px;
 	}
 }
