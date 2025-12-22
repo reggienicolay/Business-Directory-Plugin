@@ -8,6 +8,7 @@
  * Updated for Gutenberg/Block Editor compatibility.
  *
  * @package BusinessDirectory
+ * @version 2.0.0
  */
 
 namespace BD\Integrations\EventsCalendar;
@@ -154,9 +155,15 @@ class BusinessLinker {
 	}
 
 	/**
-	 * Add meta boxes to Events, Venues, and Organizers (classic editor)
+	 * Add meta boxes to Events, Venues, and Organizers (classic editor only)
+	 * Skip if block editor is active to avoid duplicate controls.
 	 */
 	public static function add_meta_boxes() {
+		// Check if we should skip - block editor handles this via sidebar panel
+		if ( self::is_block_editor_active() ) {
+			return;
+		}
+
 		// Event meta box
 		add_meta_box(
 			'bd_event_business_link',
@@ -186,6 +193,27 @@ class BusinessLinker {
 			'side',
 			'default'
 		);
+	}
+
+	/**
+	 * Check if block editor is active for current screen
+	 *
+	 * @return bool
+	 */
+	private static function is_block_editor_active() {
+		global $post;
+
+		// Not in admin or no post
+		if ( ! is_admin() || ! $post ) {
+			return false;
+		}
+
+		// Check if this post type supports the block editor
+		if ( ! use_block_editor_for_post( $post ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -315,7 +343,7 @@ class BusinessLinker {
 			return;
 		}
 
-		if ( ! wp_verify_nonce( $_POST['bd_event_business_link_nonce'], 'bd_event_business_link' ) ) {
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['bd_event_business_link_nonce'] ) ), 'bd_event_business_link' ) ) {
 			return;
 		}
 
@@ -346,7 +374,7 @@ class BusinessLinker {
 			return;
 		}
 
-		if ( ! wp_verify_nonce( $_POST['bd_venue_business_link_nonce'], 'bd_venue_business_link' ) ) {
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['bd_venue_business_link_nonce'] ) ), 'bd_venue_business_link' ) ) {
 			return;
 		}
 
@@ -377,7 +405,7 @@ class BusinessLinker {
 			return;
 		}
 
-		if ( ! wp_verify_nonce( $_POST['bd_organizer_business_link_nonce'], 'bd_organizer_business_link' ) ) {
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['bd_organizer_business_link_nonce'] ) ), 'bd_organizer_business_link' ) ) {
 			return;
 		}
 
@@ -538,7 +566,7 @@ class BusinessLinker {
 		foreach ( $businesses as $business ) {
 			$location   = get_post_meta( $business->ID, 'bd_location', true );
 			$city       = is_array( $location ) ? ( $location['city'] ?? '' ) : '';
-			$categories = get_the_terms( $business->ID, 'business_category' );
+			$categories = get_the_terms( $business->ID, 'bd_category' );
 			$cat_name   = ( $categories && ! is_wp_error( $categories ) ) ? $categories[0]->name : '';
 
 			$results[] = array(

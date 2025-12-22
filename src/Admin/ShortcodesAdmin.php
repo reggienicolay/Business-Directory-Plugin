@@ -5,6 +5,7 @@
  * Displays all available shortcodes with their configurations.
  *
  * @package BusinessDirectory
+ * @version 1.2.0
  */
 
 namespace BD\Admin;
@@ -51,14 +52,14 @@ class ShortcodesAdmin {
 			'bd-shortcodes-admin',
 			plugins_url( 'assets/css/admin-shortcodes.css', dirname( __DIR__ ) ),
 			array(),
-			'1.1.0'
+			'1.2.0'
 		);
 
 		wp_enqueue_script(
 			'bd-shortcodes-admin',
 			plugins_url( 'assets/js/admin-shortcodes.js', dirname( __DIR__ ) ),
 			array( 'jquery' ),
-			'1.1.0',
+			'1.2.0',
 			true
 		);
 	}
@@ -305,6 +306,126 @@ class ShortcodesAdmin {
 			),
 
 			// =============================================
+			// EVENTS CALENDAR
+			// =============================================
+			'city_events'         => array(
+				'name'        => 'City Events',
+				'shortcode'   => 'bd_city_events',
+				'description' => 'Displays upcoming events filtered by city. Use the source attribute on network sub-sites to fetch events from the main site via REST API.',
+				'attributes'  => array(
+					array(
+						'name'        => 'city',
+						'type'        => 'string',
+						'default'     => '',
+						'description' => 'City name to filter events (required)',
+					),
+					array(
+						'name'        => 'source',
+						'type'        => 'string',
+						'default'     => '',
+						'description' => 'Source site domain for remote fetch (e.g., lovetrivalley.com)',
+					),
+					array(
+						'name'        => 'limit',
+						'type'        => 'integer',
+						'default'     => '10',
+						'description' => 'Number of events to display',
+					),
+					array(
+						'name'        => 'layout',
+						'type'        => 'string',
+						'default'     => 'grid',
+						'description' => 'Layout: grid, list, compact',
+					),
+					array(
+						'name'        => 'columns',
+						'type'        => 'integer',
+						'default'     => '3',
+						'description' => 'Number of columns (grid layout)',
+					),
+					array(
+						'name'        => 'show_business',
+						'type'        => 'yes/no',
+						'default'     => 'yes',
+						'description' => 'Show linked business name',
+					),
+					array(
+						'name'        => 'show_image',
+						'type'        => 'yes/no',
+						'default'     => 'yes',
+						'description' => 'Show event thumbnail',
+					),
+					array(
+						'name'        => 'show_venue',
+						'type'        => 'yes/no',
+						'default'     => 'yes',
+						'description' => 'Show venue name',
+					),
+					array(
+						'name'        => 'show_time',
+						'type'        => 'yes/no',
+						'default'     => 'yes',
+						'description' => 'Show event time',
+					),
+					array(
+						'name'        => 'title',
+						'type'        => 'string',
+						'default'     => '',
+						'description' => 'Optional section title',
+					),
+					array(
+						'name'        => 'view_all_url',
+						'type'        => 'string',
+						'default'     => '',
+						'description' => 'URL for "View All" link',
+					),
+					array(
+						'name'        => 'cache',
+						'type'        => 'integer',
+						'default'     => '15',
+						'description' => 'Cache duration in minutes (0 to disable)',
+					),
+				),
+				'examples'    => array(
+					'[bd_city_events city="Livermore"]',
+					'[bd_city_events city="Livermore" source="lovetrivalley.com"]',
+					'[bd_city_events city="Pleasanton" source="lovetrivalley.com" layout="list"]',
+					'[bd_city_events city="Dublin" layout="compact" columns="2"]',
+					'[bd_city_events city="Livermore" title="What\'s Happening" view_all_url="/events/"]',
+				),
+			),
+			'business_events'     => array(
+				'name'        => 'Business Events',
+				'shortcode'   => 'bd_business_events',
+				'description' => 'Displays upcoming events for a specific business. Use the source attribute on network sub-sites to fetch events from the main site via REST API.',
+				'attributes'  => array(
+					array(
+						'name'        => 'id',
+						'type'        => 'integer',
+						'default'     => '0 (current)',
+						'description' => 'Business post ID',
+					),
+					array(
+						'name'        => 'source',
+						'type'        => 'string',
+						'default'     => '',
+						'description' => 'Source site domain for remote fetch (e.g., lovetrivalley.com)',
+					),
+					array(
+						'name'        => 'limit',
+						'type'        => 'integer',
+						'default'     => '5',
+						'description' => 'Number of events to show',
+					),
+				),
+				'examples'    => array(
+					'[bd_business_events]',
+					'[bd_business_events id="2336" source="lovetrivalley.com"]',
+					'[bd_business_events id="2336" source="lovetrivalley.com" limit="3"]',
+				),
+			),
+
+			// =============================================
 			// GAMIFICATION
 			// =============================================
 			'user_profile'        => array(
@@ -435,16 +556,23 @@ class ShortcodesAdmin {
 						'default'     => 'yes',
 						'description' => 'Show open/closed status',
 					),
+					array(
+						'name'        => 'highlight_today',
+						'type'        => 'yes/no',
+						'default'     => 'yes',
+						'description' => 'Highlight current day',
+					),
 				),
 				'examples'    => array(
 					'[bd_business_hours]',
 					'[bd_business_hours business_id="123"]',
+					'[bd_business_hours show_status="no"]',
 				),
 			),
 			'social_share'        => array(
 				'name'        => 'Social Share Buttons',
 				'shortcode'   => 'bd_social_share',
-				'description' => 'Displays social sharing buttons for the current business or page.',
+				'description' => 'Displays social sharing buttons for the current business.',
 				'attributes'  => array(
 					array(
 						'name'        => 'business_id',
@@ -453,28 +581,28 @@ class ShortcodesAdmin {
 						'description' => 'Business post ID',
 					),
 					array(
-						'name'        => 'platforms',
+						'name'        => 'networks',
 						'type'        => 'string',
-						'default'     => 'facebook,twitter,email,copy',
-						'description' => 'Comma-separated list of platforms',
+						'default'     => 'facebook,twitter,linkedin,email',
+						'description' => 'Comma-separated list of networks',
 					),
 					array(
 						'name'        => 'style',
 						'type'        => 'string',
-						'default'     => 'icons',
-						'description' => 'Style: icons, buttons, text',
+						'default'     => 'buttons',
+						'description' => 'Style: buttons, icons, minimal',
 					),
 				),
 				'examples'    => array(
 					'[bd_social_share]',
-					'[bd_social_share platforms="facebook,twitter"]',
-					'[bd_social_share style="buttons"]',
+					'[bd_social_share networks="facebook,twitter"]',
+					'[bd_social_share style="icons"]',
 				),
 			),
 			'qr_code'             => array(
 				'name'        => 'QR Code',
 				'shortcode'   => 'bd_qr_code',
-				'description' => 'Generates a QR code for the business page URL.',
+				'description' => 'Displays a QR code linking to the business page.',
 				'attributes'  => array(
 					array(
 						'name'        => 'business_id',
@@ -485,83 +613,13 @@ class ShortcodesAdmin {
 					array(
 						'name'        => 'size',
 						'type'        => 'integer',
-						'default'     => '200',
+						'default'     => '150',
 						'description' => 'QR code size in pixels',
 					),
 				),
 				'examples'    => array(
 					'[bd_qr_code]',
-					'[bd_qr_code size="150"]',
-					'[bd_qr_code business_id="123"]',
-				),
-			),
-
-			// =============================================
-			// FORMS
-			// =============================================
-			'submit_business'     => array(
-				'name'        => 'Submit Business Form',
-				'shortcode'   => 'bd_submit_business',
-				'description' => 'Displays the business submission form for users.',
-				'attributes'  => array(
-					array(
-						'name'        => 'redirect',
-						'type'        => 'string',
-						'default'     => '',
-						'description' => 'URL to redirect after submission',
-					),
-					array(
-						'name'        => 'require_login',
-						'type'        => 'yes/no',
-						'default'     => 'no',
-						'description' => 'Require user login to submit',
-					),
-				),
-				'examples'    => array(
-					'[bd_submit_business]',
-					'[bd_submit_business require_login="yes"]',
-					'[bd_submit_business redirect="/thank-you/"]',
-				),
-			),
-			'claim_business'      => array(
-				'name'        => 'Claim Business Form',
-				'shortcode'   => 'bd_claim_form',
-				'description' => 'Displays the business claim form (typically on single business pages).',
-				'attributes'  => array(
-					array(
-						'name'        => 'business_id',
-						'type'        => 'integer',
-						'default'     => '0 (current)',
-						'description' => 'Business post ID to claim',
-					),
-				),
-				'examples'    => array(
-					'[bd_claim_form]',
-					'[bd_claim_form business_id="123"]',
-				),
-			),
-			'review_form'         => array(
-				'name'        => 'Review Form',
-				'shortcode'   => 'bd_review_form',
-				'description' => 'Displays the review submission form for a business.',
-				'attributes'  => array(
-					array(
-						'name'        => 'business_id',
-						'type'        => 'integer',
-						'default'     => '0 (current)',
-						'description' => 'Business post ID to review',
-					),
-					array(
-						'name'        => 'require_login',
-						'type'        => 'yes/no',
-						'default'     => 'no',
-						'description' => 'Require user login to submit review',
-					),
-				),
-				'examples'    => array(
-					'[bd_review_form]',
-					'[bd_review_form business_id="123"]',
-					'[bd_review_form require_login="yes"]',
+					'[bd_qr_code business_id="123" size="200"]',
 				),
 			),
 
@@ -570,7 +628,7 @@ class ShortcodesAdmin {
 			// =============================================
 			'business_reviews'    => array(
 				'name'        => 'Business Reviews',
-				'shortcode'   => 'bd_reviews',
+				'shortcode'   => 'bd_business_reviews',
 				'description' => 'Displays reviews for a specific business.',
 				'attributes'  => array(
 					array(
@@ -593,15 +651,38 @@ class ShortcodesAdmin {
 					),
 				),
 				'examples'    => array(
-					'[bd_reviews]',
-					'[bd_reviews business_id="123" limit="5"]',
-					'[bd_reviews show_form="no"]',
+					'[bd_business_reviews]',
+					'[bd_business_reviews business_id="123"]',
+					'[bd_business_reviews limit="5" show_form="no"]',
+				),
+			),
+			'review_form'         => array(
+				'name'        => 'Review Form',
+				'shortcode'   => 'bd_review_form',
+				'description' => 'Displays a standalone review submission form.',
+				'attributes'  => array(
+					array(
+						'name'        => 'business_id',
+						'type'        => 'integer',
+						'default'     => '0 (current)',
+						'description' => 'Business post ID',
+					),
+					array(
+						'name'        => 'redirect',
+						'type'        => 'string',
+						'default'     => '',
+						'description' => 'URL to redirect after submission',
+					),
+				),
+				'examples'    => array(
+					'[bd_review_form]',
+					'[bd_review_form business_id="123"]',
 				),
 			),
 			'recent_reviews'      => array(
 				'name'        => 'Recent Reviews',
 				'shortcode'   => 'bd_recent_reviews',
-				'description' => 'Displays the most recent reviews across all businesses.',
+				'description' => 'Displays recent reviews across all businesses.',
 				'attributes'  => array(
 					array(
 						'name'        => 'limit',
@@ -620,6 +701,75 @@ class ShortcodesAdmin {
 					'[bd_recent_reviews]',
 					'[bd_recent_reviews limit="10"]',
 					'[bd_recent_reviews category="restaurants"]',
+				),
+			),
+
+			// =============================================
+			// FORMS
+			// =============================================
+			'submit_business'     => array(
+				'name'        => 'Submit Business Form',
+				'shortcode'   => 'bd_submit_business',
+				'description' => 'Displays a form for users to submit new business listings.',
+				'attributes'  => array(
+					array(
+						'name'        => 'category',
+						'type'        => 'string',
+						'default'     => '',
+						'description' => 'Pre-select category slug',
+					),
+					array(
+						'name'        => 'redirect',
+						'type'        => 'string',
+						'default'     => '',
+						'description' => 'URL to redirect after submission',
+					),
+				),
+				'examples'    => array(
+					'[bd_submit_business]',
+					'[bd_submit_business category="restaurants"]',
+				),
+			),
+			'claim_business'      => array(
+				'name'        => 'Claim Business Form',
+				'shortcode'   => 'bd_claim_business',
+				'description' => 'Displays a form for business owners to claim their listing.',
+				'attributes'  => array(
+					array(
+						'name'        => 'business_id',
+						'type'        => 'integer',
+						'default'     => '0 (current)',
+						'description' => 'Business post ID',
+					),
+				),
+				'examples'    => array(
+					'[bd_claim_business]',
+					'[bd_claim_business business_id="123"]',
+				),
+			),
+			'business_tools'      => array(
+				'name'        => 'Business Tools',
+				'shortcode'   => 'bd_business_tools',
+				'description' => 'Dashboard for claimed business owners to manage their listing, view analytics, and access tools.',
+				'attributes'  => array(),
+				'examples'    => array(
+					'[bd_business_tools]',
+				),
+			),
+			'edit_listing'        => array(
+				'name'        => 'Edit Listing',
+				'shortcode'   => 'bd_edit_listing',
+				'description' => 'Allows claimed business owners to edit their listing information.',
+				'attributes'  => array(
+					array(
+						'name'        => 'business_id',
+						'type'        => 'integer',
+						'default'     => '0 (from URL)',
+						'description' => 'Business post ID (uses ?business_id= param)',
+					),
+				),
+				'examples'    => array(
+					'[bd_edit_listing]',
 				),
 			),
 		);
@@ -643,6 +793,12 @@ class ShortcodesAdmin {
 				'desc'  => 'Pinterest-style user-curated business lists.',
 				'codes' => array( 'my_lists', 'public_lists', 'single_list', 'save_button' ),
 			),
+			'events'       => array(
+				'name'  => 'Events Calendar',
+				'icon'  => 'dashicons-calendar-alt',
+				'desc'  => 'Display events from The Events Calendar, filtered by city or linked to businesses.',
+				'codes' => array( 'city_events', 'business_events' ),
+			),
 			'gamification' => array(
 				'name'  => 'Gamification',
 				'icon'  => 'dashicons-awards',
@@ -662,10 +818,10 @@ class ShortcodesAdmin {
 				'codes' => array( 'business_reviews', 'recent_reviews', 'review_form' ),
 			),
 			'forms'        => array(
-				'name'  => 'Forms',
+				'name'  => 'Forms & Management',
 				'icon'  => 'dashicons-feedback',
-				'desc'  => 'User submission and claim forms.',
-				'codes' => array( 'submit_business', 'claim_business' ),
+				'desc'  => 'User submission, claim forms, and business owner tools.',
+				'codes' => array( 'submit_business', 'claim_business', 'business_tools', 'edit_listing' ),
 			),
 		);
 		?>
@@ -724,6 +880,11 @@ class ShortcodesAdmin {
 							<td>Single list detail page (auto-detects from URL)</td>
 						</tr>
 						<tr>
+							<td><strong>City Events</strong></td>
+							<td><code>[bd_city_events city="Livermore" source="lovetrivalley.com"]</code></td>
+							<td>Events in a city (use source on sub-sites)</td>
+						</tr>
+						<tr>
 							<td><strong>My Profile</strong></td>
 							<td><code>[bd_user_profile]</code></td>
 							<td>User stats, badges, and activity</td>
@@ -742,6 +903,16 @@ class ShortcodesAdmin {
 							<td><strong>Add a Business</strong></td>
 							<td><code>[bd_submit_business]</code></td>
 							<td>Public business submission form</td>
+						</tr>
+						<tr>
+							<td><strong>Business Tools</strong></td>
+							<td><code>[bd_business_tools]</code></td>
+							<td>Dashboard for claimed business owners</td>
+						</tr>
+						<tr>
+							<td><strong>Edit Listing</strong></td>
+							<td><code>[bd_edit_listing]</code></td>
+							<td>Form for owners to edit their listing</td>
 						</tr>
 					</tbody>
 				</table>
@@ -846,8 +1017,8 @@ class ShortcodesAdmin {
 						<p>You can combine multiple attributes in a single shortcode. Order doesn't matter.</p>
 					</div>
 					<div class="bd-tip-card">
-						<h4>Save Button on Business Pages</h4>
-						<p>Add <code>[bd_save_button]</code> to your single business template to let users save businesses to their lists.</p>
+						<h4>City Events on Network Sites</h4>
+						<p>On sub-sites like LoveLivermore, use the <code>source</code> attribute to fetch events from the main site: <code>[bd_city_events city="Livermore" source="lovetrivalley.com"]</code></p>
 					</div>
 					<div class="bd-tip-card">
 						<h4>Dynamic List Pages</h4>

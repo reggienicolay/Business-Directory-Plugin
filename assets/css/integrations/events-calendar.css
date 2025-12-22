@@ -60,7 +60,7 @@
 }
 
 .bd-event-link:hover {
-    border-color: #722F37;
+    border-color: #1a3a4a;
     background: #fdf8f8;
     transform: translateX(3px);
 }
@@ -68,7 +68,7 @@
 .bd-event-date {
     min-width: 60px;
     padding: 4px 10px;
-    background: #722F37;
+    background: #1a3a4a;
     color: #fff;
     font-size: 0.8rem;
     font-weight: 600;
@@ -93,7 +93,7 @@
     display: inline-block;
     margin-top: 15px;
     padding: 10px 20px;
-    background: #722F37;
+    background: #1a3a4a;
     color: #fff;
     text-decoration: none;
     border-radius: 5px;
@@ -103,7 +103,7 @@
 }
 
 .bd-events-view-all:hover {
-    background: #5a252c;
+    background: #1e4258;
     color: #fff;
 }
 
@@ -170,7 +170,7 @@
 }
 
 .bd-event-business-card-name a:hover {
-    color: #722F37;
+    color: #1a3a4a;
 }
 
 .bd-event-business-card-rating {
@@ -205,7 +205,7 @@
 .bd-event-business-card-link {
     display: inline-block;
     padding: 8px 16px;
-    background: #722F37;
+    background: #1a3a4a;
     color: #fff;
     text-decoration: none;
     border-radius: 5px;
@@ -215,7 +215,7 @@
 }
 
 .bd-event-business-card-link:hover {
-    background: #5a252c;
+    background: #1e4258;
     color: #fff;
 }
 
@@ -302,7 +302,7 @@
 
 .bd-city-event-card-date {
     font-size: 0.85rem;
-    color: #722F37;
+    color: #1a3a4a;
     font-weight: 600;
     margin-bottom: 5px;
 }
@@ -319,7 +319,7 @@
 }
 
 .bd-city-event-card-title a:hover {
-    color: #722F37;
+    color: #1a3a4a;
 }
 
 .bd-city-event-card-venue {
@@ -335,7 +335,7 @@
 }
 
 .bd-city-event-card-business a {
-    color: #722F37;
+    color: #1a3a4a;
     text-decoration: none;
     font-weight: 500;
 }

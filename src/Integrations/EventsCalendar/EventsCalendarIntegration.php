@@ -6,6 +6,7 @@
  * Links businesses to events, venues, and organizers.
  *
  * @package BusinessDirectory
+ * @version 1.3.0
  */
 
 namespace BD\Integrations\EventsCalendar;
@@ -27,9 +28,11 @@ class EventsCalendarIntegration {
 	public static function init() {
 		// Load sub-components
 		require_once __DIR__ . '/BusinessLinker.php';
+		require_once __DIR__ . '/CityEventsShortcode.php';
 
 		// Initialize components
 		BusinessLinker::init();
+		CityEventsShortcode::init();
 
 		// Display events on business pages
 		if ( IntegrationsManager::get_setting( 'events_calendar', 'show_events_on_business', true ) ) {
@@ -37,9 +40,11 @@ class EventsCalendarIntegration {
 			add_shortcode( 'bd_business_events', array( __CLASS__, 'business_events_shortcode' ) );
 		}
 
-		// Display business card on event pages
+		// Display business card on event pages (replaces venue when linked)
 		if ( IntegrationsManager::get_setting( 'events_calendar', 'show_business_on_events', true ) ) {
 			add_filter( 'the_content', array( __CLASS__, 'add_business_card_to_event' ), 20 );
+			// Note: Venue hiding is handled via inline CSS in render_business_card()
+			// This works for both block-based and classic TEC templates
 		}
 
 		// Register REST API endpoints for city sites
@@ -66,6 +71,93 @@ class EventsCalendarIntegration {
 			array(),
 			BD_VERSION
 		);
+	}
+
+	/**
+	 * Hide TEC venue block when a business is linked
+	 * This prevents duplicate location info (venue block + business card)
+	 *
+	 * @param string $html     The template HTML.
+	 * @param string $file     Template file path.
+	 * @param array  $name     Template name.
+	 * @param object $template Template object.
+	 * @return string Modified HTML (empty if business linked).
+	 */
+	public static function maybe_hide_venue_block( $html, $file = '', $name = '', $template = null ) {
+		if ( ! is_singular( 'tribe_events' ) ) {
+			return $html;
+		}
+
+		$event_id    = get_the_ID();
+		$business_id = self::get_business_for_event( $event_id );
+
+		// If business is linked, hide the venue block (we'll show our business card instead)
+		if ( $business_id ) {
+			$business = get_post( $business_id );
+			if ( $business && 'publish' === $business->post_status ) {
+				return ''; // Return empty - our business card via the_content filter will show instead
+			}
+		}
+
+		// No business linked - show normal TEC venue block
+		return $html;
+	}
+
+	/**
+	 * Hide venue HTML for older TEC filter
+	 *
+	 * @param string $html     The venue HTML.
+	 * @param int    $event_id Event post ID.
+	 * @return string Modified HTML.
+	 */
+	public static function maybe_hide_venue_html( $html, $event_id = 0 ) {
+		if ( ! $event_id ) {
+			$event_id = get_the_ID();
+		}
+
+		if ( ! is_singular( 'tribe_events' ) ) {
+			return $html;
+		}
+
+		$business_id = self::get_business_for_event( $event_id );
+
+		if ( $business_id ) {
+			$business = get_post( $business_id );
+			if ( $business && 'publish' === $business->post_status ) {
+				return '';
+			}
+		}
+
+		return $html;
+	}
+
+	/**
+	 * Hide venue name when business is linked
+	 *
+	 * @param string $venue    The venue name/HTML.
+	 * @param int    $event_id Event post ID.
+	 * @return string Modified venue.
+	 */
+	public static function maybe_hide_venue_name( $venue, $event_id = 0 ) {
+		// Only hide on single event pages, not in admin or listings
+		if ( ! is_singular( 'tribe_events' ) || is_admin() ) {
+			return $venue;
+		}
+
+		if ( ! $event_id ) {
+			$event_id = get_the_ID();
+		}
+
+		$business_id = self::get_business_for_event( $event_id );
+
+		if ( $business_id ) {
+			$business = get_post( $business_id );
+			if ( $business && 'publish' === $business->post_status ) {
+				return '';
+			}
+		}
+
+		return $venue;
 	}
 
 	/**
@@ -122,20 +214,195 @@ class EventsCalendarIntegration {
 	public static function business_events_shortcode( $atts ) {
 		$atts = shortcode_atts(
 			array(
-				'id'    => 0,
-				'limit' => 5,
+				'id'     => 0,
+				'limit'  => 5,
+				'source' => '',  // Source site URL for remote fetch (e.g., lovetrivalley.com)
 			),
 			$atts
 		);
 
 		$business_id = absint( $atts['id'] );
+		$limit       = absint( $atts['limit'] );
+		$source      = sanitize_text_field( $atts['source'] );
 
 		if ( ! $business_id ) {
 			$business_id = get_the_ID();
 		}
 
+		// If source is provided, fetch remotely
+		if ( ! empty( $source ) ) {
+			return self::render_remote_business_events( $business_id, $limit, $source );
+		}
+
+		// Local fetch - verify business exists
+		$business = get_post( $business_id );
+		if ( ! $business || 'bd_business' !== $business->post_type ) {
+			if ( current_user_can( 'manage_options' ) ) {
+				return self::render_admin_error(
+					'Business Events: Invalid business ID ' . $business_id
+				);
+			}
+			return '';
+		}
+
+		$events = self::get_business_events( $business_id, $limit );
+
+		if ( empty( $events ) ) {
+			return '';
+		}
+
 		ob_start();
-		self::display_business_events( $business_id );
+		?>
+		<div class="bd-business-events">
+			<h3 class="bd-business-events-title">
+				<?php esc_html_e( 'Upcoming Events', 'business-directory' ); ?>
+			</h3>
+			<ul class="bd-events-list">
+				<?php foreach ( $events as $event ) : ?>
+					<li class="bd-event-item">
+						<a href="<?php echo esc_url( get_permalink( $event->ID ) ); ?>" class="bd-event-link">
+							<span class="bd-event-date">
+								<?php echo esc_html( tribe_get_start_date( $event->ID, false, 'M j' ) ); ?>
+							</span>
+							<span class="bd-event-title">
+								<?php echo esc_html( get_the_title( $event->ID ) ); ?>
+							</span>
+							<span class="bd-event-time">
+								<?php echo esc_html( tribe_get_start_date( $event->ID, false, 'g:i A' ) ); ?>
+							</span>
+						</a>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+			<a href="<?php echo esc_url( self::get_business_events_link( $business_id ) ); ?>" class="bd-events-view-all">
+				<?php esc_html_e( 'View All Events →', 'business-directory' ); ?>
+			</a>
+		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Render business events from remote source
+	 *
+	 * @param int    $business_id Business post ID on the remote site.
+	 * @param int    $limit       Number of events.
+	 * @param string $source      Source site domain.
+	 * @return string HTML output.
+	 */
+	private static function render_remote_business_events( $business_id, $limit, $source ) {
+		// Clean up the source URL
+		$source = preg_replace( '#^https?://#', '', $source );
+		$source = rtrim( $source, '/' );
+
+		$api_url = 'https://' . $source . '/wp-json/bd/v1/events/business/' . $business_id;
+		$api_url = add_query_arg( 'limit', $limit, $api_url );
+
+		$response = wp_remote_get(
+			$api_url,
+			array(
+				'timeout' => 10,
+				'headers' => array(
+					'Accept' => 'application/json',
+				),
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			if ( current_user_can( 'manage_options' ) ) {
+				return self::render_admin_error(
+					'Business Events: Failed to fetch from ' . esc_html( $source )
+				);
+			}
+			return '';
+		}
+
+		$code = wp_remote_retrieve_response_code( $response );
+		if ( 200 !== $code ) {
+			if ( current_user_can( 'manage_options' ) ) {
+				return self::render_admin_error(
+					'Business Events: Remote server returned ' . esc_html( $code )
+				);
+			}
+			return '';
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+		$data = json_decode( $body, true );
+
+		if ( ! is_array( $data ) || isset( $data['error'] ) ) {
+			if ( current_user_can( 'manage_options' ) ) {
+				$error_msg = isset( $data['message'] ) ? $data['message'] : 'Unknown error';
+				return self::render_admin_error( 'Business Events: ' . esc_html( $error_msg ) );
+			}
+			return '';
+		}
+
+		$events   = $data['events'] ?? array();
+		$business = $data['business'] ?? array();
+
+		if ( empty( $events ) ) {
+			return '';
+		}
+
+		// Inline styles for network site compatibility (CSS files may not be available).
+		$container_style = 'margin: 30px 0; padding: 25px; background: #f9f9f9; ';
+		$container_style .= 'border-radius: 8px; border: 1px solid #e0e0e0;';
+
+		$title_style = 'margin: 0 0 20px 0; font-size: 1.25rem; font-weight: 600; ';
+		$title_style .= 'color: #1a1a1a; display: flex; align-items: center; gap: 8px;';
+
+		$link_style = 'display: flex; align-items: center; padding: 12px 15px; ';
+		$link_style .= 'background: #fff; border-radius: 6px; border: 1px solid #e5e5e5; ';
+		$link_style .= 'text-decoration: none; color: inherit;';
+
+		$date_style = 'min-width: 60px; padding: 4px 10px; background: #1a3a4a; ';
+		$date_style .= 'color: #fff; font-size: 0.8rem; font-weight: 600; ';
+		$date_style .= 'text-align: center; border-radius: 4px; margin-right: 15px;';
+
+		$btn_style = 'display: inline-block; margin-top: 15px; padding: 10px 20px; ';
+		$btn_style .= 'background: #1a3a4a; color: #fff; text-decoration: none; ';
+		$btn_style .= 'border-radius: 5px; font-size: 0.9rem; font-weight: 500;';
+
+		ob_start();
+		?>
+		<div class="bd-business-events" style="<?php echo esc_attr( $container_style ); ?>">
+			<h3 class="bd-business-events-title" style="<?php echo esc_attr( $title_style ); ?>">
+				📅 <?php esc_html_e( 'Upcoming Events', 'business-directory' ); ?>
+			</h3>
+			<ul class="bd-events-list" style="list-style: none; margin: 0; padding: 0;">
+				<?php foreach ( $events as $event ) : ?>
+					<li class="bd-event-item" style="margin-bottom: 8px;">
+						<a href="<?php echo esc_url( $event['url'] ); ?>" 
+							class="bd-event-link" 
+							target="_blank" 
+							style="<?php echo esc_attr( $link_style ); ?>">
+							<span class="bd-event-date" style="<?php echo esc_attr( $date_style ); ?>">
+								<?php echo esc_html( gmdate( 'M j', strtotime( $event['start_date'] ) ) ); ?>
+							</span>
+							<span class="bd-event-title" style="flex: 1; font-weight: 500; color: #333;">
+								<?php echo esc_html( $event['title'] ); ?>
+							</span>
+							<span class="bd-event-time" style="font-size: 0.85rem; color: #666; margin-left: 15px;">
+								<?php
+								$datetime = $event['start_date'] . ' ' . $event['start_time'];
+								echo esc_html( gmdate( 'g:i A', strtotime( $datetime ) ) );
+								?>
+							</span>
+						</a>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+			<?php if ( ! empty( $business['url'] ) ) : ?>
+				<a href="<?php echo esc_url( $business['url'] ); ?>" 
+					class="bd-events-view-all" 
+					target="_blank" 
+					style="<?php echo esc_attr( $btn_style ); ?>">
+					<?php esc_html_e( 'View All Events →', 'business-directory' ); ?>
+				</a>
+			<?php endif; ?>
+		</div>
+		<?php
 		return ob_get_clean();
 	}
 
@@ -155,6 +422,7 @@ class EventsCalendarIntegration {
 			array(
 				'post_type'      => 'tribe_events',
 				'posts_per_page' => $limit,
+				'post_status'    => 'publish',
 				'meta_key'       => '_EventStartDate',
 				'orderby'        => 'meta_value',
 				'order'          => 'ASC',
@@ -183,6 +451,7 @@ class EventsCalendarIntegration {
 				array(
 					'post_type'      => 'tribe_events',
 					'posts_per_page' => $limit,
+					'post_status'    => 'publish',
 					'meta_key'       => '_EventStartDate',
 					'orderby'        => 'meta_value',
 					'order'          => 'ASC',
@@ -218,6 +487,7 @@ class EventsCalendarIntegration {
 				'post_type'      => 'tribe_events',
 				'post__in'       => $event_ids,
 				'posts_per_page' => $limit,
+				'post_status'    => 'publish',
 				'meta_key'       => '_EventStartDate',
 				'orderby'        => 'meta_value',
 				'order'          => 'ASC',
@@ -234,12 +504,13 @@ class EventsCalendarIntegration {
 	public static function get_venue_for_business( $business_id ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$venue_id = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT post_id FROM {$wpdb->postmeta} 
 				WHERE meta_key = 'bd_linked_business' 
 				AND meta_value = %d
-				AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type = 'tribe_venue')",
+				AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type = 'tribe_venue' AND post_status = 'publish')",
 				$business_id
 			)
 		);
@@ -256,12 +527,13 @@ class EventsCalendarIntegration {
 	public static function get_organizer_for_business( $business_id ) {
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$organizer_id = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT post_id FROM {$wpdb->postmeta} 
 				WHERE meta_key = 'bd_linked_business' 
 				AND meta_value = %d
-				AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type = 'tribe_organizer')",
+				AND post_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type = 'tribe_organizer' AND post_status = 'publish')",
 				$business_id
 			)
 		);
@@ -293,12 +565,14 @@ class EventsCalendarIntegration {
 		}
 
 		// Check organizer link
-		$organizer_ids = tribe_get_organizer_ids( $event_id );
-		if ( ! empty( $organizer_ids ) ) {
-			foreach ( $organizer_ids as $organizer_id ) {
-				$business_id = get_post_meta( $organizer_id, 'bd_linked_business', true );
-				if ( $business_id ) {
-					return absint( $business_id );
+		if ( function_exists( 'tribe_get_organizer_ids' ) ) {
+			$organizer_ids = tribe_get_organizer_ids( $event_id );
+			if ( ! empty( $organizer_ids ) ) {
+				foreach ( $organizer_ids as $organizer_id ) {
+					$business_id = get_post_meta( $organizer_id, 'bd_linked_business', true );
+					if ( $business_id ) {
+						return absint( $business_id );
+					}
 				}
 			}
 		}
@@ -333,6 +607,7 @@ class EventsCalendarIntegration {
 		// Build business card HTML
 		$card = self::render_business_card( $business );
 
+		// Append card after description, JS will position it before Add to Calendar
 		return $content . $card;
 	}
 
@@ -347,11 +622,32 @@ class EventsCalendarIntegration {
 		$address     = is_array( $location ) ? ( $location['address'] ?? '' ) : '';
 		$city        = is_array( $location ) ? ( $location['city'] ?? '' ) : '';
 		$rating_data = self::get_business_rating( $business->ID );
-		$categories  = get_the_terms( $business->ID, 'business_category' );
+		$categories  = get_the_terms( $business->ID, 'bd_category' );
 		$thumbnail   = get_the_post_thumbnail_url( $business->ID, 'medium' );
 
 		ob_start();
 		?>
+		<style>
+			/* Hide TEC venue block when business card is shown */
+			.tribe-block__venue,
+			.tribe-events-venue,
+			.tribe-events-meta-group-venue,
+			.tribe-events-single-event-venue {
+				display: none !important;
+			}
+		</style>
+		<script>
+			/* Move business card before Add to Calendar */
+			document.addEventListener('DOMContentLoaded', function() {
+				var card = document.querySelector('.bd-event-business-card');
+				var selectors = '.tribe-block__events-link, .tribe-events-cal-links, ';
+				selectors += '.tribe-block__event-links';
+				var addToCal = document.querySelector(selectors);
+				if (card && addToCal && addToCal.parentNode) {
+					addToCal.parentNode.insertBefore(card, addToCal);
+				}
+			});
+		</script>
 		<div class="bd-event-business-card">
 			<h4 class="bd-event-business-card-title">
 				<?php esc_html_e( 'Hosted At', 'business-directory' ); ?>
@@ -411,9 +707,10 @@ class EventsCalendarIntegration {
 	private static function get_business_rating( $business_id ) {
 		global $wpdb;
 
-		$table = $wpdb->base_prefix . 'bd_reviews';
+		$table = $wpdb->prefix . 'bd_reviews';
 
 		// Check if table exists
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$table_exists = $wpdb->get_var(
 			$wpdb->prepare( 'SHOW TABLES LIKE %s', $table )
 		);
@@ -425,10 +722,11 @@ class EventsCalendarIntegration {
 			);
 		}
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$result = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT AVG(rating) as average, COUNT(*) as count 
-				FROM {$table} 
+				FROM {$wpdb->prefix}bd_reviews 
 				WHERE business_id = %d AND status = 'approved'",
 				$business_id
 			)
@@ -453,14 +751,15 @@ class EventsCalendarIntegration {
 			return get_permalink( $venue_id );
 		}
 
-		// Fallback to events page with organizer filter
-		return tribe_get_events_link();
+		// Fallback to events page
+		return function_exists( 'tribe_get_events_link' ) ? tribe_get_events_link() : home_url( '/events/' );
 	}
 
 	/**
 	 * Register REST API routes for city sites
 	 */
 	public static function register_rest_routes() {
+		// Events by city
 		register_rest_route(
 			'bd/v1',
 			'/events/city/(?P<city>[a-zA-Z0-9-]+)',
@@ -475,6 +774,27 @@ class EventsCalendarIntegration {
 					),
 					'limit' => array(
 						'default'           => 10,
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+
+		// Events by business ID
+		register_rest_route(
+			'bd/v1',
+			'/events/business/(?P<id>[0-9]+)',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'rest_get_business_events' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'id'    => array(
+						'required'          => true,
+						'sanitize_callback' => 'absint',
+					),
+					'limit' => array(
+						'default'           => 5,
 						'sanitize_callback' => 'absint',
 					),
 				),
@@ -495,6 +815,7 @@ class EventsCalendarIntegration {
 		// Get venues in this city
 		global $wpdb;
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$venue_ids = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT post_id FROM {$wpdb->postmeta} 
@@ -513,6 +834,7 @@ class EventsCalendarIntegration {
 			array(
 				'post_type'      => 'tribe_events',
 				'posts_per_page' => $limit,
+				'post_status'    => 'publish',
 				'meta_key'       => '_EventStartDate',
 				'orderby'        => 'meta_value',
 				'order'          => 'ASC',
@@ -561,5 +883,68 @@ class EventsCalendarIntegration {
 		}
 
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * REST endpoint to get events by business ID
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public static function rest_get_business_events( $request ) {
+		$business_id = $request->get_param( 'id' );
+		$limit       = min( $request->get_param( 'limit' ), 50 );
+
+		// Verify business exists
+		$business = get_post( $business_id );
+		if ( ! $business || 'bd_business' !== $business->post_type ) {
+			return rest_ensure_response(
+				array(
+					'error'   => 'invalid_business',
+					'message' => 'Business not found',
+				)
+			);
+		}
+
+		$events = self::get_business_events( $business_id, $limit );
+
+		$response = array(
+			'business' => array(
+				'id'   => $business_id,
+				'name' => $business->post_title,
+				'url'  => get_permalink( $business_id ),
+			),
+			'events'   => array(),
+		);
+
+		foreach ( $events as $event ) {
+			$venue_id = get_post_meta( $event->ID, '_EventVenueID', true );
+
+			$response['events'][] = array(
+				'id'         => $event->ID,
+				'title'      => $event->post_title,
+				'url'        => get_permalink( $event->ID ),
+				'start_date' => tribe_get_start_date( $event->ID, false, 'Y-m-d' ),
+				'start_time' => tribe_get_start_date( $event->ID, false, 'H:i' ),
+				'end_date'   => tribe_get_end_date( $event->ID, false, 'Y-m-d' ),
+				'end_time'   => tribe_get_end_date( $event->ID, false, 'H:i' ),
+				'venue'      => $venue_id ? get_the_title( $venue_id ) : '',
+				'thumbnail'  => get_the_post_thumbnail_url( $event->ID, 'medium' ),
+			);
+		}
+
+		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Render an admin-only error message
+	 *
+	 * @param string $message Error message.
+	 * @return string HTML.
+	 */
+	private static function render_admin_error( $message ) {
+		$style = 'padding: 15px; background: #fff3cd; border: 1px solid #ffc107; ';
+		$style .= 'border-radius: 6px; color: #856404;';
+		return '<p style="' . esc_attr( $style ) . '">' . esc_html( $message ) . '</p>';
 	}
 }
