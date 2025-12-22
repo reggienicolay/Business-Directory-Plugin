@@ -1,0 +1,345 @@
+/**
+ * Events Calendar Integration Styles
+ *
+ * Styles for displaying events on business pages
+ * and business cards on event pages.
+ *
+ * @package BusinessDirectory
+ */
+
+/* ==========================================================================
+   Events on Business Pages
+   ========================================================================== */
+
+.bd-business-events {
+    margin: 30px 0;
+    padding: 25px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.bd-business-events-title {
+    margin: 0 0 20px 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bd-business-events-title::before {
+    content: "📅";
+}
+
+.bd-events-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.bd-event-item {
+    margin-bottom: 8px;
+}
+
+.bd-event-item:last-child {
+    margin-bottom: 0;
+}
+
+.bd-event-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid #e5e5e5;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s ease;
+}
+
+.bd-event-link:hover {
+    border-color: #722F37;
+    background: #fdf8f8;
+    transform: translateX(3px);
+}
+
+.bd-event-date {
+    min-width: 60px;
+    padding: 4px 10px;
+    background: #722F37;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+    border-radius: 4px;
+    margin-right: 15px;
+}
+
+.bd-event-title {
+    flex: 1;
+    font-weight: 500;
+    color: #333;
+}
+
+.bd-event-time {
+    font-size: 0.85rem;
+    color: #666;
+    margin-left: 15px;
+}
+
+.bd-events-view-all {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 20px;
+    background: #722F37;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.bd-events-view-all:hover {
+    background: #5a252c;
+    color: #fff;
+}
+
+/* ==========================================================================
+   Business Card on Event Pages
+   ========================================================================== */
+
+.bd-event-business-card {
+    margin: 30px 0;
+    padding: 25px;
+    background: linear-gradient(135deg, #f9f5f0 0%, #fff 100%);
+    border-radius: 10px;
+    border: 1px solid #e5ddd5;
+}
+
+.bd-event-business-card-title {
+    margin: 0 0 15px 0;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+}
+
+.bd-event-business-card-title::before {
+    content: "📍";
+    margin-right: 5px;
+}
+
+.bd-event-business-card-inner {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.bd-event-business-card-image {
+    flex-shrink: 0;
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.bd-event-business-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bd-event-business-card-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.bd-event-business-card-name {
+    margin: 0 0 8px 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.bd-event-business-card-name a {
+    color: #1a1a1a;
+    text-decoration: none;
+}
+
+.bd-event-business-card-name a:hover {
+    color: #722F37;
+}
+
+.bd-event-business-card-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.bd-event-business-card-rating .bd-stars {
+    color: #f5a623;
+    font-weight: 600;
+}
+
+.bd-event-business-card-rating .bd-review-count {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.bd-event-business-card-location {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.bd-event-business-card-categories {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 12px;
+}
+
+.bd-event-business-card-link {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #722F37;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background 0.2s ease;
+}
+
+.bd-event-business-card-link:hover {
+    background: #5a252c;
+    color: #fff;
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media (max-width: 600px) {
+    .bd-event-link {
+        flex-wrap: wrap;
+    }
+
+    .bd-event-date {
+        margin-bottom: 8px;
+    }
+
+    .bd-event-title {
+        width: 100%;
+        margin-bottom: 5px;
+    }
+
+    .bd-event-time {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .bd-event-business-card-inner {
+        flex-direction: column;
+    }
+
+    .bd-event-business-card-image {
+        width: 100%;
+        height: 200px;
+    }
+}
+
+/* ==========================================================================
+   City Events Shortcode (for network sites)
+   ========================================================================== */
+
+.bd-city-events {
+    margin: 20px 0;
+}
+
+.bd-city-events-title {
+    margin: 0 0 20px 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.bd-city-events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.bd-city-event-card {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bd-city-event-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+}
+
+.bd-city-event-card-image {
+    height: 160px;
+    background: #f0f0f0;
+}
+
+.bd-city-event-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bd-city-event-card-content {
+    padding: 15px;
+}
+
+.bd-city-event-card-date {
+    font-size: 0.85rem;
+    color: #722F37;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.bd-city-event-card-title {
+    margin: 0 0 8px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.bd-city-event-card-title a {
+    color: #1a1a1a;
+    text-decoration: none;
+}
+
+.bd-city-event-card-title a:hover {
+    color: #722F37;
+}
+
+.bd-city-event-card-venue {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.bd-city-event-card-business {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    font-size: 0.85rem;
+}
+
+.bd-city-event-card-business a {
+    color: #722F37;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.bd-city-event-card-business a:hover {
+    text-decoration: underline;
+}

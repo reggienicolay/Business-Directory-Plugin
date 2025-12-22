@@ -199,7 +199,10 @@ while ( have_posts() ) :
 						<?php the_content(); ?>
 					</div>
 				</div>
-
+				<?php
+				// Events Calendar Integration - Display upcoming events
+				do_action( 'bd_after_business_content', $business_id );
+				?>
 				<!-- SOCIAL SHARING SECTION -->
 				<section class="bd-social-sharing">
 					<h3>Share this business</h3>

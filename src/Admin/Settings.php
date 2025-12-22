@@ -306,7 +306,7 @@ class Settings {
 
 				<?php submit_button(); ?>
 			</form>
-
+				<?php do_action( 'bd_settings_after_pages' ); ?>
 			<!-- Cache Management Section -->
 			<hr style="margin: 40px 0;">
 

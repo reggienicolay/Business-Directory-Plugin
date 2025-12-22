@@ -154,3 +154,8 @@ if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/social-sharing-loader.
 if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/business-tools-loader.php' ) ) {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/business-tools-loader.php';
 }
+
+// Load Integrations System
+if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/integrations-loader.php' ) ) {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/integrations-loader.php';
+}
