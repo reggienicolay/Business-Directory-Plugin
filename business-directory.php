@@ -97,6 +97,7 @@ add_action(
 		\BD\Admin\ShortcodesAdmin::init();
 		\BD\Admin\ListsAdmin::init();
 		\BD\Frontend\ListDisplay::init();
+		\BD\Admin\MenuOrganizer::init();
 	}
 );
 
