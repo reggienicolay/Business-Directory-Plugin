@@ -57,7 +57,7 @@ class EditListing {
 		wp_enqueue_style(
 			'bd-edit-listing',
 			plugins_url( 'assets/css/edit-listing.css', BD_PLUGIN_FILE ),
-			array( 'bd-design-tokens' ), // Ensure design tokens are loaded first. 
+			array( 'bd-design-tokens' ), // Ensure design tokens are loaded first.
 			BD_VERSION
 		);
 

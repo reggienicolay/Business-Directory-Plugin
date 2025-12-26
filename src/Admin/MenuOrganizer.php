@@ -53,7 +53,7 @@ class MenuOrganizer {
 			// ───────────────────────────────
 			// CORE - Standard post type items.
 			// ───────────────────────────────
-			'core' => array(
+			'core'       => array(
 				'edit.php?post_type=bd_business',           // All Businesses.
 				'post-new.php?post_type=bd_business',       // Add New.
 				'edit-tags.php?taxonomy=bd_category&post_type=bd_business', // Categories.
@@ -76,7 +76,7 @@ class MenuOrganizer {
 			// ───────────────────────────────
 			// COMMUNITY - User-generated content management.
 			// ───────────────────────────────
-			'community' => array(
+			'community'  => array(
 				'bd-user-lists',                            // User Lists.
 				'bd-gamification',                          // Gamification Overview.
 				'bd-badge-catalog',                         // Badge Catalog.
@@ -87,7 +87,7 @@ class MenuOrganizer {
 			// ───────────────────────────────
 			// TOOLS - Admin utilities and references.
 			// ───────────────────────────────
-			'tools' => array(
+			'tools'      => array(
 				'bd-business-tools',                        // Business Tools.
 				'bd-feature-settings',                      // Feature Embed.
 				'bd-shortcodes',                            // Shortcodes Reference.
@@ -96,7 +96,7 @@ class MenuOrganizer {
 			// ───────────────────────────────
 			// SETTINGS - Always last.
 			// ───────────────────────────────
-			'settings' => array(
+			'settings'   => array(
 				'bd-settings',                              // Settings.
 			),
 		);
@@ -119,7 +119,7 @@ class MenuOrganizer {
 
 		return array(
 			// Core.
-			'edit.php?post_type=bd_business' => array(
+			'edit.php?post_type=bd_business'     => array(
 				'label' => __( 'All Businesses', 'business-directory' ),
 				'icon'  => 'dashicons-store',
 			),
@@ -139,7 +139,7 @@ class MenuOrganizer {
 				'label' => __( 'Tags', 'business-directory' ),
 				'icon'  => 'dashicons-tag',
 			),
-			'bd-import-csv' => array(
+			'bd-import-csv'                      => array(
 				'label' => __( 'Import CSV', 'business-directory' ),
 				'icon'  => 'dashicons-upload',
 			),
@@ -150,64 +150,64 @@ class MenuOrganizer {
 				'icon'  => 'dashicons-businesswoman',
 				'count' => $pending_businesses,
 			),
-			'bd-pending-claims' => array(
+			'bd-pending-claims'                  => array(
 				'label' => __( 'Pending Claims', 'business-directory' ),
 				'icon'  => 'dashicons-id-alt',
 				'count' => $pending_claims,
 			),
-			'bd-pending-changes' => array(
+			'bd-pending-changes'                 => array(
 				'label' => __( 'Pending Changes', 'business-directory' ),
 				'icon'  => 'dashicons-edit-page',
 				'count' => $pending_changes,
 			),
-			'bd-pending-reviews' => array(
+			'bd-pending-reviews'                 => array(
 				'label' => __( 'Pending Reviews', 'business-directory' ),
 				'icon'  => 'dashicons-star-half',
 				'count' => $pending_reviews,
 			),
-			'bd-all-reviews' => array(
+			'bd-all-reviews'                     => array(
 				'label' => __( 'All Reviews', 'business-directory' ),
 				'icon'  => 'dashicons-star-filled',
 			),
 
 			// Community.
-			'bd-user-lists' => array(
+			'bd-user-lists'                      => array(
 				'label' => __( 'User Lists', 'business-directory' ),
 				'icon'  => 'dashicons-list-view',
 			),
-			'bd-gamification' => array(
+			'bd-gamification'                    => array(
 				'label' => __( 'Gamification', 'business-directory' ),
 				'icon'  => 'dashicons-awards',
 			),
-			'bd-badge-catalog' => array(
+			'bd-badge-catalog'                   => array(
 				'label' => __( 'Badge Catalog', 'business-directory' ),
 				'icon'  => 'dashicons-shield',
 			),
-			'bd-user-badges' => array(
+			'bd-user-badges'                     => array(
 				'label' => __( 'User Badges', 'business-directory' ),
 				'icon'  => 'dashicons-groups',
 			),
-			'bd-leaderboard' => array(
+			'bd-leaderboard'                     => array(
 				'label' => __( 'Leaderboard', 'business-directory' ),
 				'icon'  => 'dashicons-chart-bar',
 			),
 
 			// Tools.
-			'bd-business-tools' => array(
+			'bd-business-tools'                  => array(
 				'label' => __( 'Business Tools', 'business-directory' ),
 				'icon'  => 'dashicons-hammer',
 			),
-			'bd-feature-settings' => array(
+			'bd-feature-settings'                => array(
 				'label' => __( 'Feature Embed', 'business-directory' ),
 				'icon'  => 'dashicons-embed-generic',
 			),
-			'bd-shortcodes' => array(
+			'bd-shortcodes'                      => array(
 				'label' => __( 'Shortcodes', 'business-directory' ),
 				'icon'  => 'dashicons-shortcode',
 			),
 
 			// Settings.
-			'bd-settings' => array(
+			'bd-settings'                        => array(
 				'label' => __( 'Settings', 'business-directory' ),
 				'icon'  => 'dashicons-admin-settings',
 			),
@@ -279,6 +279,7 @@ class MenuOrganizer {
 		}
 
 		// Replace submenu.
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$submenu[ $parent ] = $ordered;
 	}
 

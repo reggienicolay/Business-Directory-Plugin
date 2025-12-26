@@ -163,5 +163,5 @@ if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/integrations-loader.ph
 
 // Load Auth System
 if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/auth-loader.php' ) ) {
-    require_once plugin_dir_path( __FILE__ ) . 'includes/auth-loader.php';
+	require_once plugin_dir_path( __FILE__ ) . 'includes/auth-loader.php';
 }

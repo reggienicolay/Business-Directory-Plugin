@@ -1,14 +1,14 @@
 /**
  * Business Directory - Map Popup Styles
  * Premium wine country design - single source of truth
- * 
+ *
  * @package BusinessDirectory
  * @since 1.0.0
  */
 
 /* ==========================================================================
-   BASE POPUP STYLES
-   ========================================================================== */
+	BASE POPUP STYLES
+	========================================================================== */
 
 .leaflet-popup-content-wrapper {
 	padding: 0 !important;
@@ -48,8 +48,8 @@
 }
 
 /* ==========================================================================
-   PREMIUM MINIMAL POPUP
-   ========================================================================== */
+	PREMIUM MINIMAL POPUP
+	========================================================================== */
 
 a.bd-popup {
 	display: block;
@@ -219,8 +219,8 @@ a.bd-popup:hover .bd-popup-arrow {
 }
 
 /* ==========================================================================
-   DETAILED POPUP (Optional - add .bd-popup-detailed to body)
-   ========================================================================== */
+	DETAILED POPUP (Optional - add .bd-popup-detailed to body)
+	========================================================================== */
 
 .bd-popup-detailed .leaflet-popup-content-wrapper {
 	min-width: 280px !important;
@@ -337,28 +337,28 @@ a.bd-popup:hover .bd-popup-arrow {
 }
 
 /* ==========================================================================
-   RESPONSIVE
-   ========================================================================== */
+	RESPONSIVE
+	========================================================================== */
 
 @media (max-width: 480px) {
 	a.bd-popup {
 		min-width: 200px;
 		max-width: 260px;
 	}
-	
+
 	.bd-popup .bd-popup-title {
 		font-size: 14px !important;
 	}
-	
+
 	.bd-popup-inner {
 		padding: 12px 14px 14px;
 	}
-	
+
 	.bd-popup-detailed .leaflet-popup-content-wrapper {
 		min-width: 260px !important;
 		max-width: 300px !important;
 	}
-	
+
 	.bd-popup-detailed .bd-popup-title {
 		font-size: 16px !important;
 	}

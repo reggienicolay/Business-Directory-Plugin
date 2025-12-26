@@ -34,25 +34,31 @@ class ProfileEditor {
 	public static function handle_update() {
 		// Verify nonce.
 		if ( ! check_ajax_referer( 'bd_profile_nonce', 'nonce', false ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'Security check failed. Please refresh the page.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'Security check failed. Please refresh the page.', 'business-directory' ),
+				)
+			);
 		}
 
 		// Must be logged in.
 		if ( ! is_user_logged_in() ) {
-			wp_send_json_error( array(
-				'message' => __( 'You must be logged in to update your profile.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'You must be logged in to update your profile.', 'business-directory' ),
+				)
+			);
 		}
 
 		$user_id = get_current_user_id();
 		$user    = get_userdata( $user_id );
 
 		if ( ! $user ) {
-			wp_send_json_error( array(
-				'message' => __( 'User not found.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'User not found.', 'business-directory' ),
+				)
+			);
 		}
 
 		$errors  = array();
@@ -76,10 +82,12 @@ class ProfileEditor {
 		if ( isset( $_POST['display_name'] ) ) {
 			$display_name = sanitize_text_field( wp_unslash( $_POST['display_name'] ) );
 			if ( ! empty( $display_name ) ) {
-				wp_update_user( array(
-					'ID'           => $user_id,
-					'display_name' => $display_name,
-				) );
+				wp_update_user(
+					array(
+						'ID'           => $user_id,
+						'display_name' => $display_name,
+					)
+				);
 				$updated[] = 'display_name';
 			}
 		}
@@ -110,10 +118,12 @@ class ProfileEditor {
 		// Website.
 		if ( isset( $_POST['website'] ) ) {
 			$website = esc_url_raw( wp_unslash( $_POST['website'] ) );
-			wp_update_user( array(
-				'ID'       => $user_id,
-				'user_url' => $website,
-			) );
+			wp_update_user(
+				array(
+					'ID'       => $user_id,
+					'user_url' => $website,
+				)
+			);
 			$updated[] = 'website';
 		}
 
@@ -150,15 +160,19 @@ class ProfileEditor {
 		}
 
 		if ( ! empty( $errors ) ) {
-			wp_send_json_error( array(
-				'message' => implode( '<br>', $errors ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => implode( '<br>', $errors ),
+				)
+			);
 		}
 
-		wp_send_json_success( array(
-			'message' => __( 'Profile updated successfully!', 'business-directory' ),
-			'updated' => $updated,
-		) );
+		wp_send_json_success(
+			array(
+				'message' => __( 'Profile updated successfully!', 'business-directory' ),
+				'updated' => $updated,
+			)
+		);
 	}
 
 	/**
@@ -169,15 +183,19 @@ class ProfileEditor {
 	public static function handle_email_change_request() {
 		// Verify nonce.
 		if ( ! check_ajax_referer( 'bd_profile_nonce', 'nonce', false ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'Security check failed. Please refresh the page.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'Security check failed. Please refresh the page.', 'business-directory' ),
+				)
+			);
 		}
 
 		if ( ! is_user_logged_in() ) {
-			wp_send_json_error( array(
-				'message' => __( 'You must be logged in.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'You must be logged in.', 'business-directory' ),
+				)
+			);
 		}
 
 		$user_id   = get_current_user_id();
@@ -186,23 +204,29 @@ class ProfileEditor {
 
 		// Validate email.
 		if ( empty( $new_email ) || ! is_email( $new_email ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'Please enter a valid email address.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'Please enter a valid email address.', 'business-directory' ),
+				)
+			);
 		}
 
 		// Check if same as current.
 		if ( $new_email === $user->user_email ) {
-			wp_send_json_error( array(
-				'message' => __( 'This is already your email address.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'This is already your email address.', 'business-directory' ),
+				)
+			);
 		}
 
 		// Check if email exists.
 		if ( email_exists( $new_email ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'This email address is already in use.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'This email address is already in use.', 'business-directory' ),
+				)
+			);
 		}
 
 		// Generate verification key.
@@ -212,11 +236,14 @@ class ProfileEditor {
 		update_user_meta( $user_id, 'bd_email_change_expires', time() + DAY_IN_SECONDS );
 
 		// Build verification URL.
-		$verify_url = add_query_arg( array(
-			'action'  => 'bd_verify_email',
-			'user_id' => $user_id,
-			'key'     => $key,
-		), home_url( '/my-profile/' ) );
+		$verify_url = add_query_arg(
+			array(
+				'action'  => 'bd_verify_email',
+				'user_id' => $user_id,
+				'key'     => $key,
+			),
+			home_url( '/my-profile/' )
+		);
 
 		// Send verification email.
 		$subject = sprintf(
@@ -227,6 +254,7 @@ class ProfileEditor {
 
 		$message = sprintf(
 			/* translators: 1: display name, 2: site name, 3: new email, 4: verify URL */
+			// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralText
 			__(
 				"Hi %1\$s,\n\n" .
 				"You requested to change your email address on %2\$s.\n\n" .
@@ -237,6 +265,7 @@ class ProfileEditor {
 				"Thanks,\n%2\$s Team",
 				'business-directory'
 			),
+			// phpcs:enable WordPress.WP.I18n.NonSingularStringLiteralText
 			$user->display_name,
 			get_bloginfo( 'name' ),
 			$new_email,
@@ -246,18 +275,22 @@ class ProfileEditor {
 		$sent = wp_mail( $new_email, $subject, $message );
 
 		if ( ! $sent ) {
-			wp_send_json_error( array(
-				'message' => __( 'Failed to send verification email. Please try again.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'Failed to send verification email. Please try again.', 'business-directory' ),
+				)
+			);
 		}
 
-		wp_send_json_success( array(
-			'message' => sprintf(
+		wp_send_json_success(
+			array(
+				'message' => sprintf(
 				/* translators: %s: new email address */
-				__( 'Verification email sent to %s. Please check your inbox.', 'business-directory' ),
-				$new_email
-			),
-		) );
+					__( 'Verification email sent to %s. Please check your inbox.', 'business-directory' ),
+					$new_email
+				),
+			)
+		);
 	}
 
 	/**
@@ -277,9 +310,9 @@ class ProfileEditor {
 			return;
 		}
 
-		$stored_key  = get_user_meta( $user_id, 'bd_email_change_key', true );
-		$expires     = get_user_meta( $user_id, 'bd_email_change_expires', true );
-		$pending     = get_user_meta( $user_id, 'bd_pending_email', true );
+		$stored_key = get_user_meta( $user_id, 'bd_email_change_key', true );
+		$expires    = get_user_meta( $user_id, 'bd_email_change_expires', true );
+		$pending    = get_user_meta( $user_id, 'bd_pending_email', true );
 
 		// Validate.
 		if ( ! $stored_key || $key !== $stored_key ) {
@@ -303,10 +336,12 @@ class ProfileEditor {
 		}
 
 		// Update email.
-		wp_update_user( array(
-			'ID'         => $user_id,
-			'user_email' => $pending,
-		) );
+		wp_update_user(
+			array(
+				'ID'         => $user_id,
+				'user_email' => $pending,
+			)
+		);
 
 		// Clean up.
 		delete_user_meta( $user_id, 'bd_pending_email' );
@@ -395,12 +430,14 @@ class ProfileEditor {
 		$data = self::get_profile_data( $user_id );
 
 		// Get areas for city dropdown (same as registration).
-		$areas = get_terms( array(
-			'taxonomy'   => 'bd_area',
-			'hide_empty' => false,
-			'orderby'    => 'name',
-			'order'      => 'ASC',
-		) );
+		$areas = get_terms(
+			array(
+				'taxonomy'   => 'bd_area',
+				'hide_empty' => false,
+				'orderby'    => 'name',
+				'order'      => 'ASC',
+			)
+		);
 
 		ob_start();
 		?>

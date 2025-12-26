@@ -42,10 +42,8 @@ add_action(
 			$has_filters = true;
 		}
 
-		if ( $has_filters ) {
-			// Note: Scripts and styles are now handled by sprint2-week2-loader.php
-			// This loader only initializes the Filters class
-		}
+		// Note: Scripts and styles are now handled by sprint2-week2-loader.php
+		// This loader only initializes the Filters class
 	},
 	20
 );

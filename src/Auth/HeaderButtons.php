@@ -36,13 +36,16 @@ class HeaderButtons {
 	 * @return string
 	 */
 	public static function render( $atts = array() ) {
-		$atts = shortcode_atts( array(
-			'style'         => 'default', // default, compact, icon-only.
-			'show_avatar'   => 'yes',
-			'show_dropdown' => 'yes',
-			'login_text'    => __( 'Login', 'business-directory' ),
-			'register_text' => __( 'Register', 'business-directory' ),
-		), $atts );
+		$atts = shortcode_atts(
+			array(
+				'style'         => 'default', // default, compact, icon-only.
+				'show_avatar'   => 'yes',
+				'show_dropdown' => 'yes',
+				'login_text'    => __( 'Login', 'business-directory' ),
+				'register_text' => __( 'Register', 'business-directory' ),
+			),
+			$atts
+		);
 
 		if ( is_user_logged_in() ) {
 			return self::render_logged_in( $atts );

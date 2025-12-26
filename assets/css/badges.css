@@ -6,7 +6,7 @@
  *
  * @package BusinessDirectory
  * @version 2.0.0
- * 
+ *
  * NOTE: This file depends on design-tokens.css for variables.
  * Colors, fonts, and spacing are defined there for easy customization.
  */
@@ -15,8 +15,8 @@
 @import url('design-tokens.css');
 
 /* ============================================
-   INLINE BADGES (Reviews, Comments, Compact)
-   ============================================ */
+	INLINE BADGES (Reviews, Comments, Compact)
+	============================================ */
 .bd-user-badges {
 	display: inline-flex;
 	gap: 8px;
@@ -114,8 +114,8 @@
 }
 
 /* ============================================
-   BADGE GALLERY PAGE
-   ============================================ */
+	BADGE GALLERY PAGE
+	============================================ */
 .bd-badge-gallery {
 	max-width: var(--global-content-width);
 	margin: 0 auto;
@@ -255,8 +255,8 @@
 }
 
 /* ============================================
-   RANK PROGRESSION TRACK
-   ============================================ */
+	RANK PROGRESSION TRACK
+	============================================ */
 .bd-ranks-section {
 	background: white;
 	border-radius: 16px;
@@ -396,8 +396,8 @@
 }
 
 /* ============================================
-   RARITY LEGEND
-   ============================================ */
+	RARITY LEGEND
+	============================================ */
 .bd-rarity-legend {
 	display: flex;
 	align-items: center;
@@ -446,8 +446,8 @@
 .bd-rarity-special .bd-rarity-dot { background: linear-gradient(135deg, var(--bd-primary-light) 0%, var(--bd-primary-deep) 100%); }
 
 /* ============================================
-   BADGE SECTIONS
-   ============================================ */
+	BADGE SECTIONS
+	============================================ */
 .bd-badges-section {
 	margin-bottom: 40px;
 }
@@ -474,8 +474,8 @@
 }
 
 /* ============================================
-   BADGE CARDS - The Star of the Show
-   ============================================ */
+	BADGE CARDS - The Star of the Show
+	============================================ */
 .bd-badge-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -542,11 +542,11 @@
 .bd-badge-card[data-rarity="common"] { border-color: var(--bd-slate-300); }
 .bd-badge-card[data-rarity="rare"] { border-color: #93c5fd; }
 .bd-badge-card[data-rarity="epic"] { border-color: #c4b5fd; }
-.bd-badge-card[data-rarity="legendary"] { 
-	border-color: var(--bd-gold-primary); 
+.bd-badge-card[data-rarity="legendary"] {
+	border-color: var(--bd-gold-primary);
 	box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
 }
-.bd-badge-card[data-rarity="special"] { 
+.bd-badge-card[data-rarity="special"] {
 	border-color: var(--bd-primary-light);
 	background: linear-gradient(135deg, rgba(114, 47, 55, 0.03) 0%, white 100%);
 }
@@ -732,8 +732,8 @@
 }
 
 /* ============================================
-   CALL TO ACTION
-   ============================================ */
+	CALL TO ACTION
+	============================================ */
 .bd-badge-cta {
 	text-align: center;
 	padding: 50px 40px;
@@ -752,7 +752,7 @@
 	right: 0;
 	bottom: 0;
 	background: radial-gradient(circle at 30% 50%, rgba(201, 162, 39, 0.1) 0%, transparent 50%),
-	            radial-gradient(circle at 70% 50%, rgba(201, 162, 39, 0.08) 0%, transparent 50%);
+				radial-gradient(circle at 70% 50%, rgba(201, 162, 39, 0.08) 0%, transparent 50%);
 }
 
 .bd-badge-cta h3 {
@@ -814,8 +814,8 @@
 }
 
 /* ============================================
-   PROFILE PAGE BADGES SECTION
-   ============================================ */
+	PROFILE PAGE BADGES SECTION
+	============================================ */
 .bd-profile-badges {
 	background: white;
 	border-radius: 16px;
@@ -866,8 +866,8 @@
 }
 
 /* ============================================
-   SHAREABLE BADGE CARD (for social sharing)
-   ============================================ */
+	SHAREABLE BADGE CARD (for social sharing)
+	============================================ */
 .bd-badge-share-card {
 	width: 400px;
 	padding: 40px;
@@ -946,8 +946,8 @@
 }
 
 /* ============================================
-   LOADING STATE
-   ============================================ */
+	LOADING STATE
+	============================================ */
 .bd-badge-loading {
 	display: flex;
 	align-items: center;
@@ -966,8 +966,8 @@
 }
 
 /* ============================================
-   RESPONSIVE ADJUSTMENTS
-   ============================================ */
+	RESPONSIVE ADJUSTMENTS
+	============================================ */
 @media (max-width: 768px) {
 	.bd-badge-gallery {
 		padding: 0 15px;
@@ -1087,8 +1087,8 @@
 }
 
 /* ============================================
-   PRINT STYLES (for badge certificates)
-   ============================================ */
+	PRINT STYLES (for badge certificates)
+	============================================ */
 @media print {
 	.bd-badge-gallery {
 		max-width: 100%;

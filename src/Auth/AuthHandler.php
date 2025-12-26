@@ -73,29 +73,33 @@ class AuthHandler {
 			// Check if user has claimed businesses.
 			$has_businesses = self::user_has_businesses( $user->ID );
 
-			wp_send_json_success( array(
-				'logged_in'      => true,
-				'user'           => array(
-					'id'             => $user->ID,
-					'display_name'   => $display_name,
-					'full_name'      => $user->display_name,
-					'email'          => $user->user_email,
-					'avatar'         => get_avatar_url( $user->ID, array( 'size' => 32 ) ),
-					'is_admin'       => current_user_can( 'manage_options' ),
-					'has_businesses' => $has_businesses,
-				),
-				'urls'           => array(
-					'profile'      => home_url( '/my-profile/' ),
-					'lists'        => home_url( '/my-lists/' ),
-					'edit_listing' => home_url( '/edit-listing/' ),
-					'admin'        => admin_url(),
-					'logout'       => wp_logout_url( home_url() ),
-				),
-			) );
+			wp_send_json_success(
+				array(
+					'logged_in' => true,
+					'user'      => array(
+						'id'             => $user->ID,
+						'display_name'   => $display_name,
+						'full_name'      => $user->display_name,
+						'email'          => $user->user_email,
+						'avatar'         => get_avatar_url( $user->ID, array( 'size' => 32 ) ),
+						'is_admin'       => current_user_can( 'manage_options' ),
+						'has_businesses' => $has_businesses,
+					),
+					'urls'      => array(
+						'profile'      => home_url( '/my-profile/' ),
+						'lists'        => home_url( '/my-lists/' ),
+						'edit_listing' => home_url( '/edit-listing/' ),
+						'admin'        => admin_url(),
+						'logout'       => wp_logout_url( home_url() ),
+					),
+				)
+			);
 		} else {
-			wp_send_json_success( array(
-				'logged_in' => false,
-			) );
+			wp_send_json_success(
+				array(
+					'logged_in' => false,
+				)
+			);
 		}
 	}
 
@@ -140,9 +144,11 @@ class AuthHandler {
 	public static function handle_login() {
 		// Verify nonce.
 		if ( ! check_ajax_referer( 'bd_auth_nonce', 'nonce', false ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'Security check failed. Please refresh the page.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'Security check failed. Please refresh the page.', 'business-directory' ),
+				)
+			);
 		}
 
 		$username = sanitize_user( $_POST['username'] ?? '' );
@@ -151,22 +157,28 @@ class AuthHandler {
 
 		// Validate inputs.
 		if ( empty( $username ) || empty( $password ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'Please enter your username and password.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'Please enter your username and password.', 'business-directory' ),
+				)
+			);
 		}
 
 		// Attempt login.
-		$user = wp_signon( array(
-			'user_login'    => $username,
-			'user_password' => $password,
-			'remember'      => $remember,
-		) );
+		$user = wp_signon(
+			array(
+				'user_login'    => $username,
+				'user_password' => $password,
+				'remember'      => $remember,
+			)
+		);
 
 		if ( is_wp_error( $user ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'Invalid username or password.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'Invalid username or password.', 'business-directory' ),
+				)
+			);
 		}
 
 		// Explicitly set auth cookie (wp_signon may not set it properly in AJAX context).
@@ -174,15 +186,17 @@ class AuthHandler {
 		wp_set_auth_cookie( $user->ID, $remember );
 
 		// Success.
-		wp_send_json_success( array(
-			'message'  => __( 'Login successful! Redirecting...', 'business-directory' ),
-			'redirect' => self::get_redirect_url(),
-			'user'     => array(
-				'id'           => $user->ID,
-				'display_name' => $user->display_name,
-				'avatar'       => get_avatar_url( $user->ID, array( 'size' => 32 ) ),
-			),
-		) );
+		wp_send_json_success(
+			array(
+				'message'  => __( 'Login successful! Redirecting...', 'business-directory' ),
+				'redirect' => self::get_redirect_url(),
+				'user'     => array(
+					'id'           => $user->ID,
+					'display_name' => $user->display_name,
+					'avatar'       => get_avatar_url( $user->ID, array( 'size' => 32 ) ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -191,16 +205,20 @@ class AuthHandler {
 	public static function handle_register() {
 		// Verify nonce.
 		if ( ! check_ajax_referer( 'bd_auth_nonce', 'nonce', false ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'Security check failed. Please refresh the page.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'Security check failed. Please refresh the page.', 'business-directory' ),
+				)
+			);
 		}
 
 		// Check if registration is allowed.
 		if ( ! get_option( 'users_can_register' ) && ! is_multisite() ) {
-			wp_send_json_error( array(
-				'message' => __( 'Registration is currently disabled.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'Registration is currently disabled.', 'business-directory' ),
+				)
+			);
 		}
 
 		$username = sanitize_user( $_POST['username'] ?? '' );
@@ -241,18 +259,22 @@ class AuthHandler {
 		}
 
 		if ( ! empty( $errors ) ) {
-			wp_send_json_error( array(
-				'message' => implode( '<br>', $errors ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => implode( '<br>', $errors ),
+				)
+			);
 		}
 
 		// Create user.
 		$user_id = wp_create_user( $username, $password, $email );
 
 		if ( is_wp_error( $user_id ) ) {
-			wp_send_json_error( array(
-				'message' => $user_id->get_error_message(),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => $user_id->get_error_message(),
+				)
+			);
 		}
 
 		// Set role.
@@ -286,15 +308,17 @@ class AuthHandler {
 			);
 		}
 
-		wp_send_json_success( array(
-			'message'  => $message,
-			'redirect' => self::get_redirect_url( home_url( '/my-profile/?registered=1' ) ),
-			'user'     => array(
-				'id'           => $user_id,
-				'display_name' => $user->display_name,
-				'avatar'       => get_avatar_url( $user_id, array( 'size' => 32 ) ),
-			),
-		) );
+		wp_send_json_success(
+			array(
+				'message'  => $message,
+				'redirect' => self::get_redirect_url( home_url( '/my-profile/?registered=1' ) ),
+				'user'     => array(
+					'id'           => $user_id,
+					'display_name' => $user->display_name,
+					'avatar'       => get_avatar_url( $user_id, array( 'size' => 32 ) ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -303,17 +327,21 @@ class AuthHandler {
 	public static function handle_reset_password() {
 		// Verify nonce.
 		if ( ! check_ajax_referer( 'bd_auth_nonce', 'nonce', false ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'Security check failed. Please refresh the page.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'Security check failed. Please refresh the page.', 'business-directory' ),
+				)
+			);
 		}
 
 		$user_login = sanitize_text_field( $_POST['user_login'] ?? '' );
 
 		if ( empty( $user_login ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'Please enter your username or email.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'Please enter your username or email.', 'business-directory' ),
+				)
+			);
 		}
 
 		// Find user.
@@ -325,26 +353,33 @@ class AuthHandler {
 
 		// Always show success to prevent user enumeration.
 		if ( ! $user ) {
-			wp_send_json_success( array(
-				'message' => __( 'If an account exists, a password reset link has been sent.', 'business-directory' ),
-			) );
+			wp_send_json_success(
+				array(
+					'message' => __( 'If an account exists, a password reset link has been sent.', 'business-directory' ),
+				)
+			);
 		}
 
 		// Generate reset key.
 		$key = get_password_reset_key( $user );
 
 		if ( is_wp_error( $key ) ) {
-			wp_send_json_error( array(
-				'message' => __( 'Unable to generate reset link. Please try again.', 'business-directory' ),
-			) );
+			wp_send_json_error(
+				array(
+					'message' => __( 'Unable to generate reset link. Please try again.', 'business-directory' ),
+				)
+			);
 		}
 
 		// Build reset URL (frontend).
-		$reset_url = add_query_arg( array(
-			'tab'   => 'reset',
-			'key'   => $key,
-			'login' => rawurlencode( $user->user_login ),
-		), home_url( '/login/' ) );
+		$reset_url = add_query_arg(
+			array(
+				'tab'   => 'reset',
+				'key'   => $key,
+				'login' => rawurlencode( $user->user_login ),
+			),
+			home_url( '/login/' )
+		);
 
 		// Send email.
 		$subject = sprintf(
@@ -355,6 +390,7 @@ class AuthHandler {
 
 		$message = sprintf(
 			/* translators: 1: username, 2: site name, 3: reset URL */
+			// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralText
 			__(
 				"Hi %1\$s,\n\n" .
 				"Someone requested a password reset for your account on %2\$s.\n\n" .
@@ -364,6 +400,7 @@ class AuthHandler {
 				"Thanks,\n%2\$s Team",
 				'business-directory'
 			),
+			// phpcs:enable WordPress.WP.I18n.NonSingularStringLiteralText
 			$user->display_name,
 			get_bloginfo( 'name' ),
 			$reset_url
@@ -371,9 +408,11 @@ class AuthHandler {
 
 		wp_mail( $user->user_email, $subject, $message );
 
-		wp_send_json_success( array(
-			'message' => __( 'If an account exists, a password reset link has been sent.', 'business-directory' ),
-		) );
+		wp_send_json_success(
+			array(
+				'message' => __( 'If an account exists, a password reset link has been sent.', 'business-directory' ),
+			)
+		);
 	}
 
 	/**
@@ -382,10 +421,12 @@ class AuthHandler {
 	public static function handle_logout() {
 		wp_logout();
 
-		wp_send_json_success( array(
-			'message'  => __( 'You have been logged out.', 'business-directory' ),
-			'redirect' => home_url(),
-		) );
+		wp_send_json_success(
+			array(
+				'message'  => __( 'You have been logged out.', 'business-directory' ),
+				'redirect' => home_url(),
+			)
+		);
 	}
 
 	/**

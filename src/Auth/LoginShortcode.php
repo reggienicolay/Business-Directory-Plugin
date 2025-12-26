@@ -110,11 +110,14 @@ class LoginShortcode {
 	 * @return string
 	 */
 	public static function render( $atts = array() ) {
-		$atts = shortcode_atts( array(
-			'tab'         => '',
-			'redirect_to' => '',
-			'show_title'  => 'yes',
-		), $atts );
+		$atts = shortcode_atts(
+			array(
+				'tab'         => '',
+				'redirect_to' => '',
+				'show_title'  => 'yes',
+			),
+			$atts
+		);
 
 		// If logged in, show profile link.
 		if ( is_user_logged_in() ) {
@@ -425,12 +428,14 @@ class LoginShortcode {
 	 */
 	private static function render_city_select() {
 		// Get areas from taxonomy.
-		$areas = get_terms( array(
-			'taxonomy'   => 'bd_area',
-			'hide_empty' => false,
-			'orderby'    => 'name',
-			'order'      => 'ASC',
-		) );
+		$areas = get_terms(
+			array(
+				'taxonomy'   => 'bd_area',
+				'hide_empty' => false,
+				'orderby'    => 'name',
+				'order'      => 'ASC',
+			)
+		);
 
 		ob_start();
 		?>

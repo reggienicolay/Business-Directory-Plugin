@@ -55,7 +55,7 @@ class ListDisplay {
 		wp_enqueue_style(
 			'bd-lists',
 			plugins_url( 'assets/css/lists.css', dirname( __DIR__ ) ),
-			array( 'bd-design-tokens' ),  
+			array( 'bd-design-tokens' ),
 			'1.0.0'
 		);
 

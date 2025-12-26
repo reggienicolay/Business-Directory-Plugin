@@ -146,11 +146,11 @@ class ActivityTracker {
 
 		// Prepare data.
 		$reputation_data = array(
-			'user_id'             => $user_id,
-			'total_points'        => $points,
-			'total_reviews'       => (int) $review_count,
+			'user_id'                => $user_id,
+			'total_points'           => $points,
+			'total_reviews'          => (int) $review_count,
 			'helpful_votes_received' => (int) ( $activity_stats->helpful_votes ?? 0 ),
-			'current_rank'        => $rank,
+			'current_rank'           => $rank,
 		);
 
 		// Check if record exists.

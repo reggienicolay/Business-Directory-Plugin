@@ -69,12 +69,14 @@ class LoginModal {
 		}
 
 		// Get areas for city select.
-		$areas = get_terms( array(
-			'taxonomy'   => 'bd_area',
-			'hide_empty' => false,
-			'orderby'    => 'name',
-			'order'      => 'ASC',
-		) );
+		$areas = get_terms(
+			array(
+				'taxonomy'   => 'bd_area',
+				'hide_empty' => false,
+				'orderby'    => 'name',
+				'order'      => 'ASC',
+			)
+		);
 
 		?>
 		<!-- BD Auth Modal -->

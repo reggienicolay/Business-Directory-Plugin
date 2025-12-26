@@ -442,7 +442,7 @@ class BadgeSystem {
 		300  => array(
 			'name'  => 'Insider',
 			'icon'  => '<i class="fa-solid fa-user-tie"></i>',
-			'color'  => '#9333ea',
+			'color' => '#9333ea',
 			'desc'  => 'You know all the best spots',
 		),
 		600  => array(
@@ -793,6 +793,7 @@ class BadgeSystem {
 		$streak       = 1;
 		$current_week = (int) $weeks[0];
 
+		// phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found
 		for ( $i = 1; $i < count( $weeks ); $i++ ) {
 			$prev_week = (int) $weeks[ $i ];
 			// Check if consecutive (allowing for year boundary).

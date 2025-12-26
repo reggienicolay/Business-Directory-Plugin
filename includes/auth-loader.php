@@ -45,7 +45,9 @@ add_action( 'wp_ajax_nopriv_bd_get_nonce', 'bd_get_fresh_nonce' );
  * Return a fresh nonce for auth forms
  */
 function bd_get_fresh_nonce() {
-	wp_send_json_success( array(
-		'nonce' => wp_create_nonce( 'bd_auth_nonce' ),
-	) );
+	wp_send_json_success(
+		array(
+			'nonce' => wp_create_nonce( 'bd_auth_nonce' ),
+		)
+	);
 }

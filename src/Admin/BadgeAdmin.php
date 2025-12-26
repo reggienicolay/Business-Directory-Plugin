@@ -120,7 +120,7 @@ class BadgeAdmin {
 		$badge_counts = array();
 		foreach ( BadgeSystem::BADGES as $key => $badge ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$count = $wpdb->get_var(
+			$count                = $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT COUNT(*) FROM {$reputation_table} WHERE badges LIKE %s",
 					'%"' . $key . '"%'
@@ -503,10 +503,10 @@ class BadgeAdmin {
 		$user           = $search_user_id ? get_userdata( $search_user_id ) : null;
 
 		// Check for success messages.
-		$badge_awarded     = isset( $_GET['badge_awarded'] );
-		$badge_removed     = isset( $_GET['badge_removed'] );
+		$badge_awarded       = isset( $_GET['badge_awarded'] );
+		$badge_removed       = isset( $_GET['badge_removed'] );
 		$badges_recalculated = isset( $_GET['badges_recalculated'] );
-		$new_badges_count  = isset( $_GET['new_badges'] ) ? absint( $_GET['new_badges'] ) : 0;
+		$new_badges_count    = isset( $_GET['new_badges'] ) ? absint( $_GET['new_badges'] ) : 0;
 
 		$allowed_html = array(
 			'i' => array(
