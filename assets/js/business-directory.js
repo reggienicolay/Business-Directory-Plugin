@@ -271,25 +271,191 @@
                 return;
             }
 
+            // Check if map is already initialized (in this instance)
+            if (this.map) {
+                console.log('Map already initialized, skipping');
+                return;
+            }
+
+            // Check if map container already has a Leaflet map (from another script instance)
+            const mapContainer = document.getElementById('bd-map');
+            if (mapContainer && mapContainer._leaflet_id) {
+                console.log('Map container already has a Leaflet map, skipping');
+                return;
+            }
+
             // Initialize Leaflet map
             this.map = L.map('bd-map').setView([37.6819, -121.7680], 11); // Livermore default
 
-            // Add OpenStreetMap tiles
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-                maxZoom: 18
-            }).addTo(this.map);
+            // Define map styles (all free, no API key needed)
+            this.mapStyles = {
+                clean: {
+                    name: 'Clean',
+                    icon: '<i class="fas fa-map"></i>',
+                    layer: L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>',
+                        maxZoom: 19
+                    })
+                },
+                light: {
+                    name: 'Light',
+                    icon: '<i class="fas fa-sun"></i>',
+                    layer: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>',
+                        maxZoom: 19
+                    })
+                },
+                terrain: {
+                    name: 'Terrain',
+                    icon: '<i class="fas fa-mountain"></i>',
+                    layer: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                        attribution: '© <a href="https://opentopomap.org">OpenTopoMap</a> © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                        maxZoom: 17
+                    })
+                },
+                satellite: {
+                    name: 'Satellite',
+                    icon: '<i class="fas fa-satellite"></i>',
+                    layer: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                        attribution: '© Esri, Maxar, Earthstar Geographics',
+                        maxZoom: 18
+                    })
+                }
+            };
 
-            // Initialize marker cluster group
+            // Get saved preference or default to 'clean'
+            const savedStyle = localStorage.getItem('bd_map_style') || 'clean';
+            this.currentStyle = savedStyle;
+            this.mapStyles[savedStyle].layer.addTo(this.map);
+
+            // Add style switcher control
+            this.addStyleSwitcher();
+
+            // Initialize marker cluster group with branded styling
             this.markerCluster = L.markerClusterGroup({
                 maxClusterRadius: 50,
                 spiderfyOnMaxZoom: true,
-                showCoverageOnHover: false
+                showCoverageOnHover: false,
+                iconCreateFunction: function(cluster) {
+                    const count = cluster.getChildCount();
+                    let size = 'small';
+                    if (count > 10) size = 'medium';
+                    if (count > 25) size = 'large';
+                    
+                    return L.divIcon({
+                        html: '<div class="bd-cluster bd-cluster-' + size + '"><span>' + count + '</span></div>',
+                        className: 'bd-cluster-icon',
+                        iconSize: L.point(40, 40)
+                    });
+                }
             });
 
             this.map.addLayer(this.markerCluster);
 
             console.log('Map initialized');
+        },
+
+        /**
+         * Create heart-shaped marker icon
+         */
+        createHeartIcon: function() {
+            return L.divIcon({
+                html: '<div class="bd-heart-marker"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg></div>',
+                className: 'bd-heart-icon',
+                iconSize: [32, 32],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            });
+        },
+
+        /**
+         * Add map style switcher control
+         */
+        addStyleSwitcher: function() {
+            const self = this;
+            
+            // Create custom control
+            const StyleControl = L.Control.extend({
+                options: { position: 'topright' },
+                
+                onAdd: function(map) {
+                    const container = L.DomUtil.create('div', 'bd-style-switcher');
+                    
+                    // Current style button (shows current, click to expand)
+                    const currentBtn = L.DomUtil.create('button', 'bd-style-current', container);
+                    currentBtn.innerHTML = self.mapStyles[self.currentStyle].icon;
+                    currentBtn.title = 'Change map style';
+                    
+                    // Dropdown options
+                    const dropdown = L.DomUtil.create('div', 'bd-style-dropdown', container);
+                    
+                    Object.keys(self.mapStyles).forEach(function(key) {
+                        const style = self.mapStyles[key];
+                        const btn = L.DomUtil.create('button', 'bd-style-option', dropdown);
+                        btn.innerHTML = style.icon + ' ' + style.name;
+                        btn.dataset.style = key;
+                        
+                        if (key === self.currentStyle) {
+                            btn.classList.add('active');
+                        }
+                        
+                        L.DomEvent.on(btn, 'click', function(e) {
+                            L.DomEvent.stopPropagation(e);
+                            self.setMapStyle(key);
+                            currentBtn.innerHTML = style.icon;
+                            
+                            // Update active state
+                            dropdown.querySelectorAll('.bd-style-option').forEach(function(b) {
+                                b.classList.remove('active');
+                            });
+                            btn.classList.add('active');
+                            
+                            // Close dropdown
+                            container.classList.remove('open');
+                        });
+                    });
+                    
+                    // Toggle dropdown
+                    L.DomEvent.on(currentBtn, 'click', function(e) {
+                        L.DomEvent.stopPropagation(e);
+                        container.classList.toggle('open');
+                    });
+                    
+                    // Close on map click
+                    map.on('click', function() {
+                        container.classList.remove('open');
+                    });
+                    
+                    // Prevent map interactions when clicking control
+                    L.DomEvent.disableClickPropagation(container);
+                    L.DomEvent.disableScrollPropagation(container);
+                    
+                    return container;
+                }
+            });
+            
+            new StyleControl().addTo(this.map);
+        },
+
+        /**
+         * Set map tile style
+         */
+        setMapStyle: function(styleKey) {
+            if (!this.mapStyles[styleKey]) return;
+            
+            // Remove current layer
+            this.map.eachLayer(function(layer) {
+                if (layer instanceof L.TileLayer) {
+                    layer.remove();
+                }
+            });
+            
+            // Add new layer
+            this.mapStyles[styleKey].layer.addTo(this.map);
+            this.currentStyle = styleKey;
+            
+            // Save preference
+            localStorage.setItem('bd_map_style', styleKey);
         },
 
         updateMap: function (businesses) {
@@ -304,17 +470,27 @@
                 return;
             }
 
+            // Create reusable heart icon
+            const heartIcon = this.createHeartIcon();
+
             // Add markers for each business
             businesses.forEach(business => {
                 if (!business.location || !business.location.lat || !business.location.lng) {
                     return;
                 }
 
-                const marker = L.marker([business.location.lat, business.location.lng]);
+                const marker = L.marker([business.location.lat, business.location.lng], {
+                    icon: heartIcon
+                });
 
                 // Create popup content
                 const popupContent = this.createPopupContent(business);
-                marker.bindPopup(popupContent);
+                marker.bindPopup(popupContent, {
+                    maxWidth: 300,
+                    minWidth: 220,
+                    autoPanPadding: [60, 60],
+                    closeButton: true
+                });
 
                 this.markers.push(marker);
                 this.markerCluster.addLayer(marker);
@@ -329,66 +505,127 @@
         },
 
         createPopupContent: function (business) {
+            // Check popup style setting (default: minimal)
+            // Set via: add_filter('bd_popup_style', fn() => 'detailed');
+            const style = (typeof bdVars !== 'undefined' && bdVars.popupStyle) || 'minimal';
+            
+            if (style === 'detailed') {
+                return this.createDetailedPopup(business);
+            }
+            return this.createMinimalPopup(business);
+        },
+
+        /**
+         * Minimal popup - premium wine country feel
+         * Shows: Title, Stars, Price, Category, Tag, Distance
+         */
+        createMinimalPopup: function (business) {
+            let html = '<a href="' + business.permalink + '" class="bd-popup" title="View ' + business.title + '">';
+
+            // Accent bar
+            html += '<div class="bd-popup-accent"></div>';
+
+            // Content wrapper
+            html += '<div class="bd-popup-inner">';
+
+            // Row 1: Title + Arrow
+            html += '<div class="bd-popup-header">';
+            html += '<span class="bd-popup-title">' + business.title + '</span>';
+            html += '<i class="fas fa-chevron-right bd-popup-arrow"></i>';
+            html += '</div>';
+
+            // Row 2: Stars + Review Count + Price (or invitation)
+            html += '<div class="bd-popup-ratings">';
+            if (business.review_count > 0) {
+                html += this.renderStars(business.rating || 0);
+                html += '<span class="bd-popup-reviews">(' + business.review_count + ')</span>';
+            } else {
+                html += '<span class="bd-popup-first-review"><i class="fas fa-star"></i> Be first to review!</span>';
+            }
+            if (business.price_level && business.price_level !== 'Free') {
+                html += '<span class="bd-popup-price">' + business.price_level + '</span>';
+            }
+            html += '</div>';
+
+            // Row 3: Category + Distance or Tag
+            html += '<div class="bd-popup-tags">';
+            if (business.categories && business.categories.length > 0) {
+                html += '<span class="bd-popup-cat"><i class="fas fa-folder"></i> ' + business.categories[0] + '</span>';
+            }
+            // Prioritize distance when available (user clicked Near Me)
+            if (business.distance && business.distance.display) {
+                html += '<span class="bd-popup-dist"><i class="fas fa-map-marker-alt"></i> ' + business.distance.display + '</span>';
+            } else if (business.tags && business.tags.length > 0 && business.tags[0].name) {
+                html += '<span class="bd-popup-tag"><i class="fas fa-tag"></i> ' + business.tags[0].name + '</span>';
+            }
+            html += '</div>';
+
+            html += '</div>'; // Close inner
+            html += '</a>';
+            return html;
+        },
+
+        /**
+         * Render 5-star rating with filled/empty stars
+         */
+        renderStars: function (rating) {
+            let html = '<span class="bd-popup-stars">';
+            const fullStars = Math.floor(rating);
+            const hasHalf = (rating % 1) >= 0.5;
+            const emptyStars = 5 - fullStars - (hasHalf ? 1 : 0);
+
+            // Filled stars
+            for (let i = 0; i < fullStars; i++) {
+                html += '<i class="fas fa-star"></i>';
+            }
+            // Half star
+            if (hasHalf) {
+                html += '<i class="fas fa-star-half-alt"></i>';
+            }
+            // Empty stars
+            for (let i = 0; i < emptyStars; i++) {
+                html += '<i class="far fa-star"></i>';
+            }
+
+            if (rating > 0) {
+                html += '<span class="bd-popup-rating-num">' + rating.toFixed(1) + '</span>';
+            }
+            html += '</span>';
+            return html;
+        },
+
+        /**
+         * Detailed popup - elaborate design with CTA button
+         * Shows: Title, Rating, Price, Categories, Distance, CTA
+         */
+        createDetailedPopup: function (business) {
             let html = '<div class="bd-popup-content">';
 
-            // Business Title
-            html += `<h3 class="bd-popup-title">
-        <a href="${business.permalink}">${business.title}</a>
-                    </h3>`;
+            // Title
+            html += '<h3 class="bd-popup-title"><a href="' + business.permalink + '">' + business.title + '</a></h3>';
 
-            // Rating & Price Row (side by side)
+            // Rating & Price
             html += '<div class="bd-popup-meta">';
-
-            // Rating (with inline SVG star)
             if (business.rating > 0) {
-                html += `<div class="bd-popup-rating">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="#2CB1BC" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            </svg>
-            <span class="rating-value">${business.rating}</span>
-            <span class="rating-count">(${business.review_count})</span>
-                        </div>`;
+                html += '<span class="bd-popup-rating">★ ' + business.rating + ' (' + (business.review_count || 0) + ')</span>';
             }
-
-            // Price Level
             if (business.price_level) {
-                html += `<div class="bd-popup-price">
-            <svg width="14" height="18" viewBox="0 0 320 512" fill="#239AA3" style="display: inline-block; vertical-align: middle; margin-right: 6px;">
-                <path d="M160 0c17.7 0 32 14.3 32 32V67.7c1.6 .2 3.1 .4 4.7 .7c.4 .1 .7 .1 1.1 .2l48 8.8c17.4 3.2 28.9 19.9 25.7 37.2s-19.9 28.9-37.2 25.7l-47.5-8.7c-31.3-4.6-58.9-1.5-78.3 6.2s-27.2 18.3-29 28.1c-2 10.7-.5 16.7 1.2 20.4c1.8 3.9 5.5 8.3 12.8 13.2c16.3 10.7 41.3 17.7 73.7 26.3l2.9 .8c28.6 7.6 63.6 16.8 89.6 33.8c14.2 9.3 27.6 21.9 35.9 39.5c8.5 17.9 10.3 37.9 6.4 59.2c-6.9 38-33.1 63.4-65.6 76.7c-13.7 5.6-28.6 9.2-44.4 11V480c0 17.7-14.3 32-32 32s-32-14.3-32-32V445.1c-.4-.1-.9-.1-1.3-.2l-.2 0 0 0c-24.4-3.8-64.5-14.3-91.5-26.3c-16.1-7.2-23.4-26.1-16.2-42.2s26.1-23.4 42.2-16.2c20.9 9.3 55.3 18.5 75.2 21.6c31.9 4.7 58.2 2 76-5.3c16.9-6.9 24.6-16.9 26.8-28.9c1.9-10.6 .4-16.7-1.3-20.4c-1.9-4-5.6-8.4-13-13.3c-16.4-10.7-41.5-17.7-74-26.3l-2.8-.7 0 0C119.4 279.3 84.4 270 58.4 253c-14.2-9.3-27.5-22-35.8-39.6c-8.4-17.9-10.1-37.9-6.1-59.2C23.7 116 52.3 91.2 84.8 78.3c13.3-5.3 27.9-8.9 43.2-11V32c0-17.7 14.3-32 32-32z"/>
-            </svg>
-            <span>${business.price_level}</span>
-                        </div>`;
+                html += '<span class="bd-popup-price">' + business.price_level + '</span>';
             }
-
-            html += '</div>'; // Close meta row
+            html += '</div>';
 
             // Categories
             if (business.categories && business.categories.length > 0) {
-                html += `<div class="bd-popup-categories">
-            <svg width="16" height="16" viewBox="0 0 512 512" fill="#0F2A43" style="display: inline-block; vertical-align: middle; margin-right: 8px; flex-shrink: 0;">
-                <path d="M345 39.1L472.8 168.4c52.4 53 52.4 138.2 0 191.2L360.8 472.9c-9.3 9.4-24.5 9.5-33.9 .2s-9.5-24.5-.2-33.9L438.6 325.9c33.9-34.3 33.9-89.4 0-123.7L310.9 72.9c-9.3-9.4-9.2-24.6 .2-33.9s24.6-9.2 33.9 .2zM0 229.5V80C0 53.5 21.5 32 48 32H197.5c17 0 33.3 6.7 45.3 18.7l168 168c25 25 25 65.5 0 90.5L277.3 442.7c-25 25-65.5 25-90.5 0l-168-168C6.7 262.7 0 246.5 0 229.5zM144 144a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/>
-            </svg>
-            <span>${business.categories.join(', ')}</span>
-                        </div>`;
+                html += '<div class="bd-popup-categories">' + business.categories.join(', ') + '</div>';
             }
 
             // Distance
-            if (business.distance) {
-                html += `<div class="bd-popup-distance">
-            <svg width="14" height="18" viewBox="0 0 384 512" fill="#133453" style="display: inline-block; vertical-align: middle; margin-right: 8px;">
-                <path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/>
-            </svg>
-            <span>${business.distance.display}</span>
-                        </div>`;
+            if (business.distance && business.distance.display) {
+                html += '<div class="bd-popup-distance">📍 ' + business.distance.display + '</div>';
             }
 
-            // View Details Button
-            html += `<a href="${business.permalink}" class="bd-popup-cta">
-        View Details
-        <svg width="16" height="16" viewBox="0 0 448 512" fill="currentColor" style="display: inline-block; vertical-align: middle; margin-left: 8px;">
-            <path d="M438.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L338.8 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l306.7 0L233.4 393.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"/>
-        </svg>
-                    </a>`;
+            // CTA Button
+            html += '<a href="' + business.permalink + '" class="bd-popup-cta">View Details →</a>';
 
             html += '</div>';
             return html;

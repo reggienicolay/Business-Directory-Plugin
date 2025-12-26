@@ -65,10 +65,18 @@ class EventsCalendarIntegration {
 			return;
 		}
 
+		// Design tokens (fonts, colors)
+		wp_enqueue_style(
+			'bd-design-tokens',
+			BD_PLUGIN_URL . 'assets/css/design-tokens.css',
+			array(),
+			BD_VERSION
+		);
+		
 		wp_enqueue_style(
 			'bd-events-integration',
 			BD_PLUGIN_URL . 'assets/css/integrations/events-calendar.css',
-			array(),
+			array( 'bd-design-tokens' ),
 			BD_VERSION
 		);
 	}

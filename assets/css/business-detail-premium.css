@@ -1,37 +1,41 @@
 /**
  * Premium Business Detail Page
  * Modern blue/teal color scheme
+ * 
+ * NOTE: This file depends on design-tokens.css for variables.
+ * Colors, fonts, and spacing are defined there for easy customization.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+/* Import design tokens (fonts, colors, spacing) */
+@import url('design-tokens.css');
 
 :root {
-	/* Primary Blues */
-	--bd-primary: #0F2A43;
-	--bd-primary-dark: #0A1F33;
-	--bd-primary-light: #133453;
+	/* Primary Blues - Now referencing design tokens with fallbacks */
+	--bd-primary: var(--bd-primary-600, #0F2A43);
+	--bd-primary-dark: var(--bd-primary-700, #0A1F33);
+	--bd-primary-light: var(--bd-primary-500, #133453);
 
 	/* Accent Teal */
 	--bd-accent: #2CB1BC;
 	--bd-accent-dark: #239AA3;
-	--bd-accent-light: #829AB1;
+	--bd-accent-light: var(--bd-accent-400, #829AB1);
 
 	/* Legacy variable names (for compatibility) */
-	--bd-burgundy: #0F2A43;
-	--bd-burgundy-dark: #0A1F33;
-	--bd-burgundy-light: #133453;
-	--bd-gold: #2CB1BC;
-	--bd-gold-dark: #239AA3;
-	--bd-gold-light: #829AB1;
-	--bd-copper: #2CB1BC;
+	--bd-burgundy: var(--bd-primary);
+	--bd-burgundy-dark: var(--bd-primary-dark);
+	--bd-burgundy-light: var(--bd-primary-light);
+	--bd-gold: var(--bd-accent);
+	--bd-gold-dark: var(--bd-accent-dark);
+	--bd-gold-light: var(--bd-accent-light);
+	--bd-copper: var(--bd-accent);
 
 	/* Neutrals */
-	--bd-cream: #F5F7FA;
+	--bd-cream: var(--bd-neutral-100, #F5F7FA);
 	--bd-surface: #FFFFFF;
-	--bd-surface-warm: #F8FAFC;
-	--bd-text: #0F2A43;
-	--bd-text-light: #829AB1;
-	--bd-border: #E2E8F0;
+	--bd-surface-warm: var(--bd-neutral-50, #F8FAFC);
+	--bd-text: var(--bd-primary);
+	--bd-text-light: var(--bd-accent-light);
+	--bd-border: var(--bd-neutral-200, #E2E8F0);
 }
 
 /* ============================================================================
@@ -40,7 +44,6 @@
 
 body.single-bd_business {
 	background: linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%) !important;
-	font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* Teal accent bar */
@@ -79,20 +82,20 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	background: white !important;
 	border: 2px solid var(--bd-accent) !important;
 	border-radius: 8px !important;
-	font-family: 'Inter', sans-serif !important;
+	font-family: var(--bd-font-body) !important;
 	font-size: 14px !important;
 	font-weight: 600 !important;
 	color: var(--bd-primary) !important;
 	text-decoration: none !important;
-	box-shadow: 0 4px 12px rgba(15, 42, 67, 0.15) !important;
-	transition: all 0.3s ease !important;
+	box-shadow: var(--bd-shadow-md, 0 4px 12px rgba(15, 42, 67, 0.15)) !important;
+	transition: all var(--bd-transition-slow, 0.3s ease) !important;
 }
 
 .bd-back-link:hover {
 	background: var(--bd-primary) !important;
 	color: white !important;
 	transform: translateY(-2px) !important;
-	box-shadow: 0 8px 24px rgba(15, 42, 67, 0.25) !important;
+	box-shadow: var(--bd-shadow-lg, 0 8px 24px rgba(15, 42, 67, 0.25)) !important;
 }
 
 .bd-back-link svg {
@@ -110,7 +113,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	========================================================================= */
 
 .bd-business-hero {
-	background: linear-gradient(135deg, var(--bd-primary) 0%, var(--bd-primary-light) 100%);
+	background: linear-gradient(174deg, var(--bd-primary-600) 0% 40%, var(--bd-accent-400) 100%);
 	padding: 80px 0 60px;
 	margin-bottom: 40px;
 	position: relative;
@@ -145,12 +148,12 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 }
 
 .bd-business-hero h1 {
-	font-family: 'Playfair Display', Georgia, serif !important;
+	font-family: var(--bd-font-heading) !important;
 	font-size: 56px !important;
-	font-weight: 800 !important;
+	font-weight: var(--bd-font-extrabold, 800) !important;
 	color: white !important;
 	margin: 0 0 24px 0 !important;
-	line-height: 1.1 !important;
+	line-height: var(--bd-leading-tight, 1.1) !important;
 	text-shadow: 2px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
@@ -175,7 +178,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 
 .bd-rating-number {
 	font-size: 20px;
-	font-weight: 700;
+	font-weight: var(--bd-font-bold, 700);
 	color: var(--bd-accent);
 }
 
@@ -196,7 +199,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 
 .bd-review-count {
 	color: rgba(255, 255, 255, 0.9);
-	font-size: 14px;
+	font-size: var(--bd-text-base, 14px);
 }
 
 .bd-price-badge,
@@ -206,8 +209,8 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	padding: 8px 16px;
 	border-radius: 24px;
 	color: white;
-	font-size: 14px;
-	font-weight: 600;
+	font-size: var(--bd-text-base, 14px);
+	font-weight: var(--bd-font-semibold, 600);
 	border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -216,7 +219,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	align-items: center;
 	gap: 8px;
 	color: rgba(255, 255, 255, 0.9);
-	font-size: 16px;
+	font-size: var(--bd-text-md, 16px);
 }
 
 .bd-location-quick svg {
@@ -236,12 +239,12 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	justify-content: center !important;
 	gap: 8px !important;
 	padding: 14px 28px !important;
-	border-radius: 8px !important;
-	font-family: 'Inter', sans-serif !important;
+	border-radius: var(--bd-radius-md, 8px) !important;
+	font-family: var(--bd-font-body) !important;
 	font-size: 15px !important;
-	font-weight: 600 !important;
+	font-weight: var(--bd-font-semibold, 600) !important;
 	text-decoration: none !important;
-	transition: all 0.3s ease !important;
+	transition: all var(--bd-transition-slow, 0.3s ease) !important;
 	cursor: pointer !important;
 	text-align: center !important;
 }
@@ -286,7 +289,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	grid-template-columns: 2fr 1fr;
 	gap: 8px;
 	margin: 0 0 40px 0;
-	border-radius: 12px;
+	border-radius: var(--bd-radius-lg, 12px);
 	overflow: hidden;
 	height: 500px;
 }
@@ -322,7 +325,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	height: 100%;
 	object-fit: cover;
 	display: block;
-	transition: transform 0.3s ease;
+	transition: transform var(--bd-transition-slow, 0.3s ease);
 }
 
 .bd-gallery-item:hover img {
@@ -350,8 +353,8 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 .bd-gallery-more-overlay span {
 	color: white;
 	font-size: 28px;
-	font-weight: 700;
-	font-family: 'Playfair Display', serif;
+	font-weight: var(--bd-font-bold, 700);
+	font-family: var(--bd-font-heading);
 }
 
 /* Responsive */
@@ -400,34 +403,34 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 
 .bd-info-card {
 	background: white;
-	border-radius: 16px;
+	border-radius: var(--bd-radius-xl, 16px);
 	padding: 32px;
-	box-shadow: 0 2px 12px rgba(15, 42, 67, 0.08);
+	box-shadow: var(--bd-shadow-sm, 0 2px 12px rgba(15, 42, 67, 0.08));
 	margin-bottom: 24px;
 	border: 1px solid var(--bd-border);
 }
 
 .bd-info-card h2,
 .bd-info-card h3 {
-	font-family: 'Playfair Display', serif;
+	font-family: var(--bd-font-heading);
 	color: var(--bd-primary);
 	margin: 0 0 20px 0;
 }
 
 .bd-info-card h2 {
-	font-size: 32px;
+	font-size: var(--bd-text-3xl, 32px);
 	padding-bottom: 16px;
 	border-bottom: 2px solid var(--bd-accent-light);
 }
 
 .bd-info-card h3 {
-	font-size: 24px;
+	font-size: var(--bd-text-2xl, 24px);
 }
 
 /* About Section */
 .bd-about-section .bd-description {
 	font-size: 17px;
-	line-height: 1.8;
+	line-height: var(--bd-leading-relaxed, 1.8);
 	color: var(--bd-text);
 }
 
@@ -448,8 +451,8 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	gap: 10px;
 	padding: 12px;
 	background: var(--bd-surface-warm);
-	border-radius: 8px;
-	font-size: 14px;
+	border-radius: var(--bd-radius-md, 8px);
+	font-size: var(--bd-text-base, 14px);
 	color: var(--bd-text);
 }
 
@@ -464,7 +467,6 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 
 .bd-business-sidebar {
 	position: sticky;
-	top: 100px;
 	height: fit-content;
 }
 
@@ -479,13 +481,13 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	display: flex;
 	justify-content: space-between;
 	padding: 12px;
-	border-radius: 8px;
+	border-radius: var(--bd-radius-md, 8px);
 	font-size: 15px;
 }
 
 .bd-hours-row.bd-today {
 	background: linear-gradient(135deg, rgba(15, 42, 67, 0.08) 0%, rgba(44, 177, 188, 0.12) 100%);
-	font-weight: 600;
+	font-weight: var(--bd-font-semibold, 600);
 	color: var(--bd-primary);
 }
 
@@ -495,7 +497,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 
 .bd-time {
 	color: var(--bd-text-light);
-	font-weight: 500;
+	font-weight: var(--bd-font-medium, 500);
 }
 
 .bd-today .bd-time {
@@ -523,9 +525,9 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 
 .bd-contact-item strong {
 	display: block;
-	font-size: 12px;
+	font-size: var(--bd-text-xs, 12px);
 	text-transform: uppercase;
-	letter-spacing: 0.05em;
+	letter-spacing: var(--bd-tracking-wide, 0.05em);
 	color: var(--bd-text-light);
 	margin-bottom: 4px;
 }
@@ -539,7 +541,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 .bd-contact-item a {
 	color: var(--bd-primary);
 	text-decoration: none;
-	transition: color 0.2s;
+	transition: color var(--bd-transition-fast, 0.2s);
 }
 
 .bd-contact-item a:hover {
@@ -562,10 +564,10 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	padding: 16px;
 	text-align: center;
 	color: var(--bd-primary);
-	font-weight: 600;
+	font-weight: var(--bd-font-semibold, 600);
 	text-decoration: none;
 	background: var(--bd-surface-warm);
-	transition: all 0.2s;
+	transition: all var(--bd-transition-fast, 0.2s);
 }
 
 .bd-map-link:hover {
@@ -582,13 +584,13 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	margin: 60px auto 0;
 	padding: 60px 40px;
 	background: white;
-	border-radius: 16px;
-	box-shadow: 0 4px 24px rgba(15, 42, 67, 0.1);
+	border-radius: var(--bd-radius-xl, 16px);
+	box-shadow: var(--bd-shadow-lg, 0 4px 24px rgba(15, 42, 67, 0.1));
 }
 
 .bd-reviews-section h2 {
-	font-family: 'Playfair Display', serif !important;
-	font-size: 36px !important;
+	font-family: var(--bd-font-heading) !important;
+	font-size: var(--bd-text-4xl, 36px) !important;
 	color: var(--bd-primary) !important;
 	margin: 0 0 32px 0 !important;
 	padding-bottom: 16px !important;
@@ -596,8 +598,8 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 }
 
 .bd-reviews-section h3 {
-	font-family: 'Playfair Display', serif !important;
-	font-size: 28px !important;
+	font-family: var(--bd-font-heading) !important;
+	font-size: var(--bd-text-2xl, 28px) !important;
 	color: var(--bd-primary) !important;
 	margin: 48px 0 24px 0 !important;
 }
@@ -606,10 +608,10 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 .bd-form {
 	background: white;
 	border: 2px solid rgba(44, 177, 188, 0.3);
-	border-radius: 16px;
+	border-radius: var(--bd-radius-xl, 16px);
 	padding: 32px;
 	margin-top: 32px;
-	box-shadow: 0 4px 16px rgba(15, 42, 67, 0.08);
+	box-shadow: var(--bd-shadow-md, 0 4px 16px rgba(15, 42, 67, 0.08));
 }
 
 /* ============================================================================
@@ -638,10 +640,10 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 }
 
 .bd-reviews-section h2 {
-	font-family: 'Playfair Display', Georgia, serif !important;
-	font-size: 36px !important;
-	font-weight: 700 !important;
-	color: #0F2A43 !important;
+	font-family: var(--bd-font-heading) !important;
+	font-size: var(--bd-text-4xl, 36px) !important;
+	font-weight: var(--bd-font-bold, 700) !important;
+	color: var(--bd-primary-600, #0F2A43) !important;
 	margin: 0 0 32px 0 !important;
 	position: relative !important;
 	padding-bottom: 16px !important;
@@ -658,10 +660,10 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 }
 
 .bd-reviews-section h3 {
-	font-family: 'Playfair Display', Georgia, serif !important;
-	font-size: 28px !important;
-	font-weight: 700 !important;
-	color: #0F2A43 !important;
+	font-family: var(--bd-font-heading) !important;
+	font-size: var(--bd-text-2xl, 28px) !important;
+	font-weight: var(--bd-font-bold, 700) !important;
+	color: var(--bd-primary-600, #0F2A43) !important;
 	margin: 48px 0 24px 0 !important;
 }
 
@@ -673,20 +675,20 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	margin-bottom: 32px;
 	padding: 16px 24px;
 	background: linear-gradient(135deg, rgba(44, 177, 188, 0.08) 0%, rgba(245, 247, 250, 0.12) 100%);
-	border-radius: 12px;
+	border-radius: var(--bd-radius-lg, 12px);
 	border-left: 4px solid #2CB1BC;
-	box-shadow: 0 4px 12px rgba(44, 177, 188, 0.15);
+	box-shadow: var(--bd-shadow-md, 0 4px 12px rgba(44, 177, 188, 0.15));
 	transform: translateZ(0);
-	transition: transform 0.3s ease, box-shadow 0.3s ease;
+	transition: transform var(--bd-transition-slow, 0.3s ease), box-shadow var(--bd-transition-slow, 0.3s ease);
 }
 
 .bd-rating-summary:hover {
 	transform: translateY(-2px);
-	box-shadow: 0 8px 20px rgba(44, 177, 188, 0.2);
+	box-shadow: var(--bd-shadow-lg, 0 8px 20px rgba(44, 177, 188, 0.2));
 }
 
 .bd-rating-summary .bd-stars {
-	font-size: 24px;
+	font-size: var(--bd-text-2xl, 24px);
 	color: #2CB1BC;
 	letter-spacing: 2px;
 }
@@ -695,11 +697,11 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 .bd-review-card {
 	background: white;
 	border: 2px solid rgba(44, 177, 188, 0.2);
-	border-radius: 12px;
+	border-radius: var(--bd-radius-lg, 12px);
 	padding: 24px;
 	margin-bottom: 20px;
-	transition: all 0.3s ease;
-	box-shadow: 0 2px 8px rgba(15, 42, 67, 0.08);
+	transition: all var(--bd-transition-slow, 0.3s ease);
+	box-shadow: var(--bd-shadow-sm, 0 2px 8px rgba(15, 42, 67, 0.08));
 	position: relative;
 	overflow: hidden;
 	background-image:
@@ -721,12 +723,12 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	height: 100%;
 	background: linear-gradient(180deg, #2CB1BC 0%, #829AB1 100%);
 	transform: scaleY(0);
-	transition: transform 0.3s ease;
+	transition: transform var(--bd-transition-slow, 0.3s ease);
 }
 
 .bd-review-card:hover {
 	border-color: #2CB1BC;
-	box-shadow: 0 4px 16px rgba(15, 42, 67, 0.1);
+	box-shadow: var(--bd-shadow-md, 0 4px 16px rgba(15, 42, 67, 0.1));
 	transform: translateY(-2px);
 }
 
@@ -742,25 +744,25 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 }
 
 .bd-review-header strong {
-	font-size: 16px;
-	color: #0F2A43;
+	font-size: var(--bd-text-md, 16px);
+	color: var(--bd-primary-600, #0F2A43);
 }
 
 .bd-review-card .bd-stars {
 	color: #2CB1BC;
-	font-size: 18px;
+	font-size: var(--bd-text-lg, 18px);
 }
 
 .bd-review-card h4 {
-	font-size: 18px;
-	font-weight: 600;
-	color: #0F2A43;
+	font-size: var(--bd-text-lg, 18px);
+	font-weight: var(--bd-font-semibold, 600);
+	color: var(--bd-primary-600, #0F2A43);
 	margin: 0 0 12px 0;
 }
 
 .bd-review-card p {
-	color: #829AB1;
-	line-height: 1.6;
+	color: var(--bd-accent-light, #829AB1);
+	line-height: var(--bd-leading-normal, 1.6);
 	margin: 0;
 }
 
@@ -771,11 +773,11 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 .bd-form {
 	background: white;
 	border: 2px solid rgba(44, 177, 188, 0.3);
-	border-radius: 16px;
+	border-radius: var(--bd-radius-xl, 16px);
 	padding: 32px;
 	margin-top: 32px;
 	box-shadow:
-		0 4px 16px rgba(15, 42, 67, 0.08),
+		var(--bd-shadow-md, 0 4px 16px rgba(15, 42, 67, 0.08)),
 		0 12px 32px rgba(44, 177, 188, 0.12);
 	position: relative;
 	background-image:
@@ -806,12 +808,12 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 
 .bd-form label {
 	display: block !important;
-	font-family: 'Inter', sans-serif !important;
-	font-size: 14px !important;
-	font-weight: 600 !important;
-	color: #0F2A43 !important;
+	font-family: var(--bd-font-body) !important;
+	font-size: var(--bd-text-base, 14px) !important;
+	font-weight: var(--bd-font-semibold, 600) !important;
+	color: var(--bd-primary-600, #0F2A43) !important;
 	text-transform: uppercase !important;
-	letter-spacing: 0.05em !important;
+	letter-spacing: var(--bd-tracking-wide, 0.05em) !important;
 	margin-bottom: 8px !important;
 }
 
@@ -824,13 +826,13 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 .bd-form textarea {
 	width: 100% !important;
 	padding: 14px 18px !important;
-	border: 2px solid #E2E8F0 !important;
-	border-radius: 8px !important;
+	border: 2px solid var(--bd-neutral-200, #E2E8F0) !important;
+	border-radius: var(--bd-radius-md, 8px) !important;
 	font-size: 15px !important;
-	font-family: 'Inter', sans-serif !important;
-	color: #0F2A43 !important;
+	font-family: var(--bd-font-body) !important;
+	color: var(--bd-primary-600, #0F2A43) !important;
 	background: white !important;
-	transition: all 0.3s ease !important;
+	transition: all var(--bd-transition-slow, 0.3s ease) !important;
 	box-sizing: border-box !important;
 }
 
@@ -839,18 +841,18 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	outline: none !important;
 	border-color: #2CB1BC !important;
 	box-shadow: 0 0 0 4px rgba(44, 177, 188, 0.15) !important;
-	background: #F8FAFC !important;
+	background: var(--bd-neutral-50, #F8FAFC) !important;
 }
 
 .bd-form textarea {
 	min-height: 120px !important;
 	resize: vertical !important;
-	line-height: 1.6 !important;
+	line-height: var(--bd-leading-normal, 1.6) !important;
 }
 
 .bd-form .description {
-	font-size: 13px !important;
-	color: #829AB1 !important;
+	font-size: var(--bd-text-sm, 13px) !important;
+	color: var(--bd-accent-light, #829AB1) !important;
 	font-style: italic !important;
 	margin-top: 6px !important;
 }
@@ -872,8 +874,8 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 }
 
 .bd-star-rating label {
-	font-size: 36px !important;
-	color: #E2E8F0 !important;
+	font-size: var(--bd-text-4xl, 36px) !important;
+	color: var(--bd-neutral-200, #E2E8F0) !important;
 	cursor: pointer !important;
 	transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
 	text-transform: none !important;
@@ -901,18 +903,18 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 
 .bd-btn.bd-btn-primary,
 .bd-form button[type="submit"] {
-	background: linear-gradient(135deg, #0F2A43 0%, #133453 50%, #2CB1BC 100%) !important;
+	background: linear-gradient(135deg, var(--bd-primary-600, #0F2A43) 0%, var(--bd-primary-500, #133453) 50%, #2CB1BC 100%) !important;
 	color: white !important;
 	padding: 16px 40px !important;
-	border-radius: 8px !important;
-	font-family: 'Inter', sans-serif !important;
+	border-radius: var(--bd-radius-md, 8px) !important;
+	font-family: var(--bd-font-body) !important;
 	font-size: 15px !important;
-	font-weight: 700 !important;
+	font-weight: var(--bd-font-bold, 700) !important;
 	text-transform: uppercase !important;
-	letter-spacing: 0.05em !important;
+	letter-spacing: var(--bd-tracking-wide, 0.05em) !important;
 	cursor: pointer !important;
 	transition: all 0.4s ease !important;
-	box-shadow: 0 4px 16px rgba(15, 42, 67, 0.3) !important;
+	box-shadow: var(--bd-shadow-lg, 0 4px 16px rgba(15, 42, 67, 0.3)) !important;
 	border: none !important;
 	position: relative;
 	overflow: hidden;
@@ -937,11 +939,11 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 
 .bd-btn.bd-btn-primary:hover,
 .bd-form button[type="submit"]:hover {
-	background: linear-gradient(135deg, #133453 0%, #2CB1BC 50%, #239AA3 100%) !important;
+	background: linear-gradient(135deg, var(--bd-primary-500, #133453) 0%, #2CB1BC 50%, #239AA3 100%) !important;
 	transform: translateY(-2px) !important;
 	box-shadow:
 		0 8px 24px rgba(44, 177, 188, 0.4),
-		0 4px 12px rgba(15, 42, 67, 0.3) !important;
+		var(--bd-shadow-lg, 0 4px 12px rgba(15, 42, 67, 0.3)) !important;
 }
 
 .bd-btn.bd-btn-primary:active,
@@ -974,7 +976,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	align-items: center;
 	justify-content: center;
 	opacity: 0;
-	transition: all 0.3s ease;
+	transition: all var(--bd-transition-slow, 0.3s ease);
 	pointer-events: none;
 }
 
@@ -985,7 +987,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 
 .bd-gallery-overlay svg {
 	transform: scale(0.8);
-	transition: transform 0.3s ease;
+	transition: transform var(--bd-transition-slow, 0.3s ease);
 }
 
 .bd-gallery-clickable:hover .bd-gallery-overlay svg {
@@ -1019,25 +1021,25 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	height: 48px;
 	margin: 0 auto 16px;
 	background: linear-gradient(135deg, var(--bd-primary) 0%, var(--bd-primary-light) 100%);
-	border-radius: 50%;
+	border-radius: var(--bd-radius-full, 50%);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	color: white;
-	box-shadow: 0 4px 12px rgba(15, 42, 67, 0.2);
+	box-shadow: var(--bd-shadow-md, 0 4px 12px rgba(15, 42, 67, 0.2));
 }
 
 .bd-claim-card h4 {
-	font-family: 'Playfair Display', serif !important;
-	font-size: 20px !important;
+	font-family: var(--bd-font-heading) !important;
+	font-size: var(--bd-text-xl, 20px) !important;
 	color: var(--bd-primary) !important;
 	margin: 0 0 12px 0 !important;
-	font-weight: 700;
+	font-weight: var(--bd-font-bold, 700);
 }
 
 .bd-claim-text {
-	font-size: 14px !important;
-	line-height: 1.6 !important;
+	font-size: var(--bd-text-base, 14px) !important;
+	line-height: var(--bd-leading-normal, 1.6) !important;
 	color: var(--bd-text-light) !important;
 	margin: 0 0 20px 0 !important;
 }
@@ -1064,7 +1066,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 /* Hover effect on claim button */
 .bd-claim-card .bd-claim-btn:hover {
 	transform: translateY(-2px);
-	box-shadow: 0 8px 20px rgba(15, 42, 67, 0.25);
+	box-shadow: var(--bd-shadow-lg, 0 8px 20px rgba(15, 42, 67, 0.25));
 }
 
 .bd-info-card.bd-owned .bd-btn-block {
@@ -1106,8 +1108,8 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 }
 
 .bd-section-title {
-	font-family: 'Playfair Display', serif;
-	font-size: 32px;
+	font-family: var(--bd-font-heading);
+	font-size: var(--bd-text-3xl, 32px);
 	color: var(--bd-primary);
 	margin: 0 0 24px 0;
 	padding-bottom: 16px;
@@ -1121,10 +1123,10 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 }
 
 .bd-video-item {
-	border-radius: 12px;
+	border-radius: var(--bd-radius-lg, 12px);
 	overflow: hidden;
 	background: #000;
-	box-shadow: 0 4px 16px rgba(15, 42, 67, 0.15);
+	box-shadow: var(--bd-shadow-md, 0 4px 16px rgba(15, 42, 67, 0.15));
 }
 
 .bd-video-item video {
@@ -1141,14 +1143,14 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	margin: 40px 0;
 	padding: 32px;
 	background: white;
-	border-radius: 16px;
+	border-radius: var(--bd-radius-xl, 16px);
 	border: 1px solid var(--bd-border);
 	box-shadow: var(--bd-shadow-sm);
 }
 
 .bd-social-sharing h3 {
-	font-family: 'Playfair Display', serif;
-	font-size: 24px;
+	font-family: var(--bd-font-heading);
+	font-size: var(--bd-text-2xl, 24px);
 	color: var(--bd-primary);
 	margin: 0 0 20px 0;
 }
@@ -1164,12 +1166,12 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	align-items: center !important;
 	gap: 8px !important;
 	padding: 12px 24px !important;
-	border-radius: 8px !important;
-	font-family: 'Inter', sans-serif !important;
-	font-size: 14px !important;
-	font-weight: 600 !important;
+	border-radius: var(--bd-radius-md, 8px) !important;
+	font-family: var(--bd-font-body) !important;
+	font-size: var(--bd-text-base, 14px) !important;
+	font-weight: var(--bd-font-semibold, 600) !important;
 	text-decoration: none !important;
-	transition: all 0.3s ease !important;
+	transition: all var(--bd-transition-slow, 0.3s ease) !important;
 	cursor: pointer !important;
 	border: 2px solid !important;
 }
@@ -1207,7 +1209,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 .bd-share-email:hover {
 	background: var(--bd-primary-dark) !important;
 	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(15, 42, 67, 0.3) !important;
+	box-shadow: var(--bd-shadow-md, 0 4px 12px rgba(15, 42, 67, 0.3)) !important;
 }
 
 .bd-share-copy {
@@ -1235,7 +1237,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	margin: 60px 0 40px;
 	padding: 60px 40px;
 	background: var(--bd-surface-warm);
-	border-radius: 16px;
+	border-radius: var(--bd-radius-xl, 16px);
 }
 
 .bd-similar-grid {
@@ -1246,16 +1248,16 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 
 .bd-similar-card {
 	background: white;
-	border-radius: 12px;
+	border-radius: var(--bd-radius-lg, 12px);
 	overflow: hidden;
-	box-shadow: 0 2px 12px rgba(15, 42, 67, 0.08);
-	transition: all 0.3s ease;
+	box-shadow: var(--bd-shadow-sm, 0 2px 12px rgba(15, 42, 67, 0.08));
+	transition: all var(--bd-transition-slow, 0.3s ease);
 	border: 1px solid var(--bd-border);
 }
 
 .bd-similar-card:hover {
 	transform: translateY(-4px);
-	box-shadow: 0 8px 24px rgba(15, 42, 67, 0.15);
+	box-shadow: var(--bd-shadow-lg, 0 8px 24px rgba(15, 42, 67, 0.15));
 }
 
 .bd-similar-image {
@@ -1268,7 +1270,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-	transition: transform 0.3s ease;
+	transition: transform var(--bd-transition-slow, 0.3s ease);
 }
 
 .bd-similar-card:hover .bd-similar-image img {
@@ -1280,15 +1282,15 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 }
 
 .bd-similar-content h3 {
-	font-family: 'Playfair Display', serif;
-	font-size: 20px;
+	font-family: var(--bd-font-heading);
+	font-size: var(--bd-text-xl, 20px);
 	margin: 0 0 12px 0;
 }
 
 .bd-similar-content h3 a {
 	color: var(--bd-primary);
 	text-decoration: none;
-	transition: color 0.2s;
+	transition: color var(--bd-transition-fast, 0.2s);
 }
 
 .bd-similar-content h3 a:hover {
@@ -1303,7 +1305,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 }
 
 .bd-rating-num {
-	font-weight: 700;
+	font-weight: var(--bd-font-bold, 700);
 	color: var(--bd-accent-dark);
 }
 
@@ -1314,16 +1316,16 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 
 .bd-stars .filled {
 	color: var(--bd-accent);
-	font-size: 14px;
+	font-size: var(--bd-text-base, 14px);
 }
 
 .bd-stars .empty {
 	color: var(--bd-border);
-	font-size: 14px;
+	font-size: var(--bd-text-base, 14px);
 }
 
 .bd-review-text {
-	font-size: 13px;
+	font-size: var(--bd-text-sm, 13px);
 	color: var(--bd-text-light);
 }
 
@@ -1331,7 +1333,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	display: flex;
 	align-items: center;
 	gap: 6px;
-	font-size: 14px;
+	font-size: var(--bd-text-base, 14px);
 	color: var(--bd-text-light);
 	margin: 0 0 16px 0;
 }
@@ -1345,10 +1347,10 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	align-items: center;
 	gap: 6px;
 	color: var(--bd-primary);
-	font-weight: 600;
-	font-size: 14px;
+	font-weight: var(--bd-font-semibold, 600);
+	font-size: var(--bd-text-base, 14px);
 	text-decoration: none;
-	transition: all 0.2s;
+	transition: all var(--bd-transition-fast, 0.2s);
 }
 
 .bd-similar-link:hover {
@@ -1373,7 +1375,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	justify-content: center;
 	padding: 60px 20px 20px;
 	opacity: 0;
-	transition: opacity 0.3s ease;
+	transition: opacity var(--bd-transition-slow, 0.3s ease);
 }
 
 .bd-lightbox.active {
@@ -1393,8 +1395,8 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	max-width: 100%;
 	max-height: 80vh;
 	object-fit: contain;
-	border-radius: 8px;
-	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+	border-radius: var(--bd-radius-md, 8px);
+	box-shadow: var(--bd-shadow-2xl, 0 20px 60px rgba(0, 0, 0, 0.5));
 }
 
 .bd-lightbox-close {
@@ -1406,12 +1408,12 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	background: rgba(255, 255, 255, 0.1);
 	backdrop-filter: blur(10px);
 	border: 2px solid rgba(255, 255, 255, 0.2);
-	border-radius: 50%;
+	border-radius: var(--bd-radius-full, 50%);
 	color: white;
 	font-size: 32px;
 	line-height: 1;
 	cursor: pointer;
-	transition: all 0.3s ease;
+	transition: all var(--bd-transition-slow, 0.3s ease);
 	z-index: 10001;
 }
 
@@ -1431,9 +1433,9 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	background: rgba(255, 255, 255, 0.1);
 	backdrop-filter: blur(10px);
 	border: 2px solid rgba(255, 255, 255, 0.2);
-	border-radius: 50%;
+	border-radius: var(--bd-radius-full, 50%);
 	cursor: pointer;
-	transition: all 0.3s ease;
+	transition: all var(--bd-transition-slow, 0.3s ease);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1466,8 +1468,8 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 
 .bd-lightbox-caption span {
 	color: white;
-	font-size: 14px;
-	font-weight: 600;
+	font-size: var(--bd-text-base, 14px);
+	font-weight: var(--bd-font-semibold, 600);
 }
 
 /* ============================================================================
@@ -1480,7 +1482,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	}
 
 	.bd-claim-cta-card h3 {
-		font-size: 28px;
+		font-size: var(--bd-text-2xl, 28px);
 	}
 
 	.bd-video-grid {
@@ -1529,7 +1531,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	}
 
 	.bd-section-title {
-		font-size: 24px;
+		font-size: var(--bd-text-2xl, 24px);
 	}
 }
 
@@ -1546,11 +1548,11 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	.bd-business-detail-wrapper > h1:first-child,
 	.bd-business-detail-wrapper h1.entry-title,
 	.page-header h1.entry-title {
-		font-size: 32px !important;
+		font-size: var(--bd-text-3xl, 32px) !important;
 	}
 
 	.bd-reviews-section h2 {
-		font-size: 28px !important;
+		font-size: var(--bd-text-2xl, 28px) !important;
 	}
 
 	.bd-form {
@@ -1558,7 +1560,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	}
 
 	.bd-star-rating label {
-		font-size: 28px !important;
+		font-size: var(--bd-text-2xl, 28px) !important;
 	}
 
 	.bd-back-link {
@@ -1576,12 +1578,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 }
 
 /* ============================================================================
-	GOOGLE FONTS
-	========================================================================= */
-
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Inter:wght@400;500;600;700&display=swap');/* ============================================================================
 	MOBILE RESPONSIVE FIXES - Business Detail Page
-	Add this to the END of business-detail-premium.css
 	========================================================================= */
 
 /* ============================================================================
@@ -1647,7 +1644,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	}
 
 	.bd-reviews-section h2 {
-		font-size: 28px !important;
+		font-size: var(--bd-text-2xl, 28px) !important;
 	}
 }
 
@@ -1675,7 +1672,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	}
 
 	.bd-business-hero h1 {
-		font-size: 32px !important;
+		font-size: var(--bd-text-3xl, 32px) !important;
 		margin-bottom: 16px !important;
 		word-wrap: break-word;
 		overflow-wrap: break-word;
@@ -1691,26 +1688,26 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	}
 
 	.bd-rating-number {
-		font-size: 16px;
+		font-size: var(--bd-text-md, 16px);
 	}
 
 	.bd-rating-stars .filled,
 	.bd-rating-stars .empty {
-		font-size: 14px;
+		font-size: var(--bd-text-base, 14px);
 	}
 
 	.bd-review-count {
-		font-size: 12px;
+		font-size: var(--bd-text-xs, 12px);
 	}
 
 	.bd-price-badge,
 	.bd-category-badge {
 		padding: 6px 12px;
-		font-size: 12px;
+		font-size: var(--bd-text-xs, 12px);
 	}
 
 	.bd-location-quick {
-		font-size: 14px;
+		font-size: var(--bd-text-base, 14px);
 	}
 
 	/* Hero buttons - full width stack */
@@ -1722,7 +1719,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	.bd-business-hero-actions .bd-btn {
 		width: 100%;
 		padding: 12px 20px !important;
-		font-size: 14px !important;
+		font-size: var(--bd-text-base, 14px) !important;
 	}
 
 	/* Content wrapper */
@@ -1733,7 +1730,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	/* Info cards */
 	.bd-info-card {
 		padding: 20px;
-		border-radius: 12px;
+		border-radius: var(--bd-radius-lg, 12px);
 		margin-bottom: 16px;
 	}
 
@@ -1745,7 +1742,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	}
 
 	.bd-info-card h3 {
-		font-size: 18px;
+		font-size: var(--bd-text-lg, 18px);
 	}
 
 	/* About section description */
@@ -1757,7 +1754,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	/* Hours rows */
 	.bd-hours-row {
 		padding: 10px;
-		font-size: 14px;
+		font-size: var(--bd-text-base, 14px);
 	}
 
 	/* Contact items */
@@ -1766,35 +1763,35 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	}
 
 	.bd-contact-item p {
-		font-size: 14px;
+		font-size: var(--bd-text-base, 14px);
 	}
 
 	/* Reviews section */
 	.bd-reviews-section {
 		padding: 32px 16px;
 		margin-top: 32px;
-		border-radius: 12px;
+		border-radius: var(--bd-radius-lg, 12px);
 	}
 
 	.bd-reviews-section h2 {
-		font-size: 24px !important;
+		font-size: var(--bd-text-2xl, 24px) !important;
 	}
 
 	.bd-reviews-section h3 {
-		font-size: 20px !important;
+		font-size: var(--bd-text-xl, 20px) !important;
 	}
 
 	/* Review form */
 	.bd-form {
 		padding: 20px;
-		border-radius: 12px;
+		border-radius: var(--bd-radius-lg, 12px);
 	}
 
 	/* Similar businesses */
 	.bd-similar-businesses {
 		margin: 32px 0 24px;
 		padding: 32px 16px;
-		border-radius: 12px;
+		border-radius: var(--bd-radius-lg, 12px);
 	}
 
 	.bd-similar-grid {
@@ -1806,7 +1803,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	}
 
 	.bd-similar-content h3 {
-		font-size: 18px;
+		font-size: var(--bd-text-lg, 18px);
 	}
 
 	/* Social sharing */
@@ -1815,7 +1812,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	}
 
 	.bd-social-sharing h3 {
-		font-size: 18px;
+		font-size: var(--bd-text-lg, 18px);
 	}
 
 	/* Section titles */
@@ -1835,7 +1832,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 
 	.bd-business-hero h1 {
 		font-size: 26px !important;
-		line-height: 1.2 !important;
+		line-height: var(--bd-leading-tight, 1.2) !important;
 	}
 
 	.bd-business-meta {
@@ -1860,15 +1857,15 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	}
 
 	.bd-info-card h2 {
-		font-size: 20px;
+		font-size: var(--bd-text-xl, 20px);
 	}
 
 	.bd-info-card h3 {
-		font-size: 16px;
+		font-size: var(--bd-text-md, 16px);
 	}
 
 	.bd-about-section .bd-description {
-		font-size: 14px;
+		font-size: var(--bd-text-base, 14px);
 	}
 
 	/* Photo gallery on very small screens */
@@ -1890,7 +1887,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	}
 
 	.bd-reviews-section h2 {
-		font-size: 20px !important;
+		font-size: var(--bd-text-xl, 20px) !important;
 	}
 
 	.bd-rating-summary {
@@ -1911,7 +1908,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	}
 
 	.bd-star-rating label {
-		font-size: 24px !important;
+		font-size: var(--bd-text-2xl, 24px) !important;
 	}
 
 	/* Similar businesses */
@@ -1928,7 +1925,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	}
 
 	.bd-similar-content h3 {
-		font-size: 16px;
+		font-size: var(--bd-text-md, 16px);
 	}
 
 	/* Lightbox */
@@ -1941,7 +1938,7 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	.bd-lightbox-close {
 		width: 44px;
 		height: 44px;
-		font-size: 24px;
+		font-size: var(--bd-text-2xl, 24px);
 		top: 12px;
 		right: 12px;
 	}
@@ -1971,9 +1968,9 @@ body.single-bd_business {
 	overflow-wrap: break-word;
 	hyphens: auto;
 }
+
 /* ============================================================================
 	ADDITIONAL MOBILE FIXES - Card overflow issues
-	Add this to the END of business-detail-premium.css
 	========================================================================= */
 
 @media (max-width: 768px) {
@@ -2104,7 +2101,7 @@ body.single-bd_business {
 
 	/* Hours - stack if needed */
 	.bd-hours-row {
-		font-size: 13px;
+		font-size: var(--bd-text-sm, 13px);
 	}
 
 	.bd-day {

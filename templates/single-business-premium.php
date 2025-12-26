@@ -199,52 +199,7 @@ while ( have_posts() ) :
 						<?php the_content(); ?>
 					</div>
 				</div>
-				<?php
-				// Events Calendar Integration - Display upcoming events
-				do_action( 'bd_after_business_content', $business_id );
-				?>
-				<!-- SOCIAL SHARING SECTION -->
-				<section class="bd-social-sharing">
-					<h3>Share this business</h3>
-					<div class="bd-share-buttons">
-						<?php
-						$share_url   = urlencode( get_permalink() );
-						$share_title = urlencode( get_the_title() );
-						?>
-
-						<a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo $share_url; ?>"
-							target="_blank" rel="noopener" class="bd-share-btn bd-share-facebook">
-							<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-								<path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-							</svg>
-							Facebook
-						</a>
-
-						<a href="https://twitter.com/intent/tweet?url=<?php echo $share_url; ?>&text=<?php echo $share_title; ?>"
-							target="_blank" rel="noopener" class="bd-share-btn bd-share-twitter">
-							<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-								<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-							</svg>
-							Twitter
-						</a>
-
-						<a href="mailto:?subject=Check%20out%20<?php echo $share_title; ?>&body=I%20found%20this%20business:%20<?php echo $share_url; ?>"
-							class="bd-share-btn bd-share-email">
-							<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-								<path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
-							</svg>
-							Email
-						</a>
-
-						<button type="button" class="bd-share-btn bd-share-copy" data-url="<?php echo get_permalink(); ?>">
-							<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-								<path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" />
-							</svg>
-							Copy Link
-						</button>
-					</div>
-				</section>
-
+				
 				<!-- Amenities/Features -->
 				<?php $features = get_post_meta( $business_id, 'bd_features', true ); ?>
 				<?php if ( $features && is_array( $features ) ) : ?>
@@ -428,6 +383,11 @@ while ( have_posts() ) :
 						</a>
 					</div>
 				<?php endif; ?>
+
+				<?php
+				// Events Calendar Integration - Display upcoming events
+				do_action( 'bd_after_business_content', $business_id );
+				?>
 
 			</aside>
 

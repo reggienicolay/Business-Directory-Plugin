@@ -46,10 +46,18 @@ class EditListing {
 		// Enqueue editor.
 		wp_enqueue_editor();
 
+		// Design tokens (fonts, colors)
+		wp_enqueue_style(
+			'bd-design-tokens',
+			plugins_url( 'assets/css/design-tokens.css', BD_PLUGIN_FILE ),
+			array(),
+			BD_VERSION
+		);
+
 		wp_enqueue_style(
 			'bd-edit-listing',
 			plugins_url( 'assets/css/edit-listing.css', BD_PLUGIN_FILE ),
-			array(),
+			array( 'bd-design-tokens' ), // Ensure design tokens are loaded first. 
 			BD_VERSION
 		);
 

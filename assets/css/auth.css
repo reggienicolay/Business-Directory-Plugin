@@ -1,0 +1,738 @@
+/**
+ * Auth Styles
+ *
+ * Styles for login, register, password reset forms.
+ * Modal popup and nav buttons.
+ *
+ * @package BusinessDirectory
+ */
+
+/* ==========================================================================
+   CSS Variables
+   ========================================================================== */
+
+:root {
+	--bd-auth-primary: #1a3a4a;
+	--bd-auth-primary-hover: #1e4258;
+	--bd-auth-text: #1a1a1a;
+	--bd-auth-text-muted: #6b7280;
+	--bd-auth-border: #d1d5db;
+	--bd-auth-bg: #ffffff;
+	--bd-auth-bg-light: #f9fafb;
+	--bd-auth-success: #059669;
+	--bd-auth-error: #dc2626;
+	--bd-auth-radius: 8px;
+	--bd-auth-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	--bd-auth-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* ==========================================================================
+   Full Page Auth Container
+   ========================================================================== */
+
+.bd-auth-page {
+	min-height: 60vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 40px 20px;
+}
+
+.bd-auth-container {
+	width: 100%;
+	max-width: 420px;
+	background: var(--bd-auth-bg);
+	border-radius: 12px;
+	box-shadow: var(--bd-auth-shadow-lg);
+	padding: 32px;
+}
+
+.bd-auth-header {
+	text-align: center;
+	margin-bottom: 24px;
+}
+
+.bd-auth-logo img {
+	max-height: 48px;
+	width: auto;
+}
+
+.bd-auth-site-name {
+	font-size: 24px;
+	font-weight: 700;
+	color: var(--bd-auth-primary);
+}
+
+/* ==========================================================================
+   Tab Navigation
+   ========================================================================== */
+
+.bd-auth-tabs {
+	display: flex;
+	gap: 4px;
+	margin-bottom: 24px;
+	background: var(--bd-auth-bg-light);
+	padding: 4px;
+	border-radius: var(--bd-auth-radius);
+}
+
+.bd-auth-tab {
+	flex: 1;
+	padding: 10px 16px;
+	border: none;
+	background: transparent;
+	color: var(--bd-auth-text-muted);
+	font-size: 14px;
+	font-weight: 500;
+	cursor: pointer;
+	border-radius: 6px;
+	transition: all 0.2s ease;
+}
+
+.bd-auth-tab:hover {
+	color: var(--bd-auth-text);
+}
+
+.bd-auth-tab.active {
+	background: var(--bd-auth-bg);
+	color: var(--bd-auth-primary);
+	box-shadow: var(--bd-auth-shadow);
+}
+
+/* ==========================================================================
+   Auth Panels
+   ========================================================================== */
+
+.bd-auth-panel {
+	display: none;
+}
+
+.bd-auth-panel.active {
+	display: block;
+}
+
+/* ==========================================================================
+   Social Login
+   ========================================================================== */
+
+.bd-social-login {
+	margin-bottom: 16px;
+}
+
+.bd-social-login-note {
+	text-align: center;
+	font-size: 13px;
+	color: var(--bd-auth-text-muted);
+	font-style: italic;
+	padding: 16px;
+	background: var(--bd-auth-bg-light);
+	border-radius: var(--bd-auth-radius);
+}
+
+/* Nextend Social Login button overrides */
+.bd-social-login .nsl-container {
+	margin: 0 !important;
+}
+
+.bd-social-login .nsl-container-buttons {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.bd-social-login .nsl-button {
+	width: 100% !important;
+	border-radius: var(--bd-auth-radius) !important;
+}
+
+/* ==========================================================================
+   Divider
+   ========================================================================== */
+
+.bd-auth-divider {
+	display: flex;
+	align-items: center;
+	text-align: center;
+	margin: 20px 0;
+	color: var(--bd-auth-text-muted);
+	font-size: 13px;
+}
+
+.bd-auth-divider::before,
+.bd-auth-divider::after {
+	content: '';
+	flex: 1;
+	border-bottom: 1px solid var(--bd-auth-border);
+}
+
+.bd-auth-divider span {
+	padding: 0 12px;
+}
+
+/* ==========================================================================
+   Form Styles
+   ========================================================================== */
+
+.bd-auth-form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.bd-form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.bd-form-group label {
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--bd-auth-text);
+}
+
+.bd-form-group input[type="text"],
+.bd-form-group input[type="email"],
+.bd-form-group input[type="password"],
+.bd-form-group select {
+	width: 100%;
+	padding: 10px 14px;
+	border: 1px solid var(--bd-auth-border);
+	border-radius: var(--bd-auth-radius);
+	font-size: 15px;
+	transition: border-color 0.2s, box-shadow 0.2s;
+	background: var(--bd-auth-bg);
+}
+
+.bd-form-group input:focus,
+.bd-form-group select:focus {
+	outline: none;
+	border-color: var(--bd-auth-primary);
+	box-shadow: 0 0 0 3px rgba(26, 58, 74, 0.1);
+}
+
+.bd-form-group input::placeholder {
+	color: #9ca3af;
+}
+
+.bd-form-select {
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 12px center;
+	padding-right: 40px;
+}
+
+/* Form Rows */
+.bd-form-row {
+	margin: 0;
+}
+
+.bd-form-row-flex {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.bd-form-row-2col {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+}
+
+@media (max-width: 480px) {
+	.bd-form-row-2col {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* Checkbox */
+.bd-checkbox-label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 14px;
+	color: var(--bd-auth-text-muted);
+	cursor: pointer;
+}
+
+.bd-checkbox-label input[type="checkbox"] {
+	width: 16px;
+	height: 16px;
+	accent-color: var(--bd-auth-primary);
+}
+
+/* Links */
+.bd-forgot-link {
+	font-size: 14px;
+	color: var(--bd-auth-primary);
+	text-decoration: none;
+}
+
+.bd-forgot-link:hover {
+	text-decoration: underline;
+}
+
+.bd-auth-back-link {
+	text-align: center;
+	margin-top: 16px;
+}
+
+.bd-auth-back-link a {
+	font-size: 14px;
+	color: var(--bd-auth-text-muted);
+	text-decoration: none;
+}
+
+.bd-auth-back-link a:hover {
+	color: var(--bd-auth-primary);
+}
+
+/* ==========================================================================
+   Buttons
+   ========================================================================== */
+
+.bd-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 12px 20px;
+	border: none;
+	border-radius: var(--bd-auth-radius);
+	font-size: 15px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	text-decoration: none;
+}
+
+.bd-btn-primary {
+	background: var(--bd-auth-primary);
+	color: #fff;
+}
+
+.bd-btn-primary:hover {
+	background: var(--bd-auth-primary-hover);
+}
+
+.bd-btn-primary:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+.bd-btn-secondary {
+	background: var(--bd-auth-bg-light);
+	color: var(--bd-auth-text);
+	border: 1px solid var(--bd-auth-border);
+}
+
+.bd-btn-secondary:hover {
+	background: var(--bd-auth-border);
+}
+
+.bd-btn-full {
+	width: 100%;
+}
+
+/* ==========================================================================
+   Messages
+   ========================================================================== */
+
+.bd-auth-messages {
+	margin-bottom: 16px;
+}
+
+.bd-auth-messages:empty {
+	display: none;
+}
+
+.bd-auth-message {
+	padding: 12px 16px;
+	border-radius: var(--bd-auth-radius);
+	font-size: 14px;
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+}
+
+.bd-auth-message-success {
+	background: #d1fae5;
+	color: #065f46;
+	border: 1px solid #6ee7b7;
+}
+
+.bd-auth-message-error {
+	background: #fee2e2;
+	color: #991b1b;
+	border: 1px solid #fca5a5;
+}
+
+.bd-auth-message svg {
+	flex-shrink: 0;
+	margin-top: 1px;
+}
+
+/* ==========================================================================
+   Logged In State
+   ========================================================================== */
+
+.bd-auth-logged-in {
+	text-align: center;
+	padding: 32px;
+}
+
+.bd-auth-user-info img {
+	border-radius: 50%;
+	margin-bottom: 16px;
+}
+
+.bd-auth-user-info h3 {
+	margin: 0 0 8px;
+	font-size: 20px;
+	color: var(--bd-auth-text);
+}
+
+.bd-auth-user-info p {
+	margin: 0 0 24px;
+	color: var(--bd-auth-text-muted);
+}
+
+.bd-auth-actions {
+	display: flex;
+	gap: 12px;
+	justify-content: center;
+}
+
+/* ==========================================================================
+   Reset Password Intro
+   ========================================================================== */
+
+.bd-auth-reset-intro {
+	text-align: center;
+	margin-bottom: 24px;
+	color: var(--bd-auth-text-muted);
+}
+
+.bd-auth-error {
+	text-align: center;
+	padding: 24px;
+}
+
+.bd-auth-error p {
+	margin-bottom: 16px;
+	color: var(--bd-auth-error);
+}
+
+/* ==========================================================================
+   Modal Styles
+   ========================================================================== */
+
+.bd-modal {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 999999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 20px;
+}
+
+.bd-modal-backdrop {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(4px);
+}
+
+.bd-modal-container {
+	position: relative;
+	z-index: 1;
+	width: 100%;
+	max-width: 420px;
+	max-height: 90vh;
+	overflow-y: auto;
+}
+
+.bd-modal-content {
+	background: var(--bd-auth-bg);
+	border-radius: 12px;
+	padding: 32px;
+	box-shadow: var(--bd-auth-shadow-lg);
+}
+
+.bd-modal-close {
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	width: 32px;
+	height: 32px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent;
+	border: none;
+	color: var(--bd-auth-text-muted);
+	cursor: pointer;
+	border-radius: 6px;
+	transition: all 0.2s;
+}
+
+.bd-modal-close:hover {
+	background: var(--bd-auth-bg-light);
+	color: var(--bd-auth-text);
+}
+
+/* ==========================================================================
+   Header Auth Buttons
+   ========================================================================== */
+
+.bd-auth-buttons {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+/* Logged Out Buttons */
+.bd-auth-logged-out .bd-auth-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 14px;
+	font-weight: 500;
+	text-decoration: none;
+	transition: all 0.2s;
+}
+
+.bd-auth-login-btn {
+	background: transparent;
+	color: #ffffff !important;
+	padding: 8px 12px;
+	border-radius: 6px;
+}
+
+.bd-auth-login-btn:hover {
+	color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.bd-auth-login-btn .bd-auth-icon {
+	stroke: #ffffff !important;
+}
+
+.bd-auth-register-btn {
+	background: var(--bd-auth-primary);
+	color: #fff;
+	padding: 10px 20px;
+	border-radius: 6px;
+	font-weight: 600;
+}
+
+.bd-auth-register-btn:hover {
+	background: var(--bd-auth-primary-hover);
+}
+
+.bd-auth-icon {
+	flex-shrink: 0;
+}
+
+/* Icon Only Style */
+.bd-auth-style-icon-only .bd-auth-btn {
+	padding: 8px;
+}
+
+/* Compact Style */
+.bd-auth-style-compact .bd-auth-btn {
+	padding: 6px 12px;
+	font-size: 13px;
+}
+
+/* Logged In Dropdown */
+.bd-auth-logged-in .bd-auth-user-wrapper {
+	position: relative;
+}
+
+.bd-auth-user-toggle {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 12px;
+	background: transparent;
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	border-radius: 24px;
+	cursor: pointer;
+	transition: all 0.2s;
+	color: #ffffff !important;
+}
+
+.bd-auth-user-toggle:hover {
+	background: rgba(255, 255, 255, 0.1);
+	border-color: rgba(255, 255, 255, 0.5);
+	color: #ffffff !important;
+}
+
+.bd-auth-avatar img {
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	display: block;
+}
+
+.bd-auth-user-toggle svg {
+	stroke: #ffffff !important;
+}
+
+.bd-auth-name {
+	font-size: 14px;
+	font-weight: 500;
+	color: #ffffff !important;
+}
+
+.bd-auth-chevron {
+	color: #ffffff !important;
+	opacity: 0.7;
+	transition: transform 0.2s;
+}
+
+.bd-auth-user-toggle[aria-expanded="true"] .bd-auth-chevron {
+	transform: rotate(180deg);
+}
+
+/* Dropdown */
+.bd-auth-dropdown {
+	position: absolute;
+	top: calc(100% + 8px);
+	right: 0;
+	min-width: 220px;
+	background: var(--bd-auth-bg);
+	border: 1px solid var(--bd-auth-border);
+	border-radius: var(--bd-auth-radius);
+	box-shadow: var(--bd-auth-shadow-lg);
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(-8px);
+	transition: all 0.2s;
+	z-index: 100;
+}
+
+.bd-auth-user-toggle[aria-expanded="true"] + .bd-auth-dropdown {
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(0);
+}
+
+.bd-auth-dropdown-header {
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--bd-auth-border);
+}
+
+.bd-auth-dropdown-name {
+	display: block;
+	font-weight: 500;
+	color: var(--bd-auth-text);
+	font-size: 14px;
+}
+
+.bd-auth-dropdown-email {
+	display: block;
+	font-size: 12px;
+	color: var(--bd-auth-text-muted);
+	margin-top: 2px;
+}
+
+.bd-auth-dropdown-menu {
+	list-style: none;
+	margin: 0;
+	padding: 8px 0;
+}
+
+.bd-auth-dropdown-menu li a {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 16px;
+	color: var(--bd-auth-text);
+	text-decoration: none;
+	font-size: 14px;
+	transition: background 0.2s;
+}
+
+.bd-auth-dropdown-menu li a:hover {
+	background: var(--bd-auth-bg-light);
+}
+
+.bd-auth-dropdown-menu li a svg {
+	color: var(--bd-auth-text-muted);
+}
+
+.bd-auth-dropdown-divider {
+	height: 1px;
+	background: var(--bd-auth-border);
+	margin: 8px 0;
+}
+
+.bd-auth-logout-link {
+	color: var(--bd-auth-error) !important;
+}
+
+.bd-auth-logout-link svg {
+	color: var(--bd-auth-error) !important;
+}
+
+/* ==========================================================================
+   Loading State
+   ========================================================================== */
+
+.bd-btn.bd-loading {
+	position: relative;
+	color: transparent !important;
+	pointer-events: none;
+}
+
+.bd-btn.bd-loading::after {
+	content: '';
+	position: absolute;
+	width: 18px;
+	height: 18px;
+	border: 2px solid #fff;
+	border-right-color: transparent;
+	border-radius: 50%;
+	animation: bd-spin 0.6s linear infinite;
+}
+
+@keyframes bd-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 480px) {
+	.bd-auth-container {
+		padding: 24px;
+	}
+
+	.bd-modal-content {
+		padding: 24px;
+	}
+
+	.bd-auth-tabs {
+		flex-direction: column;
+	}
+
+	.bd-auth-actions {
+		flex-direction: column;
+	}
+
+	.bd-auth-name {
+		display: none;
+	}
+}

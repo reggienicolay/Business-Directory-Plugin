@@ -1,0 +1,362 @@
+/**
+ * Business Directory - Design Tokens
+ * ====================================
+ * Central design system for Love TriValley
+ * 
+ * Edit this file to change fonts, colors, and styling across the entire plugin.
+ * All other CSS files reference these variables.
+ *
+ * @package BusinessDirectory
+ * @version 1.0.0
+ */
+
+/* ============================================
+   FONT IMPORTS
+   ============================================ */
+
+/* Primary Font - Headers (Onest - Modern Geometric) */
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap');
+
+/* Secondary Font - Body Text (Source Sans 3 - Clean & Readable) */
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&display=swap');
+
+/* Icon Font */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+
+/* ============================================
+   CSS CUSTOM PROPERTIES (Design Tokens)
+   ============================================ */
+
+:root {
+	/* ----------------------------------------
+	   TYPOGRAPHY
+	   ---------------------------------------- */
+	
+	/* Font Families */
+	--bd-font-heading: 'Onest', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	--bd-font-body: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	--bd-font-mono: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+	
+	/* Font Sizes - Fluid Scale */
+	--bd-text-xs: 0.75rem;    /* 12px */
+	--bd-text-sm: 0.8125rem;  /* 13px */
+	--bd-text-base: 0.875rem; /* 14px */
+	--bd-text-md: 1rem;       /* 16px */
+	--bd-text-lg: 1.125rem;   /* 18px */
+	--bd-text-xl: 1.25rem;    /* 20px */
+	--bd-text-2xl: 1.5rem;    /* 24px */
+	--bd-text-3xl: 1.875rem;  /* 30px */
+	--bd-text-4xl: 2.25rem;   /* 36px */
+	--bd-text-5xl: 3rem;      /* 48px */
+	
+	/* Font Weights */
+	--bd-font-normal: 400;
+	--bd-font-medium: 500;
+	--bd-font-semibold: 600;
+	--bd-font-bold: 700;
+	--bd-font-extrabold: 800;
+	
+	/* Line Heights */
+	--bd-leading-tight: 1.25;
+	--bd-leading-normal: 1.5;
+	--bd-leading-relaxed: 1.625;
+	
+	/* Letter Spacing */
+	--bd-tracking-tight: -0.025em;
+	--bd-tracking-normal: 0;
+	--bd-tracking-wide: 0.025em;
+	--bd-tracking-wider: 0.05em;
+	--bd-tracking-widest: 0.1em;
+	
+	
+	/* ----------------------------------------
+	   BRAND COLORS - TriValley Palette
+	   ---------------------------------------- */
+	
+	/* Primary - Navy (Main brand color) */
+	--bd-primary-50: #f0f7fa;
+	--bd-primary-100: #daeef5;
+	--bd-primary-200: #b8dde9;
+	--bd-primary-300: #86c4d8;
+	--bd-primary-400: #4da3be;
+	--bd-primary-500: #2a7a94;
+	--bd-primary-600: #133453;  /* Main brand navy */
+	--bd-primary-700: #0f2530;
+	--bd-primary-800: #0a1a22;
+	--bd-primary-900: #050d11;
+	
+	/* Accent - Steel Blue */
+	--bd-accent-50: #f5f8fa;
+	--bd-accent-100: #e8f0f4;
+	--bd-accent-200: #d1e1e9;
+	--bd-accent-300: #a8c4d4;
+	--bd-accent-400: #7a9eb8;  /* Main accent */
+	--bd-accent-500: #5d7a8c;
+	--bd-accent-600: #4a6270;
+	--bd-accent-700: #3a4d58;
+	--bd-accent-800: #2a3840;
+	--bd-accent-900: #1a2428;
+	
+	/* Gold - Highlights & CTAs */
+	--bd-gold-50: #fefbeb;
+	--bd-gold-100: #fdf4c7;
+	--bd-gold-200: #fbe88a;
+	--bd-gold-300: #f8d74d;
+	--bd-gold-400: #f5c522;
+	--bd-gold-500: #C9A227;  /* Main gold */
+	--bd-gold-600: #9A7B1A;
+	--bd-gold-700: #7a5f14;
+	--bd-gold-800: #5a450f;
+	--bd-gold-900: #3a2c0a;
+	
+	
+	/* ----------------------------------------
+	   SEMANTIC COLORS
+	   ---------------------------------------- */
+	
+	/* Success */
+	--bd-success-50: #ecfdf5;
+	--bd-success-100: #d1fae5;
+	--bd-success-500: #10b981;
+	--bd-success-600: #059669;
+	--bd-success-700: #047857;
+	
+	/* Warning */
+	--bd-warning-50: #fffbeb;
+	--bd-warning-100: #fef3c7;
+	--bd-warning-500: #f59e0b;
+	--bd-warning-600: #d97706;
+	--bd-warning-700: #b45309;
+	
+	/* Error */
+	--bd-error-50: #fef2f2;
+	--bd-error-100: #fee2e2;
+	--bd-error-500: #ef4444;
+	--bd-error-600: #dc2626;
+	--bd-error-700: #b91c1c;
+	
+	/* Info */
+	--bd-info-50: #eff6ff;
+	--bd-info-100: #dbeafe;
+	--bd-info-500: #3b82f6;
+	--bd-info-600: #2563eb;
+	--bd-info-700: #1d4ed8;
+	
+	
+	/* ----------------------------------------
+	   NEUTRAL COLORS (Slate)
+	   ---------------------------------------- */
+	
+	--bd-neutral-50: #f8fafc;
+	--bd-neutral-100: #f1f5f9;
+	--bd-neutral-200: #e2e8f0;
+	--bd-neutral-300: #cbd5e1;
+	--bd-neutral-400: #94a3b8;
+	--bd-neutral-500: #64748b;
+	--bd-neutral-600: #475569;
+	--bd-neutral-700: #334155;
+	--bd-neutral-800: #1e293b;
+	--bd-neutral-900: #0f172a;
+	--bd-neutral-950: #020617;
+	
+	
+	/* ----------------------------------------
+	   BADGE RARITY COLORS
+	   ---------------------------------------- */
+	
+	--bd-rarity-common: #64748b;
+	--bd-rarity-common-bg: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+	
+	--bd-rarity-rare: #3b82f6;
+	--bd-rarity-rare-bg: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+	
+	--bd-rarity-epic: #8b5cf6;
+	--bd-rarity-epic-bg: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+	
+	--bd-rarity-legendary: #f59e0b;
+	--bd-rarity-legendary-bg: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+	
+	--bd-rarity-special: var(--bd-primary-600);
+	--bd-rarity-special-bg: linear-gradient(135deg, var(--bd-primary-600) 0%, var(--bd-primary-700) 100%);
+	
+	
+	/* ----------------------------------------
+	   SPACING SCALE
+	   ---------------------------------------- */
+	
+	--bd-space-0: 0;
+	--bd-space-1: 0.25rem;   /* 4px */
+	--bd-space-2: 0.5rem;    /* 8px */
+	--bd-space-3: 0.75rem;   /* 12px */
+	--bd-space-4: 1rem;      /* 16px */
+	--bd-space-5: 1.25rem;   /* 20px */
+	--bd-space-6: 1.5rem;    /* 24px */
+	--bd-space-8: 2rem;      /* 32px */
+	--bd-space-10: 2.5rem;   /* 40px */
+	--bd-space-12: 3rem;     /* 48px */
+	--bd-space-16: 4rem;     /* 64px */
+	--bd-space-20: 5rem;     /* 80px */
+	
+	
+	/* ----------------------------------------
+	   BORDER RADIUS
+	   ---------------------------------------- */
+	
+	--bd-radius-sm: 0.25rem;   /* 4px */
+	--bd-radius-md: 0.5rem;    /* 8px */
+	--bd-radius-lg: 0.75rem;   /* 12px */
+	--bd-radius-xl: 1rem;      /* 16px */
+	--bd-radius-2xl: 1.25rem;  /* 20px */
+	--bd-radius-3xl: 1.5rem;   /* 24px */
+	--bd-radius-full: 9999px;
+	
+	
+	/* ----------------------------------------
+	   SHADOWS
+	   ---------------------------------------- */
+	
+	--bd-shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+	--bd-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+	--bd-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+	--bd-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+	--bd-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	--bd-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+	
+	/* Colored Shadows */
+	--bd-shadow-primary: 0 4px 14px rgba(26, 58, 74, 0.25);
+	--bd-shadow-accent: 0 4px 14px rgba(122, 158, 184, 0.3);
+	--bd-shadow-gold: 0 4px 14px rgba(201, 162, 39, 0.35);
+	--bd-shadow-glow: 0 0 20px rgba(201, 162, 39, 0.3);
+	
+	
+	/* ----------------------------------------
+	   TRANSITIONS
+	   ---------------------------------------- */
+	
+	--bd-transition-fast: 150ms ease;
+	--bd-transition-base: 200ms ease;
+	--bd-transition-slow: 300ms ease;
+	--bd-transition-slower: 500ms ease;
+	
+	/* Easing Functions */
+	--bd-ease-in: cubic-bezier(0.4, 0, 1, 1);
+	--bd-ease-out: cubic-bezier(0, 0, 0.2, 1);
+	--bd-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+	--bd-ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+	
+	
+	/* ----------------------------------------
+	   Z-INDEX SCALE
+	   ---------------------------------------- */
+	
+	--bd-z-behind: -1;
+	--bd-z-base: 0;
+	--bd-z-raised: 10;
+	--bd-z-dropdown: 100;
+	--bd-z-sticky: 200;
+	--bd-z-overlay: 300;
+	--bd-z-modal: 400;
+	--bd-z-popover: 500;
+	--bd-z-tooltip: 600;
+	--bd-z-toast: 700;
+	
+	
+	/* ----------------------------------------
+	   LEGACY VARIABLE ALIASES
+	   (For backward compatibility with existing CSS)
+	   ---------------------------------------- */
+	
+	/* Old badge variable names */
+	--bd-wine-deep: var(--bd-primary-600);
+	--bd-wine-dark: var(--bd-primary-700);
+	--bd-wine-light: var(--bd-primary-500);
+	--bd-primary-deep: var(--bd-primary-600);
+	--bd-primary-dark: var(--bd-primary-700);
+	--bd-primary-light: var(--bd-primary-500);
+	--bd-gold-primary: var(--bd-gold-500);
+	--bd-gold-light: var(--bd-gold-200);
+	--bd-gold-dark: var(--bd-gold-600);
+	
+	/* Old profile variable names */
+	--bd-navy: var(--bd-primary-600);
+	--bd-navy-dark: var(--bd-primary-700);
+	--bd-navy-light: var(--bd-primary-500);
+	--bd-steel: var(--bd-accent-400);
+	--bd-steel-dark: var(--bd-accent-500);
+	--bd-steel-light: var(--bd-accent-300);
+	--bd-cream: var(--bd-neutral-100);
+	
+	/* Old neutral names */
+	--bd-slate-50: var(--bd-neutral-50);
+	--bd-slate-100: var(--bd-neutral-100);
+	--bd-slate-200: var(--bd-neutral-200);
+	--bd-slate-300: var(--bd-neutral-300);
+	--bd-slate-400: var(--bd-neutral-400);
+	--bd-slate-500: var(--bd-neutral-500);
+	--bd-slate-600: var(--bd-neutral-600);
+	--bd-slate-700: var(--bd-neutral-700);
+	--bd-slate-800: var(--bd-neutral-800);
+	--bd-slate-900: var(--bd-neutral-900);
+}
+
+
+/* ============================================
+   BASE TYPOGRAPHY STYLES
+   ============================================ */
+
+.bd-heading,
+.bd-profile-page h1,
+.bd-profile-page h2,
+.bd-profile-page h3,
+.bd-badge-gallery h1,
+.bd-badge-gallery h3,
+.bd-badge-card-name,
+.bd-rank-card-name {
+	font-family: var(--bd-font-heading);
+	font-weight: var(--bd-font-bold);
+	line-height: var(--bd-leading-tight);
+	letter-spacing: var(--bd-tracking-tight);
+}
+
+.bd-body,
+.bd-profile-page,
+.bd-badge-gallery {
+	font-family: var(--bd-font-body);
+	font-weight: var(--bd-font-normal);
+	line-height: var(--bd-leading-normal);
+}
+
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Font utilities */
+.bd-font-heading { font-family: var(--bd-font-heading); }
+.bd-font-body { font-family: var(--bd-font-body); }
+.bd-font-mono { font-family: var(--bd-font-mono); }
+
+/* Weight utilities */
+.bd-font-normal { font-weight: var(--bd-font-normal); }
+.bd-font-medium { font-weight: var(--bd-font-medium); }
+.bd-font-semibold { font-weight: var(--bd-font-semibold); }
+.bd-font-bold { font-weight: var(--bd-font-bold); }
+
+/* Text size utilities */
+.bd-text-xs { font-size: var(--bd-text-xs); }
+.bd-text-sm { font-size: var(--bd-text-sm); }
+.bd-text-base { font-size: var(--bd-text-base); }
+.bd-text-md { font-size: var(--bd-text-md); }
+.bd-text-lg { font-size: var(--bd-text-lg); }
+.bd-text-xl { font-size: var(--bd-text-xl); }
+.bd-text-2xl { font-size: var(--bd-text-2xl); }
+.bd-text-3xl { font-size: var(--bd-text-3xl); }
+
+/* Color utilities */
+.bd-text-primary { color: var(--bd-primary-600); }
+.bd-text-accent { color: var(--bd-accent-400); }
+.bd-text-gold { color: var(--bd-gold-500); }
+.bd-text-muted { color: var(--bd-neutral-500); }
+.bd-text-success { color: var(--bd-success-600); }
+.bd-text-error { color: var(--bd-error-600); }

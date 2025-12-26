@@ -44,10 +44,18 @@ class ListDisplay {
 			return;
 		}
 
+		// Design tokens (fonts, colors)
+		wp_enqueue_style(
+			'bd-design-tokens',
+			plugins_url( 'assets/css/design-tokens.css', dirname( __DIR__ ) ),
+			array(),
+			'1.0.0'
+		);
+
 		wp_enqueue_style(
 			'bd-lists',
 			plugins_url( 'assets/css/lists.css', dirname( __DIR__ ) ),
-			array(),
+			array( 'bd-design-tokens' ),  
 			'1.0.0'
 		);
 

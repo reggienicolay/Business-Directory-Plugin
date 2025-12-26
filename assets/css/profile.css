@@ -1,417 +1,386 @@
 /**
- * User Profile Page - TriValley Vine Theme
+ * User Profile Page - TriValley Theme
  * Matches the Business Directory premium styling
+ *
+ * NOTE: This file depends on design-tokens.css for variables.
+ * Colors, fonts, and spacing are defined there for easy customization.
  */
 
-:root {
-	--bd-navy: #1a3a4a;
-	--bd-navy-dark: #0f2a3a;
-	--bd-navy-light: #1e4258;
-	--bd-steel: #7a9eb8;
-	--bd-steel-dark: #5d7a8c;
-	--bd-steel-light: #a8c4d4;
-	--bd-cream: #f0f5f8;
-}
+/* Import design tokens (fonts, colors, spacing) */
+@import url('design-tokens.css');
 
 .bd-profile-page {
-	max-width: 1200px;
+	max-width: var(--global-content-width);
 	margin: 0 auto;
-	padding: 40px 20px;
-	font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+	padding: 0 20px 40px;
+	font-family: var(--bd-font-body);
 }
 
-/* ============================================================================
-	PROFILE HEADER - Navy/Steel Hero
-	========================================================================= */
-
-
-body.page .site-branding .site-title {
-	display: none !important;
-}
+/* ==========================================================================
+   PROFILE HEADER
+   ========================================================================== */
 
 .bd-profile-header {
-	background: linear-gradient(135deg, var(--bd-navy) 0%, var(--bd-navy-light) 100%);
-	padding: 48px;
-	margin-bottom: 40px;
+	background: linear-gradient(174deg, var(--bd-primary-600) 0% 40%, var(--bd-accent-400) 100%);
+	border-radius: 16px;
+	padding: 32px 40px;
+	margin-bottom: 24px;
 	color: white;
 	position: relative;
 	overflow: hidden;
-	box-shadow: 0 8px 32px rgba(26, 58, 74, 0.3);
+	box-shadow: 0 8px 32px rgba(26, 58, 74, 0.25);
 }
 
 .bd-profile-header::before {
 	content: '';
 	position: absolute;
 	top: -50%;
-	right: -20%;
-	width: 600px;
-	height: 600px;
-	background: radial-gradient(circle, rgba(122, 158, 184, 0.15) 0%, transparent 70%);
+	right: -15%;
+	width: 400px;
+	height: 400px;
+	background: radial-gradient(circle, rgba(122, 158, 184, 0.12) 0%, transparent 70%);
 	border-radius: 50%;
 }
 
 .bd-profile-hero {
 	display: flex;
 	align-items: center;
-	gap: 32px;
+	gap: 24px;
 	position: relative;
 	z-index: 1;
 }
 
-.bd-profile-avatar {
-	position: relative;
-}
-
 .bd-profile-avatar img {
-	width: 120px;
-	height: 120px;
+	width: 90px;
+	height: 90px;
 	border-radius: 50%;
-	border: 4px solid var(--bd-steel);
-	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+	border: 3px solid var(--bd-steel);
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 	object-fit: cover;
 }
 
-.bd-profile-avatar-placeholder {
-	width: 120px;
-	height: 120px;
-	border-radius: 50%;
-	background: linear-gradient(135deg, var(--bd-steel) 0%, var(--bd-steel-dark) 100%);
-	border: 4px solid var(--bd-steel-light);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 48px;
-	color: white;
-	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+.bd-profile-info {
+	flex: 1;
 }
 
 .bd-profile-info h1 {
-	font-family: 'Playfair Display', Georgia, serif;
-	font-size: 36px;
+	font-family: var(--bd-font-heading);
+	font-size: 28px;
 	font-weight: 700;
-	margin: 0 0 8px 0;
-	color: var(--bd-steel-light);
-	text-shadow: 2px 4px 8px rgba(0, 0, 0, 0.3);
+	margin: 0 0 4px 0;
+	color: white;
+	text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-.bd-profile-info .bd-profile-email {
-	font-size: 16px;
-	color: rgba(255, 255, 255, 0.85);
-	margin: 0 0 12px 0;
+.bd-profile-email {
+	font-size: 14px;
+	color: rgba(255, 255, 255, 0.75);
+	margin: 0 0 8px 0;
 }
 
 .bd-profile-member-since {
-	font-size: 14px;
+	font-size: 13px;
 	color: var(--bd-steel-light);
 	display: flex;
 	align-items: center;
-	gap: 8px;
+	gap: 6px;
+	margin-bottom: 12px;
 }
 
-/* ============================================================================
-	PROFILE STATS BAR
-	========================================================================= */
+.bd-profile-rank {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 8px 16px;
+	background: linear-gradient(135deg, var(--bd-steel) 0%, var(--bd-steel-dark) 100%);
+	border-radius: 20px;
+	color: white;
+	font-weight: 600;
+	font-size: 13px;
+	box-shadow: 0 3px 10px rgba(122, 158, 184, 0.35);
+}
 
+.bd-profile-rank-icon {
+	font-size: 16px;
+}
+
+.bd-profile-rank-name {
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+/* Stats in Header */
 .bd-profile-stats {
 	display: flex;
-	gap: 32px;
+	gap: 16px;
 	margin-left: auto;
 }
 
 .bd-profile-stat {
 	text-align: center;
-	padding: 16px 24px;
+	padding: 12px 20px;
 	background: rgba(122, 158, 184, 0.15);
-	border-radius: 12px;
-	border: 1px solid rgba(122, 158, 184, 0.3);
+	border-radius: 10px;
+	border: 1px solid rgba(122, 158, 184, 0.25);
+	min-width: 80px;
 }
 
 .bd-profile-stat-value {
 	display: block;
-	font-size: 32px;
+	font-size: 26px;
 	font-weight: 700;
-	color: var(--bd-steel-light);
+	color: white;
 	line-height: 1.2;
 }
 
 .bd-profile-stat-label {
 	display: block;
-	font-size: 13px;
-	color: rgba(255, 255, 255, 0.8);
+	font-size: 11px;
+	color: rgba(255, 255, 255, 0.75);
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
+	margin-top: 2px;
 }
 
-/* ============================================================================
-	PROFILE RANK BADGE
-	========================================================================= */
-
-.bd-profile-rank {
-	display: inline-flex;
-	align-items: center;
-	gap: 10px;
-	padding: 10px 20px;
-	background: linear-gradient(135deg, var(--bd-steel) 0%, var(--bd-steel-dark) 100%);
-	border-radius: 24px;
-	color: white;
-	font-weight: 600;
-	box-shadow: 0 4px 12px rgba(122, 158, 184, 0.4);
-}
-
-.bd-profile-rank-icon {
-	font-size: 20px;
-}
-
-.bd-profile-rank-name {
-	font-size: 14px;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-}
-
-/* ============================================================================
-	PROFILE CONTENT GRID
-	========================================================================= */
+/* ==========================================================================
+   CONTENT GRID
+   ========================================================================== */
 
 .bd-profile-content {
 	display: grid;
-	grid-template-columns: 1fr 350px;
-	gap: 32px;
+	grid-template-columns: 1fr 320px;
+	gap: 24px;
 }
 
-/* ============================================================================
-	PROFILE CARDS
-	========================================================================= */
+.bd-profile-main {
+	min-width: 0;
+}
+
+.bd-profile-sidebar {
+	min-width: 0;
+}
+
+/* ==========================================================================
+   PROFILE CARDS
+   ========================================================================== */
 
 .bd-profile-card {
 	background: white;
-	border-radius: 16px;
-	padding: 32px;
-	box-shadow: 0 4px 16px rgba(26, 58, 74, 0.08);
-	border: 1px solid #e2e8f0;
-	margin-bottom: 24px;
+	border-radius: 12px;
+	padding: 24px;
+	box-shadow: 0 2px 12px rgba(26, 58, 74, 0.06);
+	border: 1px solid #e8eef3;
+	margin-bottom: 20px;
 }
 
 .bd-profile-card h2 {
-	font-family: 'Playfair Display', Georgia, serif;
-	font-size: 24px;
+	font-size: 16px;
 	font-weight: 700;
 	color: var(--bd-navy);
-	margin: 0 0 24px 0;
-	padding-bottom: 16px;
-	border-bottom: 2px solid var(--bd-steel-light);
+	margin: 0 0 20px 0;
 	display: flex;
 	align-items: center;
-	gap: 12px;
+	gap: 8px;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
 }
 
-.bd-profile-card h2 svg {
+.bd-profile-card h2 i {
 	color: var(--bd-steel);
 }
 
-/* ============================================================================
-	POINTS & PROGRESS
-	========================================================================= */
+.bd-profile-card h3 {
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--bd-navy);
+	margin: 0 0 16px 0;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+}
 
-.bd-points-display {
+/* ==========================================================================
+   POINTS & PROGRESS
+   ========================================================================== */
+
+.bd-points-summary {
+	display: flex;
+	align-items: center;
+	gap: 32px;
+	padding: 20px;
+	background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+	border-radius: 10px;
+}
+
+.bd-points-total {
 	text-align: center;
-	padding: 24px;
-	background: linear-gradient(135deg, rgba(26, 58, 74, 0.03) 0%, rgba(122, 158, 184, 0.08) 100%);
-	border-radius: 12px;
-	margin-bottom: 24px;
+	padding-right: 32px;
+	border-right: 2px solid #e2e8f0;
 }
 
 .bd-points-value {
+	display: block;
 	font-size: 48px;
 	font-weight: 700;
 	color: var(--bd-navy);
-	line-height: 1.2;
+	line-height: 1;
 }
 
 .bd-points-label {
-	font-size: 14px;
+	display: block;
+	font-size: 12px;
 	color: var(--bd-steel-dark);
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
-}
-
-.bd-rank-progress {
-	margin-top: 24px;
-}
-
-.bd-rank-progress-label {
-	display: flex;
-	justify-content: space-between;
-	font-size: 14px;
-	color: var(--bd-steel-dark);
-	margin-bottom: 8px;
-}
-
-.bd-rank-progress-bar {
-	height: 12px;
-	background: #e2e8f0;
-	border-radius: 6px;
-	overflow: hidden;
-}
-
-.bd-rank-progress-fill {
-	height: 100%;
-	background: linear-gradient(90deg, var(--bd-navy) 0%, var(--bd-steel) 100%);
-	border-radius: 6px;
-	transition: width 0.5s ease;
-}
-
-.bd-rank-next {
-	text-align: center;
-	margin-top: 12px;
-	font-size: 13px;
-	color: var(--bd-steel-dark);
-}
-
-.bd-rank-next strong {
-	color: var(--bd-navy);
-}
-
-/* ============================================================================
-	BADGES SECTION
-	========================================================================= */
-
-.bd-badges-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-	gap: 16px;
-}
-
-.bd-badge-item {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	padding: 16px 12px;
-	background: var(--bd-cream);
-	border-radius: 12px;
-	transition: all 0.3s ease;
-	cursor: default;
-}
-
-.bd-badge-item:hover {
-	transform: translateY(-4px);
-	box-shadow: 0 8px 20px rgba(26, 58, 74, 0.15);
-}
-
-.bd-badge-icon {
-	font-size: 36px;
-	margin-bottom: 8px;
-}
-
-.bd-badge-name {
-	font-size: 12px;
-	font-weight: 600;
-	color: var(--bd-navy);
-	text-align: center;
-	line-height: 1.3;
-}
-
-.bd-badge-date {
-	font-size: 10px;
-	color: var(--bd-steel-dark);
 	margin-top: 4px;
 }
 
-.bd-badge-locked {
-	opacity: 0.4;
-	filter: grayscale(100%);
+.bd-rank-progress {
+	flex: 1;
 }
 
-.bd-badge-locked .bd-badge-name {
+.bd-progress-info {
+	display: flex;
+	justify-content: space-between;
+	font-size: 13px;
 	color: var(--bd-steel-dark);
+	margin-bottom: 8px;
 }
 
-/* ============================================================================
-	ACTIVITY FEED
-	========================================================================= */
+.bd-progress-bar {
+	height: 10px;
+	background: #e2e8f0;
+	border-radius: 5px;
+	overflow: hidden;
+}
 
-.bd-activity-list {
+.bd-progress-fill {
+	height: 100%;
+	background: linear-gradient(90deg, var(--bd-navy) 0%, var(--bd-steel) 100%);
+	border-radius: 5px;
+	transition: width 0.5s ease;
+}
+
+.bd-next-rank {
+	font-size: 13px;
+	color: var(--bd-steel-dark);
+	margin: 10px 0 0 0;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.bd-next-rank-icon {
+	font-size: 16px;
+}
+
+/* ==========================================================================
+   BADGES
+   Note: Badge card styling is handled by badges.css
+   This section only contains profile-specific overrides
+   ========================================================================== */
+
+/* Profile badges section - compact grid for sidebar-like display */
+.bd-profile-badges .bd-badge-grid {
+	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+	gap: 14px;
+}
+
+.bd-profile-badges .bd-badge-card {
+	padding: 20px 14px 18px;
+}
+
+.bd-profile-badges .bd-badge-card-icon {
+	width: 70px;
+	height: 70px;
+	font-size: 32px;
+	margin: 4px auto 12px;
+}
+
+.bd-profile-badges .bd-badge-card-name {
+	font-size: 14px;
+}
+
+.bd-profile-badges .bd-badge-card-desc {
+	font-size: 11px;
+	min-height: 32px;
+}
+
+/* ==========================================================================
+   RECENT ACTIVITY
+   ========================================================================== */
+
+.bd-activity-timeline {
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: 12px;
 }
 
 .bd-activity-item {
 	display: flex;
-	gap: 16px;
-	padding: 16px;
-	background: var(--bd-cream);
-	border-radius: 12px;
-	transition: all 0.2s ease;
-}
-
-.bd-activity-item:hover {
-	background: #e5edf2;
+	gap: 12px;
+	padding: 12px;
+	background: #f8fafc;
+	border-radius: 8px;
+	border-left: 3px solid var(--bd-steel);
 }
 
 .bd-activity-icon {
-	width: 40px;
-	height: 40px;
-	border-radius: 50%;
-	background: linear-gradient(135deg, var(--bd-navy) 0%, var(--bd-navy-light) 100%);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 18px;
+	font-size: 20px;
 	flex-shrink: 0;
 }
 
 .bd-activity-content {
 	flex: 1;
+	min-width: 0;
 }
 
 .bd-activity-text {
 	font-size: 14px;
 	color: var(--bd-navy);
-	margin: 0 0 4px 0;
-	line-height: 1.4;
+	font-weight: 500;
+	margin-bottom: 4px;
 }
 
-.bd-activity-text strong {
-	color: var(--bd-navy);
-}
-
-.bd-activity-time {
+.bd-activity-meta {
+	display: flex;
+	gap: 12px;
 	font-size: 12px;
-	color: var(--bd-steel-dark);
 }
 
 .bd-activity-points {
-	display: inline-block;
-	padding: 2px 8px;
-	background: var(--bd-steel);
-	color: white;
-	border-radius: 10px;
-	font-size: 11px;
+	color: #059669;
 	font-weight: 600;
-	margin-left: 8px;
 }
 
-/* ============================================================================
-	REVIEWS LIST
-	========================================================================= */
+.bd-activity-time {
+	color: var(--bd-steel-dark);
+}
+
+/* ==========================================================================
+   RECENT REVIEWS
+   ========================================================================== */
 
 .bd-reviews-list {
 	display: flex;
 	flex-direction: column;
-	gap: 20px;
+	gap: 16px;
 }
 
 .bd-review-item {
-	padding: 20px;
-	background: var(--bd-cream);
-	border-radius: 12px;
+	padding: 16px;
+	background: #f8fafc;
+	border-radius: 10px;
 	border-left: 4px solid var(--bd-steel);
 }
 
 .bd-review-business {
+	font-size: 15px;
 	font-weight: 600;
 	color: var(--bd-navy);
-	margin-bottom: 8px;
+	margin-bottom: 6px;
 }
 
 .bd-review-business a {
@@ -424,15 +393,23 @@ body.page .site-branding .site-title {
 }
 
 .bd-review-stars {
-	color: var(--bd-steel);
-	font-size: 16px;
+	color: #f59e0b;
+	font-size: 14px;
 	margin-bottom: 8px;
+	letter-spacing: 1px;
+}
+
+.bd-review-title {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--bd-navy);
+	margin-bottom: 4px;
 }
 
 .bd-review-text {
-	font-size: 14px;
-	color: #1a1a1a;
-	line-height: 1.6;
+	font-size: 13px;
+	color: #4b5563;
+	line-height: 1.5;
 	margin-bottom: 8px;
 }
 
@@ -441,121 +418,200 @@ body.page .site-branding .site-title {
 	color: var(--bd-steel-dark);
 }
 
-/* ============================================================================
-	LEADERBOARD WIDGET
-	========================================================================= */
+/* ==========================================================================
+   LEADERBOARD WIDGET - FIXED!
+   ========================================================================== */
 
-.bd-leaderboard-mini {
+.bd-leaderboard-widget {
+	background: transparent;
+	padding: 0;
+	box-shadow: none;
+}
+
+.bd-leaderboard-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 16px;
+	padding-bottom: 12px;
+	border-bottom: 2px solid #e8eef3;
+}
+
+.bd-leaderboard-header h3 {
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--bd-navy);
+	margin: 0;
+}
+
+.bd-leaderboard-period {
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--bd-navy);
+	background: #f1f5f9;
+	padding: 4px 10px;
+	border-radius: 10px;
+}
+
+.bd-leaderboard-list {
 	display: flex;
 	flex-direction: column;
-	gap: 12px;
+	gap: 10px;
+}
+
+.bd-leaderboard-empty {
+	text-align: center;
+	color: var(--bd-steel-dark);
+	padding: 20px;
+	font-size: 13px;
+	font-style: italic;
 }
 
 .bd-leaderboard-item {
 	display: flex;
 	align-items: center;
-	gap: 12px;
-	padding: 12px;
-	background: var(--bd-cream);
-	border-radius: 10px;
-	transition: all 0.2s ease;
+	gap: 10px;
+	padding: 10px 12px;
+	background: #f8fafc;
+	border-radius: 8px;
+	transition: all 0.2s;
+	min-width: 0; /* Allow flex children to shrink */
 }
 
 .bd-leaderboard-item:hover {
-	background: #e5edf2;
-}
-
-.bd-leaderboard-item.bd-current-user {
-	background: linear-gradient(135deg, rgba(26, 58, 74, 0.08) 0%, rgba(122, 158, 184, 0.12) 100%);
-	border: 2px solid var(--bd-steel);
+	background: #f1f5f9;
 }
 
 .bd-leaderboard-rank {
-	width: 32px;
-	height: 32px;
-	border-radius: 50%;
-	background: var(--bd-navy);
-	color: white;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 14px;
-	font-weight: 700;
+	font-size: 18px;
+	min-width: 28px;
+	text-align: center;
 	flex-shrink: 0;
 }
 
-.bd-leaderboard-item:nth-child(1) .bd-leaderboard-rank {
-	background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-	color: #1a1a1a;
-}
-
-.bd-leaderboard-item:nth-child(2) .bd-leaderboard-rank {
-	background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
-	color: #1a1a1a;
-}
-
-.bd-leaderboard-item:nth-child(3) .bd-leaderboard-rank {
-	background: linear-gradient(135deg, #CD7F32 0%, #B87333 100%);
-	color: white;
-}
+.bd-leaderboard-rank.bd-rank-1 { font-size: 22px; }
+.bd-leaderboard-rank.bd-rank-2 { font-size: 20px; }
+.bd-leaderboard-rank.bd-rank-3 { font-size: 20px; }
 
 .bd-leaderboard-avatar {
+	flex-shrink: 0;
+}
+
+.bd-leaderboard-avatar img {
 	width: 36px;
 	height: 36px;
 	border-radius: 50%;
-	object-fit: cover;
+	display: block;
 }
 
-.bd-leaderboard-info {
+.bd-leaderboard-user {
 	flex: 1;
 	min-width: 0;
+	overflow: hidden;
 }
 
 .bd-leaderboard-name {
-	font-size: 14px;
+	font-size: 13px;
 	font-weight: 600;
 	color: var(--bd-navy);
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	margin-bottom: 2px;
 }
 
-.bd-leaderboard-points {
-	font-size: 12px;
+/* THIS IS THE FIX - stats display horizontally */
+.bd-leaderboard-stats {
+	font-size: 11px;
 	color: var(--bd-steel-dark);
+	white-space: nowrap;
 }
 
-/* ============================================================================
-	EMPTY STATES
-	========================================================================= */
+.bd-leaderboard-badges {
+	flex-shrink: 0;
+	max-width: 100px;
+}
+
+/* Rank badge in leaderboard */
+.bd-leaderboard-badges .bd-rank-badge {
+	font-size: 11px;
+	padding: 4px 10px;
+	white-space: nowrap;
+	max-width: 90px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   EMPTY STATES
+   ========================================================================== */
 
 .bd-empty-state {
 	text-align: center;
-	padding: 40px 20px;
+	padding: 32px 20px;
 	color: var(--bd-steel-dark);
 }
 
 .bd-empty-state-icon {
-	font-size: 48px;
-	margin-bottom: 16px;
-	opacity: 0.5;
+	font-size: 40px;
+	margin-bottom: 12px;
+	opacity: 0.6;
 }
 
 .bd-empty-state-text {
-	font-size: 15px;
+	font-size: 14px;
 	margin: 0;
+	line-height: 1.5;
 }
 
-/* ============================================================================
-	BUTTONS
-	========================================================================= */
+/* ==========================================================================
+   LOGIN PROMPT
+   ========================================================================== */
+
+.bd-login-prompt {
+	display: flex;
+	justify-content: center;
+	padding: 60px 20px;
+}
+
+.bd-login-card {
+	text-align: center;
+	max-width: 400px;
+	padding: 40px;
+	background: white;
+	border-radius: 16px;
+	box-shadow: 0 4px 24px rgba(26, 58, 74, 0.1);
+}
+
+.bd-login-card h2 {
+	font-size: 24px;
+	color: var(--bd-navy);
+	margin: 0 0 12px 0;
+}
+
+.bd-login-card p {
+	font-size: 15px;
+	color: var(--bd-steel-dark);
+	margin: 0 0 24px 0;
+	line-height: 1.5;
+}
+
+.bd-login-buttons {
+	display: flex;
+	gap: 12px;
+	justify-content: center;
+}
+
+/* ==========================================================================
+   BUTTONS
+   ========================================================================== */
 
 .bd-btn {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	gap: 8px;
-	padding: 12px 24px;
+	padding: 10px 20px;
 	border-radius: 8px;
 	font-size: 14px;
 	font-weight: 600;
@@ -566,39 +622,46 @@ body.page .site-branding .site-title {
 }
 
 .bd-btn-primary {
-	background: linear-gradient(135deg, var(--bd-navy) 0%, var(--bd-navy-light) 100%);
-	color: var(--bd-steel-light);
-	box-shadow: 0 4px 12px rgba(26, 58, 74, 0.3);
+	background: var(--global-palette4, #2D3748);
+	color: white;
+	box-shadow: 0 3px 10px rgba(26, 58, 74, 0.25);
 }
 
 .bd-btn-primary:hover {
-	transform: translateY(-2px);
-	box-shadow: 0 8px 20px rgba(26, 58, 74, 0.4);
+	transform: translateY(-1px);
+	box-shadow: 0 5px 15px rgba(26, 58, 74, 0.35);
+	color: white;
 }
 
 .bd-btn-secondary {
-	background: var(--bd-cream);
+	background: white;
 	color: var(--bd-navy);
-	border: 2px solid var(--bd-steel-light);
+	border: 2px solid #e2e8f0;
 }
 
 .bd-btn-secondary:hover {
-	background: #e5edf2;
+	background: #f8fafc;
 	border-color: var(--bd-steel);
+	color: var(--bd-navy);
 }
 
-.bd-btn-small {
-	padding: 8px 16px;
-	font-size: 13px;
-}
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
 
-/* ============================================================================
-	RESPONSIVE
-	========================================================================= */
-
-@media (max-width: 968px) {
+@media (max-width: 900px) {
 	.bd-profile-content {
 		grid-template-columns: 1fr;
+	}
+
+	.bd-profile-sidebar {
+		order: -1;
+	}
+}
+
+@media (max-width: 700px) {
+	.bd-profile-header {
+		padding: 24px;
 	}
 
 	.bd-profile-hero {
@@ -608,44 +671,349 @@ body.page .site-branding .site-title {
 
 	.bd-profile-stats {
 		margin-left: 0;
-		margin-top: 24px;
-		flex-wrap: wrap;
+		margin-top: 20px;
 		justify-content: center;
-	}
-
-	.bd-profile-info h1 {
-		font-size: 28px;
-	}
-}
-
-@media (max-width: 640px) {
-	.bd-profile-header {
-		padding: 32px 20px;
-	}
-
-	.bd-profile-avatar img,
-	.bd-profile-avatar-placeholder {
-		width: 100px;
-		height: 100px;
-	}
-
-	.bd-profile-stats {
-		gap: 16px;
+		flex-wrap: wrap;
 	}
 
 	.bd-profile-stat {
-		padding: 12px 16px;
+		padding: 10px 16px;
+		min-width: 70px;
 	}
 
 	.bd-profile-stat-value {
+		font-size: 22px;
+	}
+
+	.bd-profile-info h1 {
 		font-size: 24px;
 	}
 
-	.bd-profile-card {
-		padding: 24px 20px;
+	.bd-points-summary {
+		flex-direction: column;
+		gap: 20px;
 	}
 
-	.bd-badges-grid {
-		grid-template-columns: repeat(3, 1fr);
+	.bd-points-total {
+		padding-right: 0;
+		padding-bottom: 20px;
+		border-right: none;
+		border-bottom: 2px solid #e2e8f0;
+	}
+
+	.bd-profile-badges .bd-badge-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (max-width: 480px) {
+	.bd-profile-page {
+		padding: 0 12px 30px;
+	}
+
+	.bd-profile-card {
+		padding: 20px 16px;
+	}
+
+	.bd-profile-stats {
+		gap: 8px;
+	}
+
+	.bd-profile-stat {
+		padding: 8px 12px;
+	}
+
+	.bd-profile-stat-value {
+		font-size: 20px;
+	}
+
+	.bd-profile-stat-label {
+		font-size: 10px;
+	}
+}
+
+/* ==========================================================================
+   PROFILE EDIT FORM
+   ========================================================================== */
+
+/* Edit Profile Button in Header */
+.bd-profile-header-actions {
+	margin-left: auto;
+	display: flex;
+	align-items: center;
+}
+
+.bd-edit-profile-btn {
+	background: rgba(255, 255, 255, 0.15);
+	color: white;
+	border: 1px solid rgba(255, 255, 255, 0.3);
+	padding: 8px 16px;
+	font-size: 13px;
+	border-radius: 6px;
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.bd-edit-profile-btn:hover {
+	background: rgba(255, 255, 255, 0.25);
+	color: white;
+	text-decoration: none;
+}
+
+/* Edit Profile Card */
+.bd-edit-profile-card {
+	border: 2px solid var(--bd-steel);
+}
+
+.bd-edit-profile-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #e8eef3;
+}
+
+.bd-edit-profile-header h2 {
+	margin: 0;
+}
+
+/* Messages */
+.bd-edit-profile-messages {
+	margin-bottom: 16px;
+}
+
+.bd-profile-message {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 12px 16px;
+	border-radius: 8px;
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.bd-profile-message-success {
+	background: #ecfdf5;
+	color: #065f46;
+	border: 1px solid #a7f3d0;
+}
+
+.bd-profile-message-error {
+	background: #fef2f2;
+	color: #991b1b;
+	border: 1px solid #fecaca;
+}
+
+.bd-profile-message i {
+	font-size: 18px;
+}
+
+/* Form Sections */
+.bd-form-section {
+	margin-bottom: 28px;
+	padding-bottom: 24px;
+	border-bottom: 1px solid #e8eef3;
+}
+
+.bd-form-section:last-of-type {
+	border-bottom: none;
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+.bd-form-section h3 {
+	font-size: 14px;
+	font-weight: 700;
+	color: var(--bd-navy);
+	margin: 0 0 16px 0;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+}
+
+/* Form Groups */
+.bd-form-group {
+	margin-bottom: 16px;
+}
+
+.bd-form-group:last-child {
+	margin-bottom: 0;
+}
+
+.bd-form-group label {
+	display: block;
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--bd-navy);
+	margin-bottom: 6px;
+}
+
+.bd-form-group label i {
+	margin-right: 4px;
+	color: var(--bd-steel);
+}
+
+.bd-required {
+	color: #dc2626;
+}
+
+.bd-field-help {
+	font-size: 12px;
+	color: var(--bd-steel-dark);
+	margin: 6px 0 0 0;
+}
+
+/* Form Inputs */
+.bd-edit-profile-form input[type="text"],
+.bd-edit-profile-form input[type="email"],
+.bd-edit-profile-form input[type="tel"],
+.bd-edit-profile-form input[type="url"],
+.bd-edit-profile-form textarea,
+.bd-edit-profile-form select {
+	width: 100%;
+	padding: 10px 14px;
+	font-size: 14px;
+	border: 1px solid #d1d5db;
+	border-radius: 8px;
+	background: white;
+	color: var(--bd-navy);
+	transition: all 0.2s;
+}
+
+.bd-edit-profile-form input:focus,
+.bd-edit-profile-form textarea:focus,
+.bd-edit-profile-form select:focus {
+	outline: none;
+	border-color: var(--bd-steel);
+	box-shadow: 0 0 0 3px rgba(122, 158, 184, 0.15);
+}
+
+.bd-edit-profile-form input::placeholder,
+.bd-edit-profile-form textarea::placeholder {
+	color: #9ca3af;
+}
+
+.bd-input-disabled {
+	background: #f3f4f6 !important;
+	color: #6b7280 !important;
+	cursor: not-allowed;
+}
+
+/* Two Column Row */
+.bd-form-row-2col {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+}
+
+/* Input with Prefix (for social handles) */
+.bd-input-with-prefix {
+	display: flex;
+	align-items: stretch;
+}
+
+.bd-input-prefix {
+	display: flex;
+	align-items: center;
+	padding: 0 12px;
+	background: #f3f4f6;
+	border: 1px solid #d1d5db;
+	border-right: none;
+	border-radius: 8px 0 0 8px;
+	color: #6b7280;
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.bd-input-with-prefix input {
+	border-radius: 0 8px 8px 0 !important;
+	flex: 1;
+}
+
+/* Email Field with Change Button */
+.bd-email-field-wrapper {
+	display: flex;
+	gap: 10px;
+	align-items: stretch;
+}
+
+.bd-email-field-wrapper input {
+	flex: 1;
+}
+
+.bd-email-change-form {
+	margin-top: 12px;
+	padding: 16px;
+	background: #f8fafc;
+	border-radius: 8px;
+	border: 1px solid #e8eef3;
+}
+
+.bd-form-actions-inline {
+	display: flex;
+	gap: 8px;
+	margin-top: 12px;
+}
+
+/* Form Actions */
+.bd-form-actions {
+	display: flex;
+	gap: 12px;
+	margin-top: 24px;
+	padding-top: 24px;
+	border-top: 1px solid #e8eef3;
+}
+
+/* Button Sizes */
+.bd-btn-sm {
+	padding: 6px 12px;
+	font-size: 12px;
+}
+
+/* Loading State */
+.bd-btn.bd-loading {
+	opacity: 0.7;
+	pointer-events: none;
+}
+
+/* ==========================================================================
+   PROFILE EDIT RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 700px) {
+	.bd-profile-hero {
+		flex-wrap: wrap;
+	}
+
+	.bd-profile-header-actions {
+		width: 100%;
+		margin-top: 16px;
+		justify-content: center;
+	}
+
+	.bd-form-row-2col {
+		grid-template-columns: 1fr;
+	}
+
+	.bd-form-actions {
+		flex-direction: column;
+	}
+
+	.bd-form-actions .bd-btn {
+		width: 100%;
+		justify-content: center;
+	}
+
+	.bd-email-field-wrapper {
+		flex-direction: column;
+	}
+
+	.bd-edit-profile-header {
+		flex-direction: column;
+		gap: 12px;
+		text-align: center;
 	}
 }

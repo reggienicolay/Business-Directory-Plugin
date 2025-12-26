@@ -3,15 +3,18 @@
  * Premium design matching Love Tri Valley brand
  */
 
+/* Import design tokens (fonts, colors, spacing) */
+@import url('design-tokens.css');
+
 /* ============================================================================
 	WRAPPER & LAYOUT
 	========================================================================= */
 
 .bd-edit-listing-wrapper {
-	max-width: 900px;
+	max-width: var(--global-content-width);
 	margin: 0 auto;
 	padding: 24px;
-	font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+	font-family: var(--bd-font-body);
 }
 
 /* ============================================================================
@@ -65,7 +68,7 @@
 	align-items: flex-start;
 	gap: 24px;
 	padding: 32px;
-	background: var(--global-palette4, #2D3748);
+	background: linear-gradient(174deg, var(--bd-primary-600) 0% 40%, var(--bd-accent-400) 100%);
 	border-radius: 16px;
 	margin-bottom: 32px;
 	color: white;
@@ -627,7 +630,7 @@
 	========================================================================= */
 
 .bd-edit-message {
-	max-width: 480px;
+	max-width: 800px;
 	margin: 60px auto;
 	text-align: center;
 	padding: 48px 32px;

@@ -1,52 +1,112 @@
 /**
  * Business Directory - Map Marker Styles
- * Modern blue/teal theme
+ * Heart pins for the "Love" brand network
+ * 
+ * @package BusinessDirectory
+ * @since 1.0.0
  */
 
-/* ============================================================================
-	Map Markers
-	========================================================================= */
-.bd-custom-marker {
-	background: none;
-	border: none;
+/* ==========================================================================
+   HEART MARKER PINS
+   ========================================================================== */
+
+.bd-heart-icon {
+	background: transparent !important;
+	border: none !important;
 }
 
-.bd-marker-pin {
-	width: 30px;
-	height: 40px;
+.bd-heart-marker {
+	width: 32px;
+	height: 32px;
+	color: #0F2A43;
+	filter: drop-shadow(0 2px 4px rgba(15, 42, 67, 0.3));
+	transition: all 0.2s ease;
+	cursor: pointer;
+}
+
+.bd-heart-marker svg {
+	width: 100%;
+	height: 100%;
+}
+
+/* Hover state - teal glow */
+.bd-heart-marker:hover {
+	color: #2CB1BC;
+	transform: scale(1.15);
+	filter: drop-shadow(0 4px 8px rgba(44, 177, 188, 0.4));
+}
+
+/* Active/clicked state */
+.leaflet-marker-icon:active .bd-heart-marker {
+	transform: scale(0.95);
+}
+
+/* ==========================================================================
+   CLUSTER MARKERS
+   ========================================================================== */
+
+.bd-cluster-icon {
+	background: transparent !important;
+	border: none !important;
+}
+
+.bd-cluster {
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	background: linear-gradient(135deg, #0F2A43 0%, #133453 100%);
-	border-radius: 50% 50% 50% 0;
-	transform: rotate(-45deg);
-	box-shadow: 0 2px 8px rgba(15, 42, 67, 0.4);
-	border: 2px solid #2CB1BC;
-}
-
-.bd-marker-pin::after {
-	content: '';
-	width: 12px;
-	height: 12px;
+	border: 3px solid #2CB1BC;
 	border-radius: 50%;
-	background: #2CB1BC;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
+	color: white;
+	font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+	font-weight: 700;
+	box-shadow: 0 3px 10px rgba(15, 42, 67, 0.3);
+	transition: all 0.2s ease;
+	cursor: pointer;
 }
 
-/* Hover state for markers */
-.bd-marker-pin:hover {
-	box-shadow: 0 4px 12px rgba(44, 177, 188, 0.5);
+.bd-cluster:hover {
+	transform: scale(1.1);
+	box-shadow: 0 4px 16px rgba(44, 177, 188, 0.4);
+	border-color: #239AA3;
 }
+
+/* Size variants */
+.bd-cluster-small {
+	width: 36px;
+	height: 36px;
+	font-size: 13px;
+}
+
+.bd-cluster-medium {
+	width: 44px;
+	height: 44px;
+	font-size: 14px;
+}
+
+.bd-cluster-large {
+	width: 52px;
+	height: 52px;
+	font-size: 15px;
+}
+
+/* Cluster span (number) */
+.bd-cluster span {
+	line-height: 1;
+}
+
+/* ==========================================================================
+   USER LOCATION MARKER
+   ========================================================================== */
 
 .bd-user-marker {
 	background: none;
 	border: none;
 }
 
-/* User location marker - keeping distinct blue for "you are here" */
 .bd-user-pin {
-	width: 20px;
-	height: 20px;
+	width: 18px;
+	height: 18px;
 	background: #2CB1BC;
 	border: 3px solid white;
 	border-radius: 50%;
@@ -56,70 +116,17 @@
 
 @keyframes bd-pulse {
 	0%, 100% {
-		box-shadow: 0 0 0 0 rgba(44, 177, 188, 0.7);
+		box-shadow: 0 0 0 0 rgba(44, 177, 188, 0.6);
 	}
 	50% {
-		box-shadow: 0 0 0 10px rgba(44, 177, 188, 0);
+		box-shadow: 0 0 0 12px rgba(44, 177, 188, 0);
 	}
 }
 
-/* ============================================================================
-	Map Popup
-	========================================================================= */
-.bd-map-popup {
-	min-width: 200px;
-}
+/* ==========================================================================
+   BUTTON LINK STYLE (utility)
+   ========================================================================== */
 
-.bd-popup-image {
-	width: 100%;
-	height: 120px;
-	object-fit: cover;
-	border-radius: 6px;
-	margin-bottom: 10px;
-}
-
-.bd-popup-title {
-	margin: 0 0 8px 0;
-	font-size: 16px;
-	font-weight: 600;
-	color: #0F2A43;
-}
-
-.bd-popup-rating,
-.bd-popup-distance,
-.bd-popup-price {
-	font-size: 13px;
-	color: #829AB1;
-	margin-bottom: 6px;
-}
-
-.bd-popup-rating {
-	color: #2CB1BC;
-}
-
-.bd-popup-link {
-	display: inline-block;
-	margin-top: 10px;
-	padding: 8px 16px;
-	background: linear-gradient(135deg, #0F2A43 0%, #133453 100%);
-	color: white !important;
-	text-decoration: none;
-	border-radius: 6px;
-	font-size: 13px;
-	font-weight: 600;
-	border: 2px solid #2CB1BC;
-	transition: all 0.3s ease;
-}
-
-.bd-popup-link:hover {
-	background: linear-gradient(135deg, #133453 0%, #2CB1BC 100%);
-	transform: translateY(-1px);
-	box-shadow: 0 4px 12px rgba(44, 177, 188, 0.3);
-}
-
-/* ============================================================================
-	Button Link Style
-	========================================================================= */
 .bd-btn-link {
 	background: none;
 	border: none;
@@ -134,4 +141,114 @@
 
 .bd-btn-link:hover {
 	color: #239AA3;
+}
+
+/* ==========================================================================
+   MAP STYLE SWITCHER
+   ========================================================================== */
+
+.bd-style-switcher {
+	background: white;
+	border-radius: 8px;
+	box-shadow: 0 2px 10px rgba(15, 42, 67, 0.15);
+	overflow: hidden;
+	transition: all 0.2s ease;
+}
+
+.bd-style-current {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	background: white;
+	border: 2px solid #e2e8f0;
+	border-radius: 6px;
+	font-size: 16px;
+	color: #0F2A43;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.bd-style-current:hover {
+	background: #f8fafc;
+	border-color: #2CB1BC;
+	color: #2CB1BC;
+}
+
+.bd-style-switcher.open .bd-style-current {
+	border-color: #2CB1BC;
+	color: #2CB1BC;
+}
+
+.bd-style-dropdown {
+	display: none;
+	border-top: 1px solid #e2e8f0;
+	min-width: 130px;
+}
+
+.bd-style-switcher.open .bd-style-dropdown {
+	display: block;
+}
+
+.bd-style-option {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	padding: 10px 14px;
+	background: white;
+	border: none;
+	font-family: 'Inter', -apple-system, sans-serif;
+	font-size: 13px;
+	font-weight: 500;
+	color: #0F2A43;
+	cursor: pointer;
+	transition: all 0.15s ease;
+	text-align: left;
+}
+
+.bd-style-option i {
+	width: 16px;
+	text-align: center;
+	color: #64748b;
+}
+
+.bd-style-option:hover {
+	background: #f1f5f9;
+	color: #0F2A43;
+}
+
+.bd-style-option:hover i {
+	color: #2CB1BC;
+}
+
+.bd-style-option.active {
+	background: #0F2A43;
+	color: white;
+}
+
+.bd-style-option.active i {
+	color: #2CB1BC;
+}
+
+.bd-style-option.active:hover {
+	background: #133453;
+	color: white;
+}
+
+/* ==========================================================================
+   OVERRIDE DEFAULT LEAFLET CLUSTER STYLES
+   ========================================================================== */
+
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+	background: transparent !important;
+}
+
+.marker-cluster-small div,
+.marker-cluster-medium div,
+.marker-cluster-large div {
+	background: transparent !important;
 }

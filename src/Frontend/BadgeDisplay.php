@@ -20,7 +20,6 @@ class BadgeDisplay {
 	 */
 	public static function init() {
 		add_shortcode( 'bd_badge_gallery', array( __CLASS__, 'render_badge_gallery' ) );
-		add_shortcode( 'bd_user_profile', array( __CLASS__, 'render_user_profile' ) );
 	}
 
 	/**
@@ -561,15 +560,20 @@ class BadgeDisplay {
 
 	/**
 	 * Render leaderboard widget
+	 *
+	 * @param string $period      Time period: 'all_time', 'month', 'week'.
+	 * @param int    $limit       Number of users to show.
+	 * @param bool   $show_header Whether to show the header (default true).
 	 */
-	public static function render_leaderboard( $period = 'all_time', $limit = 10 ) {
+	public static function render_leaderboard( $period = 'all_time', $limit = 10, $show_header = true ) {
 		$leaders = ActivityTracker::get_leaderboard( $period, $limit );
 
 		ob_start();
 		?>
 		<div class="bd-leaderboard-widget">
+			<?php if ( $show_header ) : ?>
 			<div class="bd-leaderboard-header">
-				<h3>🏆 Top Contributors</h3>
+				<h3><i class="fa-solid fa-trophy"></i> Top Contributors</h3>
 				<div class="bd-leaderboard-period">
 					<?php
 					switch ( $period ) {
@@ -585,6 +589,24 @@ class BadgeDisplay {
 					?>
 				</div>
 			</div>
+			<?php else : ?>
+			<div class="bd-leaderboard-period-inline" style="text-align: right; margin-bottom: 12px;">
+				<span style="font-size: 11px; font-weight: 600; color: var(--bd-navy, #1a3a4a); background: #f1f5f9; padding: 4px 10px; border-radius: 10px;">
+					<?php
+					switch ( $period ) {
+						case 'week':
+							echo 'This Week';
+							break;
+						case 'month':
+							echo 'This Month';
+							break;
+						default:
+							echo 'All Time';
+					}
+					?>
+				</span>
+			</div>
+			<?php endif; ?>
 			
 			<div class="bd-leaderboard-list">
 				<?php if ( empty( $leaders ) ) : ?>
@@ -625,332 +647,4 @@ class BadgeDisplay {
 		return ob_get_clean();
 	}
 
-	/**
-	 * Render user profile page [bd_user_profile]
-	 *
-	 * Displays the current user's full profile with stats, badges, and activity.
-	 */
-	public static function render_user_profile( $atts = array() ) {
-		$atts = shortcode_atts(
-			array(
-				'user_id'       => 0,
-				'show_reviews'  => 'yes',
-				'show_activity' => 'yes',
-				'reviews_limit' => 5,
-			),
-			$atts
-		);
-
-		// Get user - either specified or current user
-		$user_id = absint( $atts['user_id'] );
-		if ( ! $user_id ) {
-			$user_id = get_current_user_id();
-		}
-
-		// Must be logged in or viewing a specific user
-		if ( ! $user_id ) {
-			return '<div class="bd-profile-login-required">
-				<h2>Please Log In</h2>
-				<p>You need to be logged in to view your profile.</p>
-				<a href="' . esc_url( wp_login_url( get_permalink() ) ) . '" class="bd-btn bd-btn-primary">Log In</a>
-			</div>';
-		}
-
-		$user = get_userdata( $user_id );
-		if ( ! $user ) {
-			return '<div class="bd-profile-error">User not found.</div>';
-		}
-
-		// Get user data
-		$stats          = ActivityTracker::get_user_stats( $user_id );
-		$badge_keys     = BadgeSystem::get_user_badges( $user_id );
-		$rank           = BadgeSystem::get_user_rank( $user_id );
-		$is_own_profile = ( get_current_user_id() === $user_id );
-
-		// Get user's reviews
-		global $wpdb;
-		$reviews_table = $wpdb->base_prefix . 'bd_reviews';
-		$reviews       = array();
-		if ( 'yes' === $atts['show_reviews'] ) {
-			$reviews = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT r.*, p.post_title as business_name 
-					FROM $reviews_table r
-					LEFT JOIN {$wpdb->posts} p ON r.business_id = p.ID
-					WHERE r.user_id = %d AND r.status = 'approved'
-					ORDER BY r.created_at DESC
-					LIMIT %d",
-					$user_id,
-					absint( $atts['reviews_limit'] )
-				),
-				ARRAY_A
-			);
-		}
-
-		// Get recent activity
-		$activity = array();
-		if ( 'yes' === $atts['show_activity'] ) {
-			$activity_table = $wpdb->base_prefix . 'bd_user_activity';
-			$table_exists   = $wpdb->get_var( "SHOW TABLES LIKE '$activity_table'" );
-			if ( $table_exists ) {
-				$activity = $wpdb->get_results(
-					$wpdb->prepare(
-						"SELECT * FROM $activity_table 
-						WHERE user_id = %d 
-						ORDER BY created_at DESC 
-						LIMIT 10",
-						$user_id
-					),
-					ARRAY_A
-				);
-			}
-		}
-
-		// Calculate next rank
-		$next_rank = self::get_next_rank( $stats['total_points'] );
-
-		ob_start();
-		?>
-		<div class="bd-profile-page">
-			
-			<!-- Profile Header -->
-			<div class="bd-profile-header">
-				<div class="bd-profile-hero">
-					<div class="bd-profile-avatar">
-						<?php echo get_avatar( $user_id, 120 ); ?>
-					</div>
-					
-					<div class="bd-profile-info">
-						<h1><?php echo esc_html( $user->display_name ); ?></h1>
-						<?php if ( $is_own_profile ) : ?>
-							<p class="bd-profile-email"><?php echo esc_html( $user->user_email ); ?></p>
-						<?php endif; ?>
-						<p class="bd-profile-member-since">
-							<i class="fas fa-calendar-alt"></i>
-							Member since <?php echo date_i18n( 'F Y', strtotime( $user->user_registered ) ); ?>
-						</p>
-						
-						<?php if ( $rank ) : ?>
-							<div class="bd-profile-rank" style="background: linear-gradient(135deg, <?php echo esc_attr( $rank['color'] ); ?> 0%, <?php echo esc_attr( self::adjust_color( $rank['color'], -20 ) ); ?> 100%);">
-								<span class="bd-profile-rank-icon"><?php echo $rank['icon']; ?></span>
-								<span class="bd-profile-rank-name"><?php echo esc_html( $rank['name'] ); ?></span>
-							</div>
-						<?php endif; ?>
-					</div>
-					
-					<div class="bd-profile-stats">
-						<div class="bd-profile-stat">
-							<span class="bd-profile-stat-value"><?php echo number_format( $stats['total_points'] ); ?></span>
-							<span class="bd-profile-stat-label">Points</span>
-						</div>
-						<div class="bd-profile-stat">
-							<span class="bd-profile-stat-value"><?php echo number_format( $stats['total_reviews'] ); ?></span>
-							<span class="bd-profile-stat-label">Reviews</span>
-						</div>
-						<div class="bd-profile-stat">
-							<span class="bd-profile-stat-value"><?php echo count( $badge_keys ); ?></span>
-							<span class="bd-profile-stat-label">Badges</span>
-						</div>
-					</div>
-				</div>
-			</div>
-			
-			<!-- Profile Content -->
-			<div class="bd-profile-content">
-				
-				<!-- Main Column -->
-				<div class="bd-profile-main">
-					
-					<!-- Points & Progress Card -->
-					<div class="bd-profile-card">
-						<h2><i class="fas fa-chart-line"></i> Points & Progress</h2>
-						
-						<div class="bd-points-display">
-							<span class="bd-points-value"><?php echo number_format( $stats['total_points'] ); ?></span>
-							<span class="bd-points-label">Total Points</span>
-						</div>
-						
-						<?php if ( $next_rank ) : ?>
-							<div class="bd-rank-progress">
-								<div class="bd-rank-progress-label">
-									<span>Progress to <?php echo esc_html( $next_rank['rank']['name'] ); ?></span>
-									<span><?php echo number_format( $next_rank['threshold'] - $stats['total_points'] ); ?> points to go</span>
-								</div>
-								<div class="bd-rank-progress-bar">
-									<?php
-									$current_threshold = self::get_current_rank_threshold( $stats['total_points'] );
-									$progress          = ( ( $stats['total_points'] - $current_threshold ) / ( $next_rank['threshold'] - $current_threshold ) ) * 100;
-									?>
-									<div class="bd-rank-progress-fill" style="width: <?php echo min( 100, $progress ); ?>%;"></div>
-								</div>
-								<p class="bd-rank-next">
-									Next rank: <strong><?php echo $next_rank['rank']['icon']; ?> <?php echo esc_html( $next_rank['rank']['name'] ); ?></strong>
-								</p>
-							</div>
-						<?php else : ?>
-							<p class="bd-rank-maxed">🎉 You've reached the highest rank!</p>
-						<?php endif; ?>
-					</div>
-					
-					<!-- Badges Card -->
-					<div class="bd-profile-card">
-						<h2><i class="fas fa-award"></i> Badges (<?php echo count( $badge_keys ); ?>/<?php echo count( BadgeSystem::BADGES ); ?>)</h2>
-						
-						<?php if ( ! empty( $badge_keys ) ) : ?>
-							<div class="bd-badges-grid">
-								<?php foreach ( $badge_keys as $badge_key ) : ?>
-									<?php
-									$badge = BadgeSystem::BADGES[ $badge_key ] ?? null;
-									if ( ! $badge ) {
-										continue;
-									}
-									?>
-									<div class="bd-badge-item" title="<?php echo esc_attr( $badge['description'] ); ?>">
-										<span class="bd-badge-icon" style="color: <?php echo esc_attr( $badge['color'] ); ?>;">
-											<?php echo $badge['icon']; ?>
-										</span>
-										<span class="bd-badge-name"><?php echo esc_html( $badge['name'] ); ?></span>
-									</div>
-								<?php endforeach; ?>
-							</div>
-						<?php else : ?>
-							<div class="bd-empty-state">
-								<div class="bd-empty-state-icon">🏅</div>
-								<p class="bd-empty-state-text">No badges earned yet. Start reviewing local businesses to earn your first badge!</p>
-							</div>
-						<?php endif; ?>
-						
-						<a href="<?php echo esc_url( home_url( '/badges/' ) ); ?>" class="bd-btn bd-btn-secondary bd-btn-small" style="margin-top: 16px;">
-							View All Badges
-						</a>
-					</div>
-					
-					<!-- Reviews Card -->
-					<?php if ( 'yes' === $atts['show_reviews'] ) : ?>
-						<div class="bd-profile-card">
-							<h2><i class="fas fa-pen"></i> Recent Reviews</h2>
-							
-							<?php if ( ! empty( $reviews ) ) : ?>
-								<div class="bd-reviews-list">
-									<?php foreach ( $reviews as $review ) : ?>
-										<div class="bd-review-item">
-											<div class="bd-review-business">
-												<a href="<?php echo esc_url( get_permalink( $review['business_id'] ) ); ?>">
-													<?php echo esc_html( $review['business_name'] ?: 'Business #' . $review['business_id'] ); ?>
-												</a>
-											</div>
-											<div class="bd-review-stars">
-												<?php echo str_repeat( '★', $review['rating'] ); ?>
-												<?php echo str_repeat( '☆', 5 - $review['rating'] ); ?>
-											</div>
-											<?php if ( ! empty( $review['title'] ) ) : ?>
-												<strong><?php echo esc_html( $review['title'] ); ?></strong>
-											<?php endif; ?>
-											<p class="bd-review-text"><?php echo esc_html( wp_trim_words( $review['content'], 30 ) ); ?></p>
-											<span class="bd-review-date"><?php echo human_time_diff( strtotime( $review['created_at'] ), current_time( 'timestamp' ) ); ?> ago</span>
-										</div>
-									<?php endforeach; ?>
-								</div>
-							<?php else : ?>
-								<div class="bd-empty-state">
-									<div class="bd-empty-state-icon">✏️</div>
-									<p class="bd-empty-state-text">No reviews yet. Find a local business and share your experience!</p>
-								</div>
-							<?php endif; ?>
-						</div>
-					<?php endif; ?>
-					
-				</div>
-				
-				<!-- Sidebar -->
-				<div class="bd-profile-sidebar">
-					
-					<!-- Activity Card -->
-					<?php if ( 'yes' === $atts['show_activity'] && ! empty( $activity ) ) : ?>
-						<div class="bd-profile-card">
-							<h2><i class="fas fa-history"></i> Recent Activity</h2>
-							
-							<div class="bd-activity-list">
-								<?php foreach ( $activity as $item ) : ?>
-									<div class="bd-activity-item">
-										<div class="bd-activity-icon">
-											<?php echo self::get_activity_icon( $item['activity_type'] ); ?>
-										</div>
-										<div class="bd-activity-content">
-											<p class="bd-activity-text"><?php echo esc_html( self::get_activity_text( $item ) ); ?></p>
-											<span class="bd-activity-time"><?php echo human_time_diff( strtotime( $item['created_at'] ), current_time( 'timestamp' ) ); ?> ago</span>
-											<?php if ( ! empty( $item['points'] ) && $item['points'] > 0 ) : ?>
-												<span class="bd-activity-points">+<?php echo $item['points']; ?> pts</span>
-											<?php endif; ?>
-										</div>
-									</div>
-								<?php endforeach; ?>
-							</div>
-						</div>
-					<?php endif; ?>
-					
-					<!-- Leaderboard Mini Widget -->
-					<div class="bd-profile-card">
-						<h2><i class="fas fa-trophy"></i> Top Contributors</h2>
-						<?php echo self::render_leaderboard( 'all_time', 5 ); ?>
-					</div>
-					
-				</div>
-				
-			</div>
-			
-		</div>
-		<?php
-		return ob_get_clean();
-	}
-
-	/**
-	 * Get activity icon based on type
-	 */
-	private static function get_activity_icon( $type ) {
-		$icons = array(
-			'review_created'        => '✏️',
-			'review_with_photo'     => '📸',
-			'review_detailed'       => '📝',
-			'helpful_vote_received' => '👍',
-			'first_review_day'      => '🌟',
-			'profile_completed'     => '✅',
-			'business_claimed'      => '🏪',
-			'list_created'          => '📋',
-		);
-		return $icons[ $type ] ?? '⭐';
-	}
-
-	/**
-	 * Get activity text based on type
-	 */
-	private static function get_activity_text( $item ) {
-		$texts = array(
-			'review_created'        => 'Wrote a review',
-			'review_with_photo'     => 'Added a photo to review',
-			'review_detailed'       => 'Wrote a detailed review',
-			'helpful_vote_received' => 'Review marked as helpful',
-			'first_review_day'      => 'First review of the day',
-			'profile_completed'     => 'Completed profile',
-			'business_claimed'      => 'Claimed a business',
-			'list_created'          => 'Created a list',
-		);
-		return $texts[ $item['activity_type'] ] ?? 'Earned points';
-	}
-
-	/**
-	 * Adjust color brightness
-	 */
-	private static function adjust_color( $hex, $percent ) {
-		$hex = ltrim( $hex, '#' );
-		$r   = hexdec( substr( $hex, 0, 2 ) );
-		$g   = hexdec( substr( $hex, 2, 2 ) );
-		$b   = hexdec( substr( $hex, 4, 2 ) );
-
-		$r = max( 0, min( 255, $r + ( $r * $percent / 100 ) ) );
-		$g = max( 0, min( 255, $g + ( $g * $percent / 100 ) ) );
-		$b = max( 0, min( 255, $b + ( $b * $percent / 100 ) ) );
-
-		return sprintf( '#%02x%02x%02x', $r, $g, $b );
-	}
 }

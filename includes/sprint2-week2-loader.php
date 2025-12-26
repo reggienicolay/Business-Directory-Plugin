@@ -82,8 +82,37 @@ add_action(
 				'bd-filters',
 				$plugin_url . 'assets/css/filters-premium.css',
 				array( 'font-awesome' ),
-				'3.1.0'
+				'3.2.0'
 			);
+
+			// Enqueue map popup CSS (single source of truth for popup styles)
+			// Switch styles via: add_filter('bd_popup_style', fn() => 'detailed');
+			wp_enqueue_style(
+				'bd-map-popup',
+				$plugin_url . 'assets/css/map-popup.css',
+				array( 'bd-filters' ),
+				'1.0.0'
+			);
+
+			// Enqueue map marker CSS (heart pins + branded clusters)
+			wp_enqueue_style(
+				'bd-map-markers',
+				$plugin_url . 'assets/css/map-markers.css',
+				array( 'bd-filters' ),
+				'1.0.0'
+			);
+
+			// Add body class for detailed popup mode if enabled
+			$popup_style = apply_filters( 'bd_popup_style', 'minimal' );
+			if ( 'detailed' === $popup_style ) {
+				add_filter(
+					'body_class',
+					function ( $classes ) {
+						$classes[] = 'bd-popup-detailed';
+						return $classes;
+					}
+				);
+			}
 
 			// Enqueue Leaflet JS
 			wp_enqueue_script(
@@ -108,17 +137,18 @@ add_action(
 				'bd-directory',
 				$plugin_url . 'assets/js/business-directory.js',
 				array( 'jquery', 'leaflet', 'leaflet-markercluster' ),
-				'2.1.0',
+				'2.2.0',
 				true
 			);
 
-			// Pass API URL and nonce to JavaScript
+			// Pass API URL, nonce, and popup style to JavaScript
 			wp_localize_script(
 				'bd-directory',
 				'bdVars',
 				array(
-					'apiUrl' => rest_url( 'bd/v1/' ),
-					'nonce'  => wp_create_nonce( 'wp_rest' ),
+					'apiUrl'     => rest_url( 'bd/v1/' ),
+					'nonce'      => wp_create_nonce( 'wp_rest' ),
+					'popupStyle' => apply_filters( 'bd_popup_style', 'minimal' ),
 				)
 			);
 		}
@@ -140,7 +170,7 @@ add_action(
 				'bd-business-detail',
 				$plugin_url . 'assets/css/business-detail-premium.css',
 				array( 'font-awesome' ),
-				'1.0.3'  // ← Bumped version for cache busting
+				'1.0.3'
 			);
 
 			// Enqueue Leaflet for the map (if not already loaded)
@@ -165,8 +195,8 @@ add_action(
 			wp_enqueue_script(
 				'bd-business-detail',
 				$plugin_url . 'assets/js/business-detail.js',
-				array( 'jquery', 'leaflet' ),  // ← Added 'leaflet' dependency
-				'1.0.1',  // ← Bumped version for cache busting
+				array( 'jquery', 'leaflet' ),
+				'1.0.1',
 				true
 			);
 		}

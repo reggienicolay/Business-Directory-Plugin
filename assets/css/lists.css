@@ -7,19 +7,23 @@
 	CSS VARIABLES - TriValley Vine
 	======================================================================== */
 
+/* Import design tokens (fonts, colors, spacing) */
+@import url('design-tokens.css');
+
+/* Legacy variables for backward compatibility */
 :root {
-	--bd-navy: #1a3a4a;
-	--bd-navy-dark: #0f2a3a;
-	--bd-navy-light: #1e4258;
-	--bd-steel: #7a9eb8;
-	--bd-steel-light: #a8c4d4;
-	--bd-cream: #f0f5f8;
-	--bd-text: #2d3748;
-	--bd-text-muted: #5d7a8c;
-	--bd-border: #d1dce5;
-	--bd-success: #10b981;
-	--bd-danger: #ef4444;
-	--bd-warning: #f59e0b;
+	--bd-navy: var(--bd-primary-600, #1a3a4a);
+	--bd-navy-dark: var(--bd-primary-700, #0f2a3a);
+	--bd-navy-light: var(--bd-primary-500, #1e4258);
+	--bd-steel: var(--bd-accent-400, #7a9eb8);
+	--bd-steel-light: var(--bd-accent-300, #a8c4d4);
+	--bd-cream: var(--bd-neutral-100, #f0f5f8);
+	--bd-text: var(--bd-neutral-700, #2d3748);
+	--bd-text-muted: var(--bd-accent-500, #5d7a8c);
+	--bd-border: var(--bd-neutral-300, #d1dce5);
+	--bd-success: var(--bd-success-500, #10b981);
+	--bd-danger: var(--bd-error-500, #ef4444);
+	--bd-warning: var(--bd-warning-500, #f59e0b);
 }
 
 /* ========================================================================
@@ -382,7 +386,7 @@ body.bd-modal-open::before {
 .bd-list-card-cover {
 	position: relative;
 	height: 160px;
-	background: linear-gradient(135deg, var(--bd-navy) 0%, var(--bd-navy-light) 100%);
+	background: var(--global-palette4, #2D3748);
 	overflow: hidden;
 }
 
@@ -483,7 +487,7 @@ body.bd-modal-open::before {
 	======================================================================== */
 
 .bd-single-list-page {
-	max-width: 900px;
+	max-width: var(--global-content-width);
 	margin: 0 auto;
 }
 
@@ -493,7 +497,7 @@ body.bd-modal-open::before {
 	margin-bottom: 30px;
 	border-radius: 16px;
 	overflow: hidden;
-	background: linear-gradient(135deg, var(--bd-navy) 0%, var(--bd-navy-light) 100%);
+	background: linear-gradient(174deg, var(--bd-primary-600) 0% 40%, var(--bd-accent-400) 100%);
 }
 
 .bd-list-hero h1 {
@@ -596,6 +600,7 @@ body.bd-modal-open::before {
 	cursor: pointer;
 	transition: all 0.2s ease;
 	text-decoration: none;
+	padding: 20px 20px 20px 20px;
 }
 
 .bd-share-btn:hover {
@@ -611,9 +616,9 @@ body.bd-modal-open::before {
 }
 
 /* Copy button text fallback if no icon */
-.bd-share-btn[title="Copy Link"]::before {
-	content: "🔗";
-}
+/*.bd-share-btn[title="Copy Link"]::before { */
+/*	content: "🔗"; */
+/*} */
 
 /* Owner Actions */
 .bd-list-owner-actions {

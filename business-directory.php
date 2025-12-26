@@ -160,3 +160,8 @@ if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/business-tools-loader.
 if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/integrations-loader.php' ) ) {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/integrations-loader.php';
 }
+
+// Load Auth System
+if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/auth-loader.php' ) ) {
+    require_once plugin_dir_path( __FILE__ ) . 'includes/auth-loader.php';
+}

@@ -7,6 +7,9 @@
  * @package BusinessDirectory
  */
 
+/* Import design tokens (fonts, colors, spacing) */
+@import url('design-tokens.css');
+
 /* ==========================================================================
 	Events on Business Pages
 	========================================================================== */
@@ -14,16 +17,17 @@
 .bd-business-events {
 	margin: 30px 0;
 	padding: 25px;
-	background: #f9f9f9;
-	border-radius: 8px;
-	border: 1px solid #e0e0e0;
+	background: var(--bd-primary-200);
+	border-radius: var(--bd-radius-md);
+	border: 1px solid var(--bd-neutral-200);
 }
 
 .bd-business-events-title {
 	margin: 0 0 20px 0;
+	font-family: var(--bd-font-heading);
 	font-size: 1.25rem;
-	font-weight: 600;
-	color: #1a1a1a;
+	font-weight: var(--bd-font-semibold);
+	color: var(--bd-neutral-900);
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -51,41 +55,41 @@
 	display: flex;
 	align-items: center;
 	padding: 12px 15px;
-	background: #fff;
-	border-radius: 6px;
-	border: 1px solid #e5e5e5;
+	background: var(--bd-primary-50);
+	border-radius: var(--bd-radius-md);
+	border: 1px solid var(--bd-neutral-200);
 	text-decoration: none;
 	color: inherit;
-	transition: all 0.2s ease;
+	transition: all var(--bd-transition-fast);
 }
 
 .bd-event-link:hover {
-	border-color: #1a3a4a;
-	background: #fdf8f8;
+	border-color: var(--bd-primary-600);
+	background: var(--bd-neutral-50);
 	transform: translateX(3px);
 }
 
 .bd-event-date {
 	min-width: 60px;
 	padding: 4px 10px;
-	background: #1a3a4a;
+	background: var(--bd-primary-600);
 	color: #fff;
 	font-size: 0.8rem;
-	font-weight: 600;
+	font-weight: var(--bd-font-semibold);
 	text-align: center;
-	border-radius: 4px;
+	border-radius: var(--bd-radius-sm);
 	margin-right: 15px;
 }
 
 .bd-event-title {
 	flex: 1;
-	font-weight: 500;
-	color: #333;
+	font-weight: var(--bd-font-medium);
+	color: var(--bd-neutral-700);
 }
 
 .bd-event-time {
 	font-size: 0.85rem;
-	color: #666;
+	color: var(--bd-neutral-500);
 	margin-left: 15px;
 }
 
@@ -93,17 +97,17 @@
 	display: inline-block;
 	margin-top: 15px;
 	padding: 10px 20px;
-	background: #1a3a4a;
+	background: var(--bd-primary-600);
 	color: #fff;
 	text-decoration: none;
-	border-radius: 5px;
+	border-radius: var(--bd-radius-sm);
 	font-size: 0.9rem;
-	font-weight: 500;
-	transition: background 0.2s ease;
+	font-weight: var(--bd-font-medium);
+	transition: background var(--bd-transition-fast);
 }
 
 .bd-events-view-all:hover {
-	background: #1e4258;
+	background: var(--bd-primary-500);
 	color: #fff;
 }
 
@@ -114,18 +118,18 @@
 .bd-event-business-card {
 	margin: 30px 0;
 	padding: 25px;
-	background: linear-gradient(135deg, #f9f5f0 0%, #fff 100%);
-	border-radius: 10px;
-	border: 1px solid #e5ddd5;
+	background: var(--bd-neutral-50);
+	border-radius: var(--bd-radius-lg);
+	border: 1px solid var(--bd-neutral-200);
 }
 
 .bd-event-business-card-title {
 	margin: 0 0 15px 0;
 	font-size: 0.85rem;
-	font-weight: 600;
+	font-weight: var(--bd-font-semibold);
 	text-transform: uppercase;
-	letter-spacing: 0.5px;
-	color: #666;
+	letter-spacing: var(--bd-tracking-wide);
+	color: var(--bd-neutral-500);
 }
 
 .bd-event-business-card-title::before {
@@ -143,7 +147,7 @@
 	flex-shrink: 0;
 	width: 120px;
 	height: 120px;
-	border-radius: 8px;
+	border-radius: var(--bd-radius-md);
 	overflow: hidden;
 }
 
@@ -160,17 +164,18 @@
 
 .bd-event-business-card-name {
 	margin: 0 0 8px 0;
+	font-family: var(--bd-font-heading);
 	font-size: 1.2rem;
-	font-weight: 600;
+	font-weight: var(--bd-font-semibold);
 }
 
 .bd-event-business-card-name a {
-	color: #1a1a1a;
+	color: var(--bd-neutral-900);
 	text-decoration: none;
 }
 
 .bd-event-business-card-name a:hover {
-	color: #1a3a4a;
+	color: var(--bd-primary-600);
 }
 
 .bd-event-business-card-rating {
@@ -181,41 +186,41 @@
 }
 
 .bd-event-business-card-rating .bd-stars {
-	color: #f5a623;
-	font-weight: 600;
+	color: var(--bd-gold-500);
+	font-weight: var(--bd-font-semibold);
 }
 
 .bd-event-business-card-rating .bd-review-count {
 	font-size: 0.85rem;
-	color: #666;
+	color: var(--bd-neutral-500);
 }
 
 .bd-event-business-card-location {
 	font-size: 0.9rem;
-	color: #555;
+	color: var(--bd-neutral-600);
 	margin-bottom: 6px;
 }
 
 .bd-event-business-card-categories {
 	font-size: 0.85rem;
-	color: #888;
+	color: var(--bd-neutral-400);
 	margin-bottom: 12px;
 }
 
 .bd-event-business-card-link {
 	display: inline-block;
 	padding: 8px 16px;
-	background: #1a3a4a;
+	background: var(--bd-primary-600);
 	color: #fff;
 	text-decoration: none;
-	border-radius: 5px;
+	border-radius: var(--bd-radius-sm);
 	font-size: 0.85rem;
-	font-weight: 500;
-	transition: background 0.2s ease;
+	font-weight: var(--bd-font-medium);
+	transition: background var(--bd-transition-fast);
 }
 
 .bd-event-business-card-link:hover {
-	background: #1e4258;
+	background: var(--bd-primary-500);
 	color: #fff;
 }
 
@@ -262,8 +267,9 @@
 
 .bd-city-events-title {
 	margin: 0 0 20px 0;
+	font-family: var(--bd-font-heading);
 	font-size: 1.5rem;
-	font-weight: 600;
+	font-weight: var(--bd-font-semibold);
 }
 
 .bd-city-events-grid {
@@ -274,20 +280,20 @@
 
 .bd-city-event-card {
 	background: #fff;
-	border-radius: 10px;
+	border-radius: var(--bd-radius-lg);
 	overflow: hidden;
-	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-	transition: transform 0.2s ease, box-shadow 0.2s ease;
+	box-shadow: var(--bd-shadow-sm);
+	transition: transform var(--bd-transition-fast), box-shadow var(--bd-transition-fast);
 }
 
 .bd-city-event-card:hover {
 	transform: translateY(-3px);
-	box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
+	box-shadow: var(--bd-shadow-md);
 }
 
 .bd-city-event-card-image {
 	height: 160px;
-	background: #f0f0f0;
+	background: var(--bd-neutral-100);
 }
 
 .bd-city-event-card-image img {
@@ -302,42 +308,43 @@
 
 .bd-city-event-card-date {
 	font-size: 0.85rem;
-	color: #1a3a4a;
-	font-weight: 600;
+	color: var(--bd-primary-600);
+	font-weight: var(--bd-font-semibold);
 	margin-bottom: 5px;
 }
 
 .bd-city-event-card-title {
 	margin: 0 0 8px 0;
+	font-family: var(--bd-font-heading);
 	font-size: 1.1rem;
-	font-weight: 600;
+	font-weight: var(--bd-font-semibold);
 }
 
 .bd-city-event-card-title a {
-	color: #1a1a1a;
+	color: var(--bd-neutral-900);
 	text-decoration: none;
 }
 
 .bd-city-event-card-title a:hover {
-	color: #1a3a4a;
+	color: var(--bd-primary-600);
 }
 
 .bd-city-event-card-venue {
 	font-size: 0.85rem;
-	color: #666;
+	color: var(--bd-neutral-500);
 }
 
 .bd-city-event-card-business {
 	margin-top: 10px;
 	padding-top: 10px;
-	border-top: 1px solid #eee;
+	border-top: 1px solid var(--bd-neutral-200);
 	font-size: 0.85rem;
 }
 
 .bd-city-event-card-business a {
-	color: #1a3a4a;
+	color: var(--bd-primary-600);
 	text-decoration: none;
-	font-weight: 500;
+	font-weight: var(--bd-font-medium);
 }
 
 .bd-city-event-card-business a:hover {

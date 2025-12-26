@@ -215,8 +215,8 @@
                 });
             }, observerOptions);
             
-            // Animate cards on scroll
-            document.querySelectorAll('.bd-info-card, .bd-similar-card').forEach(card => {
+            // Animate cards on scroll - exclude about section
+            document.querySelectorAll('.bd-info-card:not(.bd-about-section), .bd-similar-card').forEach(card => {   
                 card.style.opacity = '0';
                 card.style.transform = 'translateY(20px)';
                 card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';

@@ -43,32 +43,8 @@ add_action(
 		}
 
 		if ( $has_filters ) {
-			// Enqueue filter CSS
-			wp_enqueue_style(
-				'bd-filters',
-				plugins_url( 'assets/css/filters.css', __DIR__ ),
-				array(),
-				'1.0.0'
-			);
-
-			// Enqueue filter JS
-			wp_enqueue_script(
-				'bd-filters',
-				plugins_url( 'assets/js/business-directory.js', __DIR__ ),
-				array( 'jquery' ),
-				'1.0.0',
-				true
-			);
-
-			// Localize script with API URL
-			wp_localize_script(
-				'bd-filters',
-				'bdVars',
-				array(
-					'apiUrl' => home_url( '/wp-json/bd/v1/' ),
-					'nonce'  => wp_create_nonce( 'wp_rest' ),
-				)
-			);
+			// Note: Scripts and styles are now handled by sprint2-week2-loader.php
+			// This loader only initializes the Filters class
 		}
 	},
 	20

@@ -17,7 +17,7 @@ body.page .site-branding .site-title {
 
 .ll-registration-page {
 	min-height: 100vh;
-	background: linear-gradient(135deg, var(--bd-navy) 0%, var(--bd-navy-light) 100%);
+	background: var(--global-palette4, #2D3748);
 	padding: 40px 20px;
 	width: 100vw !important;
 	max-width: 100vw !important;
@@ -333,7 +333,7 @@ body.page .site-branding .site-title {
 }
 
 .ll-btn-primary {
-	background: linear-gradient(135deg, var(--bd-navy) 0%, var(--bd-navy-light) 100%);
+	background: var(--global-palette4, #2D3748);
 	color: var(--bd-steel-light);
 	box-shadow: 0 4px 12px rgba(26, 58, 74, 0.3);
 }
