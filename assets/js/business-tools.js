@@ -3,23 +3,23 @@
  * Dashboard interactions, modals, and AJAX handlers
  */
 
-(function($) {
+(function ($) {
 	'use strict';
 
 	// Toast notifications
 	const Toast = {
 		container: null,
 
-		init: function() {
+		init: function () {
 			if (!this.container) {
 				this.container = $('<div class="bd-tools-toast"></div>');
 				$('body').append(this.container);
 			}
 		},
 
-		show: function(message, type = 'success', duration = 3000) {
+		show: function (message, type = 'success', duration = 3000) {
 			this.init();
-			
+
 			this.container
 				.removeClass('bd-toast-visible bd-toast-success bd-toast-error')
 				.addClass('bd-toast-' + type)
@@ -37,51 +37,51 @@
 
 	// Modal management
 	const Modal = {
-		open: function(modalId) {
+		open: function (modalId) {
 			$('#bd-' + modalId).addClass('bd-modal-open');
 			$('body').css('overflow', 'hidden');
 		},
 
-		close: function(modal) {
+		close: function (modal) {
 			$(modal).removeClass('bd-modal-open');
 			$('body').css('overflow', '');
 		},
 
-		init: function() {
+		init: function () {
 			// Open modal buttons
-			$(document).on('click', '.bd-tools-open-modal', function(e) {
+			$(document).on('click', '.bd-tools-open-modal', function (e) {
 				e.preventDefault();
 				const modalId = $(this).data('modal');
 				const businessId = $(this).data('business');
-				
+
 				Modal.open(modalId);
 				Modal.loadContent(modalId, businessId);
 			});
 
 			// Close modal buttons
-			$(document).on('click', '.bd-tools-modal-close', function() {
+			$(document).on('click', '.bd-tools-modal-close', function () {
 				Modal.close($(this).closest('.bd-tools-modal'));
 			});
 
 			// Close on overlay click
-			$(document).on('click', '.bd-tools-modal', function(e) {
+			$(document).on('click', '.bd-tools-modal', function (e) {
 				if (e.target === this) {
 					Modal.close(this);
 				}
 			});
 
 			// Close on ESC
-			$(document).on('keydown', function(e) {
+			$(document).on('keydown', function (e) {
 				if (e.key === 'Escape') {
-					$('.bd-tools-modal.bd-modal-open').each(function() {
+					$('.bd-tools-modal.bd-modal-open').each(function () {
 						Modal.close(this);
 					});
 				}
 			});
 		},
 
-		loadContent: function(modalId, businessId) {
-			switch(modalId) {
+		loadContent: function (modalId, businessId) {
+			switch (modalId) {
 				case 'widget-modal':
 					Widget.init(businessId);
 					break;
@@ -102,37 +102,37 @@
 	const Widget = {
 		businessId: null,
 
-		init: function(businessId) {
+		init: function (businessId) {
 			this.businessId = businessId;
 			this.generateCode();
 			this.bindEvents();
 		},
 
-		bindEvents: function() {
+		bindEvents: function () {
 			const self = this;
 
 			// Style change
-			$('#bd-widget-modal input[name="widget_style"]').off('change').on('change', function() {
+			$('#bd-widget-modal input[name="widget_style"]').off('change').on('change', function () {
 				self.generateCode();
 			});
 
 			// Theme change
-			$('#widget-theme').off('change').on('change', function() {
+			$('#widget-theme').off('change').on('change', function () {
 				self.generateCode();
 			});
 
 			// Reviews count change
-			$('#widget-reviews').off('change').on('change', function() {
+			$('#widget-reviews').off('change').on('change', function () {
 				self.generateCode();
 			});
 
 			// Save domains
-			$('#widget-domains').off('blur').on('blur', function() {
+			$('#widget-domains').off('blur').on('blur', function () {
 				self.saveDomains();
 			});
 		},
 
-		generateCode: function() {
+		generateCode: function () {
 			const style = $('input[name="widget_style"]:checked').val() || 'compact';
 			const theme = $('#widget-theme').val() || 'light';
 			const reviews = $('#widget-reviews').val() || 5;
@@ -148,7 +148,7 @@
 					theme: theme,
 					reviews: reviews
 				},
-				success: function(response) {
+				success: function (response) {
 					if (response.success) {
 						$('#widget-code').val(response.data.code);
 						Widget.updatePreview(style, theme);
@@ -157,12 +157,12 @@
 			});
 		},
 
-		updatePreview: function(style, theme) {
+		updatePreview: function (style, theme) {
 			// Simple preview based on style
 			let previewHtml = '';
 			const themeClass = theme === 'dark' ? 'ltv-dark' : 'ltv-light';
-			
-			switch(style) {
+
+			switch (style) {
 				case 'compact':
 					previewHtml = `<div class="ltv-preview-widget ${themeClass}" style="padding: 20px; border-radius: 8px; text-align: center; ${theme === 'dark' ? 'background: #1a3a4a; color: #fff;' : 'background: #fff; border: 1px solid #a8c4d4;'}">
 						<div style="color: #f59e0b; margin-bottom: 8px;">★★★★★</div>
@@ -201,7 +201,7 @@
 			$('#widget-preview').html(previewHtml);
 		},
 
-		saveDomains: function() {
+		saveDomains: function () {
 			const domains = $('#widget-domains').val();
 
 			$.ajax({
@@ -213,7 +213,7 @@
 					business_id: this.businessId,
 					domains: domains
 				},
-				success: function(response) {
+				success: function (response) {
 					if (response.success) {
 						Toast.show(bdTools.i18n.copied || 'Domains saved!', 'success');
 					}
@@ -226,28 +226,28 @@
 	const QRCode = {
 		businessId: null,
 
-		init: function(businessId) {
+		init: function (businessId) {
 			this.businessId = businessId;
 			this.generatePreview();
 			this.bindEvents();
 		},
 
-		bindEvents: function() {
+		bindEvents: function () {
 			const self = this;
 
 			// Type change
-			$('#bd-qr-modal input[name="qr_type"]').off('change').on('change', function() {
+			$('#bd-qr-modal input[name="qr_type"]').off('change').on('change', function () {
 				self.generatePreview();
 			});
 
 			// Download buttons
-			$('.bd-download-qr').off('click').on('click', function() {
+			$('.bd-download-qr').off('click').on('click', function () {
 				const format = $(this).data('format');
 				self.download(format);
 			});
 		},
 
-		generatePreview: function() {
+		generatePreview: function () {
 			const type = $('input[name="qr_type"]:checked').val() || 'review';
 			const self = this;
 
@@ -263,20 +263,20 @@
 					type: type,
 					format: 'png'
 				},
-				success: function(response) {
+				success: function (response) {
 					if (response.success) {
 						$('#qr-preview-image').html('<img src="' + response.data.file_url + '" alt="QR Code">');
 						$('#qr-url').text(response.data.qr_url);
 						self.currentData = response.data;
 					}
 				},
-				error: function() {
+				error: function () {
 					$('#qr-preview-image').html('<p>Failed to generate QR code</p>');
 				}
 			});
 		},
 
-		download: function(format) {
+		download: function (format) {
 			const type = $('input[name="qr_type"]:checked').val() || 'review';
 			const self = this;
 
@@ -290,7 +290,7 @@
 					type: type,
 					format: format
 				},
-				success: function(response) {
+				success: function (response) {
 					if (response.success && response.data.file_url) {
 						// Open download in new tab
 						window.open(response.data.file_url, '_blank');
@@ -305,33 +305,33 @@
 	const Badge = {
 		businessId: null,
 
-		init: function(businessId) {
+		init: function (businessId) {
 			this.businessId = businessId;
 			this.generateCode();
 			this.bindEvents();
 		},
 
-		bindEvents: function() {
+		bindEvents: function () {
 			const self = this;
 
 			// Style change
-			$('#bd-badge-modal input[name="badge_style"]').off('change').on('change', function() {
+			$('#bd-badge-modal input[name="badge_style"]').off('change').on('change', function () {
 				self.generateCode();
 			});
 
 			// Size change
-			$('#badge-size').off('change').on('change', function() {
+			$('#badge-size').off('change').on('change', function () {
 				self.generateCode();
 			});
 
 			// Download buttons
-			$('.bd-download-badge').off('click').on('click', function() {
+			$('.bd-download-badge').off('click').on('click', function () {
 				const format = $(this).data('format');
 				self.download(format);
 			});
 		},
 
-		generateCode: function() {
+		generateCode: function () {
 			const style = $('input[name="badge_style"]:checked').val() || 'rating';
 			const size = $('#badge-size').val() || 'medium';
 
@@ -345,7 +345,7 @@
 					style: style,
 					size: size
 				},
-				success: function(response) {
+				success: function (response) {
 					if (response.success) {
 						$('#badge-code').val(response.data.code);
 					}
@@ -353,13 +353,13 @@
 			});
 		},
 
-		download: function(format) {
+		download: function (format) {
 			const style = $('input[name="badge_style"]:checked').val() || 'rating';
-			
-			// Construct badge URL
-			const baseUrl = bdTools.restUrl.replace('/bd/v1/', '');
-			const badgeUrl = baseUrl + '/badge/' + this.businessId + '?style=' + style;
-			
+			const size = $('#badge-size').val() || 'medium';
+
+			// Construct badge URL using REST API
+			const badgeUrl = bdTools.restUrl + 'badge/' + this.businessId + '?style=' + style + '&format=' + format + '&size=' + size;
+
 			window.open(badgeUrl, '_blank');
 			Toast.show(bdTools.i18n.downloadReady || 'Badge ready!', 'success');
 		}
@@ -369,26 +369,26 @@
 	const Email = {
 		businessId: null,
 
-		init: function(businessId) {
+		init: function (businessId) {
 			this.businessId = businessId;
 			this.bindEvents();
 		},
 
-		bindEvents: function() {
+		bindEvents: function () {
 			const self = this;
 
 			// Save preferences
-			$('.bd-save-email-prefs').off('click').on('click', function() {
+			$('.bd-save-email-prefs').off('click').on('click', function () {
 				self.save();
 			});
 
 			// Send test email
-			$('.bd-send-test-email').off('click').on('click', function() {
+			$('.bd-send-test-email').off('click').on('click', function () {
 				self.sendTest();
 			});
 		},
 
-		save: function() {
+		save: function () {
 			$.ajax({
 				url: bdTools.ajaxUrl,
 				method: 'POST',
@@ -401,7 +401,7 @@
 					include_reviews: $('#email-reviews').is(':checked'),
 					include_tips: $('#email-tips').is(':checked')
 				},
-				success: function(response) {
+				success: function (response) {
 					if (response.success) {
 						Toast.show(response.data.message, 'success');
 					} else {
@@ -411,7 +411,7 @@
 			});
 		},
 
-		sendTest: function() {
+		sendTest: function () {
 			Toast.show('Sending test email...', 'success');
 
 			$.ajax({
@@ -422,7 +422,7 @@
 					nonce: bdTools.nonce,
 					business_id: this.businessId
 				},
-				success: function(response) {
+				success: function (response) {
 					if (response.success) {
 						Toast.show(response.data.message, 'success');
 					} else {
@@ -435,13 +435,13 @@
 
 	// Business selector
 	const BusinessSelector = {
-		init: function() {
-			$('#bd-business-select').on('change', function() {
+		init: function () {
+			$('#bd-business-select').on('change', function () {
 				const businessId = $(this).val();
-				
+
 				// Hide all panels
 				$('.bd-tools-business-panel').hide();
-				
+
 				// Show selected panel
 				$('.bd-tools-business-panel[data-business-id="' + businessId + '"]').show();
 			});
@@ -450,16 +450,16 @@
 
 	// Copy to clipboard
 	const Clipboard = {
-		init: function() {
-			$(document).on('click', '.bd-copy-code', function() {
+		init: function () {
+			$(document).on('click', '.bd-copy-code', function () {
 				const targetId = $(this).data('target');
 				const $target = $('#' + targetId);
-				
+
 				if ($target.length) {
 					$target.select();
-					
+
 					if (navigator.clipboard) {
-						navigator.clipboard.writeText($target.val()).then(function() {
+						navigator.clipboard.writeText($target.val()).then(function () {
 							Toast.show(bdTools.i18n.copied || 'Copied!', 'success');
 						});
 					} else {
@@ -472,7 +472,7 @@
 	};
 
 	// Initialize on DOM ready
-	$(function() {
+	$(function () {
 		Modal.init();
 		BusinessSelector.init();
 		Clipboard.init();
