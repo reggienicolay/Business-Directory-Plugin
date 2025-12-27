@@ -170,6 +170,7 @@ body.bd-modal-open::before {
 	color: var(--bd-text-muted);
 	cursor: pointer;
 	line-height: 1;
+	padding: 2px;
 }
 
 .bd-save-modal-body {
@@ -270,6 +271,56 @@ body.bd-modal-open::before {
 
 .bd-create-list-form .bd-create-list-btn {
 	width: 100%;
+}
+
+/* ========================================================================
+   CONFIRMATION MODAL
+   ======================================================================== */
+
+.bd-confirm-modal .bd-modal-content {
+	max-width: 400px;
+	text-align: center;
+}
+
+.bd-confirm-modal .bd-modal-header {
+	border-bottom: none;
+	padding-bottom: 0;
+}
+
+.bd-confirm-modal .bd-modal-header h3 {
+	justify-content: center;
+	color: #dc3545;
+}
+
+.bd-confirm-modal .bd-modal-header h3 i {
+	color: #dc3545;
+}
+
+.bd-confirm-modal .bd-modal-body {
+	padding: 16px 24px 24px;
+}
+
+.bd-confirm-message {
+	font-size: 16px;
+	color: var(--bd-navy);
+	margin: 0;
+}
+
+.bd-confirm-modal .bd-form-actions {
+	justify-content: center;
+	border-top: none;
+	padding-top: 0;
+}
+
+.bd-btn-danger {
+	background: #dc3545;
+	color: #fff;
+	border: none;
+}
+
+.bd-btn-danger:hover {
+	background: #c82333;
+	color: #fff;
 }
 
 /* ========================================================================
@@ -1049,15 +1100,6 @@ bd-btn-secondary:hover {
 .bd-btn-secondary:hover {
 	background: var(--bd-border);
 	color: var(--bd-navy);
-}
-
-.bd-btn-danger {
-	background: #fef2f2;
-	color: var(--bd-danger);
-}
-
-.bd-btn-danger:hover {
-	background: #fee2e2;
 }
 
 .bd-btn-small {
