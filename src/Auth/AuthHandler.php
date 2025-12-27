@@ -89,6 +89,7 @@ class AuthHandler {
 						'profile'      => home_url( '/my-profile/' ),
 						'lists'        => home_url( '/my-lists/' ),
 						'edit_listing' => home_url( '/edit-listing/' ),
+						'business_tools' => home_url( '/business-tools/' ),
 						'admin'        => admin_url(),
 						'logout'       => wp_logout_url( home_url() ),
 					),
