@@ -112,7 +112,7 @@ class BadgeSystem {
 			'rarity'      => 'rare',
 		),
 		'elite_reviewer'          => array(
-			'name'        => 'Elite Critic',
+			'name'        => 'Elite Reviewer',
 			'icon'        => '<i class="fa-solid fa-crown"></i>',
 			'color'       => '#C9A227',
 			'description' => 'Elite status achieved through dedication',
