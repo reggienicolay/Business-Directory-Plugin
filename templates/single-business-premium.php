@@ -231,9 +231,9 @@ while ( have_posts() ) :
 				<!-- FEATURED IN LISTS SECTION -->
 				<?php
 				if ( class_exists( 'BD\Lists\ListManager' ) ) :
-					$lists_count   = \BD\Lists\ListManager::count_public_lists_for_business( $business_id );
+					$lists_count    = \BD\Lists\ListManager::count_public_lists_for_business( $business_id );
 					$featured_lists = $lists_count > 0 ? \BD\Lists\ListManager::get_public_lists_for_business( $business_id, 3 ) : array();
-					
+
 					if ( $lists_count > 0 ) :
 						?>
 						<div class="bd-info-card bd-featured-lists-card">

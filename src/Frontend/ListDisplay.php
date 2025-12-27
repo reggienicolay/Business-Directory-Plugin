@@ -16,57 +16,55 @@ use BD\Lists\ListCollaborators;
 use BD\Gamification\BadgeSystem;
 use BD\Gamification\ActivityTracker;
 
-class ListDisplay
-{
+class ListDisplay {
+
 
 
 	/**
 	 * Initialize shortcodes and hooks
 	 */
-	public static function init()
-	{
+	public static function init() {
 		// Shortcodes.
-		add_shortcode('bd_my_lists', array(__CLASS__, 'render_my_lists'));
-		add_shortcode('bd_public_lists', array(__CLASS__, 'render_public_lists'));
-		add_shortcode('bd_list', array(__CLASS__, 'render_single_list'));
-		add_shortcode('bd_save_button', array(__CLASS__, 'render_save_button'));
+		add_shortcode( 'bd_my_lists', array( __CLASS__, 'render_my_lists' ) );
+		add_shortcode( 'bd_public_lists', array( __CLASS__, 'render_public_lists' ) );
+		add_shortcode( 'bd_list', array( __CLASS__, 'render_single_list' ) );
+		add_shortcode( 'bd_save_button', array( __CLASS__, 'render_save_button' ) );
 
 		// Add save button to business pages.
-		add_action('bd_after_business_title', array(__CLASS__, 'output_save_button'));
+		add_action( 'bd_after_business_title', array( __CLASS__, 'output_save_button' ) );
 
 		// Enqueue scripts.
-		add_action('wp_enqueue_scripts', array(__CLASS__, 'enqueue_assets'));
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_assets' ) );
 	}
 
 	/**
 	 * Enqueue frontend assets
 	 */
-	public static function enqueue_assets()
-	{
+	public static function enqueue_assets() {
 		// Only load on relevant pages.
-		if (! is_singular('bd_business') && ! self::is_lists_page()) {
+		if ( ! is_singular( 'bd_business' ) && ! self::is_lists_page() ) {
 			return;
 		}
 
 		// Design tokens (fonts, colors).
 		wp_enqueue_style(
 			'bd-design-tokens',
-			plugins_url('assets/css/design-tokens.css', dirname(__DIR__)),
+			plugins_url( 'assets/css/design-tokens.css', dirname( __DIR__ ) ),
 			array(),
 			'1.0.0'
 		);
 
 		wp_enqueue_style(
 			'bd-lists',
-			plugins_url('assets/css/lists.css', dirname(__DIR__)),
-			array('bd-design-tokens'),
+			plugins_url( 'assets/css/lists.css', dirname( __DIR__ ) ),
+			array( 'bd-design-tokens' ),
 			'1.1.0'
 		);
 
 		wp_enqueue_script(
 			'bd-lists',
-			plugins_url('assets/js/lists.js', dirname(__DIR__)),
-			array('jquery'),
+			plugins_url( 'assets/js/lists.js', dirname( __DIR__ ) ),
+			array( 'jquery' ),
 			'1.1.0',
 			true
 		);
@@ -74,8 +72,8 @@ class ListDisplay
 		// Collaborators JS.
 		wp_enqueue_script(
 			'bd-list-collaborators',
-			plugins_url('assets/js/list-collaborators.js', dirname(__DIR__)),
-			array('jquery', 'bd-lists'),
+			plugins_url( 'assets/js/list-collaborators.js', dirname( __DIR__ ) ),
+			array( 'jquery', 'bd-lists' ),
 			'1.0.3',
 			true
 		);
@@ -83,8 +81,8 @@ class ListDisplay
 		// Collaborators CSS.
 		wp_enqueue_style(
 			'bd-list-collaborators',
-			plugins_url('assets/css/list-collaborators.css', dirname(__DIR__)),
-			array('bd-lists'),
+			plugins_url( 'assets/css/list-collaborators.css', dirname( __DIR__ ) ),
+			array( 'bd-lists' ),
 			'1.0.1'
 		);
 
@@ -115,22 +113,22 @@ class ListDisplay
 			'bd-lists',
 			'bdLists',
 			array(
-				'restUrl'     => rest_url('bd/v1/'),
-				'nonce'       => wp_create_nonce('wp_rest'),
+				'restUrl'     => rest_url( 'bd/v1/' ),
+				'nonce'       => wp_create_nonce( 'wp_rest' ),
 				'isLoggedIn'  => is_user_logged_in(),
 				'loginUrl'    => wp_login_url(),
 				'registerUrl' => wp_registration_url(),
-				'myListsUrl'  => home_url('/my-profile/my-lists/'),
+				'myListsUrl'  => home_url( '/my-profile/my-lists/' ),
 				'strings'     => array(
-					'saved'         => __('Saved!', 'business-directory'),
-					'removed'       => __('Removed', 'business-directory'),
-					'error'         => __('Something went wrong', 'business-directory'),
-					'loginRequired' => __('Please log in to save businesses', 'business-directory'),
-					'createList'    => __('Create New List', 'business-directory'),
-					'copied'        => __('Copied to clipboard!', 'business-directory'),
-					'shareTitle'    => __('Share This List', 'business-directory'),
-					'following'     => __('Following', 'business-directory'),
-					'follow'        => __('Follow', 'business-directory'),
+					'saved'         => __( 'Saved!', 'business-directory' ),
+					'removed'       => __( 'Removed', 'business-directory' ),
+					'error'         => __( 'Something went wrong', 'business-directory' ),
+					'loginRequired' => __( 'Please log in to save businesses', 'business-directory' ),
+					'createList'    => __( 'Create New List', 'business-directory' ),
+					'copied'        => __( 'Copied to clipboard!', 'business-directory' ),
+					'shareTitle'    => __( 'Share This List', 'business-directory' ),
+					'following'     => __( 'Following', 'business-directory' ),
+					'follow'        => __( 'Follow', 'business-directory' ),
 				),
 			)
 		);
@@ -139,35 +137,32 @@ class ListDisplay
 	/**
 	 * Check if current page uses lists
 	 */
-	private static function is_lists_page()
-	{
+	private static function is_lists_page() {
 		global $post;
-		if (! $post) {
+		if ( ! $post ) {
 			return false;
 		}
 
-		return has_shortcode($post->post_content, 'bd_my_lists')
-			|| has_shortcode($post->post_content, 'bd_public_lists')
-			|| has_shortcode($post->post_content, 'bd_list');
+		return has_shortcode( $post->post_content, 'bd_my_lists' )
+			|| has_shortcode( $post->post_content, 'bd_public_lists' )
+			|| has_shortcode( $post->post_content, 'bd_list' );
 	}
 
 	/**
 	 * Render save button on business pages
 	 */
-	public static function output_save_button()
-	{
-		if (! is_singular('bd_business')) {
+	public static function output_save_button() {
+		if ( ! is_singular( 'bd_business' ) ) {
 			return;
 		}
 
-		echo self::render_save_button(array('business_id' => get_the_ID()));
+		echo self::render_save_button( array( 'business_id' => get_the_ID() ) );
 	}
 
 	/**
 	 * Render save button [bd_save_button]
 	 */
-	public static function render_save_button($atts = array())
-	{
+	public static function render_save_button( $atts = array() ) {
 		$atts = shortcode_atts(
 			array(
 				'business_id' => 0,
@@ -176,33 +171,33 @@ class ListDisplay
 			$atts
 		);
 
-		$business_id = absint($atts['business_id']);
-		if (! $business_id) {
+		$business_id = absint( $atts['business_id'] );
+		if ( ! $business_id ) {
 			$business_id = get_the_ID();
 		}
 
-		if (! $business_id) {
+		if ( ! $business_id ) {
 			return '';
 		}
 
 		$is_logged_in = is_user_logged_in();
 		$user_id      = get_current_user_id();
-		$saved_lists  = $is_logged_in ? ListManager::get_lists_containing_business($user_id, $business_id) : array();
-		$is_saved     = ! empty($saved_lists);
-		$user_lists   = $is_logged_in ? ListManager::get_user_lists($user_id) : array();
+		$saved_lists  = $is_logged_in ? ListManager::get_lists_containing_business( $user_id, $business_id ) : array();
+		$is_saved     = ! empty( $saved_lists );
+		$user_lists   = $is_logged_in ? ListManager::get_user_lists( $user_id ) : array();
 
 		ob_start();
-?>
-		<div class="bd-save-wrapper" data-business-id="<?php echo esc_attr($business_id); ?>">
-			<button type="button" class="bd-save-btn <?php echo $is_saved ? 'bd-saved' : ''; ?> bd-save-style-<?php echo esc_attr($atts['style']); ?>"
+		?>
+		<div class="bd-save-wrapper" data-business-id="<?php echo esc_attr( $business_id ); ?>">
+			<button type="button" class="bd-save-btn <?php echo $is_saved ? 'bd-saved' : ''; ?> bd-save-style-<?php echo esc_attr( $atts['style'] ); ?>"
 				<?php echo ! $is_logged_in ? 'data-login-required="true"' : ''; ?>>
 				<span class="bd-save-icon"><?php echo $is_saved ? '❤️' : '🤍'; ?></span>
-				<?php if ('icon' !== $atts['style']) : ?>
+				<?php if ( 'icon' !== $atts['style'] ) : ?>
 					<span class="bd-save-text"><?php echo $is_saved ? 'Saved' : 'Save'; ?></span>
 				<?php endif; ?>
 			</button>
 
-			<?php if ($is_logged_in) : ?>
+			<?php if ( $is_logged_in ) : ?>
 				<div class="bd-save-modal" style="display: none;">
 					<div class="bd-save-modal-content">
 						<div class="bd-save-modal-header">
@@ -210,18 +205,18 @@ class ListDisplay
 							<button type="button" class="bd-save-modal-close">&times;</button>
 						</div>
 						<div class="bd-save-modal-body">
-							<?php if (! empty($user_lists)) : ?>
+							<?php if ( ! empty( $user_lists ) ) : ?>
 								<div class="bd-save-lists">
-									<?php foreach ($user_lists as $list) : ?>
-										<?php $in_list = in_array($list['id'], $saved_lists, true); ?>
+									<?php foreach ( $user_lists as $list ) : ?>
+										<?php $in_list = in_array( $list['id'], $saved_lists, true ); ?>
 										<label class="bd-save-list-item <?php echo $in_list ? 'bd-in-list' : ''; ?>">
 											<input type="checkbox"
 												name="list_ids[]"
-												value="<?php echo esc_attr($list['id']); ?>"
-												<?php checked($in_list); ?>
-												data-list-id="<?php echo esc_attr($list['id']); ?>">
-											<span class="bd-save-list-title"><?php echo esc_html($list['title']); ?></span>
-											<span class="bd-save-list-count"><?php echo esc_html($list['item_count']); ?> items</span>
+												value="<?php echo esc_attr( $list['id'] ); ?>"
+												<?php checked( $in_list ); ?>
+												data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
+											<span class="bd-save-list-title"><?php echo esc_html( $list['title'] ); ?></span>
+											<span class="bd-save-list-count"><?php echo esc_html( $list['item_count'] ); ?> items</span>
 										</label>
 									<?php endforeach; ?>
 								</div>
@@ -241,15 +236,14 @@ class ListDisplay
 				</div>
 			<?php endif; ?>
 		</div>
-	<?php
+		<?php
 		return ob_get_clean();
 	}
 
 	/**
 	 * Render My Lists page [bd_my_lists]
 	 */
-	public static function render_my_lists($atts = array())
-	{
+	public static function render_my_lists( $atts = array() ) {
 		$atts = shortcode_atts(
 			array(
 				'per_page' => 12,
@@ -257,22 +251,22 @@ class ListDisplay
 			$atts
 		);
 
-		if (! is_user_logged_in()) {
-			return self::render_login_required('my lists');
+		if ( ! is_user_logged_in() ) {
+			return self::render_login_required( 'my lists' );
 		}
 
 		$user_id = get_current_user_id();
-		$lists   = ListManager::get_user_lists($user_id);
-		$stats   = ActivityTracker::get_user_stats($user_id);
+		$lists   = ListManager::get_user_lists( $user_id );
+		$stats   = ActivityTracker::get_user_stats( $user_id );
 
 		// Get lists user is following.
-		$following_lists = ListManager::get_following_lists($user_id);
+		$following_lists = ListManager::get_following_lists( $user_id );
 
 		// Get lists user is collaborating on.
-		$collab_lists = ListCollaborators::get_user_collaborative_lists($user_id);
+		$collab_lists = ListCollaborators::get_user_collaborative_lists( $user_id );
 
 		ob_start();
-	?>
+		?>
 		<div class="bd-my-lists-page">
 
 			<!-- Header -->
@@ -289,19 +283,19 @@ class ListDisplay
 			<!-- Stats Bar -->
 			<div class="bd-lists-stats">
 				<div class="bd-stat">
-					<span class="bd-stat-value"><?php echo count($lists); ?></span>
+					<span class="bd-stat-value"><?php echo count( $lists ); ?></span>
 					<span class="bd-stat-label">My Lists</span>
 				</div>
 				<div class="bd-stat">
-					<span class="bd-stat-value"><?php echo count($collab_lists); ?></span>
+					<span class="bd-stat-value"><?php echo count( $collab_lists ); ?></span>
 					<span class="bd-stat-label">Collaborating</span>
 				</div>
 				<div class="bd-stat">
-					<span class="bd-stat-value"><?php echo count($following_lists); ?></span>
+					<span class="bd-stat-value"><?php echo count( $following_lists ); ?></span>
 					<span class="bd-stat-label">Following</span>
 				</div>
 				<div class="bd-stat">
-					<span class="bd-stat-value"><?php echo number_format($stats['total_points'] ?? 0); ?></span>
+					<span class="bd-stat-value"><?php echo number_format( $stats['total_points'] ?? 0 ); ?></span>
 					<span class="bd-stat-label">Points</span>
 				</div>
 			</div>
@@ -309,19 +303,19 @@ class ListDisplay
 			<!-- Tab Navigation -->
 			<div class="bd-lists-tabs">
 				<button type="button" class="bd-lists-tab bd-lists-tab-active" data-tab="my-lists">
-					My Lists (<?php echo count($lists); ?>)
+					My Lists (<?php echo count( $lists ); ?>)
 				</button>
 				<button type="button" class="bd-lists-tab" data-tab="collaborating">
-					Collaborating (<?php echo count($collab_lists); ?>)
+					Collaborating (<?php echo count( $collab_lists ); ?>)
 				</button>
 				<button type="button" class="bd-lists-tab" data-tab="following">
-					Following (<?php echo count($following_lists); ?>)
+					Following (<?php echo count( $following_lists ); ?>)
 				</button>
 			</div>
 
 			<!-- My Lists Tab -->
 			<div class="bd-lists-tab-content bd-lists-tab-content-active" data-tab="my-lists">
-				<?php if (empty($lists)) : ?>
+				<?php if ( empty( $lists ) ) : ?>
 					<div class="bd-lists-empty">
 						<div class="bd-empty-icon">📋</div>
 						<h3>No lists yet</h3>
@@ -332,8 +326,8 @@ class ListDisplay
 					</div>
 				<?php else : ?>
 					<div class="bd-lists-grid">
-						<?php foreach ($lists as $list) : ?>
-							<?php echo self::render_list_card($list, true); ?>
+						<?php foreach ( $lists as $list ) : ?>
+							<?php echo self::render_list_card( $list, true ); ?>
 						<?php endforeach; ?>
 					</div>
 				<?php endif; ?>
@@ -341,7 +335,7 @@ class ListDisplay
 
 			<!-- Collaborating Tab -->
 			<div class="bd-lists-tab-content" data-tab="collaborating" style="display: none;">
-				<?php if (empty($collab_lists)) : ?>
+				<?php if ( empty( $collab_lists ) ) : ?>
 					<div class="bd-lists-empty">
 						<div class="bd-empty-icon">🤝</div>
 						<h3>Not collaborating on any lists</h3>
@@ -349,8 +343,8 @@ class ListDisplay
 					</div>
 				<?php else : ?>
 					<div class="bd-lists-grid">
-						<?php foreach ($collab_lists as $list) : ?>
-							<?php echo self::render_collab_list_card($list); ?>
+						<?php foreach ( $collab_lists as $list ) : ?>
+							<?php echo self::render_collab_list_card( $list ); ?>
 						<?php endforeach; ?>
 					</div>
 				<?php endif; ?>
@@ -358,19 +352,19 @@ class ListDisplay
 
 			<!-- Following Tab -->
 			<div class="bd-lists-tab-content" data-tab="following" style="display: none;">
-				<?php if (empty($following_lists)) : ?>
+				<?php if ( empty( $following_lists ) ) : ?>
 					<div class="bd-lists-empty">
 						<div class="bd-empty-icon">👀</div>
 						<h3>Not following any lists</h3>
 						<p>Follow lists from other users to get updates when they add new places!</p>
-						<a href="<?php echo esc_url(home_url('/community-lists/')); ?>" class="bd-btn bd-btn-primary">
+						<a href="<?php echo esc_url( home_url( '/community-lists/' ) ); ?>" class="bd-btn bd-btn-primary">
 							<i class="fas fa-search"></i> Browse Community Lists
 						</a>
 					</div>
 				<?php else : ?>
 					<div class="bd-lists-grid">
-						<?php foreach ($following_lists as $list) : ?>
-							<?php echo self::render_list_card($list, false); ?>
+						<?php foreach ( $following_lists as $list ) : ?>
+							<?php echo self::render_list_card( $list, false ); ?>
 						<?php endforeach; ?>
 					</div>
 				<?php endif; ?>
@@ -380,15 +374,14 @@ class ListDisplay
 			<?php echo self::render_create_list_modal(); ?>
 
 		</div>
-	<?php
+		<?php
 		return ob_get_clean();
 	}
 
 	/**
 	 * Render public lists [bd_public_lists]
 	 */
-	public static function render_public_lists($atts = array())
-	{
+	public static function render_public_lists( $atts = array() ) {
 		$atts = shortcode_atts(
 			array(
 				'per_page'      => 12,
@@ -398,31 +391,31 @@ class ListDisplay
 			$atts
 		);
 
-		$page   = isset($_GET['list_page']) ? absint($_GET['list_page']) : 1;
+		$page   = isset( $_GET['list_page'] ) ? absint( $_GET['list_page'] ) : 1;
 		$result = ListManager::get_public_lists(
 			array(
-				'per_page' => absint($atts['per_page']),
+				'per_page' => absint( $atts['per_page'] ),
 				'page'     => $page,
 				'orderby'  => $atts['orderby'],
 			)
 		);
 
 		$featured = array();
-		if ('yes' === $atts['show_featured']) {
-			$featured = ListManager::get_featured_lists(3);
+		if ( 'yes' === $atts['show_featured'] ) {
+			$featured = ListManager::get_featured_lists( 3 );
 		}
 
 		ob_start();
-	?>
+		?>
 		<div class="bd-public-lists-page">
 
 			<!-- Featured Lists -->
-			<?php if (! empty($featured)) : ?>
+			<?php if ( ! empty( $featured ) ) : ?>
 				<div class="bd-featured-lists">
 					<h2><i class="fas fa-star"></i> Featured Lists</h2>
 					<div class="bd-featured-lists-grid">
-						<?php foreach ($featured as $list) : ?>
-							<?php echo self::render_list_card($list, false, true); ?>
+						<?php foreach ( $featured as $list ) : ?>
+							<?php echo self::render_list_card( $list, false, true ); ?>
 						<?php endforeach; ?>
 					</div>
 				</div>
@@ -432,7 +425,7 @@ class ListDisplay
 			<div class="bd-all-lists">
 				<h2>All Lists</h2>
 
-				<?php if (empty($result['lists'])) : ?>
+				<?php if ( empty( $result['lists'] ) ) : ?>
 					<div class="bd-lists-empty">
 						<div class="bd-empty-icon">📋</div>
 						<h3>No public lists yet</h3>
@@ -440,18 +433,18 @@ class ListDisplay
 					</div>
 				<?php else : ?>
 					<div class="bd-lists-grid">
-						<?php foreach ($result['lists'] as $list) : ?>
-							<?php echo self::render_list_card($list); ?>
+						<?php foreach ( $result['lists'] as $list ) : ?>
+							<?php echo self::render_list_card( $list ); ?>
 						<?php endforeach; ?>
 					</div>
 
 					<!-- Pagination -->
-					<?php if ($result['pages'] > 1) : ?>
+					<?php if ( $result['pages'] > 1 ) : ?>
 						<div class="bd-lists-pagination">
 							<?php
 							echo paginate_links(
 								array(
-									'base'      => add_query_arg('list_page', '%#%'),
+									'base'      => add_query_arg( 'list_page', '%#%' ),
 									'format'    => '',
 									'current'   => $page,
 									'total'     => $result['pages'],
@@ -466,15 +459,14 @@ class ListDisplay
 			</div>
 
 		</div>
-	<?php
+		<?php
 		return ob_get_clean();
 	}
 
 	/**
 	 * Render single list page [bd_list]
 	 */
-	public static function render_single_list($atts = array())
-	{
+	public static function render_single_list( $atts = array() ) {
 		$atts = shortcode_atts(
 			array(
 				'id'   => 0,
@@ -486,100 +478,100 @@ class ListDisplay
 		// Try to get list from URL param, attribute, or slug.
 		$list = null;
 
-		if (isset($_GET['list'])) {
-			$list = ListManager::get_list_by_slug(sanitize_text_field(wp_unslash($_GET['list'])));
-		} elseif (! empty($atts['id'])) {
-			$list = ListManager::get_list(absint($atts['id']));
-		} elseif (! empty($atts['slug'])) {
-			$list = ListManager::get_list_by_slug($atts['slug']);
+		if ( isset( $_GET['list'] ) ) {
+			$list = ListManager::get_list_by_slug( sanitize_text_field( wp_unslash( $_GET['list'] ) ) );
+		} elseif ( ! empty( $atts['id'] ) ) {
+			$list = ListManager::get_list( absint( $atts['id'] ) );
+		} elseif ( ! empty( $atts['slug'] ) ) {
+			$list = ListManager::get_list_by_slug( $atts['slug'] );
 		}
 
-		if (! $list) {
+		if ( ! $list ) {
 			return '<div class="bd-list-not-found"><p>List not found.</p></div>';
 		}
 
 		// Check visibility.
 		$current_user_id = get_current_user_id();
-		$is_owner        = ((int) $list['user_id'] === $current_user_id);
+		$is_owner        = ( (int) $list['user_id'] === $current_user_id );
 
 		// Check if user is a collaborator.
 		$is_collaborator = false;
 		$user_role       = null;
-		if ($current_user_id && ! $is_owner) {
-			$permissions     = ListCollaborators::get_user_permissions($list['id'], $current_user_id);
-			$is_collaborator = ! empty($permissions);
+		if ( $current_user_id && ! $is_owner ) {
+			$permissions     = ListCollaborators::get_user_permissions( $list['id'], $current_user_id );
+			$is_collaborator = ! empty( $permissions );
 			$user_role       = $permissions['role'] ?? null;
 		}
 
-		if ('private' === $list['visibility'] && ! $is_owner && ! $is_collaborator) {
+		if ( 'private' === $list['visibility'] && ! $is_owner && ! $is_collaborator ) {
 			return '<div class="bd-list-private"><p>This list is private.</p></div>';
 		}
 
 		// Increment view count.
-		if (! $is_owner) {
-			ListManager::increment_view_count($list['id']);
+		if ( ! $is_owner ) {
+			ListManager::increment_view_count( $list['id'] );
 		}
 
 		// Get items.
-		$items  = ListManager::get_list_items($list['id']);
-		$author = get_userdata($list['user_id']);
+		$items  = ListManager::get_list_items( $list['id'] );
+		$author = get_userdata( $list['user_id'] );
 
 		// Get map data for items with coordinates.
-		$map_items = ListManager::get_list_items_with_coords($list['id']);
+		$map_items = ListManager::get_list_items_with_coords( $list['id'] );
 
 		// Check if user is following this list.
-		$is_following   = $current_user_id ? ListManager::is_following($list['id'], $current_user_id) : false;
+		$is_following   = $current_user_id ? ListManager::is_following( $list['id'], $current_user_id ) : false;
 		$follower_count = $list['follower_count'] ?? 0;
 
 		ob_start();
-	?>
-		<div class="bd-single-list-page" data-list-id="<?php echo esc_attr($list['id']); ?>">
+		?>
+		<div class="bd-single-list-page" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
 
 			<!-- List Header -->
 			<div class="bd-list-hero">
 				<?php
 				$cover_image = null;
-				if (! empty($list['cover_image_id'])) {
-					$cover_image = wp_get_attachment_image_url($list['cover_image_id'], 'large');
-				} elseif (! empty($items) && ! empty($items[0]['business']['featured_image'])) {
+				if ( ! empty( $list['cover_image_id'] ) ) {
+					$cover_image = wp_get_attachment_image_url( $list['cover_image_id'], 'large' );
+				} elseif ( ! empty( $items ) && ! empty( $items[0]['business']['featured_image'] ) ) {
 					$cover_image = $items[0]['business']['featured_image'];
 				}
 				?>
-				<?php if ($cover_image) : ?>
-					<div class="bd-list-cover" style="background-image: url('<?php echo esc_url($cover_image); ?>');">
+				<?php if ( $cover_image ) : ?>
+					<div class="bd-list-cover" style="background-image: url('<?php echo esc_url( $cover_image ); ?>');">
 					</div>
 				<?php endif; ?>
 
 				<div class="bd-list-hero-content">
-					<?php if ($list['featured']) : ?>
+					<?php if ( $list['featured'] ) : ?>
 						<span class="bd-featured-badge"><i class="fas fa-star"></i> Featured</span>
 					<?php endif; ?>
 
-					<h1><?php echo esc_html($list['title']); ?></h1>
+					<h1><?php echo esc_html( $list['title'] ); ?></h1>
 
-					<?php if (! empty($list['description'])) : ?>
-						<p class="bd-list-description"><?php echo esc_html($list['description']); ?></p>
+					<?php if ( ! empty( $list['description'] ) ) : ?>
+						<p class="bd-list-description"><?php echo esc_html( $list['description'] ); ?></p>
 					<?php endif; ?>
 
 					<div class="bd-list-meta">
 						<span class="bd-list-author">
-							<?php echo get_avatar($list['user_id'], 24); ?>
-							By <?php echo esc_html($author->display_name ?? 'Unknown'); ?>
+							<?php echo get_avatar( $list['user_id'], 24 ); ?>
+							By <?php echo esc_html( $author->display_name ?? 'Unknown' ); ?>
 						</span>
-						<span class="bd-list-count"><?php echo count($items); ?> businesses</span>
-						<span class="bd-list-views"><?php echo number_format($list['view_count']); ?> views</span>
-						<?php if ($follower_count > 0) : ?>
-							<span class="bd-list-followers"><?php echo number_format($follower_count); ?> followers</span>
+						<span class="bd-list-count"><?php echo count( $items ); ?> businesses</span>
+						<span class="bd-list-views"><?php echo number_format( $list['view_count'] ); ?> views</span>
+						<?php if ( $follower_count > 0 ) : ?>
+							<span class="bd-list-followers"><?php echo number_format( $follower_count ); ?> followers</span>
 						<?php endif; ?>
 					</div>
 
 					<!-- Action Buttons -->
 					<div class="bd-list-actions">
 						<!-- Follow Button (for non-owners) -->
-						<?php if (! $is_owner && 'private' !== $list['visibility']) : ?>
+						<?php if ( ! $is_owner && 'private' !== $list['visibility'] ) : ?>
 							<button type="button"
 								class="bd-btn <?php echo $is_following ? 'bd-btn-secondary bd-following' : 'bd-btn-primary'; ?> bd-follow-btn"
-								data-list-id="<?php echo esc_attr($list['id']); ?>"
+								data-list-id="<?php echo esc_attr( $list['id'] ); ?>"
 								<?php echo ! $current_user_id ? 'data-login-required="true"' : ''; ?>>
 								<i class="fas <?php echo $is_following ? 'fa-check' : 'fa-plus'; ?>"></i>
 								<span><?php echo $is_following ? 'Following' : 'Follow'; ?></span>
@@ -587,12 +579,12 @@ class ListDisplay
 						<?php endif; ?>
 
 						<!-- Share Button -->
-						<button type="button" class="bd-btn bd-btn-secondary bd-share-modal-open" data-list-id="<?php echo esc_attr($list['id']); ?>">
+						<button type="button" class="bd-btn bd-btn-secondary bd-share-modal-open" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
 							<i class="fas fa-share-alt"></i> Share
 						</button>
 
 						<!-- Map View Toggle -->
-						<?php if (! empty($map_items)) : ?>
+						<?php if ( ! empty( $map_items ) ) : ?>
 							<button type="button" class="bd-btn bd-btn-secondary bd-map-toggle" data-view="list">
 								<i class="fas fa-map"></i> <span>Map View</span>
 							</button>
@@ -602,62 +594,62 @@ class ListDisplay
 			</div>
 
 			<!-- Owner Actions -->
-			<?php if ($is_owner) : ?>
+			<?php if ( $is_owner ) : ?>
 				<div class="bd-list-owner-actions">
 					<button type="button" class="bd-btn bd-btn-secondary bd-edit-list-btn">
 						<i class="fas fa-edit"></i> Edit List
 					</button>
-					<button type="button" class="bd-btn bd-btn-secondary bd-manage-collaborators-btn" data-list-id="<?php echo esc_attr($list['id']); ?>">
+					<button type="button" class="bd-btn bd-btn-secondary bd-manage-collaborators-btn" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
 						<i class="fas fa-user-plus"></i> Collaborators
 					</button>
-					<span class="bd-visibility-badge bd-visibility-<?php echo esc_attr($list['visibility']); ?>">
-						<?php echo esc_html(ucfirst($list['visibility'])); ?>
+					<span class="bd-visibility-badge bd-visibility-<?php echo esc_attr( $list['visibility'] ); ?>">
+						<?php echo esc_html( ucfirst( $list['visibility'] ) ); ?>
 					</span>
 				</div>
-			<?php elseif ($is_collaborator) : ?>
+			<?php elseif ( $is_collaborator ) : ?>
 				<!-- Collaborator Badge -->
 				<div class="bd-list-collab-badge">
 					<i class="fas fa-user-check"></i> You're a collaborator on this list
-					<span class="bd-collab-role">(<?php echo esc_html(ucfirst($user_role)); ?>)</span>
+					<span class="bd-collab-role">(<?php echo esc_html( ucfirst( $user_role ) ); ?>)</span>
 				</div>
 			<?php endif; ?>
 
 
 			<!-- Map View Container (hidden by default) -->
-			<?php if (! empty($map_items)) : ?>
+			<?php if ( ! empty( $map_items ) ) : ?>
 				<div class="bd-list-map-container" style="display: none;">
 					<div id="bd-list-map" class="bd-list-map"></div>
 				</div>
 				<script>
-					window.bdListMapData = <?php echo wp_json_encode($map_items); ?>;
+					window.bdListMapData = <?php echo wp_json_encode( $map_items ); ?>;
 				</script>
 			<?php endif; ?>
 
 			<!-- List Items -->
-			<?php if (empty($items)) : ?>
+			<?php if ( empty( $items ) ) : ?>
 				<div class="bd-list-empty">
 					<div class="bd-empty-icon">📍</div>
 					<h3>This list is empty</h3>
-					<?php if ($is_owner || $is_collaborator) : ?>
+					<?php if ( $is_owner || $is_collaborator ) : ?>
 						<p>Start adding businesses to this list!</p>
-						<a href="<?php echo esc_url(home_url('/local/')); ?>" class="bd-btn bd-btn-primary">
+						<a href="<?php echo esc_url( home_url( '/local/' ) ); ?>" class="bd-btn bd-btn-primary">
 							Browse Businesses
 						</a>
 					<?php endif; ?>
 				</div>
 			<?php else : ?>
 				<div class="bd-list-items-container">
-					<div class="bd-list-items <?php echo ($is_owner || $is_collaborator) ? 'bd-sortable' : ''; ?>">
-						<?php foreach ($items as $index => $item) : ?>
+					<div class="bd-list-items <?php echo ( $is_owner || $is_collaborator ) ? 'bd-sortable' : ''; ?>">
+						<?php foreach ( $items as $index => $item ) : ?>
 							<?php $business = $item['business']; ?>
 							<?php
-							if (! $business) {
+							if ( ! $business ) {
 								continue;
 							}
 							?>
 
-							<div class="bd-list-item" data-business-id="<?php echo esc_attr($item['business_id']); ?>">
-								<?php if ($is_owner) : ?>
+							<div class="bd-list-item" data-business-id="<?php echo esc_attr( $item['business_id'] ); ?>">
+								<?php if ( $is_owner ) : ?>
 									<div class="bd-list-item-handle">
 										<i class="fas fa-grip-vertical"></i>
 									</div>
@@ -666,9 +658,9 @@ class ListDisplay
 								<div class="bd-list-item-number"><?php echo $index + 1; ?></div>
 
 								<div class="bd-list-item-image">
-									<?php if ($business['featured_image']) : ?>
-										<img src="<?php echo esc_url($business['featured_image']); ?>"
-											alt="<?php echo esc_attr($business['title']); ?>">
+									<?php if ( $business['featured_image'] ) : ?>
+										<img src="<?php echo esc_url( $business['featured_image'] ); ?>"
+											alt="<?php echo esc_attr( $business['title'] ); ?>">
 									<?php else : ?>
 										<div class="bd-no-image">📍</div>
 									<?php endif; ?>
@@ -676,41 +668,41 @@ class ListDisplay
 
 								<div class="bd-list-item-content">
 									<h3>
-										<a href="<?php echo esc_url($business['permalink']); ?>">
-											<?php echo esc_html($business['title']); ?>
+										<a href="<?php echo esc_url( $business['permalink'] ); ?>">
+											<?php echo esc_html( $business['title'] ); ?>
 										</a>
 									</h3>
 
-									<?php if (! empty($business['categories'])) : ?>
+									<?php if ( ! empty( $business['categories'] ) ) : ?>
 										<span class="bd-list-item-category">
-											<?php echo esc_html(implode(', ', $business['categories'])); ?>
+											<?php echo esc_html( implode( ', ', $business['categories'] ) ); ?>
 										</span>
 									<?php endif; ?>
 
-									<?php if ($business['rating'] > 0) : ?>
+									<?php if ( $business['rating'] > 0 ) : ?>
 										<div class="bd-list-item-rating">
-											<?php echo str_repeat('★', round($business['rating'])); ?>
-											<?php echo str_repeat('☆', 5 - round($business['rating'])); ?>
-											<span>(<?php echo esc_html($business['review_count']); ?>)</span>
+											<?php echo str_repeat( '★', round( $business['rating'] ) ); ?>
+											<?php echo str_repeat( '☆', 5 - round( $business['rating'] ) ); ?>
+											<span>(<?php echo esc_html( $business['review_count'] ); ?>)</span>
 										</div>
 									<?php endif; ?>
 
-									<?php if (! empty($business['city'])) : ?>
+									<?php if ( ! empty( $business['city'] ) ) : ?>
 										<span class="bd-list-item-location">
 											<i class="fas fa-map-marker-alt"></i>
-											<?php echo esc_html($business['city']); ?>
+											<?php echo esc_html( $business['city'] ); ?>
 										</span>
 									<?php endif; ?>
 
-									<?php if (! empty($item['user_note'])) : ?>
+									<?php if ( ! empty( $item['user_note'] ) ) : ?>
 										<div class="bd-list-item-note">
 											<i class="fas fa-comment"></i>
-											"<?php echo esc_html($item['user_note']); ?>"
+											"<?php echo esc_html( $item['user_note'] ); ?>"
 										</div>
 									<?php endif; ?>
 								</div>
 
-								<?php if ($is_owner || $is_collaborator) : ?>
+								<?php if ( $is_owner || $is_collaborator ) : ?>
 									<div class="bd-list-item-actions">
 										<button type="button" class="bd-edit-note-btn" title="Edit note">
 											<i class="fas fa-comment"></i>
@@ -727,147 +719,144 @@ class ListDisplay
 			<?php endif; ?>
 
 			<!-- Edit Modal (for owners) -->
-			<?php if ($is_owner) : ?>
-				<?php echo self::render_edit_list_modal($list); ?>
+			<?php if ( $is_owner ) : ?>
+				<?php echo self::render_edit_list_modal( $list ); ?>
 			<?php endif; ?>
 
 			<!-- Share Modal -->
-			<?php echo self::render_share_modal($list); ?>
+			<?php echo self::render_share_modal( $list ); ?>
 
 		</div>
-	<?php
+		<?php
 		return ob_get_clean();
 	}
 
 	/**
 	 * Render list card
 	 */
-	private static function render_list_card($list, $show_actions = false, $is_featured = false)
-	{
+	private static function render_list_card( $list, $show_actions = false, $is_featured = false ) {
 		$cover_image = $list['cover_image'] ?? null;
-		$url         = $list['url'] ?? ListManager::get_list_url($list);
+		$url         = $list['url'] ?? ListManager::get_list_url( $list );
 
 		ob_start();
-	?>
-		<div class="bd-list-card <?php echo $is_featured ? 'bd-list-featured' : ''; ?>" data-list-id="<?php echo esc_attr($list['id']); ?>">
-			<a href="<?php echo esc_url($url); ?>" class="bd-list-card-link">
+		?>
+		<div class="bd-list-card <?php echo $is_featured ? 'bd-list-featured' : ''; ?>" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
+			<a href="<?php echo esc_url( $url ); ?>" class="bd-list-card-link">
 				<div class="bd-list-card-cover">
-					<?php if ($cover_image) : ?>
-						<img src="<?php echo esc_url($cover_image); ?>" alt="<?php echo esc_attr($list['title']); ?>">
+					<?php if ( $cover_image ) : ?>
+						<img src="<?php echo esc_url( $cover_image ); ?>" alt="<?php echo esc_attr( $list['title'] ); ?>">
 					<?php else : ?>
 						<div class="bd-list-card-placeholder">📋</div>
 					<?php endif; ?>
 
-					<?php if ($is_featured) : ?>
+					<?php if ( $is_featured ) : ?>
 						<span class="bd-list-featured-badge"><i class="fas fa-star"></i></span>
 					<?php endif; ?>
 
-					<span class="bd-list-card-count"><?php echo esc_html($list['item_count']); ?> places</span>
+					<span class="bd-list-card-count"><?php echo esc_html( $list['item_count'] ); ?> places</span>
 				</div>
 
 				<div class="bd-list-card-body">
-					<h3><?php echo esc_html($list['title']); ?></h3>
+					<h3><?php echo esc_html( $list['title'] ); ?></h3>
 
-					<?php if (! empty($list['description'])) : ?>
-						<p><?php echo esc_html(wp_trim_words($list['description'], 12)); ?></p>
+					<?php if ( ! empty( $list['description'] ) ) : ?>
+						<p><?php echo esc_html( wp_trim_words( $list['description'], 12 ) ); ?></p>
 					<?php endif; ?>
 
 					<div class="bd-list-card-meta">
-						<?php if (! empty($list['author_name'])) : ?>
+						<?php if ( ! empty( $list['author_name'] ) ) : ?>
 							<span class="bd-list-card-author">
-								<?php echo get_avatar($list['user_id'], 20); ?>
-								<?php echo esc_html($list['author_name']); ?>
+								<?php echo get_avatar( $list['user_id'], 20 ); ?>
+								<?php echo esc_html( $list['author_name'] ); ?>
 							</span>
 						<?php endif; ?>
 
-						<span class="bd-list-card-visibility bd-visibility-<?php echo esc_attr($list['visibility']); ?>">
+						<span class="bd-list-card-visibility bd-visibility-<?php echo esc_attr( $list['visibility'] ); ?>">
 							<?php
 							$icons = array(
 								'public'   => '🌍',
 								'unlisted' => '🔗',
 								'private'  => '🔒',
 							);
-							echo $icons[$list['visibility']] ?? '';
+							echo $icons[ $list['visibility'] ] ?? '';
 							?>
 						</span>
 					</div>
 				</div>
 			</a>
 
-			<?php if ($show_actions) : ?>
+			<?php if ( $show_actions ) : ?>
 				<div class="bd-list-card-actions">
-					<a href="<?php echo esc_url($url); ?>" class="bd-btn bd-btn-small">View</a>
+					<a href="<?php echo esc_url( $url ); ?>" class="bd-btn bd-btn-small">View</a>
 					<button type="button" class="bd-btn bd-btn-small bd-btn-secondary bd-delete-list-btn"
-						data-list-id="<?php echo esc_attr($list['id']); ?>">
+						data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
 						Delete
 					</button>
 				</div>
 			<?php endif; ?>
 		</div>
-	<?php
+		<?php
 		return ob_get_clean();
 	}
 
 	/**
 	 * Render collaborative list card (shows owner info and role)
 	 */
-	private static function render_collab_list_card($list)
-	{
+	private static function render_collab_list_card( $list ) {
 		$cover_image = $list['cover_image'] ?? null;
-		if (! $cover_image) {
-			$cover_image = ListManager::get_list_cover_image($list);
+		if ( ! $cover_image ) {
+			$cover_image = ListManager::get_list_cover_image( $list );
 		}
-		$url = $list['url'] ?? ListManager::get_list_url($list);
+		$url = $list['url'] ?? ListManager::get_list_url( $list );
 
 		ob_start();
-	?>
-		<div class="bd-list-card bd-list-card-collab" data-list-id="<?php echo esc_attr($list['id']); ?>">
-			<a href="<?php echo esc_url($url); ?>" class="bd-list-card-link">
+		?>
+		<div class="bd-list-card bd-list-card-collab" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
+			<a href="<?php echo esc_url( $url ); ?>" class="bd-list-card-link">
 				<div class="bd-list-card-cover">
-					<?php if ($cover_image) : ?>
-						<img src="<?php echo esc_url($cover_image); ?>" alt="<?php echo esc_attr($list['title']); ?>">
+					<?php if ( $cover_image ) : ?>
+						<img src="<?php echo esc_url( $cover_image ); ?>" alt="<?php echo esc_attr( $list['title'] ); ?>">
 					<?php else : ?>
 						<div class="bd-list-card-placeholder">📋</div>
 					<?php endif; ?>
 
 					<span class="bd-list-card-collab-badge">
-						<i class="fas fa-user-check"></i> <?php echo esc_html(ucfirst($list['role'] ?? 'Contributor')); ?>
+						<i class="fas fa-user-check"></i> <?php echo esc_html( ucfirst( $list['role'] ?? 'Contributor' ) ); ?>
 					</span>
 
-					<span class="bd-list-card-count"><?php echo esc_html($list['item_count']); ?> places</span>
+					<span class="bd-list-card-count"><?php echo esc_html( $list['item_count'] ); ?> places</span>
 				</div>
 
 				<div class="bd-list-card-body">
-					<h3><?php echo esc_html($list['title']); ?></h3>
+					<h3><?php echo esc_html( $list['title'] ); ?></h3>
 
-					<?php if (! empty($list['description'])) : ?>
-						<p><?php echo esc_html(wp_trim_words($list['description'], 12)); ?></p>
+					<?php if ( ! empty( $list['description'] ) ) : ?>
+						<p><?php echo esc_html( wp_trim_words( $list['description'], 12 ) ); ?></p>
 					<?php endif; ?>
 
 					<div class="bd-list-card-meta">
 						<span class="bd-list-card-author">
-							<?php echo get_avatar($list['user_id'], 20); ?>
-							By <?php echo esc_html($list['owner_name'] ?? 'Unknown'); ?>
+							<?php echo get_avatar( $list['user_id'], 20 ); ?>
+							By <?php echo esc_html( $list['owner_name'] ?? 'Unknown' ); ?>
 						</span>
 					</div>
 				</div>
 			</a>
 
 			<div class="bd-list-card-actions">
-				<a href="<?php echo esc_url($url); ?>" class="bd-btn bd-btn-small">View</a>
+				<a href="<?php echo esc_url( $url ); ?>" class="bd-btn bd-btn-small">View</a>
 			</div>
 		</div>
-	<?php
+		<?php
 		return ob_get_clean();
 	}
 
 	/**
 	 * Render create list modal
 	 */
-	private static function render_create_list_modal()
-	{
+	private static function render_create_list_modal() {
 		ob_start();
-	?>
+		?>
 		<div class="bd-modal bd-create-list-modal" style="display: none;">
 			<div class="bd-modal-overlay"></div>
 			<div class="bd-modal-content">
@@ -924,17 +913,16 @@ class ListDisplay
 				</div>
 			</div>
 		</div>
-	<?php
+		<?php
 		return ob_get_clean();
 	}
 
 	/**
 	 * Render edit list modal
 	 */
-	private static function render_edit_list_modal($list)
-	{
+	private static function render_edit_list_modal( $list ) {
 		ob_start();
-	?>
+		?>
 		<div class="bd-modal bd-edit-list-modal" style="display: none;">
 			<div class="bd-modal-overlay"></div>
 			<div class="bd-modal-content">
@@ -943,21 +931,21 @@ class ListDisplay
 					<button type="button" class="bd-modal-close">&times;</button>
 				</div>
 				<div class="bd-modal-body">
-					<form class="bd-edit-list-form" data-list-id="<?php echo esc_attr($list['id']); ?>">
+					<form class="bd-edit-list-form" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
 						<div class="bd-form-group">
 							<label for="bd-edit-title">List Name *</label>
 							<input type="text" id="bd-edit-title" name="title" required
-								value="<?php echo esc_attr($list['title']); ?>">
+								value="<?php echo esc_attr( $list['title'] ); ?>">
 						</div>
 						<div class="bd-form-group">
 							<label for="bd-edit-description">Description</label>
-							<textarea id="bd-edit-description" name="description" rows="3"><?php echo esc_textarea($list['description']); ?></textarea>
+							<textarea id="bd-edit-description" name="description" rows="3"><?php echo esc_textarea( $list['description'] ); ?></textarea>
 						</div>
 						<div class="bd-form-group">
 							<label>Visibility</label>
 							<div class="bd-visibility-options">
 								<label class="bd-visibility-option">
-									<input type="radio" name="visibility" value="private" <?php checked($list['visibility'], 'private'); ?>>
+									<input type="radio" name="visibility" value="private" <?php checked( $list['visibility'], 'private' ); ?>>
 									<span class="bd-visibility-card">
 										<i class="fas fa-lock"></i>
 										<strong>Private</strong>
@@ -965,7 +953,7 @@ class ListDisplay
 									</span>
 								</label>
 								<label class="bd-visibility-option">
-									<input type="radio" name="visibility" value="unlisted" <?php checked($list['visibility'], 'unlisted'); ?>>
+									<input type="radio" name="visibility" value="unlisted" <?php checked( $list['visibility'], 'unlisted' ); ?>>
 									<span class="bd-visibility-card">
 										<i class="fas fa-link"></i>
 										<strong>Unlisted</strong>
@@ -973,7 +961,7 @@ class ListDisplay
 									</span>
 								</label>
 								<label class="bd-visibility-option">
-									<input type="radio" name="visibility" value="public" <?php checked($list['visibility'], 'public'); ?>>
+									<input type="radio" name="visibility" value="public" <?php checked( $list['visibility'], 'public' ); ?>>
 									<span class="bd-visibility-card">
 										<i class="fas fa-globe"></i>
 										<strong>Public</strong>
@@ -990,24 +978,23 @@ class ListDisplay
 				</div>
 			</div>
 		</div>
-	<?php
+		<?php
 		return ob_get_clean();
 	}
 
 	/**
 	 * Render share modal
 	 */
-	public static function render_share_modal($list)
-	{
-		$share_data = ListManager::get_share_data($list);
+	public static function render_share_modal( $list ) {
+		$share_data = ListManager::get_share_data( $list );
 
 		ob_start();
-	?>
-		<div class="bd-modal bd-share-modal" style="display: none;" data-list-id="<?php echo esc_attr($list['id']); ?>">
+		?>
+		<div class="bd-modal bd-share-modal" style="display: none;" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
 			<div class="bd-modal-overlay"></div>
 			<div class="bd-modal-content bd-share-modal-content">
 				<div class="bd-modal-header">
-					<h3><i class="fas fa-share-alt"></i> Share "<?php echo esc_html($list['title']); ?>"</h3>
+					<h3><i class="fas fa-share-alt"></i> Share "<?php echo esc_html( $list['title'] ); ?>"</h3>
 					<button type="button" class="bd-modal-close">&times;</button>
 				</div>
 
@@ -1016,15 +1003,15 @@ class ListDisplay
 					<div class="bd-share-preview-image">
 						<?php
 						$preview_image = '';
-						if (! empty($share_data['image_url'])) {
+						if ( ! empty( $share_data['image_url'] ) ) {
 							$preview_image = $share_data['image_url'];
-						} elseif (! empty($list['cover_image'])) {
+						} elseif ( ! empty( $list['cover_image'] ) ) {
 							$preview_image = $list['cover_image'];
 						}
 
-						if ($preview_image) :
-						?>
-							<img src="<?php echo esc_url($preview_image); ?>" alt="<?php echo esc_attr($list['title']); ?>">
+						if ( $preview_image ) :
+							?>
+							<img src="<?php echo esc_url( $preview_image ); ?>" alt="<?php echo esc_attr( $list['title'] ); ?>">
 						<?php else : ?>
 							<div style="width:100%;height:100%;background:var(--bd-cream);display:flex;align-items:center;justify-content:center;">
 								<i class="fas fa-list" style="font-size:24px;color:var(--bd-steel);"></i>
@@ -1032,8 +1019,8 @@ class ListDisplay
 						<?php endif; ?>
 					</div>
 					<div class="bd-share-preview-info">
-						<h4><?php echo esc_html($list['title']); ?></h4>
-						<p><?php echo esc_html($share_data['item_count']); ?> places<?php echo $share_data['author'] ? ' by ' . esc_html($share_data['author']) : ''; ?></p>
+						<h4><?php echo esc_html( $list['title'] ); ?></h4>
+						<p><?php echo esc_html( $share_data['item_count'] ); ?> places<?php echo $share_data['author'] ? ' by ' . esc_html( $share_data['author'] ) : ''; ?></p>
 					</div>
 				</div>
 
@@ -1059,32 +1046,32 @@ class ListDisplay
 					<!-- Social Tab -->
 					<div class="bd-share-tab-pane bd-share-tab-pane-active" data-tab="social">
 						<div class="bd-share-buttons-grid">
-							<a href="<?php echo esc_url($share_data['share_links']['facebook']); ?>"
+							<a href="<?php echo esc_url( $share_data['share_links']['facebook'] ); ?>"
 								target="_blank" rel="noopener" class="bd-share-button bd-share-facebook" data-platform="facebook">
 								<i class="fab fa-facebook-f"></i>
 								<span>Facebook</span>
 							</a>
-							<a href="<?php echo esc_url($share_data['share_links']['twitter']); ?>"
+							<a href="<?php echo esc_url( $share_data['share_links']['twitter'] ); ?>"
 								target="_blank" rel="noopener" class="bd-share-button bd-share-twitter" data-platform="twitter">
 								<i class="fab fa-twitter"></i>
 								<span>Twitter</span>
 							</a>
-							<a href="<?php echo esc_url($share_data['share_links']['pinterest']); ?>"
+							<a href="<?php echo esc_url( $share_data['share_links']['pinterest'] ); ?>"
 								target="_blank" rel="noopener" class="bd-share-button bd-share-pinterest" data-platform="pinterest">
 								<i class="fab fa-pinterest"></i>
 								<span>Pinterest</span>
 							</a>
-							<a href="<?php echo esc_url($share_data['share_links']['linkedin']); ?>"
+							<a href="<?php echo esc_url( $share_data['share_links']['linkedin'] ); ?>"
 								target="_blank" rel="noopener" class="bd-share-button bd-share-linkedin" data-platform="linkedin">
 								<i class="fab fa-linkedin-in"></i>
 								<span>LinkedIn</span>
 							</a>
-							<a href="<?php echo esc_url($share_data['share_links']['whatsapp']); ?>"
+							<a href="<?php echo esc_url( $share_data['share_links']['whatsapp'] ); ?>"
 								target="_blank" rel="noopener" class="bd-share-button bd-share-whatsapp" data-platform="whatsapp">
 								<i class="fab fa-whatsapp"></i>
 								<span>WhatsApp</span>
 							</a>
-							<a href="<?php echo esc_url($share_data['share_links']['email']); ?>"
+							<a href="<?php echo esc_url( $share_data['share_links']['email'] ); ?>"
 								class="bd-share-button bd-share-email" data-platform="email">
 								<i class="fas fa-envelope"></i>
 								<span>Email</span>
@@ -1097,9 +1084,9 @@ class ListDisplay
 						<div class="bd-share-link-section">
 							<label>Share URL</label>
 							<div class="bd-share-input-group">
-								<input type="text" value="<?php echo esc_url($share_data['url']); ?>" readonly
-									class="bd-share-url-input" id="bd-share-url-<?php echo esc_attr($list['id']); ?>">
-								<button type="button" class="bd-btn bd-btn-primary bd-copy-btn" data-copy-target="bd-share-url-<?php echo esc_attr($list['id']); ?>">
+								<input type="text" value="<?php echo esc_url( $share_data['url'] ); ?>" readonly
+									class="bd-share-url-input" id="bd-share-url-<?php echo esc_attr( $list['id'] ); ?>">
+								<button type="button" class="bd-btn bd-btn-primary bd-copy-btn" data-copy-target="bd-share-url-<?php echo esc_attr( $list['id'] ); ?>">
 									<i class="fas fa-copy"></i> Copy
 								</button>
 							</div>
@@ -1112,8 +1099,8 @@ class ListDisplay
 							<label>Embed Code</label>
 							<p class="bd-share-help-text">Copy this code to embed this list on your website.</p>
 							<div class="bd-share-input-group">
-								<textarea readonly class="bd-share-embed-input" id="bd-share-embed-<?php echo esc_attr($list['id']); ?>" rows="3"><?php echo esc_textarea($share_data['embed_code']); ?></textarea>
-								<button type="button" class="bd-btn bd-btn-primary bd-copy-btn" data-copy-target="bd-share-embed-<?php echo esc_attr($list['id']); ?>">
+								<textarea readonly class="bd-share-embed-input" id="bd-share-embed-<?php echo esc_attr( $list['id'] ); ?>" rows="3"><?php echo esc_textarea( $share_data['embed_code'] ); ?></textarea>
+								<button type="button" class="bd-btn bd-btn-primary bd-copy-btn" data-copy-target="bd-share-embed-<?php echo esc_attr( $list['id'] ); ?>">
 									<i class="fas fa-copy"></i> Copy
 								</button>
 							</div>
@@ -1126,17 +1113,17 @@ class ListDisplay
 							<p class="bd-share-help-text">Scan this QR code to open the list on any device.</p>
 							<?php
 							$qr_size     = 200;
-							$list_url    = ! empty($share_data['url']) ? $share_data['url'] : ListManager::get_list_url($list);
-							$qr_code_url = 'https://api.qrserver.com/v1/create-qr-code/?size=' . $qr_size . 'x' . $qr_size . '&data=' . rawurlencode($list_url) . '&format=png';
+							$list_url    = ! empty( $share_data['url'] ) ? $share_data['url'] : ListManager::get_list_url( $list );
+							$qr_code_url = 'https://api.qrserver.com/v1/create-qr-code/?size=' . $qr_size . 'x' . $qr_size . '&data=' . rawurlencode( $list_url ) . '&format=png';
 							?>
 							<div class="bd-qr-code-container">
-								<img src="<?php echo esc_url($qr_code_url); ?>"
-									alt="QR Code for <?php echo esc_attr($list['title']); ?>"
+								<img src="<?php echo esc_url( $qr_code_url ); ?>"
+									alt="QR Code for <?php echo esc_attr( $list['title'] ); ?>"
 									class="bd-qr-code-image" width="200" height="200" loading="lazy">
 							</div>
 							<div class="bd-qr-actions">
-								<a href="<?php echo esc_url($qr_code_url); ?>"
-									download="<?php echo esc_attr(sanitize_title($list['title'])); ?>-qr-code.png"
+								<a href="<?php echo esc_url( $qr_code_url ); ?>"
+									download="<?php echo esc_attr( sanitize_title( $list['title'] ) ); ?>-qr-code.png"
 									class="bd-btn bd-btn-secondary">
 									<i class="fas fa-download"></i> Download QR Code
 								</a>
@@ -1150,31 +1137,30 @@ class ListDisplay
 				</div>
 			</div>
 		</div>
-	<?php
+		<?php
 		return ob_get_clean();
 	}
 
 	/**
 	 * Render login required message
 	 */
-	private static function render_login_required($feature = 'this feature')
-	{
+	private static function render_login_required( $feature = 'this feature' ) {
 		ob_start();
-	?>
+		?>
 		<div class="bd-login-required">
 			<div class="bd-login-icon">🔐</div>
 			<h2>Please Log In</h2>
-			<p>You need to be logged in to access <?php echo esc_html($feature); ?>.</p>
+			<p>You need to be logged in to access <?php echo esc_html( $feature ); ?>.</p>
 			<div class="bd-login-actions">
-				<a href="<?php echo esc_url(wp_login_url(get_permalink())); ?>" class="bd-btn bd-btn-primary">
+				<a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>" class="bd-btn bd-btn-primary">
 					Log In
 				</a>
-				<a href="<?php echo esc_url(wp_registration_url()); ?>" class="bd-btn bd-btn-secondary">
+				<a href="<?php echo esc_url( wp_registration_url() ); ?>" class="bd-btn bd-btn-secondary">
 					Create Account
 				</a>
 			</div>
 		</div>
-<?php
+		<?php
 		return ob_get_clean();
 	}
 }

@@ -1,1157 +1,1157 @@
 /**
  * List Collaborators CSS
- * 
+ *
  * Styles for invite modal, notifications, join page, and collaborator UI.
- * 
+ *
  * @package BusinessDirectory
  */
 
 /* =============================================================================
-   COLLABORATORS MODAL
-   ============================================================================= */
+	COLLABORATORS MODAL
+	============================================================================= */
 
 .bd-collab-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 100000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .bd-collab-modal.bd-modal-active {
-    opacity: 1;
-    visibility: visible;
+	opacity: 1;
+	visibility: visible;
 }
 
 .bd-collab-modal-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(15, 42, 67, 0.6);
-    backdrop-filter: blur(4px);
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(15, 42, 67, 0.6);
+	backdrop-filter: blur(4px);
 }
 
 .bd-collab-modal-content {
-    position: relative;
-    background: #fff;
-    border-radius: 16px;
-    width: 95%;
-    max-width: 520px;
-    max-height: 85vh;
-    overflow-y: auto;
-    padding: 28px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: bd-modal-slide-up 0.3s ease;
+	position: relative;
+	background: #fff;
+	border-radius: 16px;
+	width: 95%;
+	max-width: 520px;
+	max-height: 85vh;
+	overflow-y: auto;
+	padding: 28px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+	animation: bd-modal-slide-up 0.3s ease;
 }
 
 @keyframes bd-modal-slide-up {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 .bd-collab-modal-close {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    width: 36px;
-    height: 36px;
-    border: none;
-    background: #f1f5f9;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 16px;
-    color: #64748b;
-    transition: all 0.2s ease;
-    padding: 2px;
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	width: 36px;
+	height: 36px;
+	border: none;
+	background: #f1f5f9;
+	border-radius: 50%;
+	cursor: pointer;
+	font-size: 16px;
+	color: #64748b;
+	transition: all 0.2s ease;
+	padding: 2px;
 }
 
 .bd-collab-modal-close:hover {
-    background: #e2e8f0;
-    color: #1e293b;
+	background: #e2e8f0;
+	color: #1e293b;
 }
 
 .bd-collab-modal-title {
-    margin: 0 0 24px 0;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #0f2a43;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+	margin: 0 0 24px 0;
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: #0f2a43;
+	display: flex;
+	align-items: center;
+	gap: 10px;
 }
 
 .bd-collab-modal-title i {
-    color: #2cb1bc;
+	color: #2cb1bc;
 }
 
 body.bd-modal-open {
-    overflow: hidden;
+	overflow: hidden;
 }
 
 
 /* =============================================================================
-   TABS
-   ============================================================================= */
+	TABS
+	============================================================================= */
 
 .bd-collab-tabs {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 24px;
-    background: #f8fafc;
-    padding: 4px;
-    border-radius: 12px;
+	display: flex;
+	gap: 4px;
+	margin-bottom: 24px;
+	background: #f8fafc;
+	padding: 4px;
+	border-radius: 12px;
 }
 
 .bd-collab-tab {
-    flex: 1;
-    padding: 10px 12px;
-    border: none;
-    background: transparent;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    color: #64748b;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
+	flex: 1;
+	padding: 10px 12px;
+	border: none;
+	background: transparent;
+	border-radius: 8px;
+	font-size: 13px;
+	font-weight: 500;
+	color: #64748b;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
 }
 
 .bd-collab-tab:hover {
-    color: #0f2a43;
-    background: #fff;
+	color: #0f2a43;
+	background: #fff;
 }
 
 .bd-collab-tab.active {
-    background: #fff;
-    color: #0f2a43;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	background: #fff;
+	color: #0f2a43;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .bd-collab-tab i {
-    font-size: 14px;
+	font-size: 14px;
 }
 
 .bd-collab-count,
 .bd-pending-count {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 5px;
-    background: #ef4444;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 600;
-    border-radius: 9px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	background: #ef4444;
+	color: #fff;
+	font-size: 11px;
+	font-weight: 600;
+	border-radius: 9px;
 }
 
 .bd-collab-count:empty,
 .bd-pending-count:empty {
-    display: none;
+	display: none;
 }
 
 
 /* =============================================================================
-   TAB PANES
-   ============================================================================= */
+	TAB PANES
+	============================================================================= */
 
 .bd-collab-pane {
-    display: none;
+	display: none;
 }
 
 .bd-collab-pane.active {
-    display: block;
-    animation: bd-fade-in 0.2s ease;
+	display: block;
+	animation: bd-fade-in 0.2s ease;
 }
 
 @keyframes bd-fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
+	from { opacity: 0; }
+	to { opacity: 1; }
 }
 
 .bd-collab-description {
-    color: #64748b;
-    margin: 0 0 16px 0;
-    font-size: 14px;
+	color: #64748b;
+	margin: 0 0 16px 0;
+	font-size: 14px;
 }
 
 
 /* =============================================================================
-   INVITE LINK TAB
-   ============================================================================= */
+	INVITE LINK TAB
+	============================================================================= */
 
 .bd-invite-link-box {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
+	display: flex;
+	gap: 8px;
+	margin-bottom: 16px;
 }
 
 .bd-invite-link-input {
-    flex: 1;
-    padding: 12px 14px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 13px;
-    color: #334155;
-    background: #f8fafc;
+	flex: 1;
+	padding: 12px 14px;
+	border: 2px solid #e2e8f0;
+	border-radius: 10px;
+	font-size: 13px;
+	color: #334155;
+	background: #f8fafc;
 }
 
 .bd-invite-link-input:focus {
-    outline: none;
-    border-color: #2cb1bc;
+	outline: none;
+	border-color: #2cb1bc;
 }
 
 .bd-copy-invite-link {
-    padding: 12px 16px;
-    border: none;
-    background: #2cb1bc;
-    color: #fff;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.2s ease;
+	padding: 12px 16px;
+	border: none;
+	background: #2cb1bc;
+	color: #fff;
+	border-radius: 10px;
+	cursor: pointer;
+	font-size: 16px;
+	transition: all 0.2s ease;
 }
 
 .bd-copy-invite-link:hover {
-    background: #249aa3;
-    transform: scale(1.05);
+	background: #249aa3;
+	transform: scale(1.05);
 }
 
 .bd-invite-share-buttons {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 24px;
+	display: flex;
+	gap: 10px;
+	justify-content: center;
+	margin-bottom: 24px;
 }
 
 .bd-invite-share-btn {
-    width: 48px;
-    height: 48px;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 20px;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2px;
+	width: 48px;
+	height: 48px;
+	border: none;
+	border-radius: 50%;
+	cursor: pointer;
+	font-size: 20px;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 2px;
 }
 
 .bd-invite-share-btn[data-platform="sms"] {
-    background: #34d399;
-    color: #fff;
+	background: #34d399;
+	color: #fff;
 }
 
 .bd-invite-share-btn[data-platform="whatsapp"] {
-    background: #25d366;
-    color: #fff;
+	background: #25d366;
+	color: #fff;
 }
 
 .bd-invite-share-btn[data-platform="messenger"] {
-    background: #0084ff;
-    color: #fff;
+	background: #0084ff;
+	color: #fff;
 }
 
 .bd-invite-share-btn[data-platform="email"] {
-    background: #64748b;
-    color: #fff;
+	background: #64748b;
+	color: #fff;
 }
 
 .bd-invite-share-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	transform: scale(1.1);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .bd-invite-settings {
-    background: #f8fafc;
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 16px;
+	background: #f8fafc;
+	border-radius: 12px;
+	padding: 16px;
+	margin-bottom: 16px;
 }
 
 .bd-invite-settings h4 {
-    margin: 0 0 12px 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: #0f2a43;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+	margin: 0 0 12px 0;
+	font-size: 14px;
+	font-weight: 600;
+	color: #0f2a43;
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .bd-invite-settings h4 i {
-    color: #64748b;
+	color: #64748b;
 }
 
 .bd-invite-mode-option {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 0;
-    cursor: pointer;
-    font-size: 14px;
-    color: #334155;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 10px 0;
+	cursor: pointer;
+	font-size: 14px;
+	color: #334155;
 }
 
 .bd-invite-mode-option input[type="radio"] {
-    display: none;
+	display: none;
 }
 
 .bd-radio-custom {
-    width: 18px;
-    height: 18px;
-    border: 2px solid #cbd5e1;
-    border-radius: 50%;
-    position: relative;
-    transition: all 0.2s ease;
+	width: 18px;
+	height: 18px;
+	border: 2px solid #cbd5e1;
+	border-radius: 50%;
+	position: relative;
+	transition: all 0.2s ease;
 }
 
 .bd-invite-mode-option input:checked + .bd-radio-custom {
-    border-color: #2cb1bc;
+	border-color: #2cb1bc;
 }
 
 .bd-invite-mode-option input:checked + .bd-radio-custom::after {
-    content: '';
-    position: absolute;
-    top: 3px;
-    left: 3px;
-    width: 8px;
-    height: 8px;
-    background: #2cb1bc;
-    border-radius: 50%;
+	content: '';
+	position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 8px;
+	height: 8px;
+	background: #2cb1bc;
+	border-radius: 50%;
 }
 
 .bd-regenerate-link {
-    width: 100%;
-    padding: 12px;
-    border: 2px dashed #e2e8f0;
-    background: transparent;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #64748b;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+	width: 100%;
+	padding: 12px;
+	border: 2px dashed #e2e8f0;
+	background: transparent;
+	border-radius: 10px;
+	font-size: 14px;
+	font-weight: 500;
+	color: #64748b;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
 }
 
 .bd-regenerate-link:hover {
-    border-color: #2cb1bc;
-    color: #2cb1bc;
-    background: rgba(44, 177, 188, 0.05);
+	border-color: #2cb1bc;
+	color: #2cb1bc;
+	background: rgba(44, 177, 188, 0.05);
 }
 
 .bd-regenerate-note {
-    text-align: center;
-    font-size: 12px;
-    color: #94a3b8;
-    margin-top: 8px;
+	text-align: center;
+	font-size: 12px;
+	color: #94a3b8;
+	margin-top: 8px;
 }
 
 
 /* =============================================================================
-   ADD MEMBER TAB
-   ============================================================================= */
+	ADD MEMBER TAB
+	============================================================================= */
 
 .bd-user-search-box {
-    position: relative;
-    margin-bottom: 16px;
+	position: relative;
+	margin-bottom: 16px;
 }
 
 .bd-user-search-box i {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #94a3b8;
+	position: absolute;
+	left: 14px;
+	top: 50%;
+	transform: translateY(-50%);
+	color: #94a3b8;
 }
 
 .bd-user-search-input {
-    width: 100%;
-    padding: 14px 14px 14px 42px;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    font-size: 15px;
-    transition: all 0.2s ease;
+	width: 100%;
+	padding: 14px 14px 14px 42px;
+	border: 2px solid #e2e8f0;
+	border-radius: 12px;
+	font-size: 15px;
+	transition: all 0.2s ease;
 }
 
 .bd-user-search-input:focus {
-    outline: none;
-    border-color: #2cb1bc;
+	outline: none;
+	border-color: #2cb1bc;
 }
 
 .bd-user-search-results {
-    margin-bottom: 20px;
+	margin-bottom: 20px;
 }
 
 .bd-user-result {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    transition: background 0.2s ease;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 12px;
+	border-radius: 10px;
+	transition: background 0.2s ease;
 }
 
 .bd-user-result:hover {
-    background: #f8fafc;
+	background: #f8fafc;
 }
 
 .bd-user-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	object-fit: cover;
 }
 
 .bd-user-name {
-    flex: 1;
-    font-weight: 500;
-    color: #0f2a43;
+	flex: 1;
+	font-weight: 500;
+	color: #0f2a43;
 }
 
 .bd-add-user-btn {
-    padding: 8px 14px;
-    border: none;
-    background: #2cb1bc;
-    color: #fff;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.2s ease;
+	padding: 8px 14px;
+	border: none;
+	background: #2cb1bc;
+	color: #fff;
+	border-radius: 8px;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	transition: all 0.2s ease;
 }
 
 .bd-add-user-btn:hover {
-    background: #249aa3;
+	background: #249aa3;
 }
 
 .bd-add-user-btn:disabled {
-    background: #94a3b8;
-    cursor: not-allowed;
+	background: #94a3b8;
+	cursor: not-allowed;
 }
 
 .bd-no-results {
-    text-align: center;
-    color: #94a3b8;
-    padding: 20px;
-    font-style: italic;
+	text-align: center;
+	color: #94a3b8;
+	padding: 20px;
+	font-style: italic;
 }
 
 .bd-recent-collaborators h4 {
-    font-size: 14px;
-    font-weight: 600;
-    color: #64748b;
-    margin: 0 0 12px 0;
+	font-size: 14px;
+	font-weight: 600;
+	color: #64748b;
+	margin: 0 0 12px 0;
 }
 
 .bd-recent-collab-list {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
 }
 
 .bd-recent-collab-btn {
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    border: 2px solid #e2e8f0;
-    background: #fff;
-    border-radius: 50%;
-    cursor: pointer;
-    overflow: hidden;
-    transition: all 0.2s ease;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	border: 2px solid #e2e8f0;
+	background: #fff;
+	border-radius: 50%;
+	cursor: pointer;
+	overflow: hidden;
+	transition: all 0.2s ease;
 }
 
 .bd-recent-collab-btn img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .bd-recent-collab-btn:hover {
-    border-color: #2cb1bc;
-    transform: scale(1.1);
+	border-color: #2cb1bc;
+	transform: scale(1.1);
 }
 
 .bd-no-recent {
-    color: #94a3b8;
-    font-size: 13px;
-    font-style: italic;
+	color: #94a3b8;
+	font-size: 13px;
+	font-style: italic;
 }
 
 
 /* =============================================================================
-   MANAGE TAB
-   ============================================================================= */
+	MANAGE TAB
+	============================================================================= */
 
 .bd-collaborators-list {
-    min-height: 100px;
+	min-height: 100px;
 }
 
 .bd-collab-item,
 .bd-request-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    border-radius: 10px;
-    transition: background 0.2s ease;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px;
+	border-radius: 10px;
+	transition: background 0.2s ease;
 }
 
 .bd-collab-item:hover,
 .bd-request-item:hover {
-    background: #f8fafc;
+	background: #f8fafc;
 }
 
 .bd-collab-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    object-fit: cover;
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	object-fit: cover;
 }
 
 .bd-collab-info {
-    flex: 1;
+	flex: 1;
 }
 
 .bd-collab-name {
-    display: block;
-    font-weight: 600;
-    color: #0f2a43;
-    font-size: 14px;
+	display: block;
+	font-weight: 600;
+	color: #0f2a43;
+	font-size: 14px;
 }
 
 .bd-collab-role,
 .bd-request-time {
-    font-size: 12px;
-    color: #64748b;
-    text-transform: capitalize;
+	font-size: 12px;
+	color: #64748b;
+	text-transform: capitalize;
 }
 
 .bd-remove-collab-btn {
-    width: 32px;
-    height: 32px;
-    border: none;
-    background: transparent;
-    color: #94a3b8;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s ease;
+	width: 32px;
+	height: 32px;
+	border: none;
+	background: transparent;
+	color: #94a3b8;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 14px;
+	transition: all 0.2s ease;
 }
 
 .bd-remove-collab-btn:hover {
-    background: #fee2e2;
-    color: #ef4444;
+	background: #fee2e2;
+	color: #ef4444;
 }
 
 .bd-request-actions {
-    display: flex;
-    gap: 6px;
+	display: flex;
+	gap: 6px;
 }
 
 .bd-approve-request-btn,
 .bd-deny-request-btn {
-    width: 36px;
-    height: 36px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s ease;
+	width: 36px;
+	height: 36px;
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 14px;
+	transition: all 0.2s ease;
 }
 
 .bd-approve-request-btn {
-    background: #dcfce7;
-    color: #16a34a;
+	background: #dcfce7;
+	color: #16a34a;
 }
 
 .bd-approve-request-btn:hover {
-    background: #16a34a;
-    color: #fff;
+	background: #16a34a;
+	color: #fff;
 }
 
 .bd-deny-request-btn {
-    background: #fee2e2;
-    color: #ef4444;
+	background: #fee2e2;
+	color: #ef4444;
 }
 
 .bd-deny-request-btn:hover {
-    background: #ef4444;
-    color: #fff;
+	background: #ef4444;
+	color: #fff;
 }
 
 .bd-collab-empty {
-    text-align: center;
-    padding: 40px 20px;
-    color: #64748b;
+	text-align: center;
+	padding: 40px 20px;
+	color: #64748b;
 }
 
 .bd-collab-empty i {
-    font-size: 40px;
-    color: #cbd5e1;
-    margin-bottom: 12px;
+	font-size: 40px;
+	color: #cbd5e1;
+	margin-bottom: 12px;
 }
 
 .bd-collab-empty p {
-    margin: 4px 0;
+	margin: 4px 0;
 }
 
 .bd-empty-hint {
-    font-size: 13px;
-    color: #94a3b8;
+	font-size: 13px;
+	color: #94a3b8;
 }
 
 .bd-collab-limit-note {
-    text-align: center;
-    font-size: 12px;
-    color: #94a3b8;
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid #e2e8f0;
+	text-align: center;
+	font-size: 12px;
+	color: #94a3b8;
+	margin-top: 16px;
+	padding-top: 16px;
+	border-top: 1px solid #e2e8f0;
 }
 
 
 /* =============================================================================
-   NOTIFICATIONS
-   ============================================================================= */
+	NOTIFICATIONS
+	============================================================================= */
 
 .bd-list-notifications {
-    position: relative;
+	position: relative;
 }
 
 .bd-notif-bell {
-    position: relative;
-    width: 40px;
-    height: 40px;
-    border: 1px solid var(--bd-border, #e2e8f0);
-    background: #fff;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 18px;
-    color: var(--bd-primary, #1a3a4a);
-    transition: all 0.2s ease;
-    padding: 2px;
+	position: relative;
+	width: 40px;
+	height: 40px;
+	border: 1px solid var(--bd-border, #e2e8f0);
+	background: #fff;
+	border-radius: 50%;
+	cursor: pointer;
+	font-size: 18px;
+	color: var(--bd-primary, #1a3a4a);
+	transition: all 0.2s ease;
+	padding: 2px;
 }
 
 .bd-notif-bell:hover {
-    background: var(--bd-primary, #1a3a4a);
-    border-color: var(--bd-primary, #1a3a4a);
-    color: #fff
+	background: var(--bd-primary, #1a3a4a);
+	border-color: var(--bd-primary, #1a3a4a);
+	color: #fff
 }
 
 .bd-notif-badge {
-    position: absolute;
-    top: -2px;
-    right: -2px;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 5px;
-    background: #ef4444;
-    color: #fff;
-    font-size: 11px;
-    font-weight: 600;
-    border-radius: 9px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+	position: absolute;
+	top: -2px;
+	right: -2px;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	background: #ef4444;
+	color: #fff;
+	font-size: 11px;
+	font-weight: 600;
+	border-radius: 9px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .bd-notif-dropdown {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    width: 320px;
-    max-height: 400px;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px);
-    transition: all 0.2s ease;
-    z-index: 1000;
+	position: absolute;
+	top: 100%;
+	right: 0;
+	width: 320px;
+	max-height: 400px;
+	background: #fff;
+	border-radius: 12px;
+	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+	overflow: hidden;
+	opacity: 0;
+	visibility: hidden;
+	transform: translateY(10px);
+	transition: all 0.2s ease;
+	z-index: 1000;
 }
 
 .bd-notif-dropdown.active {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(5px);
+	opacity: 1;
+	visibility: visible;
+	transform: translateY(5px);
 }
 
 .bd-notif-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 16px;
-    border-bottom: 1px solid #e2e8f0;
-    background: #f8fafc;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 14px 16px;
+	border-bottom: 1px solid #e2e8f0;
+	background: #f8fafc;
 }
 
 .bd-notif-header span {
-    font-weight: 600;
-    color: #0f2a43;
+	font-weight: 600;
+	color: #0f2a43;
 }
 
 .bd-mark-all-read {
-    border: none;
-    background: none;
-    color: #2cb1bc;
-    font-size: 13px;
-    cursor: pointer;
-    font-weight: 500;
+	border: none;
+	background: none;
+	color: #2cb1bc;
+	font-size: 13px;
+	cursor: pointer;
+	font-weight: 500;
 }
 
 .bd-mark-all-read:hover {
-    text-decoration: underline;
+	text-decoration: underline;
 }
 
 .bd-notif-list {
-    max-height: 340px;
-    overflow-y: auto;
+	max-height: 340px;
+	overflow-y: auto;
 }
 
 .bd-notif-item {
-    display: flex;
-    gap: 12px;
-    padding: 14px 16px;
-    cursor: pointer;
-    transition: background 0.2s ease;
-    border-bottom: 1px solid #f1f5f9;
+	display: flex;
+	gap: 12px;
+	padding: 14px 16px;
+	cursor: pointer;
+	transition: background 0.2s ease;
+	border-bottom: 1px solid #f1f5f9;
 }
 
 .bd-notif-item:hover {
-    background: #f8fafc;
+	background: #f8fafc;
 }
 
 .bd-notif-item.bd-notif-unread {
-    background: #f0fdfa;
+	background: #f0fdfa;
 }
 
 .bd-notif-item.bd-notif-unread:hover {
-    background: #ccfbf1;
+	background: #ccfbf1;
 }
 
 .bd-notif-icon {
-    width: 36px;
-    height: 36px;
-    background: #e0f2fe;
-    color: #0284c7;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    flex-shrink: 0;
+	width: 36px;
+	height: 36px;
+	background: #e0f2fe;
+	color: #0284c7;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 14px;
+	flex-shrink: 0;
 }
 
 .bd-notif-content {
-    flex: 1;
-    min-width: 0;
+	flex: 1;
+	min-width: 0;
 }
 
 .bd-notif-message {
-    margin: 0 0 4px 0;
-    font-size: 14px;
-    color: #334155;
-    line-height: 1.4;
+	margin: 0 0 4px 0;
+	font-size: 14px;
+	color: #334155;
+	line-height: 1.4;
 }
 
 .bd-notif-time {
-    font-size: 12px;
-    color: #94a3b8;
+	font-size: 12px;
+	color: #94a3b8;
 }
 
 .bd-notif-empty {
-    text-align: center;
-    padding: 40px 20px;
-    color: #94a3b8;
+	text-align: center;
+	padding: 40px 20px;
+	color: #94a3b8;
 }
 
 
 /* =============================================================================
-   JOIN MODAL
-   ============================================================================= */
+	JOIN MODAL
+	============================================================================= */
 
 .bd-join-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 100001;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 100001;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .bd-join-modal-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(15, 42, 67, 0.7);
-    backdrop-filter: blur(8px);
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(15, 42, 67, 0.7);
+	backdrop-filter: blur(8px);
 }
 
 .bd-join-modal-content {
-    position: relative;
-    background: #fff;
-    border-radius: 20px;
-    width: 90%;
-    max-width: 420px;
-    padding: 40px;
-    text-align: center;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: bd-modal-slide-up 0.4s ease;
+	position: relative;
+	background: #fff;
+	border-radius: 20px;
+	width: 90%;
+	max-width: 420px;
+	padding: 40px;
+	text-align: center;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+	animation: bd-modal-slide-up 0.4s ease;
 }
 
 .bd-join-icon {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #2cb1bc, #1a8a93);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 24px;
+	width: 80px;
+	height: 80px;
+	background: linear-gradient(135deg, #2cb1bc, #1a8a93);
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto 24px;
 }
 
 .bd-join-icon i {
-    font-size: 36px;
-    color: #fff;
+	font-size: 36px;
+	color: #fff;
 }
 
 .bd-join-modal-content h2 {
-    margin: 0 0 12px 0;
-    font-size: 1.75rem;
-    color: #0f2a43;
+	margin: 0 0 12px 0;
+	font-size: 1.75rem;
+	color: #0f2a43;
 }
 
 .bd-join-description {
-    color: #64748b;
-    margin: 0 0 20px 0;
+	color: #64748b;
+	margin: 0 0 20px 0;
 }
 
 .bd-join-list-preview {
-    background: #f8fafc;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 24px;
+	background: #f8fafc;
+	border-radius: 12px;
+	padding: 20px;
+	margin-bottom: 24px;
 }
 
 .bd-join-list-preview h3 {
-    margin: 0 0 4px 0;
-    color: #0f2a43;
-    font-size: 1.25rem;
+	margin: 0 0 4px 0;
+	color: #0f2a43;
+	font-size: 1.25rem;
 }
 
 .bd-join-list-preview p {
-    margin: 0;
-    color: #64748b;
-    font-size: 14px;
+	margin: 0;
+	color: #64748b;
+	font-size: 14px;
 }
 
 .bd-join-list-btn {
-    width: 100%;
-    padding: 16px;
-    font-size: 16px;
+	width: 100%;
+	padding: 16px;
+	font-size: 16px;
 }
 
 .bd-join-note {
-    margin-top: 12px;
-    font-size: 13px;
-    color: #94a3b8;
+	margin-top: 12px;
+	font-size: 13px;
+	color: #94a3b8;
 }
 
 .bd-join-login-prompt {
-    color: #64748b;
-    margin-bottom: 16px;
+	color: #64748b;
+	margin-bottom: 16px;
 }
 
 .bd-join-register {
-    margin-top: 16px;
-    font-size: 14px;
-    color: #64748b;
+	margin-top: 16px;
+	font-size: 14px;
+	color: #64748b;
 }
 
 .bd-join-register a {
-    color: #2cb1bc;
-    font-weight: 500;
+	color: #2cb1bc;
+	font-weight: 500;
 }
 
 .bd-join-success,
 .bd-join-pending {
-    padding: 20px;
+	padding: 20px;
 }
 
 .bd-join-success i,
 .bd-join-pending i {
-    font-size: 60px;
-    margin-bottom: 16px;
+	font-size: 60px;
+	margin-bottom: 16px;
 }
 
 .bd-join-success i {
-    color: #16a34a;
+	color: #16a34a;
 }
 
 .bd-join-pending i {
-    color: #f59e0b;
+	color: #f59e0b;
 }
 
 
 /* =============================================================================
-   COLLAB INDICATORS ON LIST CARDS
-   ============================================================================= */
+	COLLAB INDICATORS ON LIST CARDS
+	============================================================================= */
 
 .bd-collab-indicator {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 12px;
-    color: #64748b;
-    background: #f1f5f9;
-    padding: 3px 8px;
-    border-radius: 10px;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 12px;
+	color: #64748b;
+	background: #f1f5f9;
+	padding: 3px 8px;
+	border-radius: 10px;
 }
 
 .bd-collab-indicator i {
-    font-size: 11px;
+	font-size: 11px;
 }
 
 /* Collaborative list card styling */
 .bd-list-card[data-collaborative="true"] {
-    border: 2px solid #2cb1bc;
+	border: 2px solid #2cb1bc;
 }
 
 .bd-list-card[data-collaborative="true"]::before {
-    content: '';
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    width: 24px;
-    height: 24px;
-    background: #2cb1bc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'/%3E%3C/svg%3E") center/16px no-repeat;
-    border-radius: 50%;
+	content: '';
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	width: 24px;
+	height: 24px;
+	background: #2cb1bc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z'/%3E%3C/svg%3E") center/16px no-repeat;
+	border-radius: 50%;
 }
 
 /* Multi-avatar stack for collaborators */
 .bd-collab-avatars {
-    display: flex;
-    margin-left: auto;
+	display: flex;
+	margin-left: auto;
 }
 
 .bd-collab-avatars img {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 2px solid #fff;
-    margin-left: -8px;
-    object-fit: cover;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	border: 2px solid #fff;
+	margin-left: -8px;
+	object-fit: cover;
 }
 
 .bd-collab-avatars img:first-child {
-    margin-left: 0;
+	margin-left: 0;
 }
 
 .bd-collab-avatars .bd-more-collabs {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: #e2e8f0;
-    color: #64748b;
-    font-size: 10px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-left: -8px;
-    border: 2px solid #fff;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background: #e2e8f0;
+	color: #64748b;
+	font-size: 10px;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-left: -8px;
+	border: 2px solid #fff;
 }
 
 
 /* =============================================================================
-   RESPONSIVE
-   ============================================================================= */
+	RESPONSIVE
+	============================================================================= */
 
 @media (max-width: 480px) {
-    .bd-collab-modal-content {
-        padding: 20px;
-        max-height: 90vh;
-        border-radius: 16px 16px 0 0;
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        max-width: none;
-        animation: bd-modal-slide-from-bottom 0.3s ease;
-    }
-    
-    @keyframes bd-modal-slide-from-bottom {
-        from {
-            transform: translateY(100%);
-        }
-        to {
-            transform: translateY(0);
-        }
-    }
-    
-    .bd-collab-tabs {
-        flex-wrap: wrap;
-    }
-    
-    .bd-collab-tab {
-        flex: 1 1 45%;
-        padding: 8px 10px;
-        font-size: 12px;
-    }
-    
-    .bd-invite-share-buttons {
-        justify-content: space-around;
-    }
-    
-    .bd-invite-share-btn {
-        width: 52px;
-        height: 52px;
-        font-size: 22px;
-    }
-    
-    .bd-notif-dropdown {
-        width: 100vw;
-        right: -10px;
-        border-radius: 0 0 12px 12px;
-    }
-    
-    .bd-join-modal-content {
-        padding: 30px 24px;
-    }
+	.bd-collab-modal-content {
+		padding: 20px;
+		max-height: 90vh;
+		border-radius: 16px 16px 0 0;
+		position: absolute;
+		bottom: 0;
+		width: 100%;
+		max-width: none;
+		animation: bd-modal-slide-from-bottom 0.3s ease;
+	}
+
+	@keyframes bd-modal-slide-from-bottom {
+		from {
+			transform: translateY(100%);
+		}
+		to {
+			transform: translateY(0);
+		}
+	}
+
+	.bd-collab-tabs {
+		flex-wrap: wrap;
+	}
+
+	.bd-collab-tab {
+		flex: 1 1 45%;
+		padding: 8px 10px;
+		font-size: 12px;
+	}
+
+	.bd-invite-share-buttons {
+		justify-content: space-around;
+	}
+
+	.bd-invite-share-btn {
+		width: 52px;
+		height: 52px;
+		font-size: 22px;
+	}
+
+	.bd-notif-dropdown {
+		width: 100vw;
+		right: -10px;
+		border-radius: 0 0 12px 12px;
+	}
+
+	.bd-join-modal-content {
+		padding: 30px 24px;
+	}
 }
 
 
 /* =============================================================================
-   TOAST (if not defined elsewhere)
-   ============================================================================= */
+	TOAST (if not defined elsewhere)
+	============================================================================= */
 
 .bd-toast {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: #0f2a43;
-    color: #fff;
-    padding: 14px 24px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    z-index: 100010;
-    opacity: 0;
-    transition: all 0.3s ease;
+	position: fixed;
+	bottom: 20px;
+	left: 50%;
+	transform: translateX(-50%) translateY(100px);
+	background: #0f2a43;
+	color: #fff;
+	padding: 14px 24px;
+	border-radius: 12px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 14px;
+	font-weight: 500;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+	z-index: 100010;
+	opacity: 0;
+	transition: all 0.3s ease;
 }
 
 .bd-toast.bd-toast-visible {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
+	opacity: 1;
+	transform: translateX(-50%) translateY(0);
 }
 
 .bd-toast-success i {
-    color: #34d399;
+	color: #34d399;
 }
 
 .bd-toast-error {
-    background: #ef4444;
+	background: #ef4444;
 }
 
 .bd-toast-error i {
-    color: #fff;
+	color: #fff;
 }
 
 /* ==========================================================================
-   COLLAB LIST CARD BADGE
-   ========================================================================== */
+	COLLAB LIST CARD BADGE
+	========================================================================== */
 
 .bd-list-card-collab-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: #fff;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+	color: #fff;
+	padding: 4px 10px;
+	border-radius: 20px;
+	font-size: 11px;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
 }
 
 .bd-list-card-collab-badge i {
-    font-size: 10px;
+	font-size: 10px;
 }
 
 .bd-list-card-collab {
-    border: 2px solid rgba(16, 185, 129, 0.2);
+	border: 2px solid rgba(16, 185, 129, 0.2);
 }
 
 .bd-list-card-collab:hover {
-    border-color: rgba(16, 185, 129, 0.4);
+	border-color: rgba(16, 185, 129, 0.4);
 }
 
 /* ==========================================================================
-   SINGLE LIST COLLAB BADGE
-   ========================================================================== */
+	SINGLE LIST COLLAB BADGE
+	========================================================================== */
 
 .bd-list-collab-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-    color: #065f46;
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    margin: 16px 0;
-    border: 1px solid #a7f3d0;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+	color: #065f46;
+	padding: 10px 16px;
+	border-radius: 8px;
+	font-size: 14px;
+	font-weight: 500;
+	margin: 16px 0;
+	border: 1px solid #a7f3d0;
 }
 
 .bd-list-collab-badge i {
-    color: #10b981;
+	color: #10b981;
 }
 
 .bd-list-collab-badge .bd-collab-role {
-    color: #047857;
-    font-weight: 400;
+	color: #047857;
+	font-weight: 400;
 }

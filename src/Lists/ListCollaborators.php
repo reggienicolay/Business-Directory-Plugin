@@ -751,8 +751,8 @@ class ListCollaborators {
 			return false;
 		}
 
-		$role = $collab['role'];
-		$perms = self::ROLES[ $role ] ?? self::ROLES['contributor'];
+		$role          = $collab['role'];
+		$perms         = self::ROLES[ $role ] ?? self::ROLES['contributor'];
 		$perms['role'] = $role;
 
 		return $perms;
@@ -1042,7 +1042,7 @@ class ListCollaborators {
 				$exclude_ids[] = $list['user_id']; // Exclude owner.
 			}
 
-			$existing = $wpdb->get_col(
+			$existing    = $wpdb->get_col(
 				$wpdb->prepare(
 					"SELECT user_id FROM $table WHERE list_id = %d",
 					$list_id

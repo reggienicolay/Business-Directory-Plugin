@@ -221,8 +221,6 @@ class ImageGenerator {
 			imagesetclip( $image, (int) ( $index * $cell_width ), 0, (int) ( ( $index + 1 ) * $cell_width ), self::HEIGHT );
 			imagecopyresampled( $image, $source, $dst_x, $dst_y, 0, 0, $new_w, $new_h, $src_w, $src_h );
 			imagesetclip( $image, 0, 0, self::WIDTH, self::HEIGHT );
-
-			imagedestroy( $source );
 		}
 
 		// Add subtle divider lines.
@@ -339,8 +337,6 @@ class ImageGenerator {
 		imagesetclip( $image, $x, $y, $x + (int) $width, $y + (int) $height );
 		imagecopyresampled( $image, $source, $dst_x, $dst_y, 0, 0, $new_w, $new_h, $src_w, $src_h );
 		imagesetclip( $image, 0, 0, self::WIDTH, self::HEIGHT );
-
-		imagedestroy( $source );
 	}
 
 	/**
@@ -411,7 +407,7 @@ class ImageGenerator {
 		$this->add_text( $image, $title, 60, 340, 42, self::COLOR_WHITE, true );
 
 		// Item count and author.
-		$meta_parts = array();
+		$meta_parts   = array();
 		$meta_parts[] = sprintf(
 			'%d %s',
 			$item_count,
@@ -670,7 +666,6 @@ class ImageGenerator {
 		$dst_y = (int) ( ( self::HEIGHT - $new_h ) / 2 );
 
 		imagecopyresampled( $image, $source, $dst_x, $dst_y, 0, 0, $new_w, $new_h, $src_w, $src_h );
-		imagedestroy( $source );
 
 		return $image;
 	}

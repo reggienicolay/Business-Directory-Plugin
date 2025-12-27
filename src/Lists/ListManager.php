@@ -358,7 +358,10 @@ class ListManager {
 
 		$result = $wpdb->delete(
 			$items_table,
-			array( 'list_id' => $list_id, 'business_id' => $business_id ),
+			array(
+				'list_id'     => $list_id,
+				'business_id' => $business_id,
+			),
 			array( '%d', '%d' )
 		);
 
@@ -394,7 +397,10 @@ class ListManager {
 		$result = $wpdb->update(
 			$items_table,
 			array( 'user_note' => sanitize_textarea_field( $note ) ),
-			array( 'list_id' => $list_id, 'business_id' => $business_id ),
+			array(
+				'list_id'     => $list_id,
+				'business_id' => $business_id,
+			),
 			array( '%s' ),
 			array( '%d', '%d' )
 		);
@@ -418,7 +424,10 @@ class ListManager {
 			$wpdb->update(
 				$items_table,
 				array( 'sort_order' => $position + 1 ),
-				array( 'list_id' => $list_id, 'business_id' => (int) $business_id ),
+				array(
+					'list_id'     => $list_id,
+					'business_id' => (int) $business_id,
+				),
 				array( '%d' ),
 				array( '%d', '%d' )
 			);
@@ -930,6 +939,7 @@ class ListManager {
 		}
 
 		$share_text = sprintf(
+			// translators: %s is the list title.
 			__( 'Check out "%1$s" - %2$d %3$s I recommend!', 'business-directory' ),
 			$title,
 			$item_count,

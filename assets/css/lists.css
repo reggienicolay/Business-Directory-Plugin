@@ -610,8 +610,8 @@ body.bd-modal-open::before {
 }
 
 bd-btn-secondary:hover {
-    background-color: var(--bd-neutral-300)!important;
-    color: var(--bd-navy) !important;
+	background-color: var(--bd-neutral-300)!important;
+	color: var(--bd-navy) !important;
 }
 
 /* Owner Actions */
@@ -928,89 +928,89 @@ bd-btn-secondary:hover {
 }
 
 /* ==========================================================================
-   VISIBILITY OPTIONS (Radio Cards)
-   ========================================================================== */
+	VISIBILITY OPTIONS (Radio Cards)
+	========================================================================== */
 
 .bd-visibility-options {
-    display: flex;
-    gap: 12px;
-    margin-top: 8px;
+	display: flex;
+	gap: 12px;
+	margin-top: 8px;
 }
 
 .bd-visibility-option {
-    flex: 1;
-    cursor: pointer;
+	flex: 1;
+	cursor: pointer;
 }
 
 .bd-visibility-option input[type="radio"] {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
 }
 
 .bd-visibility-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 16px 12px;
-    border: 2px solid var(--bd-border, #e2e8f0);
-    border-radius: 10px;
-    background: #fff;
-    transition: all 0.2s ease;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	padding: 16px 12px;
+	border: 2px solid var(--bd-border, #e2e8f0);
+	border-radius: 10px;
+	background: #fff;
+	transition: all 0.2s ease;
 }
 
 .bd-visibility-card i {
-    font-size: 24px;
-    color: var(--bd-steel, #64748b);
-    margin-bottom: 8px;
-    transition: color 0.2s ease;
+	font-size: 24px;
+	color: var(--bd-steel, #64748b);
+	margin-bottom: 8px;
+	transition: color 0.2s ease;
 }
 
 .bd-visibility-card strong {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--bd-primary, #1a3a4a);
-    margin-bottom: 4px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--bd-primary, #1a3a4a);
+	margin-bottom: 4px;
 }
 
 .bd-visibility-card span {
-    font-size: 12px;
-    color: var(--bd-steel, #64748b);
+	font-size: 12px;
+	color: var(--bd-steel, #64748b);
 }
 
 /* Hover state */
 .bd-visibility-option:hover .bd-visibility-card {
-    border-color: var(--bd-primary, #1a3a4a);
+	border-color: var(--bd-primary, #1a3a4a);
 }
 
 /* Selected state */
 .bd-visibility-option input[type="radio"]:checked + .bd-visibility-card {
-    border-color: var(--bd-primary, #1a3a4a);
-    background: var(--bd-cream, #f8f6f3);
+	border-color: var(--bd-primary, #1a3a4a);
+	background: var(--bd-cream, #f8f6f3);
 }
 
 .bd-visibility-option input[type="radio"]:checked + .bd-visibility-card i {
-    color: var(--bd-primary, #1a3a4a);
+	color: var(--bd-primary, #1a3a4a);
 }
 
 /* Mobile responsive */
 @media (max-width: 480px) {
-    .bd-visibility-options {
-        flex-direction: column;
-    }
-    
-    .bd-visibility-card {
-        flex-direction: row;
-        text-align: left;
-        gap: 12px;
-        padding: 12px 16px;
-    }
-    
-    .bd-visibility-card i {
-        margin-bottom: 0;
-        font-size: 20px;
-    }
+	.bd-visibility-options {
+		flex-direction: column;
+	}
+
+	.bd-visibility-card {
+		flex-direction: row;
+		text-align: left;
+		gap: 12px;
+		padding: 12px 16px;
+	}
+
+	.bd-visibility-card i {
+		margin-bottom: 0;
+		font-size: 20px;
+	}
 }
 
 /* ========================================================================
@@ -1628,12 +1628,12 @@ bd-btn-secondary:hover {
 
 
 /* ==========================================================================
-   PHASE 2 ADDITIONS - ENGAGEMENT FEATURES
-   ========================================================================== */
+	PHASE 2 ADDITIONS - ENGAGEMENT FEATURES
+	========================================================================== */
 
 /* ==========================================================================
-   FEATURE 7: LIST MAP VIEW
-   ========================================================================== */
+	FEATURE 7: LIST MAP VIEW
+	========================================================================== */
 
 .bd-list-map-container {
 	margin: 24px 0;
@@ -1775,8 +1775,8 @@ bd-btn-secondary:hover {
 }
 
 /* ==========================================================================
-   FEATURE 10: FOLLOW BUTTON
-   ========================================================================== */
+	FEATURE 10: FOLLOW BUTTON
+	========================================================================== */
 
 .bd-list-actions {
 	display: flex;
@@ -1829,8 +1829,8 @@ bd-btn-secondary:hover {
 }
 
 /* ==========================================================================
-   FEATURE 9: FEATURED IN LISTS (Business Page Sidebar)
-   ========================================================================== */
+	FEATURE 9: FEATURED IN LISTS (Business Page Sidebar)
+	========================================================================== */
 
 .bd-featured-lists-card {
 	background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
@@ -1906,8 +1906,8 @@ bd-btn-secondary:hover {
 }
 
 /* ==========================================================================
-   MY LISTS TABS (Following Tab)
-   ========================================================================== */
+	MY LISTS TABS (Following Tab)
+	========================================================================== */
 
 .bd-lists-tabs {
 	display: flex;
@@ -1935,7 +1935,7 @@ bd-btn-secondary:hover {
 
 .bd-lists-tab.bd-lists-tab-active {
 	color: #fff;
-    background: var(--bd-primary, #1a3a4a);
+	background: var(--bd-primary, #1a3a4a);
 }
 
 .bd-lists-tab.bd-lists-tab-active::after {
@@ -1958,8 +1958,8 @@ bd-btn-secondary:hover {
 }
 
 /* ==========================================================================
-   PHASE 2 RESPONSIVE
-   ========================================================================== */
+	PHASE 2 RESPONSIVE
+	========================================================================== */
 
 @media (max-width: 768px) {
 	.bd-list-map {
@@ -1985,4 +1985,3 @@ bd-btn-secondary:hover {
 		padding: 10px 16px;
 	}
 }
-

@@ -440,13 +440,13 @@ function get_collaborators( $request ) {
 
 	return rest_ensure_response(
 		array(
-			'collaborators'   => $active,
-			'pending'         => $pending,
-			'count'           => count( $active ),
-			'pending_count'   => count( $pending ),
-			'max_allowed'     => ListCollaborators::MAX_COLLABORATORS_PER_LIST,
-			'invite_mode'     => $list['invite_mode'] ?? 'approval',
-			'can_add_more'    => count( $active ) < ListCollaborators::MAX_COLLABORATORS_PER_LIST,
+			'collaborators' => $active,
+			'pending'       => $pending,
+			'count'         => count( $active ),
+			'pending_count' => count( $pending ),
+			'max_allowed'   => ListCollaborators::MAX_COLLABORATORS_PER_LIST,
+			'invite_mode'   => $list['invite_mode'] ?? 'approval',
+			'can_add_more'  => count( $active ) < ListCollaborators::MAX_COLLABORATORS_PER_LIST,
 		)
 	);
 }
@@ -490,9 +490,9 @@ function add_collaborator( $request ) {
  * Remove a collaborator.
  */
 function remove_collaborator( $request ) {
-	$list_id       = $request->get_param( 'id' );
-	$user_id       = $request->get_param( 'user_id' );
-	$owner_id      = get_current_user_id();
+	$list_id  = $request->get_param( 'id' );
+	$user_id  = $request->get_param( 'user_id' );
+	$owner_id = get_current_user_id();
 
 	$result = ListCollaborators::remove_collaborator( $list_id, $owner_id, $user_id );
 
