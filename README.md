@@ -1,419 +1,310 @@
-# Business Directory
+# Business Directory Pro
 
-A modern, map-first WordPress business directory plugin with powerful location features and beautiful templates.
+A modern, map-first local business directory plugin for WordPress with geolocation, reviews, gamification, and multi-city support.
 
-![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-blue.svg)
-![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple.svg)
-![License](https://img.shields.io/badge/license-GPL%20v2%2B-blue.svg)
-![Version](https://img.shields.io/badge/version-1.0.0-green.svg)
+![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-blue)
+![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple)
+![License](https://img.shields.io/badge/License-GPL%20v2-green)
+![Version](https://img.shields.io/badge/Version-0.1.3-orange)
 
----
+## Overview
 
-## 🎯 Core Features
+Business Directory Pro is a premium WordPress plugin designed for community-focused business directories. Built with a wine country aesthetic and optimized for local business discovery, it features interactive maps, user reviews, business claiming, and a comprehensive gamification system to drive community engagement.
 
-**Business Directory** gives you everything you need to create a professional local business directory on your WordPress site:
+## Features
 
-- ✅ **Business Listings** - Custom post type with full WordPress integration
-- ✅ **Categories & Areas** - Organize by business type and location
-- ✅ **Interactive Maps** - Leaflet.js integration with custom markers
-- ✅ **Location Search** - Find businesses by address, city, or area
-- ✅ **Responsive Templates** - Beautiful business detail pages
-- ✅ **Admin Interface** - Easy-to-use dashboard for managing listings
-- ✅ **CSV Import** - Bulk import businesses from spreadsheets
-- ✅ **SEO Friendly** - Clean permalinks and structured data ready
-- ✅ **Developer Friendly** - Hooks, filters, and extensible architecture
+### Core Directory
+- **Interactive Leaflet Maps** - Clustered markers, custom pins, and smooth navigation
+- **Advanced Search & Filtering** - By category, area, tags, price level, and distance
+- **Geolocation** - "Near Me" functionality with browser location support
+- **Premium Business Listings** - Rich profiles with photos, hours, contact info, and social links
+- **Multi-taxonomy Support** - Categories, areas/neighborhoods, and tags
 
----
+### Reviews & Ratings
+- **Star Ratings** - 1-5 star review system with photo uploads
+- **Helpful Votes** - Community-driven review ranking
+- **Moderation Queue** - Admin approval workflow with spam protection
+- **Cloudflare Turnstile** - CAPTCHA integration for spam prevention
 
-## 🚀 Premium Add-ons
+### Business Claiming
+- **Claim Workflow** - Users can claim and manage their business listings
+- **Proof Upload** - Document verification for ownership claims
+- **Admin Review Queue** - Approve/reject claims with notes
+- **Automatic Account Creation** - New users created on claim approval
 
-Extend your directory with powerful premium features:
+### Gamification System
+- **Points & Badges** - Reward users for reviews, photos, and engagement
+- **Leaderboards** - Weekly, monthly, and all-time rankings
+- **User Ranks** - Progress from Newcomer to Local Legend
+- **Activity Tracking** - Comprehensive engagement metrics
 
-### ⭐ Reviews & Ratings - $49/year
-Add a complete review system to your directory:
-- 5-star rating system with aggregates
-- Photo uploads (up to 3 per review)
-- Review moderation queue
-- Spam protection with Cloudflare Turnstile
-- Email notifications
-- Beautiful review cards
+### Lists & Collections
+- **User Lists** - Create and share curated business collections
+- **Collaborative Lists** - Invite others to contribute
+- **Public/Private Visibility** - Control who sees your lists
+- **Follow System** - Subscribe to lists for updates
 
-**[Learn More →](#)** *(Coming soon)*
+### Business Owner Tools
+- **Owner Dashboard** - Manage listings, view analytics, respond to reviews
+- **Edit Requests** - Submit changes for admin approval
+- **Photo Management** - Upload and reorder business photos
+- **QR Code Generation** - Downloadable QR codes for marketing
 
----
+### Integrations
+- **The Events Calendar Pro** - Link businesses to events and venues
+- **Social Sharing** - Open Graph meta tags for rich social previews
+- **Embed System** - Embed business cards on external sites
 
-### 🏢 Business Claims - $49/year
-Let business owners claim and manage their listings:
-- Claim request form with modal interface
-- Proof of ownership upload
-- Admin claims dashboard with 24-48h SLA tracking
-- Automatic user account creation
-- Business owner role assignment
-- Email workflow for approvals/rejections
+## Requirements
 
-**[Learn More →](#)** *(Coming soon)*
-
----
-
-### 📝 Frontend Submissions - $49/year
-Allow users to submit businesses from your site:
-- Beautiful multi-step submission form
-- Photo and video uploads
-- Hours of operation scheduler
-- Automatic geocoding
-- Submission moderation queue
-- Turnstile spam protection
-
-**[Learn More →](#)** *(Coming soon)*
-
----
-
-### 🔍 Advanced Filters - $49/year
-Add powerful real-time filtering to your directory:
-- AJAX-powered instant filtering
-- Multi-criteria search (category, area, rating, price)
-- Geolocation and radius search
-- Distance calculations
-- Premium filter UI
-- Cache optimization
-
-**[Learn More →](#)** *(Coming soon)*
-
----
-
-### 🎨 Premium Templates - $49/year
-Beautiful, conversion-optimized templates:
-- Premium single business template
-- Modern directory grid layouts
-- Custom archive templates
-- Mobile-first responsive design
-- Multiple color schemes
-
-**[Learn More →](#)** *(Coming soon)*
-
----
-
-### 💎 Pro Bundle - $199/year
-**Save $46!** Get all premium add-ons plus:
-- ✅ All 5 premium add-ons
-- ✅ Priority support via tickets
-- ✅ Premium documentation & videos
-- ✅ All future add-ons included
-- ✅ 1 year of updates
-
-**[Get Pro Bundle →](#)** *(Coming soon)*
-
----
-
-## 📦 Installation
-
-### From WordPress.org *(Coming Soon)*
-1. Go to **Plugins → Add New**
-2. Search for **"Business Directory"**
-3. Click **Install Now**, then **Activate**
-
-### Manual Installation
-1. Download the plugin
-2. Upload to `/wp-content/plugins/business-directory/`
-3. Activate through the **Plugins** menu in WordPress
-4. Go to **Settings → Permalinks** and click **Save** to flush rewrites
-
-### Requirements
 - WordPress 6.0 or higher
 - PHP 8.0 or higher
-- MySQL 5.7+ or MariaDB 10.2+
+- MySQL 8.0 or higher
 
----
+## Installation
 
-## ⚡ Quick Start
+1. Upload the `business-directory` folder to `/wp-content/plugins/`
+2. Activate the plugin through the WordPress admin
+3. Navigate to **Business Directory > Settings** to configure
+4. Create a page and add the `[bd_directory]` shortcode
 
-### 1. Create Your Directory Page
-1. Create a new page (e.g., "Business Directory")
-2. Add this shortcode: `[bd_directory]`
-3. Publish the page
+## Shortcodes
 
-### 2. Add Your First Business
-1. Go to **Directory → Add New Business**
-2. Fill in business details
-3. Add location information
-4. Click **Publish**
+### Recommended Page Setup
 
-### 3. Configure Settings
-1. Go to **Directory → Settings**
-2. Set up notification emails
-3. Configure map defaults
-4. Save changes
+| Page Name | Shortcode | Purpose |
+|-----------|-----------|---------|
+| Business Directory | `[business_directory]` | Main directory with map and filters |
+| My Lists | `[bd_my_lists]` | User's saved business lists (requires login) |
+| Community Lists | `[bd_public_lists]` | Browse all public lists from users |
+| View List | `[bd_list]` | Single list detail page (auto-detects from URL) |
+| City Events | `[bd_city_events city="Livermore" source="lovetrivalley.com"]` | Events in a city (use source on sub-sites) |
+| My Profile | `[bd_user_profile]` | User stats, badges, and activity |
+| Badges | `[bd_badge_gallery]` | All available badges and user progress |
+| Leaderboard | `[bd_leaderboard]` | Top community contributors |
+| Add a Business | `[bd_submit_business]` | Public business submission form |
+| Business Tools | `[bd_business_tools]` | Dashboard for claimed business owners |
+| Edit Listing | `[bd_edit_listing]` | Form for owners to edit their listing |
 
-**That's it!** Your directory is ready to use.
+### All Shortcodes by Category
 
----
+#### Core Directory (4)
 
-## 🎨 Shortcodes
+| Shortcode | Description | Key Attributes |
+|-----------|-------------|----------------|
+| `[business_directory]` | Main directory with map, filters, and listings | `city`, `category`, `per_page`, `show_map`, `show_filters` |
+| `[bd_search]` | Standalone business search box | `placeholder`, `redirect` |
+| `[bd_categories]` | List or grid of business categories | `layout`, `show_count`, `hide_empty` |
+| `[bd_featured]` | Grid of featured/promoted businesses | `limit`, `category`, `columns` |
 
-### Main Directory
-```
-[bd_directory]
-```
-Displays the complete business directory with map and listings.
+#### User Lists (4)
 
-### Business List Only
-```
-[bd_business_list category="restaurants" area="downtown"]
-```
-Displays a filtered list of businesses.
+| Shortcode | Description | Key Attributes |
+|-----------|-------------|----------------|
+| `[bd_my_lists]` | Current user's saved lists with management | `per_page`, `show_create` |
+| `[bd_public_lists]` | Browse public lists from all users | `per_page`, `show_featured`, `orderby` |
+| `[bd_list]` | Single list detail page | `id`, `slug` |
+| `[bd_save_button]` | Save to list button for business pages | `business_id`, `style` |
 
-**Parameters:**
-- `category` - Filter by category slug
-- `area` - Filter by area slug
-- `per_page` - Number of businesses to show (default: 20)
-- `show_map` - Show/hide map (true/false)
+#### Events Calendar (2)
 
----
+| Shortcode | Description | Key Attributes |
+|-----------|-------------|----------------|
+| `[bd_city_events]` | Events filtered by city | `city`, `source`, `limit`, `layout`, `columns` |
+| `[bd_business_events]` | Events for a specific business | `id`, `source`, `limit` |
 
-## 🗂️ Organizing Businesses
+#### Gamification (3)
 
-### Categories
-Organize businesses by type:
-- Restaurants
-- Hotels
-- Shopping
-- Services
-- Entertainment
+| Shortcode | Description | Key Attributes |
+|-----------|-------------|----------------|
+| `[bd_user_profile]` | User profile with stats, badges, activity | `user_id`, `show_reviews`, `show_activity` |
+| `[bd_badge_gallery]` | Complete badge collection with progress | `show_ranks` |
+| `[bd_leaderboard]` | Top contributors leaderboard | `period`, `limit` |
 
-Go to **Directory → Categories** to manage.
+#### Business Features (4)
 
-### Areas
-Organize businesses by location:
-- Downtown
-- Uptown
-- Suburbs
-- Neighborhoods
+| Shortcode | Description | Key Attributes |
+|-----------|-------------|----------------|
+| `[bd_business_embed]` | Embed a business card anywhere | `id`, `layout`, `show_map` |
+| `[bd_business_hours]` | Business hours with open/closed status | `business_id`, `show_status`, `highlight_today` |
+| `[bd_social_share]` | Social sharing buttons | `business_id`, `networks`, `style` |
+| `[bd_qr_code]` | QR code linking to business page | `business_id`, `size` |
 
-Go to **Directory → Areas** to manage.
+#### Reviews & Ratings (3)
 
-### Tags
-Add flexible tags for additional organization:
-- "Pet Friendly"
-- "Open Late"
-- "Free WiFi"
-- "Outdoor Seating"
+| Shortcode | Description | Key Attributes |
+|-----------|-------------|----------------|
+| `[bd_business_reviews]` | Reviews for a specific business | `business_id`, `limit`, `show_form` |
+| `[bd_review_form]` | Standalone review submission form | `business_id`, `redirect` |
+| `[bd_recent_reviews]` | Recent reviews across all businesses | `limit`, `category` |
 
----
+#### Forms & Management (4)
 
-## 🛠️ Developer Features
+| Shortcode | Description | Key Attributes |
+|-----------|-------------|----------------|
+| `[bd_submit_business]` | New business submission form | `category`, `redirect` |
+| `[bd_claim_business]` | Business claim form for owners | `business_id` |
+| `[bd_business_tools]` | Owner dashboard for managing listing | - |
+| `[bd_edit_listing]` | Edit listing form for owners | `business_id` |
 
-### Hooks & Filters
+### Shortcode Examples
 
-**Modify business query:**
 ```php
-add_filter('bd_business_query_args', function($args) {
-    $args['posts_per_page'] = 50;
-    return $args;
+// Main directory filtered by category
+[business_directory category="restaurants" per_page="24"]
+
+// City events on a sub-site (fetches from main site)
+[bd_city_events city="Livermore" source="lovetrivalley.com" layout="grid" columns="3"]
+
+// Leaderboard showing top 5 contributors this month
+[bd_leaderboard period="month" limit="5"]
+
+// Embed a business card
+[bd_business_embed id="123" layout="card" show_map="yes"]
+
+// Recent reviews from restaurant category
+[bd_recent_reviews limit="10" category="restaurants"]
+```
+
+## File Structure
+
+```
+business-directory/
+├── assets/
+│   ├── css/              # Stylesheets
+│   └── js/               # JavaScript files
+├── includes/             # Feature loaders
+├── languages/            # Translation files
+├── src/
+│   ├── Admin/            # Admin interfaces & menus
+│   ├── API/              # REST API endpoints
+│   ├── Auth/             # Authentication & login system
+│   ├── BusinessTools/    # Owner dashboard & tools
+│   ├── DB/               # Database tables & migrations
+│   ├── Forms/            # Form handlers
+│   ├── Frontend/         # Frontend rendering & shortcodes
+│   ├── Gamification/     # Points, badges, ranks, leaderboards
+│   ├── Importer/         # CSV/bulk import tools
+│   ├── Install/          # Installation & setup
+│   ├── Integrations/     # Third-party integrations (TEC, etc.)
+│   ├── Lists/            # User lists & collections
+│   ├── Moderation/       # Content moderation queues
+│   ├── Notifications/    # Email & notification system
+│   ├── PostTypes/        # Custom post types
+│   ├── REST/             # REST controllers
+│   ├── Roles/            # User roles & capabilities
+│   ├── Search/           # Search & filtering engine
+│   ├── Security/         # Rate limiting, CAPTCHA
+│   ├── Social/           # Social sharing & Open Graph
+│   ├── Taxonomies/       # Categories, areas, tags
+│   ├── Utils/            # Helper utilities & cache
+│   └── Plugin.php        # Main plugin class
+├── templates/            # Template files
+├── tests/                # PHPUnit tests
+├── vendor/               # Composer dependencies
+└── business-directory.php  # Main plugin file
+```
+
+## Database Tables
+
+The plugin creates the following custom tables:
+
+- `bd_locations` - Business coordinates and address data
+- `bd_reviews` - User reviews and ratings
+- `bd_submissions` - Pending business submissions
+- `bd_claim_requests` - Business claim requests
+- `bd_change_requests` - Edit requests from owners
+- `bd_user_reputation` - Gamification points and ranks
+- `bd_user_activity` - Activity log for points
+- `bd_badge_awards` - Earned badges
+- `bd_lists` - User-created lists
+- `bd_list_items` - Businesses in lists
+- `bd_list_collaborators` - List collaboration
+- `bd_list_follows` - List subscriptions
+
+## REST API
+
+Base URL: `/wp-json/bd/v1/`
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/businesses` | GET | Search/filter businesses |
+| `/businesses/{id}` | GET | Get single business |
+| `/reviews` | POST | Submit a review |
+| `/claim` | POST | Submit a claim request |
+| `/lists` | GET/POST | User lists |
+| `/geocode` | GET | Geocode an address |
+
+## Configuration
+
+### Settings
+
+Navigate to **Business Directory > Settings** to configure:
+
+- Notification email addresses
+- Default map center coordinates
+- Turnstile site key (spam protection)
+- Review moderation settings
+- Gamification point values
+
+### Customization
+
+```php
+// Change popup style to detailed
+add_filter( 'bd_popup_style', function() {
+    return 'detailed';
+});
+
+// Customize point values
+add_filter( 'bd_points_review', function() {
+    return 15; // Default is 10
 });
 ```
 
-**Customize business card output:**
-```php
-add_action('bd_before_business_card', function($business_id) {
-    echo '<div class="custom-badge">Featured</div>';
-});
-```
+## Changelog
 
-**Add custom fields:**
-```php
-add_filter('bd_business_meta_fields', function($fields) {
-    $fields['parking'] = [
-        'label' => 'Parking Available',
-        'type' => 'checkbox'
-    ];
-    return $fields;
-});
-```
+### 0.1.3
+- Added Photo Gallery metabox for admin
+- Database migration system improvements
+- Business Tools navigation link
+- File naming cleanup and organization
 
-### Template Override
-Copy any template from `templates/` to your theme:
-```
-your-theme/
-  business-directory/
-    single-business.php
-    archive-business.php
-```
+### 0.1.2
+- Gamification system with badges and leaderboards
+- Collaborative lists feature
+- Business owner dashboard
 
-### REST API
-Access businesses via REST API:
-```
-GET /wp-json/bd/v1/businesses
-GET /wp-json/bd/v1/businesses/{id}
-GET /wp-json/bd/v1/geocode?address=123+Main+St
-```
+### 0.1.1
+- Review system with photo uploads
+- Business claiming workflow
+- The Events Calendar integration
 
----
+### 0.1.0
+- Initial release
+- Core directory functionality
+- Interactive maps with clustering
+- Search and filtering
 
-## 📖 Documentation
+## License
 
-### For Users
-- [Installation Guide](../../wiki/Installation)
-- [Adding Businesses](../../wiki/Adding-Businesses)
-- [Using Shortcodes](../../wiki/Shortcodes)
-- [Organizing Content](../../wiki/Organization)
+This plugin is licensed under the GPL v2 or later.
 
-### For Developers
-- [Hooks & Filters Reference](../../wiki/Hooks-and-Filters)
-- [Template Customization](../../wiki/Templates)
-- [REST API Documentation](../../wiki/REST-API)
-- [Creating Add-ons](../../wiki/Creating-Addons)
+**This is premium software.** While the code is GPL-licensed, this plugin is sold commercially with paid support. Unauthorized redistribution is not permitted.
+
+## Support
+
+For support, feature requests, or bug reports:
+
+- **Email:** support@example.com
+- **Documentation:** [docs.example.com](https://docs.example.com)
+
+## Credits
+
+- **Author:** Reggie Nicolay
+- **Website:** [narrpr.com](https://narrpr.com)
+- **Maps:** [Leaflet](https://leafletjs.com/) with [OpenStreetMap](https://www.openstreetmap.org/)
+- **Icons:** [Font Awesome](https://fontawesome.com/)
 
 ---
 
-## 💬 Support
-
-### Free Support
-- 📖 [Documentation Wiki](../../wiki)
-- 🐛 [Report Bugs](../../issues)
-- 💡 [Feature Requests](../../discussions)
-- 💬 [Community Forum](../../discussions)
-
-### Premium Support
-**Available with any paid add-on or Pro Bundle:**
-- 🎫 Priority ticket system
-- 📧 Direct email support
-- 📚 Premium documentation
-- 🎥 Video tutorials
-- ⚡ Faster response times
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Here's how to help:
-
-1. **Report Bugs** - Use [GitHub Issues](../../issues)
-2. **Suggest Features** - Start a [Discussion](../../discussions)
-3. **Submit Pull Requests** - Follow [WordPress Coding Standards](https://developer.wordpress.org/coding-standards/)
-4. **Improve Docs** - Help with [Wiki pages](../../wiki)
-5. **Translate** - Contribute translations
-
-### Development Setup
-```bash
-# Clone repository
-git clone https://github.com/reggienicolay/Business-Directory-Plugin.git
-
-# Install dependencies
-cd Business-Directory-Plugin
-composer install
-
-# Run code standards check
-composer phpcs
-
-# Run tests
-composer test
-```
-
----
-
-## 📝 Changelog
-
-### Version 1.0.0 - 2025-01-XX
-**Initial Release**
-- Business listings custom post type
-- Categories and areas taxonomies
-- Interactive Leaflet maps
-- Location search and filtering
-- Responsive templates
-- CSV import functionality
-- Admin interface
-- REST API endpoints
-
----
-
-## 🗺️ Roadmap
-
-### Core Features (Free)
-- [ ] WordPress.org submission
-- [ ] Advanced map clustering
-- [ ] Improved mobile experience
-- [ ] Schema.org markup
-- [ ] Multi-language support (WPML/Polylang)
-
-### Premium Add-ons (Paid)
-- [ ] Reviews & Ratings (Q1 2025)
-- [ ] Business Claims (Q1 2025)
-- [ ] Frontend Submissions (Q1 2025)
-- [ ] Advanced Filters (Q2 2025)
-- [ ] Premium Templates (Q2 2025)
-- [ ] Analytics Dashboard (Q2 2025)
-- [ ] Payment Integration (Q3 2025)
-
----
-
-## ❓ FAQ
-
-### Is this plugin really free?
-Yes! The core Business Directory plugin is 100% free and GPL-licensed. Premium add-ons are optional paid extensions.
-
-### Can I use this on multiple sites?
-Yes, the free core plugin can be used on unlimited sites. Premium add-ons require individual licenses per site (or use Agency Bundle for unlimited sites).
-
-### Do I need all the add-ons?
-No! Only purchase the add-ons you need. Start with the free core and add premium features as your directory grows.
-
-### Will the free version always be free?
-Yes. The core plugin will always be free and GPL-licensed. We're committed to the WordPress open-source ecosystem.
-
-### Can I request features?
-Absolutely! Use our [Discussions](../../discussions) page for feature requests. Popular requests may be added to the core or developed as add-ons.
-
-### Is support included?
-Community support is available for free users via GitHub. Premium add-ons include priority ticket support.
-
-### Can I build add-ons myself?
-Yes! The plugin is developer-friendly with extensive hooks and filters. See our [developer documentation](../../wiki) for creating custom add-ons.
-
----
-
-## 📄 License
-
-**GNU General Public License v2 or later**
-
-This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-
-**[Read the full GPL v2 license →](https://www.gnu.org/licenses/gpl-2.0.html)**
-
----
-
-## 👤 Author
-
-**Reggie Nicolay**  
-🌐 Website: [https://narrpr.com](https://narrpr.com)  
-💻 GitHub: [@reggienicolay](https://github.com/reggienicolay)
-
----
-
-## 🙏 Credits
-
-Built with:
-- [Leaflet.js](https://leafletjs.com/) - Open-source interactive maps
-- [Leaflet.markercluster](https://github.com/Leaflet/Leaflet.markercluster) - Marker clustering
-- WordPress - The world's best CMS
-
----
-
-## ⭐ Show Your Support
-
-If you find Business Directory useful:
-- ⭐ **Star this repository**
-- 🐦 **Share on social media**
-- 💬 **Write a review** (when on WordPress.org)
-- 💰 **Consider premium add-ons** to support development
-
----
-
-**Ready to create an amazing business directory?** 
-
-[Download Now](../../releases) | [View Demo](#) | [Documentation](../../wiki) | [Get Premium Add-ons](#)
-
----
-
-*Business Directory - Making local business discovery easy since 2025* 🚀
+© 2025 Reggie Nicolay. All rights reserved.

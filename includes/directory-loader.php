@@ -1,31 +1,38 @@
 <?php
 /**
- * Sprint 2 Week 2 - Search Infrastructure Loader
+ * Directory Assets Loader
+ *
+ * Loads search infrastructure, filters, and directory page assets.
+ *
+ * @package BusinessDirectory
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-if ( defined( 'BD_S2W2_LOADED' ) ) {
+
+if ( defined( 'BD_DIRECTORY_LOADED' ) ) {
 	return;
 }
-define( 'BD_S2W2_LOADED', true );
 
-// Load Search classes
+define( 'BD_DIRECTORY_LOADED', true );
+
+// Load Search classes.
 require_once plugin_dir_path( __FILE__ ) . '../src/Search/FilterHandler.php';
 require_once plugin_dir_path( __FILE__ ) . '../src/Search/QueryBuilder.php';
 require_once plugin_dir_path( __FILE__ ) . '../src/Search/Geocoder.php';
 
-// Load Utils
+// Load Utils.
 require_once plugin_dir_path( __FILE__ ) . '../src/Utils/Cache.php';
 
-// Load and initialize API
+// Load and initialize API.
 require_once plugin_dir_path( __FILE__ ) . '../src/API/BusinessEndpoint.php';
 
-// Load and initialize Frontend
+// Load and initialize Frontend Filters.
 require_once plugin_dir_path( __FILE__ ) . '../src/Frontend/Filters.php';
+\BusinessDirectory\Frontend\Filters::init();
 
-// Enqueue scripts and styles
+// Enqueue scripts and styles.
 add_action(
 	'wp_enqueue_scripts',
 	function () {
@@ -33,7 +40,7 @@ add_action(
 
 		$plugin_url = plugin_dir_url( __DIR__ );
 
-		// Check if we're on a directory page
+		// Check if we're on a directory page.
 		$has_directory = false;
 		if ( is_a( $post, 'WP_Post' ) ) {
 			$has_directory = has_shortcode( $post->post_content, 'business_filters' ) ||
@@ -41,12 +48,12 @@ add_action(
 						has_shortcode( $post->post_content, 'bd_directory' );
 		}
 
-		// Check if we're on a single business page
+		// Check if we're on a single business page.
 		$is_business_page = is_singular( 'bd_business' ) || is_singular( 'business' );
 
-		// Load directory assets
+		// Load directory assets.
 		if ( $has_directory ) {
-			// Enqueue Leaflet CSS
+			// Enqueue Leaflet CSS.
 			wp_enqueue_style(
 				'leaflet',
 				'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
@@ -54,7 +61,7 @@ add_action(
 				'1.9.4'
 			);
 
-			// Enqueue Leaflet MarkerCluster CSS
+			// Enqueue Leaflet MarkerCluster CSS.
 			wp_enqueue_style(
 				'leaflet-markercluster',
 				'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css',
@@ -69,7 +76,7 @@ add_action(
 				'1.5.3'
 			);
 
-			// Font Awesome
+			// Font Awesome.
 			wp_enqueue_style(
 				'font-awesome',
 				'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css',
@@ -77,7 +84,7 @@ add_action(
 				'5.15.4'
 			);
 
-			// Enqueue filter CSS
+			// Enqueue filter CSS.
 			wp_enqueue_style(
 				'bd-filters',
 				$plugin_url . 'assets/css/filters-premium.css',
@@ -85,8 +92,7 @@ add_action(
 				'3.2.0'
 			);
 
-			// Enqueue map popup CSS (single source of truth for popup styles)
-			// Switch styles via: add_filter('bd_popup_style', fn() => 'detailed');
+			// Enqueue map popup CSS.
 			wp_enqueue_style(
 				'bd-map-popup',
 				$plugin_url . 'assets/css/map-popup.css',
@@ -94,7 +100,7 @@ add_action(
 				'1.0.0'
 			);
 
-			// Enqueue map marker CSS (heart pins + branded clusters)
+			// Enqueue map marker CSS.
 			wp_enqueue_style(
 				'bd-map-markers',
 				$plugin_url . 'assets/css/map-markers.css',
@@ -102,7 +108,7 @@ add_action(
 				'1.0.0'
 			);
 
-			// Add body class for detailed popup mode if enabled
+			// Add body class for detailed popup mode if enabled.
 			$popup_style = apply_filters( 'bd_popup_style', 'minimal' );
 			if ( 'detailed' === $popup_style ) {
 				add_filter(
@@ -114,7 +120,7 @@ add_action(
 				);
 			}
 
-			// Enqueue Leaflet JS
+			// Enqueue Leaflet JS.
 			wp_enqueue_script(
 				'leaflet',
 				'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
@@ -123,7 +129,7 @@ add_action(
 				true
 			);
 
-			// Enqueue Leaflet MarkerCluster JS
+			// Enqueue Leaflet MarkerCluster JS.
 			wp_enqueue_script(
 				'leaflet-markercluster',
 				'https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js',
@@ -132,7 +138,7 @@ add_action(
 				true
 			);
 
-			// Enqueue our unified directory JS
+			// Enqueue our unified directory JS.
 			wp_enqueue_script(
 				'bd-directory',
 				$plugin_url . 'assets/js/business-directory.js',
@@ -141,7 +147,7 @@ add_action(
 				true
 			);
 
-			// Pass API URL, nonce, and popup style to JavaScript
+			// Pass API URL, nonce, and popup style to JavaScript.
 			wp_localize_script(
 				'bd-directory',
 				'bdVars',
@@ -153,9 +159,9 @@ add_action(
 			);
 		}
 
-		// Load business detail page assets
+		// Load business detail page assets.
 		if ( $is_business_page ) {
-			// Font Awesome (if not already loaded)
+			// Font Awesome (if not already loaded).
 			if ( ! wp_style_is( 'font-awesome', 'enqueued' ) ) {
 				wp_enqueue_style(
 					'font-awesome',
@@ -165,7 +171,7 @@ add_action(
 				);
 			}
 
-			// Business detail premium CSS
+			// Business detail premium CSS.
 			wp_enqueue_style(
 				'bd-business-detail',
 				$plugin_url . 'assets/css/business-detail-premium.css',
@@ -173,7 +179,7 @@ add_action(
 				'1.0.3'
 			);
 
-			// Enqueue Leaflet for the map (if not already loaded)
+			// Enqueue Leaflet for the map (if not already loaded).
 			if ( ! wp_script_is( 'leaflet', 'enqueued' ) ) {
 				wp_enqueue_style(
 					'leaflet',
@@ -191,7 +197,7 @@ add_action(
 				);
 			}
 
-			// Enqueue business detail JS
+			// Enqueue business detail JS.
 			wp_enqueue_script(
 				'bd-business-detail',
 				$plugin_url . 'assets/js/business-detail.js',

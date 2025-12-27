@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants
-define( 'BD_VERSION', '0.1.0' );
+define( 'BD_VERSION', '0.1.3' );
 define( 'BD_PLUGIN_FILE', __FILE__ );
 define( 'BD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BD_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -72,19 +72,16 @@ require_once plugin_dir_path( __FILE__ ) . 'src/API/BadgeEndpoint.php';
 register_activation_hook(
 	__FILE__,
 	function () {
-		// Existing installer
 		DB\Installer::activate();
-
-		// Create change requests table
-		\BD\DB\ChangeRequestsTable::create_table();
-
-		// Install frontend editor
 		\BD\Install\FrontendEditorInstaller::install();
 	}
 );
 
 // Deactivation hook (separate, not nested)
 register_deactivation_hook( __FILE__, array( DB\Installer::class, 'deactivate' ) );
+
+// Initialize database migration checks (must be before plugins_loaded fires)
+\BD\DB\Installer::init();
 
 // Initialize plugin
 add_action(
@@ -105,19 +102,14 @@ add_action(
 	}
 );
 
-// Load Sprint 2 Week 2 - Search Infrastructure
-if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/sprint2-week2-loader.php' ) ) {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/sprint2-week2-loader.php';
+// Load Directory Assets (search, filters, maps)
+if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/directory-loader.php' ) ) {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/directory-loader.php';
 }
 
-// Load Sprint 2 Week 2 Script 2 - Filter UI
-if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/sprint2-week2-script2-loader.php' ) ) {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/sprint2-week2-script2-loader.php';
-}
-
-// Load Sprint 2 Week 2 Script 3 - Geolocation & Performance
-if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/sprint2-week2-script3-loader.php' ) ) {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/sprint2-week2-script3-loader.php';
+// Load Geolocation & Performance
+if ( file_exists( plugin_dir_path( __FILE__ ) . 'includes/geolocation-loader.php' ) ) {
+	require_once plugin_dir_path( __FILE__ ) . 'includes/geolocation-loader.php';
 }
 
 /**
