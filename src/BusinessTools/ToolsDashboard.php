@@ -32,12 +32,32 @@ class ToolsDashboard
 		// Admin menu.
 		add_action('admin_menu', array($this, 'add_admin_menu'));
 
+		// Enqueue Font Awesome.
+		add_action('wp_enqueue_scripts', array($this, 'enqueue_assets'));
+
 		// AJAX handlers.
 		add_action('wp_ajax_bd_get_widget_code', array($this, 'ajax_get_widget_code'));
 		add_action('wp_ajax_bd_save_widget_domains', array($this, 'ajax_save_widget_domains'));
 		add_action('wp_ajax_bd_generate_qr', array($this, 'ajax_generate_qr'));
 		add_action('wp_ajax_bd_get_badge_code', array($this, 'ajax_get_badge_code'));
 		add_action('wp_ajax_bd_update_email_prefs', array($this, 'ajax_update_email_prefs'));
+	}
+
+	/**
+	 * Enqueue Font Awesome and dashboard assets.
+	 */
+	public function enqueue_assets()
+	{
+		// Only load on pages with our shortcode.
+		global $post;
+		if (is_a($post, 'WP_Post') && (has_shortcode($post->post_content, 'bd_business_tools') || has_shortcode($post->post_content, 'bd_owner_dashboard'))) {
+			wp_enqueue_style(
+				'font-awesome',
+				'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
+				array(),
+				'6.5.1'
+			);
+		}
 	}
 
 	/**
@@ -48,7 +68,7 @@ class ToolsDashboard
 		add_submenu_page(
 			'edit.php?post_type=bd_business',
 			__('Business Tools', 'business-directory'),
-			__('🛠️ Business Tools', 'business-directory'),
+			__('Business Tools', 'business-directory'),
 			'manage_options',
 			'bd-business-tools',
 			array($this, 'render_admin_page')
@@ -206,7 +226,7 @@ class ToolsDashboard
 			);
 		}
 
-		// Estimate views from post meta or analytics.
+		// Get this month's views.
 		$month_key             = 'bd_views_' . gmdate('Y_m');
 		$monthly_views         = get_post_meta($business_id, $month_key, true);
 		$stats['views']        = $monthly_views ? (int) $monthly_views : 0;
@@ -224,22 +244,27 @@ class ToolsDashboard
 	public function render_dashboard($atts = array())
 	{
 		if (! is_user_logged_in()) {
-			return '<div class="bd-tools-login-required">' .
-				'<p>' . esc_html__('Please log in to access your business tools.', 'business-directory') . '</p>' .
-				'<a href="' . esc_url(wp_login_url(get_permalink())) . '" class="bd-btn bd-btn-primary">' .
-				esc_html__('Log In', 'business-directory') . '</a>' .
-				'</div>';
+			return '<div class="bd-tools-login-required">
+				<div class="bd-tools-login-icon"><i class="fa-solid fa-lock"></i></div>
+				<h3>' . esc_html__('Sign In Required', 'business-directory') . '</h3>
+				<p>' . esc_html__('Please log in to access your business tools and marketing dashboard.', 'business-directory') . '</p>
+				<a href="' . esc_url(wp_login_url(get_permalink())) . '" class="bd-btn bd-btn-primary">
+					<i class="fa-solid fa-right-to-bracket"></i> ' . esc_html__('Log In', 'business-directory') . '
+				</a>
+			</div>';
 		}
 
 		$businesses = self::get_user_businesses();
 
 		if (empty($businesses)) {
-			return '<div class="bd-tools-no-businesses">' .
-				'<h3>' . esc_html__('No Claimed Businesses', 'business-directory') . '</h3>' .
-				'<p>' . esc_html__('You haven\'t claimed any businesses yet. Claim your business to access marketing tools.', 'business-directory') . '</p>' .
-				'<a href="' . esc_url(home_url('/directory/')) . '" class="bd-btn bd-btn-primary">' .
-				esc_html__('Find Your Business', 'business-directory') . '</a>' .
-				'</div>';
+			return '<div class="bd-tools-no-businesses">
+				<div class="bd-tools-empty-icon"><i class="fa-solid fa-store"></i></div>
+				<h3>' . esc_html__('No Claimed Businesses', 'business-directory') . '</h3>
+				<p>' . esc_html__('You haven\'t claimed any businesses yet. Claim your business to access marketing tools, analytics, and more.', 'business-directory') . '</p>
+				<a href="' . esc_url(home_url('/directory/')) . '" class="bd-btn bd-btn-primary">
+					<i class="fa-solid fa-magnifying-glass"></i> ' . esc_html__('Find Your Business', 'business-directory') . '
+				</a>
+			</div>';
 		}
 
 		ob_start();
@@ -247,7 +272,10 @@ class ToolsDashboard
 		<div class="bd-tools-dashboard">
 			<?php if (count($businesses) > 1) : ?>
 				<div class="bd-tools-business-selector">
-					<label for="bd-business-select"><?php esc_html_e('Select Business:', 'business-directory'); ?></label>
+					<label for="bd-business-select">
+						<i class="fa-solid fa-building"></i>
+						<?php esc_html_e('Select Business:', 'business-directory'); ?>
+					</label>
 					<select id="bd-business-select" class="bd-tools-select">
 						<?php foreach ($businesses as $business) : ?>
 							<option value="<?php echo esc_attr($business->ID); ?>">
@@ -268,27 +296,43 @@ class ToolsDashboard
 						<h2><?php echo esc_html($business->post_title); ?></h2>
 						<a href="<?php echo esc_url(get_permalink($business->ID)); ?>"
 							class="bd-tools-view-listing" target="_blank">
-							<?php esc_html_e('View Listing →', 'business-directory'); ?>
+							<?php esc_html_e('View Listing', 'business-directory'); ?>
+							<i class="fa-solid fa-arrow-up-right-from-square"></i>
 						</a>
 					</div>
 
 					<!-- Stats Section -->
 					<div class="bd-tools-stats">
-						<h3><?php esc_html_e('This Month\'s Performance', 'business-directory'); ?></h3>
+						<h3>
+							<i class="fa-solid fa-chart-line"></i>
+							<?php esc_html_e('This Month\'s Performance', 'business-directory'); ?>
+						</h3>
 						<div class="bd-tools-stats-grid">
 							<div class="bd-tools-stat">
+								<div class="bd-tools-stat-icon">
+									<i class="fa-solid fa-eye"></i>
+								</div>
 								<span class="bd-tools-stat-value"><?php echo esc_html(number_format($stats['views'])); ?></span>
 								<span class="bd-tools-stat-label"><?php esc_html_e('Views', 'business-directory'); ?></span>
 							</div>
 							<div class="bd-tools-stat">
+								<div class="bd-tools-stat-icon">
+									<i class="fa-solid fa-comment"></i>
+								</div>
 								<span class="bd-tools-stat-value"><?php echo esc_html($stats['monthly_reviews']); ?></span>
 								<span class="bd-tools-stat-label"><?php esc_html_e('New Reviews', 'business-directory'); ?></span>
 							</div>
 							<div class="bd-tools-stat">
+								<div class="bd-tools-stat-icon">
+									<i class="fa-solid fa-star"></i>
+								</div>
 								<span class="bd-tools-stat-value"><?php echo esc_html($stats['rating'] ?: '—'); ?></span>
 								<span class="bd-tools-stat-label"><?php esc_html_e('Rating', 'business-directory'); ?></span>
 							</div>
 							<div class="bd-tools-stat">
+								<div class="bd-tools-stat-icon">
+									<i class="fa-solid fa-hand-pointer"></i>
+								</div>
 								<span class="bd-tools-stat-value"><?php echo esc_html($stats['widget_clicks'] + $stats['qr_scans']); ?></span>
 								<span class="bd-tools-stat-label"><?php esc_html_e('Engagements', 'business-directory'); ?></span>
 							</div>
@@ -299,48 +343,60 @@ class ToolsDashboard
 					<div class="bd-tools-grid">
 						<!-- Review Widget -->
 						<div class="bd-tools-card" data-tool="widget">
-							<div class="bd-tools-card-icon">🔗</div>
+							<div class="bd-tools-card-icon">
+								<i class="fa-solid fa-code"></i>
+							</div>
 							<h4><?php esc_html_e('Review Widget', 'business-directory'); ?></h4>
 							<p><?php esc_html_e('Embed your reviews on your website to build trust with visitors.', 'business-directory'); ?></p>
 							<button class="bd-btn bd-btn-primary bd-tools-open-modal"
 								data-modal="widget-modal"
 								data-business="<?php echo esc_attr($business->ID); ?>">
+								<i class="fa-solid fa-wand-magic-sparkles"></i>
 								<?php esc_html_e('Get Widget Code', 'business-directory'); ?>
 							</button>
 						</div>
 
 						<!-- QR Codes -->
 						<div class="bd-tools-card" data-tool="qr">
-							<div class="bd-tools-card-icon">📱</div>
+							<div class="bd-tools-card-icon">
+								<i class="fa-solid fa-qrcode"></i>
+							</div>
 							<h4><?php esc_html_e('QR Codes', 'business-directory'); ?></h4>
 							<p><?php esc_html_e('Generate QR codes for your counter, window, or receipts.', 'business-directory'); ?></p>
 							<button class="bd-btn bd-btn-primary bd-tools-open-modal"
 								data-modal="qr-modal"
 								data-business="<?php echo esc_attr($business->ID); ?>">
+								<i class="fa-solid fa-download"></i>
 								<?php esc_html_e('Generate QR Codes', 'business-directory'); ?>
 							</button>
 						</div>
 
 						<!-- Featured Badge -->
 						<div class="bd-tools-card" data-tool="badge">
-							<div class="bd-tools-card-icon">🏅</div>
+							<div class="bd-tools-card-icon">
+								<i class="fa-solid fa-award"></i>
+							</div>
 							<h4><?php esc_html_e('Featured Badge', 'business-directory'); ?></h4>
 							<p><?php esc_html_e('Display a "Featured on" badge on your website.', 'business-directory'); ?></p>
 							<button class="bd-btn bd-btn-primary bd-tools-open-modal"
 								data-modal="badge-modal"
 								data-business="<?php echo esc_attr($business->ID); ?>">
+								<i class="fa-solid fa-certificate"></i>
 								<?php esc_html_e('Get Badge Code', 'business-directory'); ?>
 							</button>
 						</div>
 
 						<!-- Email Reports -->
 						<div class="bd-tools-card" data-tool="email">
-							<div class="bd-tools-card-icon">📧</div>
+							<div class="bd-tools-card-icon">
+								<i class="fa-solid fa-envelope-open-text"></i>
+							</div>
 							<h4><?php esc_html_e('Monthly Reports', 'business-directory'); ?></h4>
 							<p><?php esc_html_e('Receive monthly performance reports via email.', 'business-directory'); ?></p>
 							<button class="bd-btn bd-btn-primary bd-tools-open-modal"
 								data-modal="email-modal"
 								data-business="<?php echo esc_attr($business->ID); ?>">
+								<i class="fa-solid fa-gear"></i>
 								<?php esc_html_e('Manage Reports', 'business-directory'); ?>
 							</button>
 						</div>
@@ -365,8 +421,13 @@ class ToolsDashboard
 		<!-- Widget Modal -->
 		<div id="bd-widget-modal" class="bd-tools-modal">
 			<div class="bd-tools-modal-content">
-				<button class="bd-tools-modal-close">&times;</button>
-				<h3><?php esc_html_e('Review Widget', 'business-directory'); ?></h3>
+				<button class="bd-tools-modal-close" aria-label="<?php esc_attr_e('Close', 'business-directory'); ?>">
+					<i class="fa-solid fa-xmark"></i>
+				</button>
+				<div class="bd-tools-modal-header">
+					<i class="fa-solid fa-code"></i>
+					<h3><?php esc_html_e('Review Widget', 'business-directory'); ?></h3>
+				</div>
 
 				<div class="bd-tools-widget-options">
 					<label><?php esc_html_e('Widget Style:', 'business-directory'); ?></label>
@@ -406,35 +467,54 @@ class ToolsDashboard
 						</label>
 					</div>
 
-					<label><?php esc_html_e('Theme:', 'business-directory'); ?></label>
+					<label>
+						<i class="fa-solid fa-palette"></i>
+						<?php esc_html_e('Theme:', 'business-directory'); ?>
+					</label>
 					<select id="widget-theme" class="bd-tools-select">
 						<option value="light"><?php esc_html_e('Light', 'business-directory'); ?></option>
 						<option value="dark"><?php esc_html_e('Dark', 'business-directory'); ?></option>
 					</select>
 
-					<label><?php esc_html_e('Number of Reviews:', 'business-directory'); ?></label>
+					<label>
+						<i class="fa-solid fa-list-ol"></i>
+						<?php esc_html_e('Number of Reviews:', 'business-directory'); ?>
+					</label>
 					<select id="widget-reviews" class="bd-tools-select">
 						<option value="3">3</option>
 						<option value="5" selected>5</option>
 						<option value="10">10</option>
 					</select>
 
-					<label><?php esc_html_e('Allowed Domains:', 'business-directory'); ?></label>
+					<label>
+						<i class="fa-solid fa-globe"></i>
+						<?php esc_html_e('Allowed Domains:', 'business-directory'); ?>
+					</label>
 					<textarea id="widget-domains" class="bd-tools-textarea"
 						placeholder="example.com&#10;www.example.com"></textarea>
-					<p class="bd-tools-help"><?php esc_html_e('One domain per line. The widget will only work on these domains.', 'business-directory'); ?></p>
+					<p class="bd-tools-help">
+						<i class="fa-solid fa-circle-info"></i>
+						<?php esc_html_e('One domain per line. The widget will only work on these domains.', 'business-directory'); ?>
+					</p>
 				</div>
 
 				<div class="bd-tools-code-section">
-					<label><?php esc_html_e('Embed Code:', 'business-directory'); ?></label>
+					<label>
+						<i class="fa-solid fa-code"></i>
+						<?php esc_html_e('Embed Code:', 'business-directory'); ?>
+					</label>
 					<textarea id="widget-code" class="bd-tools-code" readonly></textarea>
 					<button class="bd-btn bd-btn-secondary bd-copy-code" data-target="widget-code">
+						<i class="fa-regular fa-copy"></i>
 						<?php esc_html_e('Copy Code', 'business-directory'); ?>
 					</button>
 				</div>
 
 				<div class="bd-tools-preview-section">
-					<label><?php esc_html_e('Preview:', 'business-directory'); ?></label>
+					<label>
+						<i class="fa-solid fa-eye"></i>
+						<?php esc_html_e('Preview:', 'business-directory'); ?>
+					</label>
 					<div id="widget-preview" class="bd-tools-preview"></div>
 				</div>
 			</div>
@@ -443,8 +523,13 @@ class ToolsDashboard
 		<!-- QR Code Modal -->
 		<div id="bd-qr-modal" class="bd-tools-modal">
 			<div class="bd-tools-modal-content">
-				<button class="bd-tools-modal-close">&times;</button>
-				<h3><?php esc_html_e('QR Codes', 'business-directory'); ?></h3>
+				<button class="bd-tools-modal-close" aria-label="<?php esc_attr_e('Close', 'business-directory'); ?>">
+					<i class="fa-solid fa-xmark"></i>
+				</button>
+				<div class="bd-tools-modal-header">
+					<i class="fa-solid fa-qrcode"></i>
+					<h3><?php esc_html_e('QR Codes', 'business-directory'); ?></h3>
+				</div>
 
 				<div class="bd-tools-qr-options">
 					<label><?php esc_html_e('QR Code Type:', 'business-directory'); ?></label>
@@ -452,6 +537,7 @@ class ToolsDashboard
 						<label class="bd-tools-qr-type">
 							<input type="radio" name="qr_type" value="review" checked>
 							<span class="bd-tools-qr-type-info">
+								<i class="fa-solid fa-pen-to-square"></i>
 								<strong><?php esc_html_e('Review Page', 'business-directory'); ?></strong>
 								<small><?php esc_html_e('Links directly to review form', 'business-directory'); ?></small>
 							</span>
@@ -459,6 +545,7 @@ class ToolsDashboard
 						<label class="bd-tools-qr-type">
 							<input type="radio" name="qr_type" value="listing">
 							<span class="bd-tools-qr-type-info">
+								<i class="fa-solid fa-store"></i>
 								<strong><?php esc_html_e('Business Listing', 'business-directory'); ?></strong>
 								<small><?php esc_html_e('Links to your full listing', 'business-directory'); ?></small>
 							</span>
@@ -473,12 +560,15 @@ class ToolsDashboard
 
 				<div class="bd-tools-qr-downloads">
 					<button class="bd-btn bd-btn-primary bd-download-qr" data-format="png">
+						<i class="fa-solid fa-image"></i>
 						<?php esc_html_e('Download PNG', 'business-directory'); ?>
 					</button>
 					<button class="bd-btn bd-btn-secondary bd-download-qr" data-format="svg">
+						<i class="fa-solid fa-vector-square"></i>
 						<?php esc_html_e('Download SVG', 'business-directory'); ?>
 					</button>
 					<button class="bd-btn bd-btn-secondary bd-download-qr" data-format="pdf">
+						<i class="fa-solid fa-file-pdf"></i>
 						<?php esc_html_e('Download Print PDF', 'business-directory'); ?>
 					</button>
 				</div>
@@ -488,8 +578,13 @@ class ToolsDashboard
 		<!-- Badge Modal -->
 		<div id="bd-badge-modal" class="bd-tools-modal">
 			<div class="bd-tools-modal-content">
-				<button class="bd-tools-modal-close">&times;</button>
-				<h3><?php esc_html_e('Featured Badge', 'business-directory'); ?></h3>
+				<button class="bd-tools-modal-close" aria-label="<?php esc_attr_e('Close', 'business-directory'); ?>">
+					<i class="fa-solid fa-xmark"></i>
+				</button>
+				<div class="bd-tools-modal-header">
+					<i class="fa-solid fa-award"></i>
+					<h3><?php esc_html_e('Featured Badge', 'business-directory'); ?></h3>
+				</div>
 
 				<div class="bd-tools-badge-options">
 					<label><?php esc_html_e('Badge Style:', 'business-directory'); ?></label>
@@ -497,24 +592,27 @@ class ToolsDashboard
 						<label class="bd-tools-badge-style">
 							<input type="radio" name="badge_style" value="simple" checked>
 							<span class="bd-tools-badge-preview bd-badge-simple">
-								📍 Featured on LoveTriValley
+								<i class="fa-solid fa-location-dot"></i> Featured on LoveTriValley
 							</span>
 						</label>
 						<label class="bd-tools-badge-style">
 							<input type="radio" name="badge_style" value="rating">
 							<span class="bd-tools-badge-preview bd-badge-rating">
-								⭐ 4.8 on LoveTriValley
+								<i class="fa-solid fa-star"></i> 4.8 on LoveTriValley
 							</span>
 						</label>
 						<label class="bd-tools-badge-style">
 							<input type="radio" name="badge_style" value="reviews">
 							<span class="bd-tools-badge-preview bd-badge-reviews">
-								⭐ 4.8 · 127 reviews
+								<i class="fa-solid fa-star"></i> 4.8 · 127 reviews
 							</span>
 						</label>
 					</div>
 
-					<label><?php esc_html_e('Size:', 'business-directory'); ?></label>
+					<label>
+						<i class="fa-solid fa-expand"></i>
+						<?php esc_html_e('Size:', 'business-directory'); ?>
+					</label>
 					<select id="badge-size" class="bd-tools-select">
 						<option value="small"><?php esc_html_e('Small (150px)', 'business-directory'); ?></option>
 						<option value="medium" selected><?php esc_html_e('Medium (200px)', 'business-directory'); ?></option>
@@ -523,18 +621,24 @@ class ToolsDashboard
 				</div>
 
 				<div class="bd-tools-code-section">
-					<label><?php esc_html_e('Embed Code:', 'business-directory'); ?></label>
+					<label>
+						<i class="fa-solid fa-code"></i>
+						<?php esc_html_e('Embed Code:', 'business-directory'); ?>
+					</label>
 					<textarea id="badge-code" class="bd-tools-code" readonly></textarea>
 					<button class="bd-btn bd-btn-secondary bd-copy-code" data-target="badge-code">
+						<i class="fa-regular fa-copy"></i>
 						<?php esc_html_e('Copy Code', 'business-directory'); ?>
 					</button>
 				</div>
 
 				<div class="bd-tools-badge-downloads">
 					<button class="bd-btn bd-btn-primary bd-download-badge" data-format="svg">
+						<i class="fa-solid fa-vector-square"></i>
 						<?php esc_html_e('Download SVG', 'business-directory'); ?>
 					</button>
 					<button class="bd-btn bd-btn-secondary bd-download-badge" data-format="png">
+						<i class="fa-solid fa-image"></i>
 						<?php esc_html_e('Download PNG', 'business-directory'); ?>
 					</button>
 				</div>
@@ -544,36 +648,55 @@ class ToolsDashboard
 		<!-- Email Preferences Modal -->
 		<div id="bd-email-modal" class="bd-tools-modal">
 			<div class="bd-tools-modal-content">
-				<button class="bd-tools-modal-close">&times;</button>
-				<h3><?php esc_html_e('Monthly Report Settings', 'business-directory'); ?></h3>
+				<button class="bd-tools-modal-close" aria-label="<?php esc_attr_e('Close', 'business-directory'); ?>">
+					<i class="fa-solid fa-xmark"></i>
+				</button>
+				<div class="bd-tools-modal-header">
+					<i class="fa-solid fa-envelope-open-text"></i>
+					<h3><?php esc_html_e('Monthly Report Settings', 'business-directory'); ?></h3>
+				</div>
 
 				<div class="bd-tools-email-options">
 					<label class="bd-tools-checkbox">
 						<input type="checkbox" id="email-enabled" checked>
-						<span><?php esc_html_e('Send me monthly performance reports', 'business-directory'); ?></span>
+						<span>
+							<i class="fa-solid fa-calendar-check"></i>
+							<?php esc_html_e('Send me monthly performance reports', 'business-directory'); ?>
+						</span>
 					</label>
 
-					<label><?php esc_html_e('Email Address:', 'business-directory'); ?></label>
+					<label>
+						<i class="fa-solid fa-at"></i>
+						<?php esc_html_e('Email Address:', 'business-directory'); ?>
+					</label>
 					<input type="email" id="email-address" class="bd-tools-input"
 						value="<?php echo esc_attr(wp_get_current_user()->user_email); ?>">
 
 					<label class="bd-tools-checkbox">
 						<input type="checkbox" id="email-reviews" checked>
-						<span><?php esc_html_e('Include recent reviews in report', 'business-directory'); ?></span>
+						<span>
+							<i class="fa-solid fa-comments"></i>
+							<?php esc_html_e('Include recent reviews in report', 'business-directory'); ?>
+						</span>
 					</label>
 
 					<label class="bd-tools-checkbox">
 						<input type="checkbox" id="email-tips" checked>
-						<span><?php esc_html_e('Include tips to improve your listing', 'business-directory'); ?></span>
+						<span>
+							<i class="fa-solid fa-lightbulb"></i>
+							<?php esc_html_e('Include tips to improve your listing', 'business-directory'); ?>
+						</span>
 					</label>
 				</div>
 
 				<button class="bd-btn bd-btn-primary bd-save-email-prefs">
+					<i class="fa-solid fa-floppy-disk"></i>
 					<?php esc_html_e('Save Preferences', 'business-directory'); ?>
 				</button>
 
 				<div class="bd-tools-email-preview">
 					<button class="bd-btn bd-btn-link bd-send-test-email">
+						<i class="fa-solid fa-paper-plane"></i>
 						<?php esc_html_e('Send Test Email', 'business-directory'); ?>
 					</button>
 				</div>
@@ -589,7 +712,10 @@ class ToolsDashboard
 	{
 	?>
 		<div class="wrap">
-			<h1><?php esc_html_e('Business Owner Tools', 'business-directory'); ?></h1>
+			<h1>
+				<span class="dashicons dashicons-admin-tools"></span>
+				<?php esc_html_e('Business Owner Tools', 'business-directory'); ?>
+			</h1>
 			<p><?php esc_html_e('Manage marketing tools available to business owners.', 'business-directory'); ?></p>
 
 			<div class="bd-admin-tools-stats">
