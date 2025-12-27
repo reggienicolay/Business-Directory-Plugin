@@ -54,11 +54,13 @@ class Installer {
 
 			// Log migration completion.
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( sprintf(
-					'[Business Directory] Database migrated from %s to %s',
-					$current_version,
-					self::DB_VERSION
-				) );
+				error_log(
+					sprintf(
+						'[Business Directory] Database migrated from %s to %s',
+						$current_version,
+						self::DB_VERSION
+					)
+				);
 			}
 		}
 	}
@@ -380,13 +382,6 @@ class Installer {
 					$wpdb->query( "ALTER TABLE {$reviews_table} ADD COLUMN ip_address varchar(45) DEFAULT NULL AFTER status" );
 				}
 			}
-		}
-
-		// =====================================================================
-		// Upgrade from pre-2.1.0: Create gamification tables.
-		// =====================================================================
-		if ( version_compare( $from_version, '2.1.0', '<' ) ) {
-			// Tables are created by create_tables() which is called before this.
 		}
 
 		// =====================================================================
