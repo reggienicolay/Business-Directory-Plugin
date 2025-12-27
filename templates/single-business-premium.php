@@ -2,7 +2,7 @@
 
 /**
  * Premium Single Business Template - WITH SIDEBAR CLAIM BLOCK
- * Features: Photo Gallery, Video Gallery, Lightbox, Similar Businesses, Social Sharing
+ * Features: Photo Gallery, Video Gallery, Lightbox, Similar Businesses, Social Sharing, Featured in Lists
  */
 
 get_header();
@@ -227,6 +227,42 @@ while ( have_posts() ) :
 				<div class="bd-info-card bd-save-card">
 					<?php echo do_shortcode( '[bd_save_button style="button"]' ); ?>
 				</div>
+
+				<!-- FEATURED IN LISTS SECTION -->
+				<?php
+				if ( class_exists( 'BD\Lists\ListManager' ) ) :
+					$lists_count   = \BD\Lists\ListManager::count_public_lists_for_business( $business_id );
+					$featured_lists = $lists_count > 0 ? \BD\Lists\ListManager::get_public_lists_for_business( $business_id, 3 ) : array();
+					
+					if ( $lists_count > 0 ) :
+						?>
+						<div class="bd-info-card bd-featured-lists-card">
+							<div class="bd-featured-lists-header">
+								<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+									<path d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/>
+								</svg>
+								<h4>Featured in <?php echo esc_html( $lists_count ); ?> <?php echo $lists_count === 1 ? 'List' : 'Lists'; ?></h4>
+							</div>
+							
+							<div class="bd-featured-lists-items">
+								<?php foreach ( $featured_lists as $list ) : ?>
+									<a href="<?php echo esc_url( $list['url'] ); ?>" class="bd-featured-list-item">
+										<span class="bd-featured-list-title"><?php echo esc_html( $list['title'] ); ?></span>
+										<span class="bd-featured-list-meta">
+											by <?php echo esc_html( $list['author_name'] ); ?> · <?php echo esc_html( $list['item_count'] ); ?> places
+										</span>
+									</a>
+								<?php endforeach; ?>
+							</div>
+
+							<?php if ( $lists_count > 3 ) : ?>
+								<a href="<?php echo esc_url( home_url( '/lists/?business=' . $business_id ) ); ?>" class="bd-featured-lists-more">
+									View all <?php echo esc_html( $lists_count ); ?> lists →
+								</a>
+							<?php endif; ?>
+						</div>
+					<?php endif; ?>
+				<?php endif; ?>
 
 				<!-- CLAIM BLOCK (SIDEBAR VERSION) -->
 				<?php if ( ! $claimed_by ) : ?>

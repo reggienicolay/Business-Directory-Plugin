@@ -3,11 +3,14 @@
  * Share Image Generator
  *
  * Generates dynamic share images for social media.
+ * Supports businesses, reviews, badges, and lists.
  *
  * @package BusinessDirectory
  */
 
 namespace BD\Social;
+
+use BD\Lists\ListManager;
 
 class ImageGenerator {
 
@@ -31,10 +34,27 @@ class ImageGenerator {
 	const COLOR_TEXT_LIGHT  = array( 93, 122, 140 );  // Same as slate gray
 
 	/**
+	 * Single instance.
+	 *
+	 * @var ImageGenerator|null
+	 */
+	private static $instance = null;
+
+	/**
+	 * Initialize the image generator.
+	 */
+	public static function init() {
+		if ( null === self::$instance ) {
+			self::$instance = new self();
+		}
+		return self::$instance;
+	}
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
-		add_action( 'init', array( $this, 'handle_image_request' ) );
+		add_action( 'init', array( $this, 'handle_image_request' ), 1 );
 	}
 
 	/**
@@ -54,8 +74,12 @@ class ImageGenerator {
 		$badge_key = isset( $_GET['badge_key'] ) ? sanitize_text_field( wp_unslash( $_GET['badge_key'] ) ) : '';
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$user_id = isset( $_GET['user_id'] ) ? (int) $_GET['user_id'] : 0;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$list_id = isset( $_GET['list_id'] ) ? (int) $_GET['list_id'] : 0;
 
-		if ( $business_id ) {
+		if ( $list_id ) {
+			$this->generate_list_image( $list_id );
+		} elseif ( $business_id ) {
 			$this->generate_business_image( $business_id );
 		} elseif ( $review_id ) {
 			$this->generate_review_image( $review_id );
@@ -64,6 +88,350 @@ class ImageGenerator {
 		}
 
 		exit;
+	}
+
+	/**
+	 * Generate share image for a list with business photo collage.
+	 *
+	 * @param int $list_id List ID.
+	 */
+	public function generate_list_image( $list_id ) {
+		$list = ListManager::get_list( $list_id );
+		if ( ! $list ) {
+			$this->output_fallback_image();
+			return;
+		}
+
+		// Check cache first.
+		$cached = $this->get_cached_image( 'list', $list_id );
+		if ( $cached ) {
+			$this->output_image( $cached );
+			return;
+		}
+
+		// Get list items for collage.
+		$items = ListManager::get_list_items( $list_id );
+
+		// Create base image.
+		$image = $this->create_base_image();
+
+		// Add collage background from business images.
+		$this->add_list_collage_background( $image, $items );
+
+		// Add dark overlay gradient.
+		$this->add_list_overlay( $image );
+
+		// Add list info text.
+		$this->add_list_info( $image, $list, count( $items ) );
+
+		// Add branding.
+		$this->add_branding( $image );
+
+		// Cache and output.
+		$this->cache_image( $image, 'list', $list_id );
+		$this->output_image( $image );
+	}
+
+	/**
+	 * Add collage background from list business images.
+	 *
+	 * @param resource $image GD image resource.
+	 * @param array    $items List items.
+	 */
+	private function add_list_collage_background( $image, $items ) {
+		// Collect business thumbnail IDs.
+		$thumbnails = array();
+		foreach ( $items as $item ) {
+			if ( ! empty( $item['business_id'] ) ) {
+				$thumb_id = get_post_thumbnail_id( $item['business_id'] );
+				if ( $thumb_id ) {
+					$thumbnails[] = $thumb_id;
+				}
+			}
+			// Max 4 images for collage.
+			if ( count( $thumbnails ) >= 4 ) {
+				break;
+			}
+		}
+
+		$count = count( $thumbnails );
+
+		if ( 0 === $count ) {
+			// No images - use solid background.
+			$dark_navy = imagecolorallocate( $image, ...self::COLOR_DARK_NAVY );
+			imagefilledrectangle( $image, 0, 0, self::WIDTH, self::HEIGHT, $dark_navy );
+			return;
+		}
+
+		if ( 1 === $count ) {
+			// Single image - full background.
+			$this->add_background_image( $image, $thumbnails[0] );
+			return;
+		}
+
+		if ( 2 === $count ) {
+			// Two images - side by side.
+			$this->add_split_images( $image, $thumbnails, 2 );
+			return;
+		}
+
+		if ( 3 === $count ) {
+			// Three images - one large left, two stacked right.
+			$this->add_three_image_layout( $image, $thumbnails );
+			return;
+		}
+
+		// Four images - 2x2 grid.
+		$this->add_grid_images( $image, $thumbnails, 2, 2 );
+	}
+
+	/**
+	 * Add split images (side by side).
+	 *
+	 * @param resource $image GD image resource.
+	 * @param array    $thumbnails Array of attachment IDs.
+	 * @param int      $count Number of images.
+	 */
+	private function add_split_images( $image, $thumbnails, $count ) {
+		$cell_width = self::WIDTH / $count;
+
+		foreach ( $thumbnails as $index => $thumb_id ) {
+			$file = get_attached_file( $thumb_id );
+			if ( ! $file || ! file_exists( $file ) ) {
+				continue;
+			}
+
+			$source = $this->load_image_from_file( $file );
+			if ( ! $source ) {
+				continue;
+			}
+
+			$src_w = imagesx( $source );
+			$src_h = imagesy( $source );
+
+			// Calculate crop dimensions.
+			$scale = max( $cell_width / $src_w, self::HEIGHT / $src_h );
+			$new_w = (int) ( $src_w * $scale );
+			$new_h = (int) ( $src_h * $scale );
+
+			$dst_x = (int) ( $index * $cell_width + ( $cell_width - $new_w ) / 2 );
+			$dst_y = (int) ( ( self::HEIGHT - $new_h ) / 2 );
+
+			// Clip to cell.
+			imagesetclip( $image, (int) ( $index * $cell_width ), 0, (int) ( ( $index + 1 ) * $cell_width ), self::HEIGHT );
+			imagecopyresampled( $image, $source, $dst_x, $dst_y, 0, 0, $new_w, $new_h, $src_w, $src_h );
+			imagesetclip( $image, 0, 0, self::WIDTH, self::HEIGHT );
+
+			imagedestroy( $source );
+		}
+
+		// Add subtle divider lines.
+		$divider_color = imagecolorallocatealpha( $image, 255, 255, 255, 100 );
+		for ( $i = 1; $i < $count; $i++ ) {
+			$x = (int) ( $i * $cell_width );
+			imageline( $image, $x, 0, $x, self::HEIGHT, $divider_color );
+		}
+	}
+
+	/**
+	 * Add three-image layout (large left, two stacked right).
+	 *
+	 * @param resource $image GD image resource.
+	 * @param array    $thumbnails Array of attachment IDs.
+	 */
+	private function add_three_image_layout( $image, $thumbnails ) {
+		// Large image on left (60% width).
+		$left_width  = (int) ( self::WIDTH * 0.6 );
+		$right_width = self::WIDTH - $left_width;
+		$half_height = self::HEIGHT / 2;
+
+		// Left image.
+		$this->add_image_to_region( $image, $thumbnails[0], 0, 0, $left_width, self::HEIGHT );
+
+		// Top right.
+		$this->add_image_to_region( $image, $thumbnails[1], $left_width, 0, $right_width, $half_height );
+
+		// Bottom right.
+		$this->add_image_to_region( $image, $thumbnails[2], $left_width, $half_height, $right_width, $half_height );
+
+		// Add divider lines.
+		$divider_color = imagecolorallocatealpha( $image, 255, 255, 255, 100 );
+		imageline( $image, $left_width, 0, $left_width, self::HEIGHT, $divider_color );
+		imageline( $image, $left_width, (int) $half_height, self::WIDTH, (int) $half_height, $divider_color );
+	}
+
+	/**
+	 * Add grid of images.
+	 *
+	 * @param resource $image GD image resource.
+	 * @param array    $thumbnails Array of attachment IDs.
+	 * @param int      $cols Number of columns.
+	 * @param int      $rows Number of rows.
+	 */
+	private function add_grid_images( $image, $thumbnails, $cols, $rows ) {
+		$cell_width  = self::WIDTH / $cols;
+		$cell_height = self::HEIGHT / $rows;
+		$index       = 0;
+
+		for ( $row = 0; $row < $rows; $row++ ) {
+			for ( $col = 0; $col < $cols; $col++ ) {
+				if ( ! isset( $thumbnails[ $index ] ) ) {
+					break 2;
+				}
+
+				$x = (int) ( $col * $cell_width );
+				$y = (int) ( $row * $cell_height );
+
+				$this->add_image_to_region( $image, $thumbnails[ $index ], $x, $y, $cell_width, $cell_height );
+				++$index;
+			}
+		}
+
+		// Add grid lines.
+		$divider_color = imagecolorallocatealpha( $image, 255, 255, 255, 100 );
+		for ( $col = 1; $col < $cols; $col++ ) {
+			$x = (int) ( $col * $cell_width );
+			imageline( $image, $x, 0, $x, self::HEIGHT, $divider_color );
+		}
+		for ( $row = 1; $row < $rows; $row++ ) {
+			$y = (int) ( $row * $cell_height );
+			imageline( $image, 0, $y, self::WIDTH, $y, $divider_color );
+		}
+	}
+
+	/**
+	 * Add an image to a specific region.
+	 *
+	 * @param resource $image GD image resource.
+	 * @param int      $attachment_id Attachment ID.
+	 * @param int      $x X position.
+	 * @param int      $y Y position.
+	 * @param int      $width Region width.
+	 * @param int      $height Region height.
+	 */
+	private function add_image_to_region( $image, $attachment_id, $x, $y, $width, $height ) {
+		$file = get_attached_file( $attachment_id );
+		if ( ! $file || ! file_exists( $file ) ) {
+			// Fill with dark color.
+			$dark = imagecolorallocate( $image, ...self::COLOR_DARK_NAVY );
+			imagefilledrectangle( $image, $x, $y, $x + $width, $y + $height, $dark );
+			return;
+		}
+
+		$source = $this->load_image_from_file( $file );
+		if ( ! $source ) {
+			$dark = imagecolorallocate( $image, ...self::COLOR_DARK_NAVY );
+			imagefilledrectangle( $image, $x, $y, $x + $width, $y + $height, $dark );
+			return;
+		}
+
+		$src_w = imagesx( $source );
+		$src_h = imagesy( $source );
+
+		// Cover the region.
+		$scale = max( $width / $src_w, $height / $src_h );
+		$new_w = (int) ( $src_w * $scale );
+		$new_h = (int) ( $src_h * $scale );
+		$dst_x = $x + (int) ( ( $width - $new_w ) / 2 );
+		$dst_y = $y + (int) ( ( $height - $new_h ) / 2 );
+
+		// Set clipping region.
+		imagesetclip( $image, $x, $y, $x + (int) $width, $y + (int) $height );
+		imagecopyresampled( $image, $source, $dst_x, $dst_y, 0, 0, $new_w, $new_h, $src_w, $src_h );
+		imagesetclip( $image, 0, 0, self::WIDTH, self::HEIGHT );
+
+		imagedestroy( $source );
+	}
+
+	/**
+	 * Load image from file.
+	 *
+	 * @param string $file File path.
+	 * @return resource|null GD image or null.
+	 */
+	private function load_image_from_file( $file ) {
+		$info = getimagesize( $file );
+		if ( ! $info ) {
+			return null;
+		}
+
+		switch ( $info['mime'] ) {
+			case 'image/jpeg':
+				return imagecreatefromjpeg( $file );
+			case 'image/png':
+				return imagecreatefrompng( $file );
+			case 'image/webp':
+				if ( function_exists( 'imagecreatefromwebp' ) ) {
+					return imagecreatefromwebp( $file );
+				}
+				break;
+			case 'image/gif':
+				return imagecreatefromgif( $file );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Add overlay for list image.
+	 *
+	 * @param resource $image GD image resource.
+	 */
+	private function add_list_overlay( $image ) {
+		// Create gradient from bottom.
+		for ( $y = 0; $y < self::HEIGHT; $y++ ) {
+			// Stronger at bottom.
+			$alpha = (int) ( 80 + ( $y / self::HEIGHT ) * 47 );
+			$alpha = min( 127, $alpha );
+			$color = imagecolorallocatealpha( $image, 26, 58, 74, 127 - $alpha );
+			imageline( $image, 0, $y, self::WIDTH, $y, $color );
+		}
+
+		// Add accent bar at top.
+		$accent = imagecolorallocate( $image, ...self::COLOR_STEEL_BLUE );
+		imagefilledrectangle( $image, 0, 0, self::WIDTH, 6, $accent );
+	}
+
+	/**
+	 * Add list info text to image.
+	 *
+	 * @param resource $image GD image resource.
+	 * @param array    $list List data.
+	 * @param int      $item_count Number of items.
+	 */
+	private function add_list_info( $image, $list, $item_count ) {
+		// "CURATED LIST" label.
+		$this->add_text( $image, '📋 CURATED LIST', 60, 280, 16, self::COLOR_STEEL_BLUE );
+
+		// List title.
+		$title = $list['title'];
+		if ( strlen( $title ) > 40 ) {
+			$title = substr( $title, 0, 37 ) . '...';
+		}
+		$this->add_text( $image, $title, 60, 340, 42, self::COLOR_WHITE, true );
+
+		// Item count and author.
+		$meta_parts = array();
+		$meta_parts[] = sprintf(
+			'%d %s',
+			$item_count,
+			_n( 'place', 'places', $item_count, 'business-directory' )
+		);
+
+		if ( ! empty( $list['user_id'] ) ) {
+			$author = get_userdata( $list['user_id'] );
+			if ( $author ) {
+				$meta_parts[] = 'by ' . $author->display_name;
+			}
+		}
+
+		$this->add_text( $image, implode( ' · ', $meta_parts ), 60, 400, 20, self::COLOR_LIGHT_BLUE );
+
+		// Description (if available).
+		if ( ! empty( $list['description'] ) ) {
+			$desc = wp_trim_words( $list['description'], 15 );
+			$this->add_wrapped_text( $image, $desc, 60, 450, 16, self::COLOR_STEEL_BLUE, 600 );
+		}
 	}
 
 	/**
@@ -286,26 +654,7 @@ class ImageGenerator {
 			return $image;
 		}
 
-		$info = getimagesize( $file );
-		if ( ! $info ) {
-			return $image;
-		}
-
-		$source = null;
-		switch ( $info['mime'] ) {
-			case 'image/jpeg':
-				$source = imagecreatefromjpeg( $file );
-				break;
-			case 'image/png':
-				$source = imagecreatefrompng( $file );
-				break;
-			case 'image/webp':
-				if ( function_exists( 'imagecreatefromwebp' ) ) {
-					$source = imagecreatefromwebp( $file );
-				}
-				break;
-		}
-
+		$source = $this->load_image_from_file( $file );
 		if ( ! $source ) {
 			return $image;
 		}
@@ -321,6 +670,7 @@ class ImageGenerator {
 		$dst_y = (int) ( ( self::HEIGHT - $new_h ) / 2 );
 
 		imagecopyresampled( $image, $source, $dst_x, $dst_y, 0, 0, $new_w, $new_h, $src_w, $src_h );
+		imagedestroy( $source );
 
 		return $image;
 	}
@@ -432,9 +782,11 @@ class ImageGenerator {
 	 */
 	private function get_font_path( $bold = false ) {
 		// Check plugin fonts directory.
-		$plugin_font = BD_PLUGIN_DIR . 'assets/fonts/' . ( $bold ? 'Inter-Bold.ttf' : 'Inter-Regular.ttf' );
-		if ( file_exists( $plugin_font ) ) {
-			return $plugin_font;
+		if ( defined( 'BD_PLUGIN_DIR' ) ) {
+			$plugin_font = BD_PLUGIN_DIR . 'assets/fonts/' . ( $bold ? 'Inter-Bold.ttf' : 'Inter-Regular.ttf' );
+			if ( file_exists( $plugin_font ) ) {
+				return $plugin_font;
+			}
 		}
 
 		// Check system fonts.
@@ -500,6 +852,20 @@ class ImageGenerator {
 	}
 
 	/**
+	 * Invalidate cached image for a list.
+	 *
+	 * @param int $list_id List ID.
+	 */
+	public static function invalidate_list_cache( $list_id ) {
+		$upload_dir = wp_upload_dir();
+		$cache_file = $upload_dir['basedir'] . '/bd-share-images/list-' . $list_id . '.png';
+
+		if ( file_exists( $cache_file ) ) {
+			wp_delete_file( $cache_file );
+		}
+	}
+
+	/**
 	 * Output image.
 	 *
 	 * @param resource $image GD image.
@@ -524,3 +890,6 @@ class ImageGenerator {
 		$this->output_image( $image );
 	}
 }
+
+// Initialize.
+ImageGenerator::init();

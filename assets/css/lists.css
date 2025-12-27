@@ -536,12 +536,6 @@ body.bd-modal-open::before {
 	margin-bottom: 16px;
 }
 
-.bd-list-hero h1 {
-	margin: 0 0 12px 0;
-	font-size: 36px;
-	font-weight: 700;
-}
-
 .bd-list-description {
 	margin: 0 0 20px 0;
 	font-size: 16px;
@@ -569,7 +563,7 @@ body.bd-modal-open::before {
 	border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Share Buttons */
+/* Share Buttons - Simple */
 .bd-list-share {
 	display: flex;
 	align-items: center;
@@ -615,20 +609,24 @@ body.bd-modal-open::before {
 	font-size: 14px;
 }
 
-/* Copy button text fallback if no icon */
-/*.bd-share-btn[title="Copy Link"]::before { */
-/*	content: "🔗"; */
-/*} */
+bd-btn-secondary:hover {
+    background-color: var(--bd-neutral-300)!important;
+    color: var(--bd-navy) !important;
+}
 
 /* Owner Actions */
 .bd-list-owner-actions {
 	display: flex;
-	justify-content: space-between;
+	gap: 12px;
 	align-items: center;
 	margin-bottom: 20px;
 	padding: 16px;
 	background: var(--bd-cream);
 	border-radius: 12px;
+}
+
+.bd-list-owner-actions .bd-visibility-badge {
+	margin-left: auto;
 }
 
 .bd-visibility-badge {
@@ -929,6 +927,92 @@ body.bd-modal-open::before {
 	border-top: 1px solid var(--bd-border);
 }
 
+/* ==========================================================================
+   VISIBILITY OPTIONS (Radio Cards)
+   ========================================================================== */
+
+.bd-visibility-options {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.bd-visibility-option {
+    flex: 1;
+    cursor: pointer;
+}
+
+.bd-visibility-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.bd-visibility-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 16px 12px;
+    border: 2px solid var(--bd-border, #e2e8f0);
+    border-radius: 10px;
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.bd-visibility-card i {
+    font-size: 24px;
+    color: var(--bd-steel, #64748b);
+    margin-bottom: 8px;
+    transition: color 0.2s ease;
+}
+
+.bd-visibility-card strong {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--bd-primary, #1a3a4a);
+    margin-bottom: 4px;
+}
+
+.bd-visibility-card span {
+    font-size: 12px;
+    color: var(--bd-steel, #64748b);
+}
+
+/* Hover state */
+.bd-visibility-option:hover .bd-visibility-card {
+    border-color: var(--bd-primary, #1a3a4a);
+}
+
+/* Selected state */
+.bd-visibility-option input[type="radio"]:checked + .bd-visibility-card {
+    border-color: var(--bd-primary, #1a3a4a);
+    background: var(--bd-cream, #f8f6f3);
+}
+
+.bd-visibility-option input[type="radio"]:checked + .bd-visibility-card i {
+    color: var(--bd-primary, #1a3a4a);
+}
+
+/* Mobile responsive */
+@media (max-width: 480px) {
+    .bd-visibility-options {
+        flex-direction: column;
+    }
+    
+    .bd-visibility-card {
+        flex-direction: row;
+        text-align: left;
+        gap: 12px;
+        padding: 12px 16px;
+    }
+    
+    .bd-visibility-card i {
+        margin-bottom: 0;
+        font-size: 20px;
+    }
+}
+
 /* ========================================================================
 	BUTTONS
 	======================================================================== */
@@ -963,7 +1047,8 @@ body.bd-modal-open::before {
 }
 
 .bd-btn-secondary:hover {
-	background: #e2eaf0;
+	background: var(--bd-border);
+	color: var(--bd-navy);
 }
 
 .bd-btn-danger {
@@ -1121,6 +1206,317 @@ body.bd-modal-open::before {
 }
 
 /* ========================================================================
+	ENHANCED SHARE MODAL
+	======================================================================== */
+
+.bd-share-modal .bd-modal-content {
+	max-width: 520px;
+}
+
+.bd-share-modal-content {
+	max-width: 520px;
+}
+
+/* Share Preview */
+.bd-share-preview {
+	display: flex;
+	gap: 16px;
+	padding: 16px 24px;
+	background: var(--bd-cream);
+	border-bottom: 1px solid var(--bd-border);
+}
+
+.bd-share-preview-image {
+	width: 100px;
+	height: 60px;
+	border-radius: 8px;
+	overflow: hidden;
+	flex-shrink: 0;
+}
+
+.bd-share-preview-image img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.bd-share-preview-info {
+	flex: 1;
+	min-width: 0;
+}
+
+.bd-share-preview-info h4 {
+	margin: 0 0 4px 0;
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--bd-navy);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.bd-share-preview-info p {
+	margin: 0;
+	font-size: 13px;
+	color: var(--bd-text-muted);
+}
+
+/* Share Tabs */
+.bd-share-tabs {
+	display: flex;
+	border-bottom: 1px solid var(--bd-border);
+	background: #fff;
+}
+
+.bd-share-tab {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 14px 12px;
+	background: none;
+	border: none;
+	border-bottom: 3px solid transparent;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--bd-text-muted);
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.bd-share-tab:hover {
+	color: var(--bd-navy);
+	background: var(--bd-cream);
+}
+
+.bd-share-tab-active {
+	color: var(--bd-navy);
+	border-bottom-color: var(--bd-steel);
+}
+
+.bd-share-tab i {
+	font-size: 14px;
+}
+
+/* Share Tab Content */
+.bd-share-tab-content {
+	padding: 24px;
+}
+
+.bd-share-tab-pane {
+	display: none;
+}
+
+.bd-share-tab-pane-active {
+	display: block;
+	animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+/* Social Share Buttons Grid */
+.bd-share-buttons-grid {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 12px;
+}
+
+.bd-share-button {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	padding: 16px 12px;
+	background: var(--bd-cream);
+	border: 1px solid var(--bd-border);
+	border-radius: 12px;
+	text-decoration: none;
+	color: var(--bd-text);
+	font-size: 12px;
+	font-weight: 500;
+	transition: all 0.2s ease;
+}
+
+.bd-share-button:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(26, 58, 74, 0.1);
+}
+
+.bd-share-button i {
+	font-size: 24px;
+}
+
+/* Platform Colors */
+.bd-share-facebook:hover {
+	background: #1877f2;
+	color: #fff;
+	border-color: #1877f2;
+}
+
+.bd-share-twitter:hover {
+	background: #1da1f2;
+	color: #fff;
+	border-color: #1da1f2;
+}
+
+.bd-share-pinterest:hover {
+	background: #e60023;
+	color: #fff;
+	border-color: #e60023;
+}
+
+.bd-share-linkedin:hover {
+	background: #0077b5;
+	color: #fff;
+	border-color: #0077b5;
+}
+
+.bd-share-whatsapp:hover {
+	background: #25d366;
+	color: #fff;
+	border-color: #25d366;
+}
+
+.bd-share-email:hover {
+	background: var(--bd-navy);
+	color: #fff;
+	border-color: var(--bd-navy);
+}
+
+/* Link & Embed Sections */
+.bd-share-link-section,
+.bd-share-embed-section {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.bd-share-link-section label,
+.bd-share-embed-section label {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--bd-navy);
+}
+
+.bd-share-help-text {
+	font-size: 13px;
+	color: var(--bd-text-muted);
+	margin: 0;
+}
+
+.bd-share-input-group {
+	display: flex;
+	gap: 10px;
+}
+
+.bd-share-url-input {
+	flex: 1;
+	padding: 12px 14px;
+	border: 1px solid var(--bd-border);
+	border-radius: 8px;
+	font-size: 14px;
+	background: var(--bd-cream);
+	color: var(--bd-text);
+}
+
+.bd-share-embed-input {
+	flex: 1;
+	padding: 12px 14px;
+	border: 1px solid var(--bd-border);
+	border-radius: 8px;
+	font-size: 12px;
+	font-family: monospace;
+	background: var(--bd-cream);
+	color: var(--bd-text);
+	resize: none;
+}
+
+.bd-share-input-group .bd-btn {
+	flex-shrink: 0;
+}
+
+/* Copy Success State */
+.bd-copy-btn.bd-copy-success {
+	background: var(--bd-success);
+}
+
+/* Embed Preview */
+.bd-share-embed-preview {
+	margin-top: 16px;
+}
+
+.bd-embed-preview-frame {
+	height: 120px;
+	background: var(--bd-cream);
+	border: 1px dashed var(--bd-border);
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.bd-embed-preview-placeholder {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+	color: var(--bd-text-muted);
+	font-size: 13px;
+}
+
+.bd-embed-preview-placeholder i {
+	font-size: 24px;
+	opacity: 0.5;
+}
+
+/* QR Code Section */
+.bd-share-qr-section {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 16px;
+	text-align: center;
+}
+
+.bd-qr-code-container {
+	padding: 16px;
+	background: #fff;
+	border: 2px solid var(--bd-border);
+	border-radius: 12px;
+}
+
+.bd-qr-code-image {
+	display: block;
+	width: 200px;
+	height: 200px;
+}
+
+.bd-qr-actions {
+	display: flex;
+	gap: 12px;
+}
+
+.bd-share-qr-tip {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 12px 16px;
+	background: #fffbeb;
+	border-radius: 8px;
+	font-size: 13px;
+	color: #92400e;
+	margin: 0;
+}
+
+.bd-share-qr-tip i {
+	color: var(--bd-warning);
+}
+
+/* ========================================================================
 	RESPONSIVE
 	======================================================================== */
 
@@ -1197,4 +1593,396 @@ body.bd-modal-open::before {
 		width: calc(100vw - 40px) !important;
 		max-width: 320px;
 	}
+
+	/* Share Modal Responsive */
+	.bd-share-tabs {
+		overflow-x: auto;
+	}
+
+	.bd-share-tab {
+		padding: 12px 8px;
+		font-size: 12px;
+		white-space: nowrap;
+	}
+
+	.bd-share-tab span {
+		display: none;
+	}
+
+	.bd-share-tab i {
+		font-size: 18px;
+	}
+
+	.bd-share-buttons-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	.bd-share-input-group {
+		flex-direction: column;
+	}
+
+	.bd-share-input-group .bd-btn {
+		width: 100%;
+	}
 }
+
+
+/* ==========================================================================
+   PHASE 2 ADDITIONS - ENGAGEMENT FEATURES
+   ========================================================================== */
+
+/* ==========================================================================
+   FEATURE 7: LIST MAP VIEW
+   ========================================================================== */
+
+.bd-list-map-container {
+	margin: 24px 0;
+	border-radius: 12px;
+	overflow: hidden;
+	box-shadow: 0 2px 8px rgba(15, 42, 67, 0.1);
+}
+
+.bd-list-map {
+	height: 450px;
+	width: 100%;
+	background: var(--bd-cream, #f5f5f0);
+}
+
+/* Map toggle button */
+.bd-map-toggle {
+	transition: all 0.2s ease;
+}
+
+.bd-map-toggle.bd-map-active {
+	background: var(--bd-navy);
+	color: white;
+	border-color: var(--bd-navy);
+}
+
+.bd-map-toggle i {
+	margin-right: 6px;
+}
+
+/* Hide list items when map is shown */
+.bd-list-items-container.bd-hidden {
+	display: none;
+}
+
+/* Map popup styles */
+.bd-list-map .leaflet-popup-content-wrapper {
+	padding: 0 !important;
+	border-radius: 10px !important;
+	overflow: hidden !important;
+}
+
+.bd-list-map .leaflet-popup-content {
+	margin: 0 !important;
+	min-width: 200px;
+}
+
+.bd-map-popup {
+	text-decoration: none;
+	color: inherit;
+	display: block;
+}
+
+.bd-map-popup-image {
+	width: 100%;
+	height: 100px;
+	object-fit: cover;
+}
+
+.bd-map-popup-content {
+	padding: 12px;
+}
+
+.bd-map-popup-title {
+	font-weight: 600;
+	font-size: 14px;
+	color: var(--bd-navy);
+	margin: 0 0 4px 0;
+}
+
+.bd-map-popup-category {
+	font-size: 12px;
+	color: var(--bd-text-muted);
+	margin-bottom: 4px;
+}
+
+.bd-map-popup-rating {
+	font-size: 12px;
+	color: #f59e0b;
+}
+
+.bd-map-popup-note {
+	font-size: 11px;
+	color: var(--bd-text-muted);
+	font-style: italic;
+	margin-top: 6px;
+	padding-top: 6px;
+	border-top: 1px solid #eee;
+}
+
+/* Numbered map markers - Heart Style */
+.bd-list-marker {
+	background: transparent !important;
+	border: none !important;
+}
+
+.bd-numbered-heart {
+	position: relative;
+	width: 36px;
+	height: 36px;
+	filter: drop-shadow(0 2px 4px rgba(15, 42, 67, 0.3));
+	transition: all 0.2s ease;
+	cursor: pointer;
+}
+
+.bd-numbered-heart svg {
+	width: 100%;
+	height: 100%;
+	color: var(--bd-navy, #0F2A43);
+}
+
+.bd-numbered-heart .bd-marker-number {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -55%);
+	color: white;
+	font-weight: 700;
+	font-size: 12px;
+	font-family: var(--bd-font-primary), system-ui, sans-serif;
+	line-height: 1;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.bd-numbered-heart:hover {
+	transform: scale(1.15);
+	filter: drop-shadow(0 4px 8px rgba(44, 177, 188, 0.4));
+}
+
+.bd-numbered-heart:hover svg {
+	color: var(--bd-steel, #2CB1BC);
+}
+
+.bd-list-marker.active .bd-numbered-heart svg {
+	color: var(--bd-steel, #2CB1BC);
+}
+
+.bd-list-marker.active .bd-numbered-heart {
+	filter: drop-shadow(0 4px 8px rgba(44, 177, 188, 0.4));
+}
+
+/* ==========================================================================
+   FEATURE 10: FOLLOW BUTTON
+   ========================================================================== */
+
+.bd-list-actions {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+	margin-top: 16px;
+}
+
+.bd-follow-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	transition: all 0.2s ease;
+}
+
+.bd-follow-btn.bd-following {
+	background: var(--bd-cream);
+	border-color: var(--bd-steel);
+	color: var(--bd-steel);
+}
+
+.bd-follow-btn.bd-following:hover {
+	background: #fef2f2;
+	border-color: #ef4444;
+	color: #ef4444;
+}
+
+.bd-follow-btn.bd-following:hover i::before {
+	content: "00d";
+}
+
+.bd-follow-btn.bd-following:hover span {
+	display: none;
+}
+
+.bd-follow-btn.bd-following:hover::after {
+	content: "Unfollow";
+}
+
+/* Follower count in list meta */
+.bd-list-followers {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.bd-list-followers::before {
+	content: "•";
+	margin-right: 4px;
+}
+
+/* ==========================================================================
+   FEATURE 9: FEATURED IN LISTS (Business Page Sidebar)
+   ========================================================================== */
+
+.bd-featured-lists-card {
+	background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%);
+	border: 1px solid #fde047;
+}
+
+.bd-featured-lists-header {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 12px;
+}
+
+.bd-featured-lists-header svg {
+	color: var(--bd-steel);
+	flex-shrink: 0;
+}
+
+.bd-featured-lists-header h4 {
+	margin: 0;
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--bd-navy);
+}
+
+.bd-featured-lists-items {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.bd-featured-list-item {
+	display: block;
+	padding: 10px 12px;
+	background: white;
+	border-radius: 8px;
+	text-decoration: none;
+	transition: all 0.2s ease;
+	border: 1px solid transparent;
+}
+
+.bd-featured-list-item:hover {
+	border-color: var(--bd-steel);
+	transform: translateX(4px);
+}
+
+.bd-featured-list-title {
+	display: block;
+	font-weight: 600;
+	font-size: 14px;
+	color: var(--bd-navy);
+	margin-bottom: 2px;
+}
+
+.bd-featured-list-meta {
+	display: block;
+	font-size: 12px;
+	color: var(--bd-text-muted);
+}
+
+.bd-featured-lists-more {
+	display: block;
+	text-align: center;
+	margin-top: 12px;
+	font-size: 13px;
+	font-weight: 500;
+	color: var(--bd-steel);
+	text-decoration: none;
+}
+
+.bd-featured-lists-more:hover {
+	text-decoration: underline;
+}
+
+/* ==========================================================================
+   MY LISTS TABS (Following Tab)
+   ========================================================================== */
+
+.bd-lists-tabs {
+	display: flex;
+	gap: 0;
+	border-bottom: 2px solid var(--bd-border);
+	margin-bottom: 24px;
+}
+
+.bd-lists-tab {
+	padding: 12px 24px;
+	background: none;
+	border: none;
+	font-size: 14px;
+	font-weight: 500;
+	color: var(--bd-text-muted);
+	cursor: pointer;
+	position: relative;
+	transition: all 0.2s ease;
+	border-radius: 12px 12px 0px 0px;
+}
+
+.bd-lists-tab:hover {
+	color: var(--bd-navy);
+}
+
+.bd-lists-tab.bd-lists-tab-active {
+	color: #fff;
+    background: var(--bd-primary, #1a3a4a);
+}
+
+.bd-lists-tab.bd-lists-tab-active::after {
+	content: "";
+	position: absolute;
+	bottom: -2px;
+	left: 0;
+	right: 0;
+	height: 2px;
+	background: var(--bd-steel);
+}
+
+.bd-lists-tab-content {
+	animation: bdTabFadeIn 0.2s ease;
+}
+
+@keyframes bdTabFadeIn {
+	from { opacity: 0; transform: translateY(10px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   PHASE 2 RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 768px) {
+	.bd-list-map {
+		height: 350px;
+	}
+
+	.bd-list-actions {
+		flex-direction: column;
+	}
+
+	.bd-list-actions .bd-btn {
+		width: 100%;
+		justify-content: center;
+	}
+
+	.bd-lists-tabs {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.bd-lists-tab {
+		white-space: nowrap;
+		padding: 10px 16px;
+	}
+}
+

@@ -32,7 +32,7 @@ class ListManager {
 		global $wpdb;
 		$table = $wpdb->prefix . 'bd_lists';
 
-		// Generate unique slug
+		// Generate unique slug.
 		$slug = self::generate_unique_slug( $title );
 
 		$result = $wpdb->insert(
@@ -55,10 +55,10 @@ class ListManager {
 
 		$list_id = $wpdb->insert_id;
 
-		// Track activity for points
+		// Track activity for points.
 		ActivityTracker::track( $user_id, 'list_created', $list_id );
 
-		// If created as public, award bonus points
+		// If created as public, award bonus points.
 		if ( 'public' === $visibility ) {
 			ActivityTracker::track( $user_id, 'list_made_public', $list_id );
 		}
@@ -78,15 +78,13 @@ class ListManager {
 		global $wpdb;
 		$table = $wpdb->prefix . 'bd_lists';
 
-		// Verify ownership
+		// Verify ownership.
 		$list = self::get_list( $list_id );
 		if ( ! $list || (int) $list['user_id'] !== (int) $user_id ) {
 			return false;
 		}
 
-		$update_data = array(
-			'updated_at' => current_time( 'mysql' ),
-		);
+		$update_data = array( 'updated_at' => current_time( 'mysql' ) );
 		$formats     = array( '%s' );
 
 		if ( isset( $data['title'] ) ) {
@@ -100,13 +98,11 @@ class ListManager {
 		}
 
 		if ( isset( $data['visibility'] ) && in_array( $data['visibility'], array( 'public', 'private', 'unlisted' ), true ) ) {
-			$old_visibility = $list['visibility'];
-			$new_visibility = $data['visibility'];
-
+			$old_visibility            = $list['visibility'];
+			$new_visibility            = $data['visibility'];
 			$update_data['visibility'] = $new_visibility;
 			$formats[]                 = '%s';
 
-			// Award bonus if making public for first time
 			if ( 'public' !== $old_visibility && 'public' === $new_visibility ) {
 				ActivityTracker::track( $user_id, 'list_made_public', $list_id );
 			}
@@ -117,30 +113,23 @@ class ListManager {
 			$formats[]                     = '%d';
 		}
 
-		$result = $wpdb->update(
-			$table,
-			$update_data,
-			array( 'id' => $list_id ),
-			$formats,
-			array( '%d' )
-		);
+		$result = $wpdb->update( $table, $update_data, array( 'id' => $list_id ), $formats, array( '%d' ) );
+
+		if ( false !== $result && class_exists( 'BD\Social\ImageGenerator' ) ) {
+			\BD\Social\ImageGenerator::invalidate_list_cache( $list_id );
+		}
 
 		return false !== $result;
 	}
 
 	/**
 	 * Delete a list
-	 *
-	 * @param int $list_id List ID.
-	 * @param int $user_id User ID (for permission check).
-	 * @return bool Success or failure.
 	 */
 	public static function delete_list( $list_id, $user_id ) {
 		global $wpdb;
 		$lists_table = $wpdb->prefix . 'bd_lists';
 		$items_table = $wpdb->prefix . 'bd_list_items';
 
-		// Verify ownership (admins can delete any)
 		$list = self::get_list( $list_id );
 		if ( ! $list ) {
 			return false;
@@ -150,20 +139,18 @@ class ListManager {
 			return false;
 		}
 
-		// Delete items first
 		$wpdb->delete( $items_table, array( 'list_id' => $list_id ), array( '%d' ) );
-
-		// Delete list
 		$result = $wpdb->delete( $lists_table, array( 'id' => $list_id ), array( '%d' ) );
+
+		if ( false !== $result && class_exists( 'BD\Social\ImageGenerator' ) ) {
+			\BD\Social\ImageGenerator::invalidate_list_cache( $list_id );
+		}
 
 		return false !== $result;
 	}
 
 	/**
 	 * Get a single list
-	 *
-	 * @param int $list_id List ID.
-	 * @return array|null List data or null.
 	 */
 	public static function get_list( $list_id ) {
 		global $wpdb;
@@ -175,8 +162,9 @@ class ListManager {
 		);
 
 		if ( $list ) {
-			$list['item_count'] = self::get_list_item_count( $list_id );
-			$list['author']     = get_userdata( $list['user_id'] );
+			$list['item_count']     = self::get_list_item_count( $list_id );
+			$list['follower_count'] = self::get_follower_count( $list_id );
+			$list['author']         = get_userdata( $list['user_id'] );
 		}
 
 		return $list;
@@ -184,9 +172,6 @@ class ListManager {
 
 	/**
 	 * Get list by slug
-	 *
-	 * @param string $slug List slug.
-	 * @return array|null List data or null.
 	 */
 	public static function get_list_by_slug( $slug ) {
 		global $wpdb;
@@ -198,8 +183,9 @@ class ListManager {
 		);
 
 		if ( $list ) {
-			$list['item_count'] = self::get_list_item_count( $list['id'] );
-			$list['author']     = get_userdata( $list['user_id'] );
+			$list['item_count']     = self::get_list_item_count( $list['id'] );
+			$list['follower_count'] = self::get_follower_count( $list['id'] );
+			$list['author']         = get_userdata( $list['user_id'] );
 		}
 
 		return $list;
@@ -207,19 +193,12 @@ class ListManager {
 
 	/**
 	 * Get lists for a user
-	 *
-	 * @param int    $user_id    User ID.
-	 * @param string $visibility Filter by visibility (null for all).
-	 * @param int    $limit      Limit results.
-	 * @param int    $offset     Offset for pagination.
-	 * @return array Lists.
 	 */
 	public static function get_user_lists( $user_id, $visibility = null, $limit = 20, $offset = 0 ) {
 		global $wpdb;
 		$table = $wpdb->prefix . 'bd_lists';
 
 		$where = $wpdb->prepare( 'user_id = %d', $user_id );
-
 		if ( $visibility && in_array( $visibility, array( 'public', 'private', 'unlisted' ), true ) ) {
 			$where .= $wpdb->prepare( ' AND visibility = %s', $visibility );
 		}
@@ -233,7 +212,6 @@ class ListManager {
 			ARRAY_A
 		);
 
-		// Add item counts
 		foreach ( $lists as &$list ) {
 			$list['item_count'] = self::get_list_item_count( $list['id'] );
 		}
@@ -243,9 +221,6 @@ class ListManager {
 
 	/**
 	 * Get public lists (for browse page)
-	 *
-	 * @param array $args Query arguments.
-	 * @return array Lists with pagination info.
 	 */
 	public static function get_public_lists( $args = array() ) {
 		global $wpdb;
@@ -259,8 +234,7 @@ class ListManager {
 			'featured' => null,
 			'search'   => '',
 		);
-
-		$args = wp_parse_args( $args, $defaults );
+		$args     = wp_parse_args( $args, $defaults );
 
 		$where   = "visibility = 'public'";
 		$orderby = in_array( $args['orderby'], array( 'updated_at', 'created_at', 'view_count', 'title' ), true )
@@ -270,32 +244,24 @@ class ListManager {
 		if ( null !== $args['featured'] ) {
 			$where .= $wpdb->prepare( ' AND featured = %d', $args['featured'] ? 1 : 0 );
 		}
-
 		if ( ! empty( $args['search'] ) ) {
 			$search = '%' . $wpdb->esc_like( $args['search'] ) . '%';
 			$where .= $wpdb->prepare( ' AND (title LIKE %s OR description LIKE %s)', $search, $search );
 		}
 
-		// Get total count
-		$total = $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE $where" );
-
-		// Get paginated results
+		$total  = $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE $where" );
 		$offset = ( $args['page'] - 1 ) * $args['per_page'];
 		$lists  = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT l.*, u.display_name as author_name 
-				FROM $table l
+				"SELECT l.*, u.display_name as author_name FROM $table l
 				LEFT JOIN {$wpdb->users} u ON l.user_id = u.ID
-				WHERE $where 
-				ORDER BY $orderby $order 
-				LIMIT %d OFFSET %d",
+				WHERE $where ORDER BY $orderby $order LIMIT %d OFFSET %d",
 				$args['per_page'],
 				$offset
 			),
 			ARRAY_A
 		);
 
-		// Add item counts and cover images
 		foreach ( $lists as &$list ) {
 			$list['item_count']  = self::get_list_item_count( $list['id'] );
 			$list['cover_image'] = self::get_list_cover_image( $list );
@@ -313,31 +279,22 @@ class ListManager {
 
 	/**
 	 * Add business to list
-	 *
-	 * @param int    $list_id     List ID.
-	 * @param int    $business_id Business post ID.
-	 * @param int    $user_id     User ID (for permission check).
-	 * @param string $note        Optional user note.
-	 * @return int|false Item ID on success, false on failure.
 	 */
 	public static function add_item( $list_id, $business_id, $user_id, $note = '' ) {
 		global $wpdb;
 		$lists_table = $wpdb->prefix . 'bd_lists';
 		$items_table = $wpdb->prefix . 'bd_list_items';
 
-		// Verify list ownership
 		$list = self::get_list( $list_id );
 		if ( ! $list || (int) $list['user_id'] !== (int) $user_id ) {
 			return false;
 		}
 
-		// Verify business exists
 		$business = get_post( $business_id );
 		if ( ! $business || 'bd_business' !== $business->post_type ) {
 			return false;
 		}
 
-		// Check if already in list
 		$exists = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT id FROM $items_table WHERE list_id = %d AND business_id = %d",
@@ -345,17 +302,12 @@ class ListManager {
 				$business_id
 			)
 		);
-
 		if ( $exists ) {
-			return false; // Already in list
+			return false;
 		}
 
-		// Get max sort order
 		$max_order = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT MAX(sort_order) FROM $items_table WHERE list_id = %d",
-				$list_id
-			)
+			$wpdb->prepare( "SELECT MAX(sort_order) FROM $items_table WHERE list_id = %d", $list_id )
 		);
 
 		$result = $wpdb->insert(
@@ -371,7 +323,6 @@ class ListManager {
 		);
 
 		if ( $result ) {
-			// Update list timestamp
 			$wpdb->update(
 				$lists_table,
 				array( 'updated_at' => current_time( 'mysql' ) ),
@@ -380,7 +331,10 @@ class ListManager {
 				array( '%d' )
 			);
 
-			// Check for list_master badge (5 lists with 5+ items)
+			if ( class_exists( 'BD\Social\ImageGenerator' ) ) {
+				\BD\Social\ImageGenerator::invalidate_list_cache( $list_id );
+			}
+
 			BadgeSystem::check_and_award_badges( $user_id, 'list_item_added' );
 
 			return $wpdb->insert_id;
@@ -391,18 +345,12 @@ class ListManager {
 
 	/**
 	 * Remove business from list
-	 *
-	 * @param int $list_id     List ID.
-	 * @param int $business_id Business post ID.
-	 * @param int $user_id     User ID (for permission check).
-	 * @return bool Success or failure.
 	 */
 	public static function remove_item( $list_id, $business_id, $user_id ) {
 		global $wpdb;
 		$lists_table = $wpdb->prefix . 'bd_lists';
 		$items_table = $wpdb->prefix . 'bd_list_items';
 
-		// Verify list ownership
 		$list = self::get_list( $list_id );
 		if ( ! $list || (int) $list['user_id'] !== (int) $user_id ) {
 			return false;
@@ -410,15 +358,11 @@ class ListManager {
 
 		$result = $wpdb->delete(
 			$items_table,
-			array(
-				'list_id'     => $list_id,
-				'business_id' => $business_id,
-			),
+			array( 'list_id' => $list_id, 'business_id' => $business_id ),
 			array( '%d', '%d' )
 		);
 
 		if ( $result ) {
-			// Update list timestamp
 			$wpdb->update(
 				$lists_table,
 				array( 'updated_at' => current_time( 'mysql' ) ),
@@ -426,6 +370,10 @@ class ListManager {
 				array( '%s' ),
 				array( '%d' )
 			);
+
+			if ( class_exists( 'BD\Social\ImageGenerator' ) ) {
+				\BD\Social\ImageGenerator::invalidate_list_cache( $list_id );
+			}
 		}
 
 		return false !== $result;
@@ -433,18 +381,11 @@ class ListManager {
 
 	/**
 	 * Update item note
-	 *
-	 * @param int    $list_id     List ID.
-	 * @param int    $business_id Business post ID.
-	 * @param int    $user_id     User ID.
-	 * @param string $note        New note.
-	 * @return bool Success or failure.
 	 */
 	public static function update_item_note( $list_id, $business_id, $user_id, $note ) {
 		global $wpdb;
 		$items_table = $wpdb->prefix . 'bd_list_items';
 
-		// Verify list ownership
 		$list = self::get_list( $list_id );
 		if ( ! $list || (int) $list['user_id'] !== (int) $user_id ) {
 			return false;
@@ -453,10 +394,7 @@ class ListManager {
 		$result = $wpdb->update(
 			$items_table,
 			array( 'user_note' => sanitize_textarea_field( $note ) ),
-			array(
-				'list_id'     => $list_id,
-				'business_id' => $business_id,
-			),
+			array( 'list_id' => $list_id, 'business_id' => $business_id ),
 			array( '%s' ),
 			array( '%d', '%d' )
 		);
@@ -466,17 +404,11 @@ class ListManager {
 
 	/**
 	 * Reorder list items
-	 *
-	 * @param int   $list_id List ID.
-	 * @param int   $user_id User ID.
-	 * @param array $order   Array of business IDs in new order.
-	 * @return bool Success or failure.
 	 */
 	public static function reorder_items( $list_id, $user_id, $order ) {
 		global $wpdb;
 		$items_table = $wpdb->prefix . 'bd_list_items';
 
-		// Verify list ownership
 		$list = self::get_list( $list_id );
 		if ( ! $list || (int) $list['user_id'] !== (int) $user_id ) {
 			return false;
@@ -486,10 +418,7 @@ class ListManager {
 			$wpdb->update(
 				$items_table,
 				array( 'sort_order' => $position + 1 ),
-				array(
-					'list_id'     => $list_id,
-					'business_id' => absint( $business_id ),
-				),
+				array( 'list_id' => $list_id, 'business_id' => (int) $business_id ),
 				array( '%d' ),
 				array( '%d', '%d' )
 			);
@@ -500,27 +429,16 @@ class ListManager {
 
 	/**
 	 * Get list items with business data
-	 *
-	 * @param int $list_id List ID.
-	 * @return array List items with business data.
 	 */
 	public static function get_list_items( $list_id ) {
 		global $wpdb;
-		$items_table = $wpdb->prefix . 'bd_list_items';
+		$table = $wpdb->prefix . 'bd_list_items';
 
 		$items = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT li.*, p.post_title as business_name, p.post_name as business_slug
-				FROM $items_table li
-				LEFT JOIN {$wpdb->posts} p ON li.business_id = p.ID
-				WHERE li.list_id = %d
-				ORDER BY li.sort_order ASC",
-				$list_id
-			),
+			$wpdb->prepare( "SELECT * FROM $table WHERE list_id = %d ORDER BY sort_order ASC", $list_id ),
 			ARRAY_A
 		);
 
-		// Enrich with business data
 		foreach ( $items as &$item ) {
 			$item['business'] = self::format_business_for_list( $item['business_id'] );
 		}
@@ -529,29 +447,52 @@ class ListManager {
 	}
 
 	/**
+	 * Get list items with coordinates for map view
+	 */
+	public static function get_list_items_with_coords( $list_id ) {
+		$items     = self::get_list_items( $list_id );
+		$map_items = array();
+
+		foreach ( $items as $item ) {
+			if ( empty( $item['business'] ) ) {
+				continue;
+			}
+
+			$location = get_post_meta( $item['business_id'], 'bd_location', true );
+			if ( empty( $location['lat'] ) || empty( $location['lng'] ) ) {
+				continue;
+			}
+
+			$map_items[] = array(
+				'id'        => $item['business_id'],
+				'title'     => $item['business']['title'],
+				'permalink' => $item['business']['permalink'],
+				'image'     => $item['business']['featured_image'],
+				'rating'    => $item['business']['rating'],
+				'category'  => ! empty( $item['business']['categories'] ) ? $item['business']['categories'][0] : '',
+				'lat'       => floatval( $location['lat'] ),
+				'lng'       => floatval( $location['lng'] ),
+				'note'      => $item['user_note'] ?? '',
+			);
+		}
+
+		return $map_items;
+	}
+
+	/**
 	 * Get item count for a list
-	 *
-	 * @param int $list_id List ID.
-	 * @return int Item count.
 	 */
 	public static function get_list_item_count( $list_id ) {
 		global $wpdb;
-		$items_table = $wpdb->prefix . 'bd_list_items';
+		$table = $wpdb->prefix . 'bd_list_items';
 
 		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM $items_table WHERE list_id = %d",
-				$list_id
-			)
+			$wpdb->prepare( "SELECT COUNT(*) FROM $table WHERE list_id = %d", $list_id )
 		);
 	}
 
 	/**
-	 * Check if business is in any of user's lists
-	 *
-	 * @param int $user_id     User ID.
-	 * @param int $business_id Business ID.
-	 * @return array List IDs containing this business.
+	 * Get lists containing a specific business
 	 */
 	public static function get_lists_containing_business( $user_id, $business_id ) {
 		global $wpdb;
@@ -569,50 +510,234 @@ class ListManager {
 		);
 	}
 
-	/**
-	 * Increment view count
-	 *
-	 * @param int $list_id List ID.
-	 */
-	public static function increment_view_count( $list_id ) {
-		global $wpdb;
-		$table = $wpdb->prefix . 'bd_lists';
+	// =========================================================================
+	// FEATURE 9: "FEATURED IN X LISTS" FOR BUSINESS PAGES
+	// =========================================================================
 
-		$wpdb->query(
+	/**
+	 * Get public lists containing a specific business
+	 *
+	 * @param int $business_id Business post ID.
+	 * @param int $limit       Max lists to return.
+	 * @return array Public lists containing this business.
+	 */
+	public static function get_public_lists_for_business( $business_id, $limit = 5 ) {
+		global $wpdb;
+		$lists_table = $wpdb->prefix . 'bd_lists';
+		$items_table = $wpdb->prefix . 'bd_list_items';
+
+		$lists = $wpdb->get_results(
 			$wpdb->prepare(
-				"UPDATE $table SET view_count = view_count + 1 WHERE id = %d",
-				$list_id
+				"SELECT l.*, u.display_name as author_name
+				FROM $lists_table l
+				INNER JOIN $items_table li ON l.id = li.list_id
+				LEFT JOIN {$wpdb->users} u ON l.user_id = u.ID
+				WHERE li.business_id = %d AND l.visibility = 'public'
+				ORDER BY l.view_count DESC, l.updated_at DESC
+				LIMIT %d",
+				$business_id,
+				$limit
+			),
+			ARRAY_A
+		);
+
+		foreach ( $lists as &$list ) {
+			$list['item_count'] = self::get_list_item_count( $list['id'] );
+			$list['url']        = self::get_list_url( $list );
+		}
+
+		return $lists;
+	}
+
+	/**
+	 * Count public lists containing a specific business
+	 *
+	 * @param int $business_id Business post ID.
+	 * @return int Count.
+	 */
+	public static function count_public_lists_for_business( $business_id ) {
+		global $wpdb;
+		$lists_table = $wpdb->prefix . 'bd_lists';
+		$items_table = $wpdb->prefix . 'bd_list_items';
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(DISTINCT l.id)
+				FROM $lists_table l
+				INNER JOIN $items_table li ON l.id = li.list_id
+				WHERE li.business_id = %d AND l.visibility = 'public'",
+				$business_id
 			)
 		);
 	}
 
+	// =========================================================================
+	// FEATURE 10: LIST FOLLOWING
+	// =========================================================================
+
 	/**
-	 * Toggle featured status (admin only)
+	 * Follow a list
 	 *
-	 * @param int  $list_id  List ID.
-	 * @param bool $featured Featured status.
-	 * @return bool Success or failure.
+	 * @param int $list_id List ID to follow.
+	 * @param int $user_id User ID who is following.
+	 * @return bool Success.
 	 */
-	public static function set_featured( $list_id, $featured ) {
-		global $wpdb;
-		$table = $wpdb->prefix . 'bd_lists';
+	public static function follow_list( $list_id, $user_id ) {
+		if ( ! $list_id || ! $user_id ) {
+			return false;
+		}
 
-		$result = $wpdb->update(
-			$table,
-			array( 'featured' => $featured ? 1 : 0 ),
-			array( 'id' => $list_id ),
-			array( '%d' ),
-			array( '%d' )
-		);
+		$list = self::get_list( $list_id );
+		if ( ! $list || 'private' === $list['visibility'] ) {
+			return false;
+		}
 
-		return false !== $result;
+		// Can't follow own list.
+		if ( (int) $list['user_id'] === $user_id ) {
+			return false;
+		}
+
+		$following = get_user_meta( $user_id, 'bd_following_lists', true );
+		if ( ! is_array( $following ) ) {
+			$following = array();
+		}
+
+		if ( in_array( $list_id, $following, true ) ) {
+			return true; // Already following.
+		}
+
+		$following[] = $list_id;
+		update_user_meta( $user_id, 'bd_following_lists', array_unique( $following ) );
+
+		// Increment list owner's saves received for tastemaker badge.
+		$list_owner_id  = (int) $list['user_id'];
+		$saves_received = (int) get_user_meta( $list_owner_id, 'bd_list_saves_received', true );
+		update_user_meta( $list_owner_id, 'bd_list_saves_received', $saves_received + 1 );
+
+		// Check for tastemaker badge (50 list saves).
+		if ( class_exists( 'BD\Gamification\BadgeSystem' ) ) {
+			BadgeSystem::check_and_award_badges( $list_owner_id, 'list_followed' );
+		}
+
+		if ( class_exists( 'BD\Gamification\ActivityTracker' ) ) {
+			ActivityTracker::track( $user_id, 'list_followed', $list_id );
+		}
+
+		return true;
 	}
 
 	/**
-	 * Generate unique slug
+	 * Unfollow a list
 	 *
-	 * @param string $title List title.
-	 * @return string Unique slug.
+	 * @param int $list_id List ID to unfollow.
+	 * @param int $user_id User ID who is unfollowing.
+	 * @return bool Success.
+	 */
+	public static function unfollow_list( $list_id, $user_id ) {
+		if ( ! $list_id || ! $user_id ) {
+			return false;
+		}
+
+		$following = get_user_meta( $user_id, 'bd_following_lists', true );
+		if ( ! is_array( $following ) ) {
+			return true;
+		}
+
+		$key = array_search( $list_id, $following, true );
+		if ( false === $key ) {
+			return true;
+		}
+
+		unset( $following[ $key ] );
+		update_user_meta( $user_id, 'bd_following_lists', array_values( $following ) );
+
+		// Decrement list owner's follower count.
+		$list = self::get_list( $list_id );
+		if ( $list ) {
+			$list_owner_id  = (int) $list['user_id'];
+			$saves_received = (int) get_user_meta( $list_owner_id, 'bd_list_saves_received', true );
+			if ( $saves_received > 0 ) {
+				update_user_meta( $list_owner_id, 'bd_list_saves_received', $saves_received - 1 );
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Check if user is following a list
+	 *
+	 * @param int $list_id List ID.
+	 * @param int $user_id User ID.
+	 * @return bool Is following.
+	 */
+	public static function is_following( $list_id, $user_id ) {
+		if ( ! $list_id || ! $user_id ) {
+			return false;
+		}
+
+		$following = get_user_meta( $user_id, 'bd_following_lists', true );
+		if ( ! is_array( $following ) ) {
+			return false;
+		}
+
+		return in_array( (int) $list_id, array_map( 'intval', $following ), true );
+	}
+
+	/**
+	 * Get follower count for a list
+	 *
+	 * @param int $list_id List ID.
+	 * @return int Follower count.
+	 */
+	public static function get_follower_count( $list_id ) {
+		global $wpdb;
+
+		// Count users who have this list in their bd_following_lists meta.
+		// Note: This is a serialized array, so we use LIKE with the pattern.
+		$count = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(DISTINCT user_id) FROM {$wpdb->usermeta}
+				WHERE meta_key = 'bd_following_lists'
+				AND (meta_value LIKE %s OR meta_value LIKE %s)",
+				'%i:' . $list_id . ';%',
+				'%"' . $list_id . '"%'
+			)
+		);
+
+		return (int) $count;
+	}
+
+	/**
+	 * Get lists a user is following
+	 *
+	 * @param int $user_id User ID.
+	 * @return array List of lists being followed.
+	 */
+	public static function get_following_lists( $user_id ) {
+		$following = get_user_meta( $user_id, 'bd_following_lists', true );
+		if ( ! is_array( $following ) || empty( $following ) ) {
+			return array();
+		}
+
+		$lists = array();
+		foreach ( $following as $list_id ) {
+			$list = self::get_list( $list_id );
+			if ( $list && 'private' !== $list['visibility'] ) {
+				$list['url'] = self::get_list_url( $list );
+				$lists[]     = $list;
+			}
+		}
+
+		return $lists;
+	}
+
+	// =========================================================================
+	// HELPER METHODS
+	// =========================================================================
+
+	/**
+	 * Generate unique slug for list
 	 */
 	private static function generate_unique_slug( $title ) {
 		global $wpdb;
@@ -631,63 +756,75 @@ class ListManager {
 	}
 
 	/**
-	 * Get list cover image
-	 *
-	 * @param array $list List data.
-	 * @return string|null Image URL or null.
+	 * Get cover image for list
 	 */
-	private static function get_list_cover_image( $list ) {
-		// Use custom cover if set
+	public static function get_list_cover_image( $list ) {
 		if ( ! empty( $list['cover_image_id'] ) ) {
-			$url = wp_get_attachment_image_url( $list['cover_image_id'], 'medium' );
-			if ( $url ) {
-				return $url;
-			}
+			return wp_get_attachment_image_url( $list['cover_image_id'], 'medium' );
 		}
 
-		// Fall back to first business image
-		global $wpdb;
-		$items_table = $wpdb->prefix . 'bd_list_items';
-
-		$first_business_id = $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT business_id FROM $items_table WHERE list_id = %d ORDER BY sort_order ASC LIMIT 1",
-				$list['id']
-			)
-		);
-
-		if ( $first_business_id ) {
-			$thumbnail = get_the_post_thumbnail_url( $first_business_id, 'medium' );
-			if ( $thumbnail ) {
-				return $thumbnail;
-			}
+		$items = self::get_list_items( $list['id'] );
+		if ( ! empty( $items[0]['business']['featured_image'] ) ) {
+			return $items[0]['business']['featured_image'];
 		}
 
 		return null;
 	}
 
 	/**
+	 * Get featured lists
+	 */
+	public static function get_featured_lists( $limit = 4 ) {
+		global $wpdb;
+		$table = $wpdb->prefix . 'bd_lists';
+
+		$lists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT l.*, u.display_name as author_name
+				FROM $table l
+				LEFT JOIN {$wpdb->users} u ON l.user_id = u.ID
+				WHERE l.visibility = 'public' AND l.featured = 1
+				ORDER BY l.updated_at DESC LIMIT %d",
+				$limit
+			),
+			ARRAY_A
+		);
+
+		foreach ( $lists as &$list ) {
+			$list['item_count']  = self::get_list_item_count( $list['id'] );
+			$list['cover_image'] = self::get_list_cover_image( $list );
+			$list['url']         = self::get_list_url( $list );
+		}
+
+		return $lists;
+	}
+
+	/**
+	 * Increment view count for a list
+	 */
+	public static function increment_view_count( $list_id ) {
+		global $wpdb;
+		$table = $wpdb->prefix . 'bd_lists';
+
+		$wpdb->query(
+			$wpdb->prepare( "UPDATE $table SET view_count = view_count + 1 WHERE id = %d", $list_id )
+		);
+	}
+
+	/**
 	 * Get list URL
-	 *
-	 * @param array $list List data.
-	 * @return string List URL.
 	 */
 	public static function get_list_url( $list ) {
-		// Check if we have a lists page set
 		$lists_page = get_option( 'bd_lists_page_id' );
 
-		// If not set, try to find a page with [bd_list] shortcode
 		if ( ! $lists_page ) {
 			global $wpdb;
 			$lists_page = $wpdb->get_var(
 				"SELECT ID FROM {$wpdb->posts} 
-				WHERE post_type = 'page' 
-				AND post_status = 'publish' 
-				AND post_content LIKE '%[bd_list]%' 
-				LIMIT 1"
+				WHERE post_type = 'page' AND post_status = 'publish' 
+				AND post_content LIKE '%[bd_list]%' LIMIT 1"
 			);
 
-			// Cache it for future use
 			if ( $lists_page ) {
 				update_option( 'bd_lists_page_id', $lists_page );
 			}
@@ -697,21 +834,16 @@ class ListManager {
 			return add_query_arg( 'list', $list['slug'], get_permalink( $lists_page ) );
 		}
 
-		// Fall back to my-lists page with list param
 		$my_lists_page = get_option( 'bd_my_lists_page_id' );
 		if ( $my_lists_page ) {
 			return add_query_arg( 'list', $list['slug'], get_permalink( $my_lists_page ) );
 		}
 
-		// Last resort - use current site URL with query param
 		return add_query_arg( 'bd_list', $list['slug'], home_url( '/' ) );
 	}
 
 	/**
 	 * Format business data for list display
-	 *
-	 * @param int $business_id Business post ID.
-	 * @return array Formatted business data.
 	 */
 	private static function format_business_for_list( $business_id ) {
 		$post = get_post( $business_id );
@@ -739,27 +871,18 @@ class ListManager {
 
 	/**
 	 * Get user's list count (for badges)
-	 *
-	 * @param int $user_id User ID.
-	 * @return int List count.
 	 */
 	public static function get_user_list_count( $user_id ) {
 		global $wpdb;
 		$table = $wpdb->prefix . 'bd_lists';
 
 		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM $table WHERE user_id = %d",
-				$user_id
-			)
+			$wpdb->prepare( "SELECT COUNT(*) FROM $table WHERE user_id = %d", $user_id )
 		);
 	}
 
 	/**
 	 * Get count of user's lists with 5+ items (for list_master badge)
-	 *
-	 * @param int $user_id User ID.
-	 * @return int Count of qualifying lists.
 	 */
 	public static function get_user_qualifying_lists_count( $user_id ) {
 		global $wpdb;
@@ -769,13 +892,171 @@ class ListManager {
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM (
-					SELECT l.id
-					FROM $lists_table l
+					SELECT l.id FROM $lists_table l
 					LEFT JOIN $items_table li ON l.id = li.list_id
-					WHERE l.user_id = %d
-					GROUP BY l.id
-					HAVING COUNT(li.id) >= 5
+					WHERE l.user_id = %d GROUP BY l.id HAVING COUNT(li.id) >= 5
 				) as qualifying_lists",
+				$user_id
+			)
+		);
+	}
+
+	// =========================================================================
+	// SHARING FUNCTIONALITY
+	// =========================================================================
+
+	/**
+	 * Get comprehensive share data for a list.
+	 */
+	public static function get_share_data( $list ) {
+		if ( is_numeric( $list ) ) {
+			$list = self::get_list( $list );
+		}
+
+		if ( ! $list ) {
+			return array();
+		}
+
+		$url        = self::get_list_url( $list );
+		$title      = $list['title'];
+		$item_count = $list['item_count'] ?? self::get_list_item_count( $list['id'] );
+
+		$author_name = '';
+		if ( ! empty( $list['user_id'] ) ) {
+			$author = get_userdata( $list['user_id'] );
+			if ( $author ) {
+				$author_name = $author->display_name;
+			}
+		}
+
+		$share_text = sprintf(
+			__( 'Check out "%1$s" - %2$d %3$s I recommend!', 'business-directory' ),
+			$title,
+			$item_count,
+			_n( 'place', 'places', $item_count, 'business-directory' )
+		);
+
+		$site_name = sanitize_title( get_bloginfo( 'name' ) );
+		$hashtags  = $site_name . ',LocalBusiness,' . sanitize_title( $list['title'] );
+
+		return array(
+			'url'         => $url,
+			'title'       => $title,
+			'description' => $list['description'] ?? '',
+			'item_count'  => $item_count,
+			'author'      => $author_name,
+			'share_text'  => $share_text,
+			'hashtags'    => $hashtags,
+			'image_url'   => self::get_share_image_url( $list['id'] ),
+			'embed_code'  => self::get_embed_code( $list ),
+			'qr_code_url' => self::get_qr_code_url( $url ),
+			'share_links' => array(
+				'facebook'  => 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode( $url ),
+				'twitter'   => 'https://twitter.com/intent/tweet?url=' . rawurlencode( $url ) . '&text=' . rawurlencode( $share_text ) . '&hashtags=' . rawurlencode( $hashtags ),
+				'pinterest' => 'https://pinterest.com/pin/create/button/?url=' . rawurlencode( $url ) . '&description=' . rawurlencode( $share_text ),
+				'linkedin'  => 'https://www.linkedin.com/sharing/share-offsite/?url=' . rawurlencode( $url ),
+				'email'     => 'mailto:?subject=' . rawurlencode( $title ) . '&body=' . rawurlencode( $share_text . "\n\n" . $url ),
+				'whatsapp'  => 'https://wa.me/?text=' . rawurlencode( $share_text . ' ' . $url ),
+			),
+		);
+	}
+
+	/**
+	 * Get share image URL for a list.
+	 */
+	public static function get_share_image_url( $list_id ) {
+		$upload_dir = wp_upload_dir();
+		$cache_file = $upload_dir['basedir'] . '/bd-share-images/list-' . $list_id . '.png';
+
+		if ( file_exists( $cache_file ) ) {
+			$modified = filemtime( $cache_file );
+			if ( time() - $modified < DAY_IN_SECONDS ) {
+				return $upload_dir['baseurl'] . '/bd-share-images/list-' . $list_id . '.png';
+			}
+		}
+
+		return add_query_arg(
+			array(
+				'bd_share_image' => 1,
+				'list_id'        => $list_id,
+			),
+			home_url()
+		);
+	}
+
+	/**
+	 * Get embed code for a list.
+	 */
+	public static function get_embed_code( $list, $type = 'iframe' ) {
+		if ( is_numeric( $list ) ) {
+			$list = self::get_list( $list );
+		}
+
+		if ( ! $list ) {
+			return '';
+		}
+
+		$url = self::get_list_url( $list );
+
+		if ( 'shortcode' === $type ) {
+			return sprintf( '[bd_list id="%d"]', $list['id'] );
+		}
+
+		$embed_url = add_query_arg( 'embed', '1', $url );
+
+		return sprintf(
+			'<iframe src="%s" width="100%%" height="500" frameborder="0" style="border: 1px solid #ddd; border-radius: 8px;" title="%s"></iframe>',
+			esc_url( $embed_url ),
+			esc_attr( $list['title'] )
+		);
+	}
+
+	/**
+	 * Get QR code URL for a list using QR Server API.
+	 */
+	public static function get_qr_code_url( $url, $size = 200 ) {
+		return sprintf(
+			'https://api.qrserver.com/v1/create-qr-code/?size=%dx%d&data=%s&format=png',
+			$size,
+			$size,
+			rawurlencode( $url )
+		);
+	}
+
+	/**
+	 * Track list share event for gamification.
+	 */
+	public static function track_share( $list_id, $user_id, $platform = 'unknown' ) {
+		if ( class_exists( 'BD\Gamification\ActivityTracker' ) ) {
+			ActivityTracker::track( $user_id, 'list_shared', $list_id, array( 'platform' => $platform ) );
+		}
+	}
+
+	/**
+	 * Get public lists count for a user (for curator stats).
+	 */
+	public static function get_user_public_list_count( $user_id ) {
+		global $wpdb;
+		$table = $wpdb->prefix . 'bd_lists';
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM $table WHERE user_id = %d AND visibility = 'public'",
+				$user_id
+			)
+		);
+	}
+
+	/**
+	 * Get total views across all user's public lists.
+	 */
+	public static function get_user_total_list_views( $user_id ) {
+		global $wpdb;
+		$table = $wpdb->prefix . 'bd_lists';
+
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT SUM(view_count) FROM $table WHERE user_id = %d AND visibility = 'public'",
 				$user_id
 			)
 		);

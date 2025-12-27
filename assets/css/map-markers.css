@@ -252,3 +252,76 @@
 .marker-cluster-large div {
 	background: transparent !important;
 }
+
+/* ==========================================================================
+   NUMBERED LIST MARKERS (Phase 2) - Heart Style
+   ========================================================================== */
+
+.bd-list-marker {
+	background: transparent !important;
+	border: none !important;
+}
+
+.bd-numbered-heart {
+	position: relative;
+	width: 36px;
+	height: 36px;
+	filter: drop-shadow(0 2px 4px rgba(15, 42, 67, 0.3));
+	transition: all 0.2s ease;
+	cursor: pointer;
+}
+
+.bd-numbered-heart svg {
+	width: 100%;
+	height: 100%;
+	color: #0F2A43;
+}
+
+.bd-numbered-heart .bd-marker-number {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -55%);
+	color: white;
+	font-weight: 700;
+	font-size: 12px;
+	font-family: 'Inter', system-ui, sans-serif;
+	line-height: 1;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Hover state - teal like homepage hearts */
+.bd-numbered-heart:hover {
+	transform: scale(1.15);
+	filter: drop-shadow(0 4px 8px rgba(44, 177, 188, 0.4));
+}
+
+.bd-numbered-heart:hover svg {
+	color: #2CB1BC;
+}
+
+/* Active/Selected state */
+.bd-list-marker.active .bd-numbered-heart svg {
+	color: #2CB1BC;
+}
+
+.bd-list-marker.active .bd-numbered-heart {
+	filter: drop-shadow(0 4px 8px rgba(44, 177, 188, 0.4));
+}
+
+/* Popup styles for list map */
+.bd-list-popup .leaflet-popup-content-wrapper {
+	padding: 0 !important;
+	border-radius: 10px !important;
+	overflow: hidden !important;
+}
+
+.bd-list-popup .leaflet-popup-content {
+	margin: 0 !important;
+	width: 220px !important;
+}
+
+.bd-list-popup .leaflet-popup-tip {
+	background: white !important;
+}
+

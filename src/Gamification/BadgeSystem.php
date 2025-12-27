@@ -7,7 +7,7 @@
  *
  * @package BusinessDirectory
  * @subpackage Gamification
- * @version 2.0.0
+ * @version 2.3.0
  */
 
 namespace BD\Gamification;
@@ -31,9 +31,9 @@ class BadgeSystem {
 	 */
 	const BADGES = array(
 
-		// ============================================
+		// =====================================================================
 		// COMMUNITY STATUS BADGES (Special/Manual)
-		// ============================================
+		// =====================================================================
 		'love_livermore_verified' => array(
 			'name'        => 'Love Livermore Verified',
 			'icon'        => '<i class="fa-solid fa-certificate"></i>',
@@ -75,9 +75,9 @@ class BadgeSystem {
 			'points'      => 150,
 		),
 
-		// ============================================
+		// =====================================================================
 		// REVIEW MILESTONE BADGES
-		// ============================================
+		// =====================================================================
 		'first_review'            => array(
 			'name'        => 'First Steps',
 			'icon'        => '<i class="fa-solid fa-feather"></i>',
@@ -134,9 +134,9 @@ class BadgeSystem {
 			'rarity'      => 'legendary',
 		),
 
-		// ============================================
+		// =====================================================================
 		// QUALITY & ENGAGEMENT BADGES
-		// ============================================
+		// =====================================================================
 		'helpful_reviewer'        => array(
 			'name'        => 'Helpful Hand',
 			'icon'        => '<i class="fa-solid fa-thumbs-up"></i>',
@@ -193,9 +193,9 @@ class BadgeSystem {
 			'rarity'      => 'rare',
 		),
 
-		// ============================================
+		// =====================================================================
 		// EXPLORER BADGES (Category Diversity)
-		// ============================================
+		// =====================================================================
 		'explorer'                => array(
 			'name'        => 'Explorer',
 			'icon'        => '<i class="fa-solid fa-map-location-dot"></i>',
@@ -230,9 +230,9 @@ class BadgeSystem {
 			'rarity'      => 'epic',
 		),
 
-		// ============================================
+		// =====================================================================
 		// SPECIALTY CATEGORY BADGES
-		// ============================================
+		// =====================================================================
 		'foodie'                  => array(
 			'name'        => 'Foodie',
 			'icon'        => '<i class="fa-solid fa-utensils"></i>',
@@ -248,19 +248,19 @@ class BadgeSystem {
 			'name'        => 'Wine Enthusiast',
 			'icon'        => '<i class="fa-solid fa-wine-glass"></i>',
 			'color'       => '#1a3a4a',
-			'description' => 'True appreciator of TriValley wine country',
-			'requirement' => 'Review 5 wineries or wine bars',
-			'check'       => 'wine_reviews',
+			'description' => 'True appreciator of TriValley wines',
+			'requirement' => 'Review 5 wineries',
+			'check'       => 'winery_reviews',
 			'threshold'   => 5,
-			'points'      => 75,
+			'points'      => 50,
 			'rarity'      => 'rare',
 		),
 		'shop_local'              => array(
-			'name'        => 'Shop Local Hero',
+			'name'        => 'Shop Local Champion',
 			'icon'        => '<i class="fa-solid fa-bag-shopping"></i>',
-			'color'       => '#8b5cf6',
-			'description' => 'Champion of local retail businesses',
-			'requirement' => 'Review 10 retail or shopping businesses',
+			'color'       => '#059669',
+			'description' => 'Supporting local retail businesses',
+			'requirement' => 'Review 10 retail shops',
 			'check'       => 'retail_reviews',
 			'threshold'   => 10,
 			'points'      => 50,
@@ -270,36 +270,36 @@ class BadgeSystem {
 			'name'        => 'Wellness Advocate',
 			'icon'        => '<i class="fa-solid fa-spa"></i>',
 			'color'       => '#14b8a6',
-			'description' => 'Promoting health and wellness in TriValley',
-			'requirement' => 'Review 5 health, fitness, or wellness businesses',
+			'description' => 'Champion of health and wellness',
+			'requirement' => 'Review 5 health or wellness businesses',
 			'check'       => 'wellness_reviews',
 			'threshold'   => 5,
 			'points'      => 50,
 			'rarity'      => 'rare',
 		),
 
-		// ============================================
-		// TIME-BASED BADGES
-		// ============================================
+		// =====================================================================
+		// TIMING & CONSISTENCY BADGES
+		// =====================================================================
 		'early_bird'              => array(
 			'name'        => 'Early Bird',
 			'icon'        => '<i class="fa-solid fa-sun"></i>',
 			'color'       => '#f59e0b',
-			'description' => 'Catching the best of TriValley mornings',
-			'requirement' => 'Write 10 reviews before 9am',
-			'check'       => 'early_reviews',
-			'threshold'   => 10,
+			'description' => 'Catching the morning vibes in TriValley',
+			'requirement' => 'Write 5 reviews before 9 AM',
+			'check'       => 'morning_reviews',
+			'threshold'   => 5,
 			'points'      => 50,
 			'rarity'      => 'rare',
 		),
 		'night_owl'               => array(
 			'name'        => 'Night Owl',
 			'icon'        => '<i class="fa-solid fa-moon"></i>',
-			'color'       => '#6366f1',
-			'description' => 'Discovering TriValley after dark',
-			'requirement' => 'Write 10 reviews after 9pm',
-			'check'       => 'late_reviews',
-			'threshold'   => 10,
+			'color'       => '#4338ca',
+			'description' => 'Exploring the nightlife and late-night spots',
+			'requirement' => 'Write 5 reviews after 9 PM',
+			'check'       => 'evening_reviews',
+			'threshold'   => 5,
 			'points'      => 50,
 			'rarity'      => 'rare',
 		),
@@ -326,9 +326,9 @@ class BadgeSystem {
 			'rarity'      => 'epic',
 		),
 
-		// ============================================
+		// =====================================================================
 		// LIST CURATION BADGES
-		// ============================================
+		// =====================================================================
 		'curator'                 => array(
 			'name'        => 'List Curator',
 			'icon'        => '<i class="fa-solid fa-list-check"></i>',
@@ -362,10 +362,32 @@ class BadgeSystem {
 			'points'      => 100,
 			'rarity'      => 'epic',
 		),
+		'team_player'             => array(
+			'name'        => 'Team Player',
+			'icon'        => '<i class="fa-solid fa-people-group"></i>',
+			'color'       => '#06b6d4',
+			'description' => 'Collaboration makes lists better',
+			'requirement' => 'Collaborate on 3 different lists',
+			'check'       => 'collaborative_lists',
+			'threshold'   => 3,
+			'points'      => 25,
+			'rarity'      => 'common',
+		),
+		'list_leader'             => array(
+			'name'        => 'List Leader',
+			'icon'        => '<i class="fa-solid fa-users-gear"></i>',
+			'color'       => '#8b5cf6',
+			'description' => 'Building a community of curators',
+			'requirement' => 'Have 5 or more collaborators across your lists',
+			'check'       => 'total_collaborators',
+			'threshold'   => 5,
+			'points'      => 75,
+			'rarity'      => 'rare',
+		),
 
-		// ============================================
+		// =====================================================================
 		// SOCIAL ENGAGEMENT BADGES
-		// ============================================
+		// =====================================================================
 		'social_butterfly'        => array(
 			'name'        => 'Social Butterfly',
 			'icon'        => '<i class="fa-solid fa-share-nodes"></i>',
@@ -389,9 +411,9 @@ class BadgeSystem {
 			'rarity'      => 'epic',
 		),
 
-		// ============================================
+		// =====================================================================
 		// SEASONAL/EVENT BADGES (Manual)
-		// ============================================
+		// =====================================================================
 		'holiday_spirit'          => array(
 			'name'        => 'Holiday Spirit',
 			'icon'        => '<i class="fa-solid fa-gifts"></i>',
@@ -503,7 +525,7 @@ class BadgeSystem {
 			'name'   => 'Curator',
 			'icon'   => '<i class="fa-solid fa-layer-group"></i>',
 			'desc'   => 'Create and share collections of your favorites',
-			'badges' => array( 'curator', 'list_master', 'tastemaker' ),
+			'badges' => array( 'curator', 'list_master', 'tastemaker', 'team_player', 'list_leader' ),
 		),
 		'social'    => array(
 			'name'   => 'Social',
@@ -644,48 +666,85 @@ class BadgeSystem {
 		}
 
 		// Custom checks requiring queries.
+		global $wpdb;
+
 		switch ( $check ) {
-			case 'detailed_reviews':
-				return self::count_detailed_reviews( $user_id ) >= $threshold;
-
-			case 'first_reviews':
-				return self::count_first_reviews( $user_id ) >= $threshold;
-
-			case 'early_reviews':
-				return self::count_time_based_reviews( $user_id, 'early' ) >= $threshold;
-
-			case 'late_reviews':
-				return self::count_time_based_reviews( $user_id, 'late' ) >= $threshold;
-
-			case 'weekend_reviews':
-				return self::count_weekend_reviews( $user_id ) >= $threshold;
-
-			case 'streak_weeks':
-				return self::count_streak_weeks( $user_id ) >= $threshold;
-
 			case 'qualifying_lists':
-				return self::count_qualifying_lists( $user_id ) >= $threshold;
-
-			case 'food_reviews':
-				return self::count_category_reviews( $user_id, array( 'restaurants', 'food', 'dining', 'cafe' ) ) >= $threshold;
-
-			case 'wine_reviews':
-				return self::count_category_reviews( $user_id, array( 'wineries', 'wine', 'wine-bar' ) ) >= $threshold;
-
-			case 'retail_reviews':
-				return self::count_category_reviews( $user_id, array( 'shopping', 'retail', 'boutique' ) ) >= $threshold;
-
-			case 'wellness_reviews':
-				return self::count_category_reviews( $user_id, array( 'health', 'fitness', 'wellness', 'spa' ) ) >= $threshold;
-
-			case 'social_shares':
-				return self::count_social_shares( $user_id ) >= $threshold;
+				// Lists with 5+ items.
+				$lists_table = $wpdb->prefix . 'bd_lists';
+				$items_table = $wpdb->prefix . 'bd_list_items';
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$count = $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT COUNT(*) FROM $lists_table l
+						WHERE l.user_id = %d AND l.visibility = 'public'
+						AND (SELECT COUNT(*) FROM $items_table WHERE list_id = l.id) >= 5",
+						$user_id
+					)
+				);
+				return $count >= $threshold;
 
 			case 'list_saves':
-				return self::count_list_saves( $user_id ) >= $threshold;
+				// How many times user's lists have been followed.
+				$lists_table   = $wpdb->prefix . 'bd_lists';
+				$follows_table = $wpdb->prefix . 'bd_list_follows';
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$count = $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT COUNT(*) FROM $follows_table f
+						INNER JOIN $lists_table l ON f.list_id = l.id
+						WHERE l.user_id = %d",
+						$user_id
+					)
+				);
+				return $count >= $threshold;
 
-			case 'follower_count':
-				return self::count_followers( $user_id ) >= $threshold;
+			case 'collaborative_lists':
+				// Count lists user collaborates on (not owns).
+				$collab_table = $wpdb->prefix . 'bd_list_collaborators';
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$count = $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT COUNT(DISTINCT list_id) FROM $collab_table
+						WHERE user_id = %d AND status = 'active'",
+						$user_id
+					)
+				);
+				return $count >= $threshold;
+
+			case 'total_collaborators':
+				// Count total collaborators across all lists user owns.
+				$lists_table  = $wpdb->prefix . 'bd_lists';
+				$collab_table = $wpdb->prefix . 'bd_list_collaborators';
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$count = $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT COUNT(*) FROM $collab_table c
+						INNER JOIN $lists_table l ON c.list_id = l.id
+						WHERE l.user_id = %d AND c.status = 'active'",
+						$user_id
+					)
+				);
+				return $count >= $threshold;
+
+			case 'first_reviews':
+				// Be first to review businesses.
+				$reviews_table = $wpdb->prefix . 'bd_reviews';
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$count = $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT COUNT(DISTINCT r.business_id) FROM $reviews_table r
+						WHERE r.user_id = %d AND r.status = 'approved'
+						AND NOT EXISTS (
+							SELECT 1 FROM $reviews_table r2
+							WHERE r2.business_id = r.business_id
+							AND r2.status = 'approved'
+							AND r2.created_at < r.created_at
+						)",
+						$user_id
+					)
+				);
+				return $count >= $threshold;
 
 			default:
 				return false;
@@ -693,206 +752,17 @@ class BadgeSystem {
 	}
 
 	/**
-	 * Count detailed reviews (200+ characters)
-	 */
-	private static function count_detailed_reviews( $user_id ) {
-		global $wpdb;
-		$reviews_table = $wpdb->prefix . 'bd_reviews';
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM $reviews_table
-				WHERE user_id = %d AND status = 'approved' AND CHAR_LENGTH(content) >= 200",
-				$user_id
-			)
-		);
-	}
-
-	/**
-	 * Count first reviews (where user was first to review a business)
-	 */
-	private static function count_first_reviews( $user_id ) {
-		global $wpdb;
-		$reviews_table = $wpdb->prefix . 'bd_reviews';
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(DISTINCT r1.business_id) FROM $reviews_table r1
-				WHERE r1.user_id = %d AND r1.status = 'approved'
-				AND r1.id = (
-					SELECT MIN(r2.id) FROM $reviews_table r2
-					WHERE r2.business_id = r1.business_id AND r2.status = 'approved'
-				)",
-				$user_id
-			)
-		);
-	}
-
-	/**
-	 * Count time-based reviews (early morning or late night)
-	 */
-	private static function count_time_based_reviews( $user_id, $time_type ) {
-		global $wpdb;
-		$reviews_table = $wpdb->prefix . 'bd_reviews';
-
-		$hour_condition = 'early' === $time_type
-			? 'HOUR(created_at) < 9'
-			: 'HOUR(created_at) >= 21';
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM $reviews_table
-				WHERE user_id = %d AND status = 'approved' AND $hour_condition",
-				$user_id
-			)
-		);
-	}
-
-	/**
-	 * Count unique weekends with reviews
-	 */
-	private static function count_weekend_reviews( $user_id ) {
-		global $wpdb;
-		$reviews_table = $wpdb->prefix . 'bd_reviews';
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(DISTINCT YEARWEEK(created_at)) FROM $reviews_table
-				WHERE user_id = %d AND status = 'approved' AND DAYOFWEEK(created_at) IN (1, 7)",
-				$user_id
-			)
-		);
-	}
-
-	/**
-	 * Count consecutive weeks with activity
-	 */
-	private static function count_streak_weeks( $user_id ) {
-		global $wpdb;
-		$activity_table = $wpdb->base_prefix . 'bd_user_activity';
-
-		// Get weeks with activity.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$weeks = $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT DISTINCT YEARWEEK(created_at) as week FROM $activity_table
-				WHERE user_id = %d ORDER BY week DESC",
-				$user_id
-			)
-		);
-
-		if ( empty( $weeks ) ) {
-			return 0;
-		}
-
-		// Count consecutive weeks.
-		$streak       = 1;
-		$current_week = (int) $weeks[0];
-
-		// phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found
-		for ( $i = 1; $i < count( $weeks ); $i++ ) {
-			$prev_week = (int) $weeks[ $i ];
-			// Check if consecutive (allowing for year boundary).
-			if ( $current_week - $prev_week === 1 || ( $current_week % 100 === 1 && $prev_week % 100 >= 50 ) ) {
-				++$streak;
-				$current_week = $prev_week;
-			} else {
-				break;
-			}
-		}
-
-		return $streak;
-	}
-
-	/**
-	 * Count lists with 5+ businesses
-	 */
-	private static function count_qualifying_lists( $user_id ) {
-		global $wpdb;
-		$lists_table      = $wpdb->prefix . 'bd_lists';
-		$list_items_table = $wpdb->prefix . 'bd_list_items';
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM $lists_table l
-				WHERE l.user_id = %d AND l.visibility = 'public'
-				AND (SELECT COUNT(*) FROM $list_items_table li WHERE li.list_id = l.id) >= 5",
-				$user_id
-			)
-		);
-	}
-
-	/**
-	 * Count reviews in specific categories
-	 */
-	private static function count_category_reviews( $user_id, $category_slugs ) {
-		global $wpdb;
-		$reviews_table = $wpdb->prefix . 'bd_reviews';
-
-		$placeholders = implode( ',', array_fill( 0, count( $category_slugs ), '%s' ) );
-
-		// Get term IDs for the category slugs.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$term_ids = $wpdb->get_col(
-			$wpdb->prepare(
-				"SELECT t.term_id FROM {$wpdb->terms} t
-				INNER JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id
-				WHERE tt.taxonomy = 'bd_category' AND t.slug IN ($placeholders)",
-				...$category_slugs
-			)
-		);
-
-		if ( empty( $term_ids ) ) {
-			return 0;
-		}
-
-		$term_id_placeholders = implode( ',', array_fill( 0, count( $term_ids ), '%d' ) );
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		return (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(DISTINCT r.id) FROM $reviews_table r
-				INNER JOIN {$wpdb->term_relationships} tr ON r.business_id = tr.object_id
-				WHERE r.user_id = %d AND r.status = 'approved' AND tr.term_taxonomy_id IN ($term_id_placeholders)",
-				$user_id,
-				...$term_ids
-			)
-		);
-	}
-
-	/**
-	 * Count social shares (placeholder - implement based on tracking)
-	 */
-	private static function count_social_shares( $user_id ) {
-		return (int) get_user_meta( $user_id, 'bd_social_shares', true );
-	}
-
-	/**
-	 * Count times user's lists have been saved
-	 */
-	private static function count_list_saves( $user_id ) {
-		return (int) get_user_meta( $user_id, 'bd_list_saves_received', true );
-	}
-
-	/**
-	 * Count followers (placeholder - implement based on follow system)
-	 */
-	private static function count_followers( $user_id ) {
-		return (int) get_user_meta( $user_id, 'bd_follower_count', true );
-	}
-
-	/**
 	 * Award bonus points for badge
+	 *
+	 * @param int    $user_id User ID.
+	 * @param int    $points  Points to award.
+	 * @param string $reason  Reason for points.
 	 */
-	private static function award_bonus_points( $user_id, $points, $reason ) {
+	private static function award_bonus_points( $user_id, $points, $reason = '' ) {
 		global $wpdb;
 		$reputation_table = $wpdb->base_prefix . 'bd_user_reputation';
 
+		// Update total points.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
 			$wpdb->prepare(
@@ -902,7 +772,7 @@ class BadgeSystem {
 			)
 		);
 
-		// Log the activity.
+		// Log activity.
 		$activity_table = $wpdb->base_prefix . 'bd_user_activity';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$wpdb->insert(
@@ -918,6 +788,9 @@ class BadgeSystem {
 
 	/**
 	 * Update user rank based on current points
+	 *
+	 * @param int $user_id User ID.
+	 * @return string New rank.
 	 */
 	public static function update_user_rank( $user_id ) {
 		global $wpdb;
@@ -952,6 +825,9 @@ class BadgeSystem {
 
 	/**
 	 * Get user's earned badges
+	 *
+	 * @param int $user_id User ID.
+	 * @return array Badge keys.
 	 */
 	public static function get_user_badges( $user_id ) {
 		global $wpdb;
@@ -974,6 +850,9 @@ class BadgeSystem {
 
 	/**
 	 * Get user's current rank
+	 *
+	 * @param int $user_id User ID.
+	 * @return array Rank data.
 	 */
 	public static function get_user_rank( $user_id ) {
 		global $wpdb;
@@ -1005,6 +884,11 @@ class BadgeSystem {
 
 	/**
 	 * Manually award a badge to a user
+	 *
+	 * @param int      $user_id    User ID.
+	 * @param string   $badge_key  Badge key.
+	 * @param int|null $awarded_by Admin user ID who awarded.
+	 * @return bool Success.
 	 */
 	public static function award_badge( $user_id, $badge_key, $awarded_by = null ) {
 		if ( ! isset( self::BADGES[ $badge_key ] ) ) {
@@ -1027,6 +911,7 @@ class BadgeSystem {
 		// Add badge.
 		$current_badges[] = $badge_key;
 
+		// Update reputation.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->update(
 			$reputation_table,
@@ -1052,13 +937,10 @@ class BadgeSystem {
 			array( '%d', '%s', '%d' )
 		);
 
-		// Award bonus points.
+		// Award points.
 		if ( ! empty( $badge['points'] ) ) {
-			self::award_bonus_points( $user_id, $badge['points'], "Badge earned: {$badge['name']}" );
+			self::award_bonus_points( $user_id, $badge['points'], "Badge awarded: {$badge['name']}" );
 		}
-
-		// Update rank.
-		self::update_user_rank( $user_id );
 
 		// Trigger action.
 		do_action( 'bd_badge_awarded', $user_id, $badge_key, $awarded_by );
@@ -1068,6 +950,10 @@ class BadgeSystem {
 
 	/**
 	 * Remove a badge from a user
+	 *
+	 * @param int    $user_id   User ID.
+	 * @param string $badge_key Badge key.
+	 * @return bool Success.
 	 */
 	public static function remove_badge( $user_id, $badge_key ) {
 		global $wpdb;
@@ -1076,9 +962,17 @@ class BadgeSystem {
 		// Get current badges.
 		$current_badges = self::get_user_badges( $user_id );
 
-		// Remove badge.
-		$current_badges = array_values( array_diff( $current_badges, array( $badge_key ) ) );
+		// Check if has badge.
+		$index = array_search( $badge_key, $current_badges, true );
+		if ( false === $index ) {
+			return false;
+		}
 
+		// Remove badge.
+		unset( $current_badges[ $index ] );
+		$current_badges = array_values( $current_badges );
+
+		// Update reputation.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->update(
 			$reputation_table,
@@ -1091,9 +985,9 @@ class BadgeSystem {
 			array( '%d' )
 		);
 
-		// Remove award record.
+		// Remove from awards table.
 		$awards_table = $wpdb->base_prefix . 'bd_badge_awards';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$wpdb->delete(
 			$awards_table,
 			array(
@@ -1104,40 +998,5 @@ class BadgeSystem {
 		);
 
 		return true;
-	}
-
-	/**
-	 * Get badge categories with metadata
-	 */
-	public static function get_badge_categories() {
-		return self::BADGE_CATEGORIES;
-	}
-
-	/**
-	 * Get rarity info for display
-	 */
-	public static function get_rarity_info() {
-		return array(
-			'common'    => array(
-				'label' => 'Common',
-				'color' => '#64748b',
-			),
-			'rare'      => array(
-				'label' => 'Rare',
-				'color' => '#3b82f6',
-			),
-			'epic'      => array(
-				'label' => 'Epic',
-				'color' => '#8b5cf6',
-			),
-			'legendary' => array(
-				'label' => 'Legendary',
-				'color' => '#f59e0b',
-			),
-			'special'   => array(
-				'label' => 'Special',
-				'color' => '#1a3a4a',
-			),
-		);
 	}
 }

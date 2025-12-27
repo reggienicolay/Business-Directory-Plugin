@@ -63,6 +63,8 @@ require_once plugin_dir_path( __FILE__ ) . 'src/Lists/ListManager.php';
 require_once plugin_dir_path( __FILE__ ) . 'src/API/ListsEndpoint.php';
 require_once plugin_dir_path( __FILE__ ) . 'src/Admin/ListsAdmin.php';
 require_once plugin_dir_path( __FILE__ ) . 'src/Frontend/ListDisplay.php';
+require_once plugin_dir_path( __FILE__ ) . 'src/Lists/ListCollaborators.php';
+require_once plugin_dir_path( __FILE__ ) . 'src/API/CollaboratorsEndpoint.php';
 
 // Activation/Deactivation hooks
 register_activation_hook(

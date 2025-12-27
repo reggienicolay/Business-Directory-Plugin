@@ -27,7 +27,7 @@ class ListsEndpoint {
 	public static function register_routes() {
 		$namespace = 'bd/v1';
 
-		// Get public lists (browse)
+		// Get public lists (browse).
 		register_rest_route(
 			$namespace,
 			'/lists',
@@ -54,7 +54,7 @@ class ListsEndpoint {
 			)
 		);
 
-		// Create new list
+		// Create new list.
 		register_rest_route(
 			$namespace,
 			'/lists',
@@ -81,7 +81,7 @@ class ListsEndpoint {
 			)
 		);
 
-		// Get user's own lists
+		// Get user's own lists.
 		register_rest_route(
 			$namespace,
 			'/lists/my-lists',
@@ -92,7 +92,7 @@ class ListsEndpoint {
 			)
 		);
 
-		// Get single list by ID or slug
+		// Get single list by ID or slug.
 		register_rest_route(
 			$namespace,
 			'/lists/(?P<id>[\w-]+)',
@@ -103,7 +103,7 @@ class ListsEndpoint {
 			)
 		);
 
-		// Update list
+		// Update list.
 		register_rest_route(
 			$namespace,
 			'/lists/(?P<id>\d+)',
@@ -123,7 +123,7 @@ class ListsEndpoint {
 			)
 		);
 
-		// Delete list
+		// Delete list.
 		register_rest_route(
 			$namespace,
 			'/lists/(?P<id>\d+)',
@@ -134,7 +134,7 @@ class ListsEndpoint {
 			)
 		);
 
-		// Add item to list
+		// Add item to list.
 		register_rest_route(
 			$namespace,
 			'/lists/(?P<list_id>\d+)/items',
@@ -155,7 +155,7 @@ class ListsEndpoint {
 			)
 		);
 
-		// Remove item from list
+		// Remove item from list.
 		register_rest_route(
 			$namespace,
 			'/lists/(?P<list_id>\d+)/items/(?P<business_id>\d+)',
@@ -166,7 +166,7 @@ class ListsEndpoint {
 			)
 		);
 
-		// Update item note
+		// Update item note.
 		register_rest_route(
 			$namespace,
 			'/lists/(?P<list_id>\d+)/items/(?P<business_id>\d+)',
@@ -183,7 +183,7 @@ class ListsEndpoint {
 			)
 		);
 
-		// Reorder items
+		// Reorder items.
 		register_rest_route(
 			$namespace,
 			'/lists/(?P<list_id>\d+)/reorder',
@@ -200,7 +200,7 @@ class ListsEndpoint {
 			)
 		);
 
-		// Quick save (add to list from business page)
+		// Quick save (add to list from business page).
 		register_rest_route(
 			$namespace,
 			'/lists/quick-save',
@@ -219,7 +219,7 @@ class ListsEndpoint {
 			)
 		);
 
-		// Get lists containing a business
+		// Get lists containing a business.
 		register_rest_route(
 			$namespace,
 			'/lists/containing/(?P<business_id>\d+)',
@@ -227,6 +227,68 @@ class ListsEndpoint {
 				'methods'             => 'GET',
 				'callback'            => array( __CLASS__, 'get_lists_containing' ),
 				'permission_callback' => array( __CLASS__, 'check_user_logged_in' ),
+			)
+		);
+
+		// Track list share (for gamification).
+		register_rest_route(
+			$namespace,
+			'/lists/(?P<list_id>\d+)/share',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'track_share' ),
+				'permission_callback' => array( __CLASS__, 'check_user_logged_in' ),
+				'args'                => array(
+					'platform' => array(
+						'type'    => 'string',
+						'default' => 'unknown',
+					),
+				),
+			)
+		);
+
+		// Get share data for a list.
+		register_rest_route(
+			$namespace,
+			'/lists/(?P<list_id>\d+)/share-data',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'get_share_data' ),
+				'permission_callback' => '__return_true',
+			)
+		);
+
+		// Follow a list (Phase 2).
+		register_rest_route(
+			$namespace,
+			'/lists/(?P<id>\d+)/follow',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::CREATABLE,
+					'callback'            => array( __CLASS__, 'follow_list' ),
+					'permission_callback' => array( __CLASS__, 'check_user_logged_in' ),
+					'args'                => array(
+						'id' => array(
+							'required'          => true,
+							'validate_callback' => function ( $param ) {
+								return is_numeric( $param );
+							},
+						),
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::DELETABLE,
+					'callback'            => array( __CLASS__, 'unfollow_list' ),
+					'permission_callback' => array( __CLASS__, 'check_user_logged_in' ),
+					'args'                => array(
+						'id' => array(
+							'required'          => true,
+							'validate_callback' => function ( $param ) {
+								return is_numeric( $param );
+							},
+						),
+					),
+				),
 			)
 		);
 	}
@@ -309,7 +371,7 @@ class ListsEndpoint {
 	public static function get_list( $request ) {
 		$id = $request->get_param( 'id' );
 
-		// Try by ID first, then by slug
+		// Try by ID first, then by slug.
 		if ( is_numeric( $id ) ) {
 			$list = ListManager::get_list( (int) $id );
 		} else {
@@ -324,7 +386,7 @@ class ListsEndpoint {
 			);
 		}
 
-		// Check visibility permissions
+		// Check visibility permissions.
 		$current_user_id = get_current_user_id();
 		if ( 'private' === $list['visibility'] && (int) $list['user_id'] !== $current_user_id ) {
 			return new \WP_Error(
@@ -334,12 +396,12 @@ class ListsEndpoint {
 			);
 		}
 
-		// Increment view count for public/unlisted lists
+		// Increment view count for public/unlisted lists.
 		if ( (int) $list['user_id'] !== $current_user_id ) {
 			ListManager::increment_view_count( $list['id'] );
 		}
 
-		// Get list items
+		// Get list items.
 		$list['items'] = ListManager::get_list_items( $list['id'] );
 		$list['url']   = ListManager::get_list_url( $list );
 
@@ -529,7 +591,7 @@ class ListsEndpoint {
 		$new_list    = $request->get_param( 'new_list' );
 		$user_id     = get_current_user_id();
 
-		// Create new list if requested
+		// Create new list if requested.
 		if ( ! empty( $new_list ) ) {
 			$list_id = ListManager::create_list( $user_id, $new_list );
 			if ( ! $list_id ) {
@@ -587,7 +649,135 @@ class ListsEndpoint {
 			)
 		);
 	}
+
+	/**
+	 * Track list share for gamification
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response Response.
+	 */
+	public static function track_share( $request ) {
+		$list_id  = $request->get_param( 'list_id' );
+		$platform = $request->get_param( 'platform' );
+		$user_id  = get_current_user_id();
+
+		// Verify list exists.
+		$list = ListManager::get_list( $list_id );
+		if ( ! $list ) {
+			return new \WP_Error(
+				'not_found',
+				'List not found',
+				array( 'status' => 404 )
+			);
+		}
+
+		// Track the share.
+		ListManager::track_share( $list_id, $user_id, $platform );
+
+		return rest_ensure_response(
+			array(
+				'success'  => true,
+				'message'  => 'Share tracked!',
+				'platform' => $platform,
+			)
+		);
+	}
+
+	/**
+	 * Get share data for a list (publicly accessible for non-private lists)
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response Response.
+	 */
+	public static function get_share_data( $request ) {
+		$list_id = $request->get_param( 'list_id' );
+
+		$list = ListManager::get_list( $list_id );
+		if ( ! $list ) {
+			return new \WP_Error(
+				'not_found',
+				'List not found',
+				array( 'status' => 404 )
+			);
+		}
+
+		// Check visibility - only allow for public/unlisted lists.
+		$current_user_id = get_current_user_id();
+		if ( 'private' === $list['visibility'] && (int) $list['user_id'] !== $current_user_id ) {
+			return new \WP_Error(
+				'forbidden',
+				'This list is private',
+				array( 'status' => 403 )
+			);
+		}
+
+		$share_data = ListManager::get_share_data( $list );
+
+		return rest_ensure_response( $share_data );
+	}
+
+	/**
+	 * Follow a list (Phase 2)
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|\WP_Error Response.
+	 */
+	public static function follow_list( $request ) {
+		$list_id = absint( $request['id'] );
+		$user_id = get_current_user_id();
+
+		$result = ListManager::follow_list( $list_id, $user_id );
+
+		if ( ! $result ) {
+			return new \WP_Error(
+				'follow_failed',
+				__( 'Could not follow this list.', 'business-directory' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$list = ListManager::get_list( $list_id );
+
+		return rest_ensure_response(
+			array(
+				'success'        => true,
+				'message'        => __( 'You are now following this list.', 'business-directory' ),
+				'follower_count' => $list['follower_count'] ?? 0,
+			)
+		);
+	}
+
+	/**
+	 * Unfollow a list (Phase 2)
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|\WP_Error Response.
+	 */
+	public static function unfollow_list( $request ) {
+		$list_id = absint( $request['id'] );
+		$user_id = get_current_user_id();
+
+		$result = ListManager::unfollow_list( $list_id, $user_id );
+
+		if ( ! $result ) {
+			return new \WP_Error(
+				'unfollow_failed',
+				__( 'Could not unfollow this list.', 'business-directory' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$list = ListManager::get_list( $list_id );
+
+		return rest_ensure_response(
+			array(
+				'success'        => true,
+				'message'        => __( 'You have unfollowed this list.', 'business-directory' ),
+				'follower_count' => $list['follower_count'] ?? 0,
+			)
+		);
+	}
 }
 
-// Initialize
+// Initialize.
 ListsEndpoint::init();

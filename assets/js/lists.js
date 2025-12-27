@@ -81,6 +81,7 @@
 		if (e.key === 'Escape') {
 			$('.bd-save-modal').fadeOut(200).data('is-open', false);
 			$('.bd-modal').fadeOut(200);
+			$('.bd-share-modal').fadeOut(200);
 			$('body').removeClass('bd-modal-open');
 		}
 	});
@@ -482,27 +483,138 @@
 	}
 
 	// ========================================================================
-	// SHARE FUNCTIONALITY
+	// SHARE MODAL FUNCTIONALITY
 	// ========================================================================
 
 	/**
-	 * Copy link to clipboard
+	 * Open share modal
+	 */
+	$(document).on('click', '.bd-share-modal-open', function (e) {
+		e.preventDefault();
+		
+		const listId = $(this).data('list-id');
+		let $modal = $('.bd-share-modal[data-list-id="' + listId + '"]');
+
+		// Move modal to body if not already there
+		if (!$modal.parent().is('body')) {
+			$modal.appendTo('body');
+		}
+
+		$modal.fadeIn(200);
+		$('body').addClass('bd-modal-open');
+	});
+
+	/**
+	 * Share modal tab switching
+	 */
+	$(document).on('click', '.bd-share-tab', function () {
+		const $tab = $(this);
+		const $modal = $tab.closest('.bd-share-modal');
+		const tabName = $tab.data('tab');
+
+		// Update active tab
+		$modal.find('.bd-share-tab').removeClass('bd-share-tab-active');
+		$tab.addClass('bd-share-tab-active');
+
+		// Show corresponding pane
+		$modal.find('.bd-share-tab-pane').removeClass('bd-share-tab-pane-active');
+		$modal.find('.bd-share-tab-pane[data-tab="' + tabName + '"]').addClass('bd-share-tab-pane-active');
+	});
+
+	/**
+	 * Copy to clipboard functionality
+	 */
+	$(document).on('click', '.bd-copy-btn', function () {
+		const $btn = $(this);
+		const targetId = $btn.data('copy-target');
+		const $input = $('#' + targetId);
+		
+		copyToClipboard($input.val(), $btn);
+	});
+
+	/**
+	 * Legacy copy link button (simple share buttons)
 	 */
 	$(document).on('click', '.bd-share-copy', function () {
 		const url = $(this).data('url');
+		copyToClipboard(url, $(this));
+	});
 
-		if (navigator.clipboard) {
-			navigator.clipboard.writeText(url).then(function () {
-				showToast('Link copied to clipboard!');
+	/**
+	 * Copy text to clipboard with visual feedback
+	 */
+	function copyToClipboard(text, $btn) {
+		if (navigator.clipboard && window.isSecureContext) {
+			// Modern browsers
+			navigator.clipboard.writeText(text).then(function () {
+				showCopySuccess($btn);
+			}).catch(function () {
+				fallbackCopy(text, $btn);
 			});
 		} else {
-			// Fallback
-			const $temp = $('<input>');
-			$('body').append($temp);
-			$temp.val(url).select();
+			// Fallback for older browsers
+			fallbackCopy(text, $btn);
+		}
+	}
+
+	/**
+	 * Fallback copy method using textarea
+	 */
+	function fallbackCopy(text, $btn) {
+		const $temp = $('<textarea>');
+		$temp.css({
+			position: 'absolute',
+			left: '-9999px'
+		});
+		$('body').append($temp);
+		$temp.val(text).select();
+		
+		try {
 			document.execCommand('copy');
-			$temp.remove();
-			showToast('Link copied to clipboard!');
+			showCopySuccess($btn);
+		} catch (err) {
+			showToast('Failed to copy', 'error');
+		}
+		
+		$temp.remove();
+	}
+
+	/**
+	 * Show copy success feedback
+	 */
+	function showCopySuccess($btn) {
+		const originalHtml = $btn.html();
+		const originalWidth = $btn.outerWidth();
+		
+		// Preserve button width to prevent layout shift
+		$btn.css('min-width', originalWidth + 'px');
+		$btn.html('<i class="fas fa-check"></i> Copied!');
+		$btn.addClass('bd-copy-success');
+		
+		showToast(bdLists.strings.copied || 'Copied to clipboard!');
+		
+		setTimeout(function () {
+			$btn.html(originalHtml);
+			$btn.removeClass('bd-copy-success');
+			$btn.css('min-width', '');
+		}, 2000);
+	}
+
+	/**
+	 * Track share clicks for gamification
+	 */
+	$(document).on('click', '.bd-share-button', function () {
+		const platform = $(this).data('platform');
+		const listId = $(this).closest('.bd-share-modal').data('list-id');
+		
+		// Fire and forget - don't block the share action
+		if (bdLists.isLoggedIn && listId) {
+			$.ajax({
+				url: bdLists.restUrl + 'lists/' + listId + '/share',
+				method: 'POST',
+				headers: { 'X-WP-Nonce': bdLists.nonce },
+				data: { platform: platform }
+			});
 		}
 	});
 
@@ -514,9 +626,10 @@
 		// Remove existing toasts
 		$('.bd-toast').remove();
 
+		const icon = type === 'success' ? '✓' : '✕';
 		const $toast = $(`
 			<div class="bd-toast bd-toast-${type}">
-				<span class="bd-toast-icon">${type === 'success' ? '✓' : '✕'}</span>
+				<span class="bd-toast-icon">${icon}</span>
 				<span class="bd-toast-message">${message}</span>
 			</div>
 		`);
@@ -538,11 +651,245 @@
 	}
 
 	// ========================================================================
+	// PHASE 2: LIST MAP VIEW
+	// ========================================================================
+
+	const ListMap = {
+		map: null,
+		markers: [],
+
+		init: function() {
+			const $toggle = $(".bd-map-toggle");
+			if (!$toggle.length) return;
+
+			$toggle.on("click", this.toggleView.bind(this));
+		},
+
+		toggleView: function(e) {
+			const $btn = $(e.currentTarget);
+			const currentView = $btn.data("view");
+
+			if (currentView === "list") {
+				this.showMap();
+				$btn.data("view", "map");
+				$btn.addClass("bd-map-active");
+				$btn.find("span").text("List View");
+				$btn.find("i").removeClass("fa-map").addClass("fa-list");
+			} else {
+				this.hideMap();
+				$btn.data("view", "list");
+				$btn.removeClass("bd-map-active");
+				$btn.find("span").text("Map View");
+				$btn.find("i").removeClass("fa-list").addClass("fa-map");
+			}
+		},
+
+		showMap: function() {
+			const $mapContainer = $(".bd-list-map-container");
+			const $listContainer = $(".bd-list-items-container");
+
+			$listContainer.addClass("bd-hidden");
+			$mapContainer.show();
+
+			if (!this.map && typeof L !== "undefined" && window.bdListMapData) {
+				this.initializeMap();
+			} else if (this.map) {
+				setTimeout(() => this.map.invalidateSize(), 100);
+			}
+		},
+
+		hideMap: function() {
+			const $mapContainer = $(".bd-list-map-container");
+			const $listContainer = $(".bd-list-items-container");
+
+			$mapContainer.hide();
+			$listContainer.removeClass("bd-hidden");
+		},
+
+		initializeMap: function() {
+			const mapData = window.bdListMapData;
+			if (!mapData || !mapData.length) return;
+
+			const lats = mapData.map(item => item.lat);
+			const lngs = mapData.map(item => item.lng);
+			const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
+			const centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
+
+			this.map = L.map("bd-list-map").setView([centerLat, centerLng], 12);
+
+			L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+				attribution: "&copy; OpenStreetMap, &copy; CARTO",
+				maxZoom: 19
+			}).addTo(this.map);
+
+			const bounds = [];
+			mapData.forEach((item, index) => {
+				const marker = this.createMarker(item, index + 1);
+				marker.addTo(this.map);
+				this.markers.push(marker);
+				bounds.push([item.lat, item.lng]);
+			});
+
+			if (bounds.length > 1) {
+				this.map.fitBounds(bounds, { padding: [40, 40] });
+			}
+		},
+
+		createMarker: function(item, number) {
+			const icon = L.divIcon({
+				className: "bd-list-marker",
+				html: `<div class="bd-numbered-heart">
+					<svg viewBox="0 0 24 24" fill="currentColor">
+						<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+					</svg>
+					<span class="bd-marker-number">${number}</span>
+				</div>`,
+				iconSize: [36, 36],
+				iconAnchor: [18, 36],
+				popupAnchor: [0, -36]
+			});
+
+			const marker = L.marker([item.lat, item.lng], { icon: icon });
+
+			let popupHtml = `<a href="${item.permalink}" class="bd-map-popup">`;
+			
+			if (item.image) {
+				popupHtml += `<img src="${item.image}" alt="${item.title}" class="bd-map-popup-image">`;
+			}
+			
+			popupHtml += `<div class="bd-map-popup-content">`;
+			popupHtml += `<h4 class="bd-map-popup-title">${item.title}</h4>`;
+			
+			if (item.category) {
+				popupHtml += `<div class="bd-map-popup-category">${item.category}</div>`;
+			}
+			
+			if (item.rating > 0) {
+				const stars = "★".repeat(Math.round(item.rating)) + "☆".repeat(5 - Math.round(item.rating));
+				popupHtml += `<div class="bd-map-popup-rating">${stars}</div>`;
+			}
+			
+			if (item.note) {
+				popupHtml += `<div class="bd-map-popup-note">"${item.note}"</div>`;
+			}
+			
+			popupHtml += `</div></a>`;
+
+			marker.bindPopup(popupHtml, {
+				maxWidth: 280,
+				className: "bd-list-popup"
+			});
+
+			return marker;
+		}
+	};
+
+	// ========================================================================
+	// PHASE 2: FOLLOW BUTTON
+	// ========================================================================
+
+	const FollowButton = {
+		init: function() {
+			$(document).on("click", ".bd-follow-btn", this.handleClick.bind(this));
+		},
+
+		handleClick: function(e) {
+			e.preventDefault();
+			const $btn = $(e.currentTarget);
+
+			if ($btn.data("login-required")) {
+				window.location.href = bdLists.loginUrl;
+				return;
+			}
+
+			const listId = $btn.data("list-id");
+			const isFollowing = $btn.hasClass("bd-following");
+
+			$btn.prop("disabled", true);
+
+			if (isFollowing) {
+				this.unfollowList(listId, $btn);
+			} else {
+				this.followList(listId, $btn);
+			}
+		},
+
+		followList: function(listId, $btn) {
+			$.ajax({
+				url: bdLists.restUrl + "lists/" + listId + "/follow",
+				method: "POST",
+				headers: { "X-WP-Nonce": bdLists.nonce },
+				success: function(response) {
+					$btn.addClass("bd-following")
+						.removeClass("bd-btn-primary")
+						.addClass("bd-btn-secondary");
+					$btn.find("i").removeClass("fa-plus").addClass("fa-check");
+					$btn.find("span").text(bdLists.strings.following || "Following");
+					showToast(response.message || "Now following this list");
+				},
+				error: function(xhr) {
+					showToast(xhr.responseJSON?.message || bdLists.strings.error, "error");
+				},
+				complete: function() {
+					$btn.prop("disabled", false);
+				}
+			});
+		},
+
+		unfollowList: function(listId, $btn) {
+			$.ajax({
+				url: bdLists.restUrl + "lists/" + listId + "/follow",
+				method: "DELETE",
+				headers: { "X-WP-Nonce": bdLists.nonce },
+				success: function(response) {
+					$btn.removeClass("bd-following")
+						.removeClass("bd-btn-secondary")
+						.addClass("bd-btn-primary");
+					$btn.find("i").removeClass("fa-check").addClass("fa-plus");
+					$btn.find("span").text(bdLists.strings.follow || "Follow");
+					showToast(response.message || "Unfollowed list");
+				},
+				error: function(xhr) {
+					showToast(xhr.responseJSON?.message || bdLists.strings.error, "error");
+				},
+				complete: function() {
+					$btn.prop("disabled", false);
+				}
+			});
+		}
+	};
+
+	// ========================================================================
+	// PHASE 2: MY LISTS TABS (Following Tab)
+	// ========================================================================
+
+	const ListsTabs = {
+		init: function() {
+			$(document).on("click", ".bd-lists-tab", this.handleTabClick.bind(this));
+		},
+
+		handleTabClick: function(e) {
+			const $tab = $(e.currentTarget);
+			const tabId = $tab.data("tab");
+
+			$(".bd-lists-tab").removeClass("bd-lists-tab-active");
+			$tab.addClass("bd-lists-tab-active");
+
+			$(".bd-lists-tab-content").hide();
+			$(`.bd-lists-tab-content[data-tab="${tabId}"]`).show();
+		}
+	};
+
+	// ========================================================================
 	// INITIALIZATION
 	// ========================================================================
 
 	$(document).ready(function () {
 		initSortable();
+		ListMap.init();
+		FollowButton.init();
+		ListsTabs.init();
 	});
 
 })(jQuery);
+

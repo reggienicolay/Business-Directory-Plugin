@@ -426,10 +426,11 @@
 .bd-rarity-item {
 	display: flex;
 	align-items: center;
-	gap: 8px;
-	font-size: 13px;
-	color: var(--bd-slate-600);
-	font-weight: 500;
+	gap: 6px;
+	font-size: 12px;
+	font-weight: 600;
+	padding: 6px 12px;
+	border-radius: 20px;
 }
 
 .bd-rarity-dot {
@@ -439,11 +440,11 @@
 	box-shadow: var(--bd-shadow-sm), inset 0 1px 2px rgba(255, 255, 255, 0.3);
 }
 
-.bd-rarity-common .bd-rarity-dot { background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%); }
-.bd-rarity-rare .bd-rarity-dot { background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%); }
-.bd-rarity-epic .bd-rarity-dot { background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); }
-.bd-rarity-legendary .bd-rarity-dot { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); }
-.bd-rarity-special .bd-rarity-dot { background: linear-gradient(135deg, var(--bd-primary-light) 0%, var(--bd-primary-deep) 100%); }
+.bd-rarity-legend .bd-rarity-common { background: var(--bd-slate-100); color: var(--bd-slate-600); }
+.bd-rarity-legend .bd-rarity-rare { background: #dbeafe; color: #1d4ed8; }
+.bd-rarity-legend .bd-rarity-epic { background: #ede9fe; color: #6d28d9; }
+.bd-rarity-legend .bd-rarity-legendary { background: #fef3c7; color: #b45309; }
+.bd-rarity-legend .bd-rarity-special { background: var(--bd-primary-deep); color: var(--bd-gold-light); }
 
 /* ============================================
 	BADGE SECTIONS

@@ -188,7 +188,7 @@ class BadgeDisplay {
 				'label' => 'Legendary',
 			),
 			'special'   => array(
-				'color' => '#1a3a4a',
+				'color' => '#C9A227',
 				'label' => 'Special',
 			),
 		);

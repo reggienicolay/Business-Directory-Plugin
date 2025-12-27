@@ -3,11 +3,14 @@
  * Open Graph Meta Tags
  *
  * Generates Open Graph meta tags for rich social media previews.
+ * Supports businesses, lists, reviews, and badges.
  *
  * @package BusinessDirectory
  */
 
 namespace BD\Social;
+
+use BD\Lists\ListManager;
 
 class OpenGraph {
 
@@ -22,18 +25,232 @@ class OpenGraph {
 	 * Output Open Graph meta tags.
 	 */
 	public function output_meta_tags() {
-		// Only on business pages.
-		if ( ! is_singular( 'bd_business' ) ) {
-			return;
+		$tags = array();
+
+		// Check for list page first (query param or shortcode context).
+		if ( $this->is_list_page() ) {
+			$list = $this->get_current_list();
+			if ( $list ) {
+				$tags = $this->generate_list_tags( $list );
+			}
+		} elseif ( is_singular( 'bd_business' ) ) {
+			// Business pages.
+			$post = get_queried_object();
+			if ( $post ) {
+				$tags = $this->generate_business_tags( $post );
+			}
 		}
 
-		$post = get_queried_object();
-		if ( ! $post ) {
-			return;
+		if ( ! empty( $tags ) ) {
+			$this->render_tags( $tags );
+		}
+	}
+
+	/**
+	 * Check if current page is a list display page.
+	 *
+	 * @return bool True if list page.
+	 */
+	private function is_list_page() {
+		// Check for list query param.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['list'] ) || isset( $_GET['bd_list'] ) ) {
+			return true;
 		}
 
-		$tags = $this->generate_business_tags( $post );
-		$this->render_tags( $tags );
+		// Check if page has bd_list shortcode with slug attribute.
+		global $post;
+		if ( $post && has_shortcode( $post->post_content, 'bd_list' ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get the current list being viewed.
+	 *
+	 * @return array|null List data or null.
+	 */
+	private function get_current_list() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$slug = isset( $_GET['list'] ) ? sanitize_text_field( wp_unslash( $_GET['list'] ) ) : '';
+		if ( ! $slug ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$slug = isset( $_GET['bd_list'] ) ? sanitize_text_field( wp_unslash( $_GET['bd_list'] ) ) : '';
+		}
+
+		if ( $slug ) {
+			if ( is_numeric( $slug ) ) {
+				return ListManager::get_list( (int) $slug );
+			}
+			return ListManager::get_list_by_slug( $slug );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Generate OG tags for a list.
+	 *
+	 * @param array $list List data.
+	 * @return array Tags.
+	 */
+	public function generate_list_tags( $list ) {
+		$tags = array();
+
+		// Basic OG tags.
+		$tags['og:type']      = 'article';
+		$tags['og:url']       = ListManager::get_list_url( $list );
+		$tags['og:title']     = $this->get_list_title( $list );
+		$tags['og:site_name'] = get_bloginfo( 'name' );
+
+		// Description.
+		$tags['og:description'] = $this->get_list_description( $list );
+
+		// Image - use dynamic list image generator.
+		$image_url = $this->get_list_share_image_url( $list['id'] );
+		if ( $image_url ) {
+			$tags['og:image']        = $image_url;
+			$tags['og:image:width']  = 1200;
+			$tags['og:image:height'] = 630;
+			$tags['og:image:alt']    = $list['title'];
+		}
+
+		// Twitter Card.
+		$tags['twitter:card']        = 'summary_large_image';
+		$tags['twitter:title']       = $tags['og:title'];
+		$tags['twitter:description'] = $tags['og:description'];
+		if ( $image_url ) {
+			$tags['twitter:image'] = $image_url;
+		}
+
+		// Author info.
+		if ( ! empty( $list['user_id'] ) ) {
+			$author = get_userdata( $list['user_id'] );
+			if ( $author ) {
+				$tags['article:author'] = $author->display_name;
+			}
+		}
+
+		// Timestamps.
+		if ( ! empty( $list['created_at'] ) ) {
+			$tags['article:published_time'] = gmdate( 'c', strtotime( $list['created_at'] ) );
+		}
+		if ( ! empty( $list['updated_at'] ) ) {
+			$tags['article:modified_time'] = gmdate( 'c', strtotime( $list['updated_at'] ) );
+		}
+
+		// Facebook App ID.
+		$fb_app_id = get_option( 'bd_facebook_app_id', '' );
+		if ( $fb_app_id ) {
+			$tags['fb:app_id'] = $fb_app_id;
+		}
+
+		return array_filter( $tags );
+	}
+
+	/**
+	 * Get optimized title for list sharing.
+	 *
+	 * @param array $list List data.
+	 * @return string Title.
+	 */
+	private function get_list_title( $list ) {
+		$title = $list['title'];
+
+		// Add item count.
+		$item_count = $list['item_count'] ?? 0;
+		if ( $item_count > 0 ) {
+			$title .= sprintf(
+				' (%d %s)',
+				$item_count,
+				_n( 'place', 'places', $item_count, 'business-directory' )
+			);
+		}
+
+		// Add site name context.
+		$title .= ' · ' . get_bloginfo( 'name' );
+
+		return $title;
+	}
+
+	/**
+	 * Get description for list sharing.
+	 *
+	 * @param array $list List data.
+	 * @return string Description.
+	 */
+	private function get_list_description( $list ) {
+		// Use list description if available.
+		if ( ! empty( $list['description'] ) ) {
+			return wp_trim_words( $list['description'], 25 );
+		}
+
+		// Build description from list content.
+		$item_count = $list['item_count'] ?? 0;
+		$author     = '';
+
+		if ( ! empty( $list['user_id'] ) ) {
+			$user = get_userdata( $list['user_id'] );
+			if ( $user ) {
+				$author = $user->display_name;
+			}
+		}
+
+		if ( $author ) {
+			return sprintf(
+				// translators: %1$d is item count, %2$s is author name.
+				_n(
+					'A curated list of %1$d local business by %2$s',
+					'A curated list of %1$d local businesses by %2$s',
+					$item_count,
+					'business-directory'
+				),
+				$item_count,
+				$author
+			);
+		}
+
+		return sprintf(
+			// translators: %d is item count.
+			_n(
+				'Discover %d amazing local business',
+				'Discover %d amazing local businesses',
+				$item_count,
+				'business-directory'
+			),
+			$item_count
+		);
+	}
+
+	/**
+	 * Get list share image URL.
+	 *
+	 * @param int $list_id List ID.
+	 * @return string Image URL.
+	 */
+	private function get_list_share_image_url( $list_id ) {
+		// Check if cached image exists.
+		$upload_dir = wp_upload_dir();
+		$image_path = $upload_dir['basedir'] . '/bd-share-images/list-' . $list_id . '.png';
+
+		if ( file_exists( $image_path ) ) {
+			// Check if cache is still valid (24 hours).
+			$modified = filemtime( $image_path );
+			if ( time() - $modified < DAY_IN_SECONDS ) {
+				return $upload_dir['baseurl'] . '/bd-share-images/list-' . $list_id . '.png';
+			}
+		}
+
+		// Return URL to dynamic generator.
+		return add_query_arg(
+			array(
+				'bd_share_image' => 1,
+				'list_id'        => $list_id,
+			),
+			home_url()
+		);
 	}
 
 	/**
