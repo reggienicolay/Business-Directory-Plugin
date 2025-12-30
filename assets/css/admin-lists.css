@@ -1,144 +1,572 @@
 /**
  * Lists Admin Styles
+ * Enhanced UI with filters, thumbnails, badges, and bulk actions
  */
 
+/* ==========================================================================
+   Page Layout
+   ========================================================================== */
+
 .bd-lists-admin {
-	max-width: 1200px;
+	max-width: 100%;
 }
 
-/* Visibility Badges */
-.bd-visibility-badge {
-	display: inline-block;
-	padding: 4px 10px;
-	border-radius: 12px;
-	font-size: 12px;
-	font-weight: 500;
-}
-
-.bd-visibility-public {
-	background: #e8f5e9;
-	color: #2e7d32;
-}
-
-.bd-visibility-private {
-	background: #fce4ec;
-	color: #c62828;
-}
-
-.bd-visibility-unlisted {
-	background: #e3f2fd;
-	color: #1565c0;
-}
-
-/* Featured Star */
-.bd-featured-star {
-	margin-right: 6px;
-}
-
-/* List Description */
-.bd-list-description {
-	margin: 4px 0 0 0;
-	font-size: 13px;
-	color: #666;
-	font-weight: normal;
-}
-
-/* Item Count */
-.bd-item-count {
-	display: inline-flex;
+.bd-lists-admin h1 {
+	display: flex;
 	align-items: center;
-	justify-content: center;
-	min-width: 28px;
-	height: 28px;
-	padding: 0 8px;
-	background: #f0f5f8;
-	border-radius: 14px;
-	font-size: 13px;
-	font-weight: 600;
+	gap: 10px;
+}
+
+.bd-lists-admin h1 i {
 	color: #1a3a4a;
 }
 
-/* Table Columns */
+/* ==========================================================================
+   Status Tabs
+   ========================================================================== */
+
+.bd-lists-admin .subsubsub {
+	margin: 10px 0 15px;
+}
+
+.bd-lists-admin .subsubsub a {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.bd-lists-admin .subsubsub i {
+	font-size: 12px;
+	opacity: 0.7;
+}
+
+.bd-lists-admin .subsubsub a.current i {
+	opacity: 1;
+}
+
+/* ==========================================================================
+   Filters Bar
+   ========================================================================== */
+
+.bd-admin-filters {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 12px 15px;
+	margin: 15px 0;
+}
+
+.bd-filters-form {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+}
+
+.bd-filter-group {
+	flex: 0 0 auto;
+}
+
+.bd-filter-search {
+	min-width: 200px;
+	padding: 6px 12px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+}
+
+.bd-filter-search:focus {
+	border-color: #1a3a4a;
+	box-shadow: 0 0 0 1px #1a3a4a;
+	outline: none;
+}
+
+.bd-filter-select {
+	min-width: 140px;
+	padding: 6px 12px;
+	border: 1px solid #8c8f94;
+	border-radius: 4px;
+	background: #fff;
+}
+
+.bd-clear-filters {
+	color: #d63638 !important;
+	border-color: #d63638 !important;
+}
+
+.bd-clear-filters:hover {
+	background: #d63638 !important;
+	color: #fff !important;
+}
+
+/* ==========================================================================
+   Bulk Actions
+   ========================================================================== */
+
+.bd-bulk-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 10px 0;
+}
+
+.bd-bulk-select {
+	min-width: 150px;
+}
+
+.bd-bulk-status {
+	color: #00a32a;
+	font-weight: 500;
+	margin-left: 10px;
+}
+
+.bd-bulk-status.error {
+	color: #d63638;
+}
+
+/* ==========================================================================
+   Table Styles
+   ========================================================================== */
+
+.bd-lists-table {
+	margin-top: 10px;
+}
+
+.bd-lists-table th {
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+/* Column widths */
+.bd-lists-table .column-cb {
+	width: 30px;
+}
+
+.bd-lists-table .column-thumb {
+	width: 60px;
+}
+
 .bd-lists-table .column-title {
-	width: 30%;
+	width: auto;
+	min-width: 200px;
 }
 
 .bd-lists-table .column-author {
-	width: 15%;
+	width: 130px;
+}
+
+.bd-lists-table .column-categories {
+	width: 160px;
+}
+
+.bd-lists-table .column-city {
+	width: 100px;
 }
 
 .bd-lists-table .column-items {
-	width: 8%;
+	width: 70px;
+	text-align: center;
+}
+
+.bd-lists-table .column-followers {
+	width: 80px;
 	text-align: center;
 }
 
 .bd-lists-table .column-visibility {
-	width: 10%;
+	width: 100px;
 }
 
 .bd-lists-table .column-views {
-	width: 10%;
+	width: 80px;
+	text-align: center;
 }
 
 .bd-lists-table .column-date {
-	width: 12%;
+	width: 100px;
 }
 
 .bd-lists-table .column-actions {
-	width: 15%;
+	width: 110px;
+	text-align: center;
 }
 
-/* Actions */
-.bd-lists-table .column-actions {
+/* Row hover */
+.bd-list-row:hover {
+	background-color: #f0f6fc !important;
+}
+
+/* ==========================================================================
+   Thumbnail Column
+   ========================================================================== */
+
+.bd-list-thumb {
+	width: 50px;
+	height: 50px;
+	object-fit: cover;
+	border-radius: 6px;
+	border: 1px solid #ddd;
+}
+
+.bd-list-thumb-placeholder {
+	width: 50px;
+	height: 50px;
+	background: linear-gradient(135deg, #f0f0f1 0%, #e0e0e0 100%);
+	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #8c8f94;
+	font-size: 18px;
+}
+
+/* ==========================================================================
+   Title Column
+   ========================================================================== */
+
+.bd-list-title-wrap {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.bd-list-title {
+	color: #1a3a4a;
+	font-size: 14px;
+}
+
+.bd-featured-star {
+	color: #dba617;
+	font-size: 14px;
+}
+
+.bd-list-description {
+	margin: 4px 0 0;
+	color: #646970;
+	font-size: 12px;
+	line-height: 1.4;
+	cursor: help;
+}
+
+/* ==========================================================================
+   Author Column
+   ========================================================================== */
+
+.bd-author-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	text-decoration: none;
+	color: #2271b1;
+}
+
+.bd-author-link:hover {
+	color: #135e96;
+}
+
+.bd-author-link img {
+	border-radius: 50%;
+}
+
+/* ==========================================================================
+   Category Pills
+   ========================================================================== */
+
+.bd-category-pills {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+
+.bd-category-pill {
+	display: inline-block;
+	padding: 2px 8px;
+	font-size: 11px;
+	background: #f0f0f1;
+	color: #1a3a4a;
+	border-radius: 10px;
 	white-space: nowrap;
 }
 
-.bd-lists-table .column-actions .button {
-	margin-right: 4px;
+/* ==========================================================================
+   City Badge
+   ========================================================================== */
+
+.bd-city-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 3px 8px;
+	font-size: 12px;
+	color: #1a3a4a;
+	background: #e8f4f8;
+	border-radius: 4px;
 }
 
-/* No Items */
+.bd-city-badge i {
+	color: #d63638;
+	font-size: 10px;
+}
+
+/* ==========================================================================
+   Stats Columns
+   ========================================================================== */
+
+.bd-item-count,
+.bd-follower-count,
+.bd-view-count {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 13px;
+	color: #646970;
+}
+
+.bd-item-count i,
+.bd-follower-count i,
+.bd-view-count i {
+	font-size: 11px;
+	color: #8c8f94;
+}
+
+/* ==========================================================================
+   Visibility Badges
+   ========================================================================== */
+
+.bd-visibility-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	padding: 4px 10px;
+	font-size: 11px;
+	font-weight: 500;
+	border-radius: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+}
+
+.bd-visibility-public {
+	background: #d4edda;
+	color: #155724;
+}
+
+.bd-visibility-private {
+	background: #f8d7da;
+	color: #721c24;
+}
+
+.bd-visibility-unlisted {
+	background: #fff3cd;
+	color: #856404;
+}
+
+.bd-visibility-badge i {
+	font-size: 10px;
+}
+
+/* ==========================================================================
+   Date Column
+   ========================================================================== */
+
+.bd-date {
+	color: #646970;
+	font-size: 13px;
+	cursor: help;
+}
+
+/* ==========================================================================
+   Action Buttons
+   ========================================================================== */
+
+.bd-action-buttons {
+	display: flex;
+	justify-content: center;
+	gap: 4px;
+}
+
+.bd-action-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	background: #fff;
+	color: #50575e;
+	cursor: pointer;
+	transition: all 0.15s ease;
+	text-decoration: none;
+}
+
+.bd-action-btn:hover {
+	border-color: #1a3a4a;
+	color: #1a3a4a;
+	background: #f6f7f7;
+}
+
+/* View button */
+.bd-view-btn:hover {
+	border-color: #2271b1;
+	color: #2271b1;
+}
+
+/* Feature button */
+.bd-feature-btn:hover {
+	border-color: #dba617;
+	color: #dba617;
+}
+
+.bd-unfeature-btn.bd-featured {
+	background: #fff8e5;
+	border-color: #dba617;
+	color: #dba617;
+}
+
+.bd-unfeature-btn.bd-featured:hover {
+	background: #dba617;
+	color: #fff;
+}
+
+/* Delete button */
+.bd-delete-btn:hover {
+	border-color: #d63638;
+	color: #d63638;
+	background: #fef7f7;
+}
+
+/* ==========================================================================
+   Empty State
+   ========================================================================== */
+
 .bd-no-items {
 	text-align: center;
-	padding: 40px 20px;
-	color: #666;
-	font-style: italic;
+	padding: 40px 20px !important;
+	color: #646970;
 }
 
-/* Search Box Positioning */
-.bd-lists-admin .search-box {
-	float: right;
-	margin: 10px 0;
+.bd-no-items i {
+	display: block;
+	font-size: 40px;
+	color: #c3c4c7;
+	margin-bottom: 10px;
 }
 
-/* Sortable Column Headers */
-.bd-lists-admin .sortable {
-	cursor: pointer;
+.bd-no-data {
+	color: #c3c4c7;
 }
 
-.bd-lists-admin .sorted.asc .sorting-indicator::before {
-	content: "▲";
-	font-size: 10px;
-	margin-left: 4px;
+/* ==========================================================================
+   Pagination
+   ========================================================================== */
+
+.bd-lists-admin .pagination-links a,
+.bd-lists-admin .pagination-links span {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 30px;
+	height: 30px;
 }
 
-.bd-lists-admin .sorted.desc .sorting-indicator::before {
-	content: "▼";
-	font-size: 10px;
-	margin-left: 4px;
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media screen and (max-width: 1200px) {
+	.bd-lists-table .column-categories,
+	.bd-lists-table .column-followers {
+		display: none;
+	}
 }
 
-/* Row Hover */
-.bd-lists-table tbody tr:hover {
-	background: #f8fafc;
+@media screen and (max-width: 1000px) {
+	.bd-lists-table .column-city,
+	.bd-lists-table .column-views {
+		display: none;
+	}
 }
 
-/* Button Hover States */
-.bd-feature-btn:hover,
-.bd-unfeature-btn:hover {
-	background: #fff3cd !important;
+@media screen and (max-width: 782px) {
+	.bd-filters-form {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	
+	.bd-filter-search,
+	.bd-filter-select {
+		width: 100%;
+	}
+	
+	.bd-lists-table .column-thumb,
+	.bd-lists-table .column-author,
+	.bd-lists-table .column-date {
+		display: none;
+	}
 }
 
-.bd-delete-btn:hover {
-	background: #fee2e2 !important;
+/* ==========================================================================
+   Admin Notice Styles
+   ========================================================================== */
+
+.bd-lists-admin .notice {
+	margin: 15px 0;
+}
+
+/* ==========================================================================
+   Loading States
+   ========================================================================== */
+
+.bd-action-btn.loading {
+	pointer-events: none;
+	opacity: 0.6;
+}
+
+.bd-action-btn.loading i::before {
+	content: "\f110";
+	animation: fa-spin 1s infinite linear;
+}
+
+@keyframes fa-spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Sortable Headers
+   ========================================================================== */
+
+.bd-lists-table th.sortable a,
+.bd-lists-table th.sorted a {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.bd-lists-table .sorting-indicators {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+}
+
+.bd-lists-table .sorting-indicator {
+	width: 0;
+	height: 0;
+	border-left: 4px solid transparent;
+	border-right: 4px solid transparent;
+}
+
+.bd-lists-table .sorting-indicator.asc {
+	border-bottom: 4px solid #c3c4c7;
+}
+
+.bd-lists-table .sorting-indicator.desc {
+	border-top: 4px solid #c3c4c7;
+}
+
+.bd-lists-table th.sorted.asc .sorting-indicator.asc {
+	border-bottom-color: #1a3a4a;
+}
+
+.bd-lists-table th.sorted.desc .sorting-indicator.desc {
+	border-top-color: #1a3a4a;
 }

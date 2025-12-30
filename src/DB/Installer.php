@@ -15,13 +15,14 @@ class Installer {
 	/**
 	 * Database version - bump this when schema changes.
 	 */
-	const DB_VERSION = '2.4.0';
+	const DB_VERSION = '2.5.0';
 
 	/**
 	 * Initialize - hook into plugins_loaded for upgrade checks.
 	 */
 	public static function init() {
 		add_action( 'plugins_loaded', array( __CLASS__, 'maybe_upgrade' ), 5 );
+		add_action( 'init', array( __CLASS__, 'maybe_refresh_list_caches' ), 20 );
 	}
 
 	/**
@@ -249,7 +250,7 @@ class Installer {
 		) $charset_collate;";
 
 		// =====================================================================
-		// LISTS TABLE (with collaborative columns)
+		// LISTS TABLE (with collaborative columns and browse filters)
 		// =====================================================================
 		$lists_table = $wpdb->prefix . 'bd_lists';
 		$lists_sql   = "CREATE TABLE IF NOT EXISTS $lists_table (
@@ -262,6 +263,9 @@ class Installer {
 			visibility varchar(20) NOT NULL DEFAULT 'private',
 			featured tinyint(1) NOT NULL DEFAULT 0,
 			view_count int(11) NOT NULL DEFAULT 0,
+			cached_categories varchar(500) DEFAULT NULL,
+			cached_city varchar(100) DEFAULT NULL,
+			theme_override varchar(200) DEFAULT NULL,
 			invite_token varchar(64) DEFAULT NULL,
 			invite_mode varchar(20) DEFAULT 'approval',
 			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -272,7 +276,8 @@ class Installer {
 			KEY idx_visibility (visibility),
 			KEY idx_featured (featured),
 			KEY idx_updated (updated_at),
-			KEY idx_invite_token (invite_token)
+			KEY idx_invite_token (invite_token),
+			KEY idx_cached_city (cached_city)
 		) $charset_collate;";
 
 		// =====================================================================
@@ -465,12 +470,73 @@ class Installer {
 		}
 
 		// =====================================================================
+		// Upgrade to 2.5.0: Add browse/filter columns to lists table.
+		// =====================================================================
+		if ( version_compare( $from_version, '2.5.0', '<' ) ) {
+			$lists_table  = $wpdb->prefix . 'bd_lists';
+			$table_exists = $wpdb->get_var(
+				$wpdb->prepare( 'SHOW TABLES LIKE %s', $lists_table )
+			);
+
+			if ( $table_exists ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$columns      = $wpdb->get_results( "SHOW COLUMNS FROM {$lists_table}" );
+				$column_names = array_column( $columns, 'Field' );
+
+				// Add cached_categories column.
+				if ( ! in_array( 'cached_categories', $column_names, true ) ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
+					$wpdb->query( "ALTER TABLE {$lists_table} ADD COLUMN cached_categories varchar(500) DEFAULT NULL AFTER view_count" );
+				}
+
+				// Add cached_city column.
+				if ( ! in_array( 'cached_city', $column_names, true ) ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
+					$wpdb->query( "ALTER TABLE {$lists_table} ADD COLUMN cached_city varchar(100) DEFAULT NULL AFTER cached_categories" );
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
+					$wpdb->query( "ALTER TABLE {$lists_table} ADD KEY idx_cached_city (cached_city)" );
+				}
+
+				// Add theme_override column.
+				if ( ! in_array( 'theme_override', $column_names, true ) ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
+					$wpdb->query( "ALTER TABLE {$lists_table} ADD COLUMN theme_override varchar(200) DEFAULT NULL AFTER cached_city" );
+				}
+			}
+
+			// Populate cache for existing lists.
+			// Schedule for 'init' hook to ensure all classes are loaded.
+			update_option( 'bd_lists_needs_cache_refresh', true );
+		}
+
+		// =====================================================================
 		// Add future migrations above this line.
 		// Remember to:
 		// 1. Increment DB_VERSION constant at top of file
 		// 2. Always check if table/column exists before altering
 		// 3. Use version_compare to target specific versions
 		// =====================================================================
+	}
+
+	/**
+	 * Refresh list caches if needed (called on 'init' hook).
+	 * This runs after all classes are autoloaded.
+	 */
+	public static function maybe_refresh_list_caches() {
+		if ( ! get_option( 'bd_lists_needs_cache_refresh' ) ) {
+			return;
+		}
+
+		// Only run once.
+		delete_option( 'bd_lists_needs_cache_refresh' );
+
+		if ( class_exists( 'BD\Lists\ListManager' ) ) {
+			$count = \BD\Lists\ListManager::refresh_all_list_caches();
+
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( "[Business Directory] Refreshed cache for {$count} lists." );
+			}
+		}
 	}
 
 	/**

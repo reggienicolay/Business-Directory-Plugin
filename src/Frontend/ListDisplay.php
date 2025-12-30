@@ -62,10 +62,19 @@ class ListDisplay {
 			'1.1.0'
 		);
 
+		// Enqueue Sortable.js for drag-and-drop reordering.
+		wp_enqueue_script(
+			'sortablejs',
+			'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js',
+			array(),
+			'1.15.0',
+			true
+		);
+
 		wp_enqueue_script(
 			'bd-lists',
 			plugins_url( 'assets/js/lists.js', dirname( __DIR__ ) ),
-			array( 'jquery' ),
+			array( 'jquery', 'sortablejs' ),
 			'1.1.0',
 			true
 		);
@@ -192,7 +201,7 @@ class ListDisplay {
 		<div class="bd-save-wrapper" data-business-id="<?php echo esc_attr( $business_id ); ?>">
 			<button type="button" class="bd-save-btn <?php echo $is_saved ? 'bd-saved' : ''; ?> bd-save-style-<?php echo esc_attr( $atts['style'] ); ?>"
 				<?php echo ! $is_logged_in ? 'data-login-required="true"' : ''; ?>>
-				<span class="bd-save-icon"><?php echo $is_saved ? '❤️' : '🤍'; ?></span>
+				<span class="bd-save-icon"><?php echo $is_saved ? '<i class="fas fa-heart"></i>' : '<i class="far fa-heart"></i>'; ?></span>
 				<?php if ( 'icon' !== $atts['style'] ) : ?>
 					<span class="bd-save-text"><?php echo $is_saved ? 'Saved' : 'Save'; ?></span>
 				<?php endif; ?>
@@ -318,7 +327,7 @@ class ListDisplay {
 			<div class="bd-lists-tab-content bd-lists-tab-content-active" data-tab="my-lists">
 				<?php if ( empty( $lists ) ) : ?>
 					<div class="bd-lists-empty">
-						<div class="bd-empty-icon">📋</div>
+						<div class="bd-empty-icon"><i class="fas fa-clipboard-list"></i></div>
 						<h3>No lists yet</h3>
 						<p>Create your first list to start organizing your favorite businesses!</p>
 						<button type="button" class="bd-btn bd-btn-primary bd-create-list-open">
@@ -338,7 +347,7 @@ class ListDisplay {
 			<div class="bd-lists-tab-content" data-tab="collaborating" style="display: none;">
 				<?php if ( empty( $collab_lists ) ) : ?>
 					<div class="bd-lists-empty">
-						<div class="bd-empty-icon">🤝</div>
+						<div class="bd-empty-icon"><i class="fas fa-handshake"></i></div>
 						<h3>Not collaborating on any lists</h3>
 						<p>When someone invites you to collaborate on their list, it will appear here!</p>
 					</div>
@@ -355,7 +364,7 @@ class ListDisplay {
 			<div class="bd-lists-tab-content" data-tab="following" style="display: none;">
 				<?php if ( empty( $following_lists ) ) : ?>
 					<div class="bd-lists-empty">
-						<div class="bd-empty-icon">👀</div>
+						<div class="bd-empty-icon"><i class="fas fa-eye"></i></div>
 						<h3>Not following any lists</h3>
 						<p>Follow lists from other users to get updates when they add new places!</p>
 						<a href="<?php echo esc_url( home_url( '/community-lists/' ) ); ?>" class="bd-btn bd-btn-primary">
@@ -395,28 +404,67 @@ class ListDisplay {
 			$atts
 		);
 
-		$page   = isset( $_GET['list_page'] ) ? absint( $_GET['list_page'] ) : 1;
+		// Get filter parameters from URL.
+		$page     = isset( $_GET['list_page'] ) ? absint( $_GET['list_page'] ) : 1;
+		$search   = isset( $_GET['list_search'] ) ? sanitize_text_field( wp_unslash( $_GET['list_search'] ) ) : '';
+		$category = isset( $_GET['list_category'] ) ? sanitize_text_field( wp_unslash( $_GET['list_category'] ) ) : '';
+		$city     = isset( $_GET['list_city'] ) ? sanitize_text_field( wp_unslash( $_GET['list_city'] ) ) : '';
+		$sort     = isset( $_GET['list_sort'] ) ? sanitize_text_field( wp_unslash( $_GET['list_sort'] ) ) : $atts['orderby'];
+		$view     = isset( $_GET['list_view'] ) ? sanitize_text_field( wp_unslash( $_GET['list_view'] ) ) : 'grid';
+
+		// Map sort parameter to orderby/order.
+		$sort_options = array(
+			'updated_at'  => array( 'orderby' => 'updated_at', 'order' => 'DESC' ),
+			'popular'     => array( 'orderby' => 'view_count', 'order' => 'DESC' ),
+			'newest'      => array( 'orderby' => 'created_at', 'order' => 'DESC' ),
+			'title'       => array( 'orderby' => 'title', 'order' => 'ASC' ),
+		);
+		$sort_config = $sort_options[ $sort ] ?? $sort_options['updated_at'];
+
 		$result = ListManager::get_public_lists(
 			array(
 				'per_page' => absint( $atts['per_page'] ),
 				'page'     => $page,
-				'orderby'  => $atts['orderby'],
+				'orderby'  => $sort_config['orderby'],
+				'order'    => $sort_config['order'],
+				'search'   => $search,
+				'category' => $category,
+				'city'     => $city,
 			)
 		);
 
 		$featured = array();
-		if ( 'yes' === $atts['show_featured'] ) {
-			$featured = ListManager::get_featured_lists( 3 );
+		if ( 'yes' === $atts['show_featured'] && empty( $search ) && empty( $category ) && empty( $city ) ) {
+			$featured = ListManager::get_featured_lists( 4 );
 		}
+
+		// Get filter options.
+		$all_categories = ListManager::get_all_list_categories();
+		$all_cities     = ListManager::get_all_list_cities();
+
+		$has_filters = ! empty( $search ) || ! empty( $category ) || ! empty( $city );
 
 		ob_start();
 		?>
 		<div class="bd-public-lists-page">
 
+			<!-- Page Header -->
+			<div class="bd-lists-page-header">
+				<div class="bd-lists-page-header-content">
+					<h1>Community Lists</h1>
+					<p>Discover curated collections from locals who know the Tri-Valley best</p>
+				</div>
+			</div>
+
 			<!-- Featured Lists -->
 			<?php if ( ! empty( $featured ) ) : ?>
 				<div class="bd-featured-lists">
-					<h2><i class="fas fa-star"></i> Featured Lists</h2>
+					<div class="bd-section-header">
+						<h2><i class="fas fa-star"></i> Featured Lists</h2>
+						<?php if ( count( $featured ) > 3 ) : ?>
+							<a href="?list_sort=popular" class="bd-see-all">See All Popular <i class="fas fa-arrow-right"></i></a>
+						<?php endif; ?>
+					</div>
 					<div class="bd-featured-lists-grid">
 						<?php foreach ( $featured as $list ) : ?>
 							<?php echo self::render_list_card( $list, false, true ); ?>
@@ -425,20 +473,148 @@ class ListDisplay {
 				</div>
 			<?php endif; ?>
 
+			<!-- Filter Bar -->
+			<div class="bd-lists-filter-bar">
+				<form method="get" class="bd-lists-filter-form" id="bd-lists-filter-form">
+					
+					<!-- Search -->
+					<div class="bd-filter-search">
+						<i class="fas fa-search"></i>
+						<input type="text" 
+							name="list_search" 
+							placeholder="Search lists..." 
+							value="<?php echo esc_attr( $search ); ?>"
+							class="bd-filter-search-input">
+					</div>
+
+					<!-- City Filter -->
+					<?php if ( ! empty( $all_cities ) ) : ?>
+						<div class="bd-filter-select">
+							<select name="list_city" class="bd-filter-dropdown" onchange="this.form.submit()">
+								<option value="">All Cities</option>
+								<?php foreach ( $all_cities as $city_option ) : ?>
+									<option value="<?php echo esc_attr( $city_option ); ?>" <?php selected( $city, $city_option ); ?>>
+										<?php echo esc_html( $city_option ); ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+						</div>
+					<?php endif; ?>
+
+					<!-- Category Filter -->
+					<?php if ( ! empty( $all_categories ) ) : ?>
+						<div class="bd-filter-select">
+							<select name="list_category" class="bd-filter-dropdown" onchange="this.form.submit()">
+								<option value="">All Categories</option>
+								<?php foreach ( $all_categories as $cat_option ) : ?>
+									<option value="<?php echo esc_attr( $cat_option['slug'] ); ?>" <?php selected( $category, $cat_option['slug'] ); ?>>
+										<?php echo esc_html( $cat_option['name'] ); ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+						</div>
+					<?php endif; ?>
+
+					<!-- Sort -->
+					<div class="bd-filter-select">
+						<select name="list_sort" class="bd-filter-dropdown" onchange="this.form.submit()">
+							<option value="updated_at" <?php selected( $sort, 'updated_at' ); ?>>Recently Updated</option>
+							<option value="popular" <?php selected( $sort, 'popular' ); ?>>Most Popular</option>
+							<option value="newest" <?php selected( $sort, 'newest' ); ?>>Newest</option>
+							<option value="title" <?php selected( $sort, 'title' ); ?>>A-Z</option>
+						</select>
+					</div>
+
+					<!-- View Toggle -->
+					<div class="bd-filter-view-toggle">
+						<button type="submit" name="list_view" value="grid" 
+							class="bd-view-btn <?php echo 'grid' === $view ? 'bd-view-btn-active' : ''; ?>"
+							title="Grid View">
+							<i class="fas fa-th-large"></i>
+						</button>
+						<button type="submit" name="list_view" value="list" 
+							class="bd-view-btn <?php echo 'list' === $view ? 'bd-view-btn-active' : ''; ?>"
+							title="List View">
+							<i class="fas fa-list"></i>
+						</button>
+					</div>
+
+				</form>
+			</div>
+
+			<!-- Active Filters -->
+			<?php if ( $has_filters ) : ?>
+				<div class="bd-active-filters">
+					<span class="bd-active-filters-label">Filters:</span>
+					<?php if ( ! empty( $search ) ) : ?>
+						<a href="<?php echo esc_url( remove_query_arg( 'list_search' ) ); ?>" class="bd-filter-tag">
+							"<?php echo esc_html( $search ); ?>" <i class="fas fa-times"></i>
+						</a>
+					<?php endif; ?>
+					<?php if ( ! empty( $city ) ) : ?>
+						<a href="<?php echo esc_url( remove_query_arg( 'list_city' ) ); ?>" class="bd-filter-tag">
+							<?php echo esc_html( $city ); ?> <i class="fas fa-times"></i>
+						</a>
+					<?php endif; ?>
+					<?php if ( ! empty( $category ) ) : ?>
+						<?php
+						$cat_term = get_term_by( 'slug', $category, 'bd_category' );
+						$cat_name = $cat_term ? $cat_term->name : $category;
+						?>
+						<a href="<?php echo esc_url( remove_query_arg( 'list_category' ) ); ?>" class="bd-filter-tag">
+							<?php echo esc_html( $cat_name ); ?> <i class="fas fa-times"></i>
+						</a>
+					<?php endif; ?>
+					<a href="<?php echo esc_url( strtok( $_SERVER['REQUEST_URI'], '?' ) ); ?>" class="bd-clear-filters">
+						Clear All
+					</a>
+				</div>
+			<?php endif; ?>
+
+			<!-- Results Count -->
+			<div class="bd-lists-results-header">
+				<span class="bd-results-count">
+					<?php
+					if ( $result['total'] === 0 ) {
+						echo 'No lists found';
+					} elseif ( $result['total'] === 1 ) {
+						echo '1 list';
+					} else {
+						echo esc_html( number_format( $result['total'] ) ) . ' lists';
+					}
+					?>
+				</span>
+			</div>
+
 			<!-- All Lists -->
 			<div class="bd-all-lists">
-				<h2>All Lists</h2>
-
 				<?php if ( empty( $result['lists'] ) ) : ?>
 					<div class="bd-lists-empty">
-						<div class="bd-empty-icon">📋</div>
-						<h3>No public lists yet</h3>
-						<p>Be the first to share your favorites with the community!</p>
+						<div class="bd-empty-icon"><i class="fas fa-search"></i></div>
+						<h3>No lists found</h3>
+						<p>
+							<?php if ( $has_filters ) : ?>
+								Try adjusting your filters or search terms.
+							<?php else : ?>
+								Be the first to share your favorites with the community!
+							<?php endif; ?>
+						</p>
+						<?php if ( $has_filters ) : ?>
+							<a href="<?php echo esc_url( strtok( $_SERVER['REQUEST_URI'], '?' ) ); ?>" class="bd-btn bd-btn-primary">
+								<i class="fas fa-times"></i> Clear Filters
+							</a>
+						<?php endif; ?>
 					</div>
 				<?php else : ?>
-					<div class="bd-lists-grid">
+					<div class="bd-lists-<?php echo esc_attr( $view ); ?> <?php echo 'grid' === $view ? 'bd-lists-grid' : 'bd-lists-list-view'; ?>">
 						<?php foreach ( $result['lists'] as $list ) : ?>
-							<?php echo self::render_list_card( $list ); ?>
+							<?php
+							if ( 'list' === $view ) {
+								echo self::render_list_row( $list );
+							} else {
+								echo self::render_list_card( $list );
+							}
+							?>
 						<?php endforeach; ?>
 					</div>
 
@@ -452,8 +628,8 @@ class ListDisplay {
 									'format'    => '',
 									'current'   => $page,
 									'total'     => $result['pages'],
-									'prev_text' => '&laquo; Previous',
-									'next_text' => 'Next &raquo;',
+									'prev_text' => '<i class="fas fa-chevron-left"></i> Previous',
+									'next_text' => 'Next <i class="fas fa-chevron-right"></i>',
 								)
 							);
 							?>
@@ -519,6 +695,15 @@ class ListDisplay {
 		// Get items.
 		$items  = ListManager::get_list_items( $list['id'] );
 		$author = get_userdata( $list['user_id'] );
+
+		// Filter out items with deleted businesses (orphaned items).
+		$items = array_filter(
+			$items,
+			function ( $item ) {
+				return ! empty( $item['business'] );
+			}
+		);
+		$items = array_values( $items ); // Re-index array.
 
 		// Get map data for items with coordinates.
 		$map_items = ListManager::get_list_items_with_coords( $list['id'] );
@@ -632,7 +817,7 @@ class ListDisplay {
 			<!-- List Items -->
 			<?php if ( empty( $items ) ) : ?>
 				<div class="bd-list-empty">
-					<div class="bd-empty-icon">📍</div>
+					<div class="bd-empty-icon"><i class="fas fa-map-marker-alt"></i></div>
 					<h3>This list is empty</h3>
 					<?php if ( $is_owner || $is_collaborator ) : ?>
 						<p>Start adding businesses to this list!</p>
@@ -666,7 +851,7 @@ class ListDisplay {
 										<img src="<?php echo esc_url( $business['featured_image'] ); ?>"
 											alt="<?php echo esc_attr( $business['title'] ); ?>">
 									<?php else : ?>
-										<div class="bd-no-image">📍</div>
+										<div class="bd-no-image"><i class="fas fa-map-marker-alt"></i></div>
 									<?php endif; ?>
 								</div>
 
@@ -685,8 +870,16 @@ class ListDisplay {
 
 									<?php if ( $business['rating'] > 0 ) : ?>
 										<div class="bd-list-item-rating">
-											<?php echo str_repeat( '★', round( $business['rating'] ) ); ?>
-											<?php echo str_repeat( '☆', 5 - round( $business['rating'] ) ); ?>
+											<?php
+											$filled_stars = round( $business['rating'] );
+											$empty_stars  = 5 - $filled_stars;
+											for ( $i = 0; $i < $filled_stars; $i++ ) {
+												echo '<i class="fas fa-star"></i>';
+											}
+											for ( $i = 0; $i < $empty_stars; $i++ ) {
+												echo '<i class="far fa-star"></i>';
+											}
+											?>
 											<span>(<?php echo esc_html( $business['review_count'] ); ?>)</span>
 										</div>
 									<?php endif; ?>
@@ -742,16 +935,18 @@ class ListDisplay {
 	private static function render_list_card( $list, $show_actions = false, $is_featured = false ) {
 		$cover_image = $list['cover_image'] ?? null;
 		$url         = $list['url'] ?? ListManager::get_list_url( $list );
+		$categories  = $list['categories'] ?? ListManager::get_list_display_categories( $list );
+		$city        = $list['cached_city'] ?? null;
 
 		ob_start();
 		?>
 		<div class="bd-list-card <?php echo $is_featured ? 'bd-list-featured' : ''; ?>" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
 			<a href="<?php echo esc_url( $url ); ?>" class="bd-list-card-link">
-				<div class="bd-list-card-cover">
+					<div class="bd-list-card-cover">
 					<?php if ( $cover_image ) : ?>
 						<img src="<?php echo esc_url( $cover_image ); ?>" alt="<?php echo esc_attr( $list['title'] ); ?>">
 					<?php else : ?>
-						<div class="bd-list-card-placeholder">📋</div>
+						<div class="bd-list-card-placeholder"><i class="fas fa-clipboard-list"></i></div>
 					<?php endif; ?>
 
 					<?php if ( $is_featured ) : ?>
@@ -764,8 +959,24 @@ class ListDisplay {
 				<div class="bd-list-card-body">
 					<h3><?php echo esc_html( $list['title'] ); ?></h3>
 
-					<?php if ( ! empty( $list['description'] ) ) : ?>
-						<p><?php echo esc_html( wp_trim_words( $list['description'], 12 ) ); ?></p>
+					<?php if ( ! empty( $categories ) ) : ?>
+						<div class="bd-list-card-categories">
+							<?php foreach ( array_slice( $categories, 0, 2 ) as $cat ) : ?>
+								<span class="bd-category-pill">
+									<i class="<?php echo esc_attr( $cat['icon'] ); ?>"></i>
+									<?php echo esc_html( $cat['name'] ); ?>
+								</span>
+							<?php endforeach; ?>
+							<?php if ( count( $categories ) > 2 ) : ?>
+								<span class="bd-category-pill bd-category-more">+<?php echo count( $categories ) - 2; ?></span>
+							<?php endif; ?>
+						</div>
+					<?php endif; ?>
+
+					<?php if ( ! empty( $city ) ) : ?>
+						<span class="bd-list-card-city">
+							<i class="fas fa-map-marker-alt"></i> <?php echo esc_html( $city ); ?>
+						</span>
 					<?php endif; ?>
 
 					<div class="bd-list-card-meta">
@@ -779,9 +990,9 @@ class ListDisplay {
 						<span class="bd-list-card-visibility bd-visibility-<?php echo esc_attr( $list['visibility'] ); ?>">
 							<?php
 							$icons = array(
-								'public'   => '🌍',
-								'unlisted' => '🔗',
-								'private'  => '🔒',
+								'public'   => '<i class="fas fa-globe"></i>',
+								'unlisted' => '<i class="fas fa-link"></i>',
+								'private'  => '<i class="fas fa-lock"></i>',
 							);
 							echo $icons[ $list['visibility'] ] ?? '';
 							?>
@@ -805,6 +1016,76 @@ class ListDisplay {
 	}
 
 	/**
+	 * Render list row (for list view)
+	 */
+	private static function render_list_row( $list ) {
+		$cover_image = $list['cover_image'] ?? null;
+		$url         = $list['url'] ?? ListManager::get_list_url( $list );
+		$categories  = $list['categories'] ?? ListManager::get_list_display_categories( $list );
+		$city        = $list['cached_city'] ?? null;
+
+		ob_start();
+		?>
+		<a href="<?php echo esc_url( $url ); ?>" class="bd-list-row" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
+			<div class="bd-list-row-image">
+				<?php if ( $cover_image ) : ?>
+					<img src="<?php echo esc_url( $cover_image ); ?>" alt="<?php echo esc_attr( $list['title'] ); ?>">
+				<?php else : ?>
+					<div class="bd-list-row-placeholder"><i class="fas fa-clipboard-list"></i></div>
+				<?php endif; ?>
+			</div>
+
+			<div class="bd-list-row-content">
+				<h3><?php echo esc_html( $list['title'] ); ?></h3>
+				
+				<div class="bd-list-row-details">
+					<?php if ( ! empty( $categories ) ) : ?>
+						<?php foreach ( array_slice( $categories, 0, 2 ) as $cat ) : ?>
+							<span class="bd-category-pill bd-category-pill-small">
+								<i class="<?php echo esc_attr( $cat['icon'] ); ?>"></i>
+								<?php echo esc_html( $cat['name'] ); ?>
+							</span>
+						<?php endforeach; ?>
+					<?php endif; ?>
+					
+					<?php if ( ! empty( $city ) ) : ?>
+						<span class="bd-list-row-city">
+							<i class="fas fa-map-marker-alt"></i> <?php echo esc_html( $city ); ?>
+						</span>
+					<?php endif; ?>
+
+					<span class="bd-list-row-count"><?php echo esc_html( $list['item_count'] ); ?> places</span>
+				</div>
+
+				<div class="bd-list-row-meta">
+					<?php if ( ! empty( $list['author_name'] ) ) : ?>
+						<span class="bd-list-row-author">
+							<?php echo get_avatar( $list['user_id'], 16 ); ?>
+							<?php echo esc_html( $list['author_name'] ); ?>
+						</span>
+					<?php endif; ?>
+					
+					<?php if ( ! empty( $list['updated_at'] ) ) : ?>
+						<span class="bd-list-row-date">
+							Updated <?php echo esc_html( human_time_diff( strtotime( $list['updated_at'] ) ) ); ?> ago
+						</span>
+					<?php endif; ?>
+				</div>
+			</div>
+
+			<div class="bd-list-row-stats">
+				<?php if ( ! empty( $list['view_count'] ) ) : ?>
+					<span class="bd-list-row-views" title="Views">
+						<i class="fas fa-eye"></i> <?php echo esc_html( number_format( $list['view_count'] ) ); ?>
+					</span>
+				<?php endif; ?>
+			</div>
+		</a>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
 	 * Render collaborative list card (shows owner info and role)
 	 */
 	private static function render_collab_list_card( $list ) {
@@ -822,7 +1103,7 @@ class ListDisplay {
 					<?php if ( $cover_image ) : ?>
 						<img src="<?php echo esc_url( $cover_image ); ?>" alt="<?php echo esc_attr( $list['title'] ); ?>">
 					<?php else : ?>
-						<div class="bd-list-card-placeholder">📋</div>
+						<div class="bd-list-card-placeholder"><i class="fas fa-clipboard-list"></i></div>
 					<?php endif; ?>
 
 					<span class="bd-list-card-collab-badge">
@@ -1181,7 +1462,7 @@ class ListDisplay {
 		ob_start();
 		?>
 		<div class="bd-login-required">
-			<div class="bd-login-icon">🔐</div>
+			<div class="bd-login-icon"><i class="fas fa-lock"></i></div>
 			<h2>Please Log In</h2>
 			<p>You need to be logged in to access <?php echo esc_html( $feature ); ?>.</p>
 			<div class="bd-login-actions">

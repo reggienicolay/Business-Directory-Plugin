@@ -732,7 +732,56 @@
 		flex-direction: column;
 	}
 
+	/* Show name on mobile, just truncate it */
 	.bd-auth-name {
-		display: none;
+		display: inline;
+		max-width: 80px;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	/* Make button slightly more compact on mobile */
+	.bd-auth-user-toggle {
+		padding: 6px 10px;
+		gap: 6px;
+	}
+
+	/* Smaller avatar on mobile */
+	.bd-auth-avatar img {
+		width: 24px;
+		height: 24px;
+	}
+
+	/* Fix dropdown positioning - center under button */
+	.bd-auth-user-wrapper {
+		position: static;
+	}
+
+	.bd-auth-logged-in {
+		position: relative;
+	}
+
+	.bd-auth-dropdown {
+		right: 0;
+		left: auto;
+		min-width: 200px;
+		max-width: calc(100vw - 40px);
+	}
+
+	/* Full-width dropdown menu items on mobile for better touch targets */
+	.bd-auth-dropdown-menu li a {
+		padding: 12px 16px;
+	}
+
+	.bd-auth-dropdown-header {
+		padding: 14px 16px;
+	}
+}
+
+/* Even smaller screens */
+@media (max-width: 360px) {
+	.bd-auth-name {
+		max-width: 50px;
 	}
 }

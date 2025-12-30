@@ -233,11 +233,13 @@ class ListManager {
 			'order'    => 'DESC',
 			'featured' => null,
 			'search'   => '',
+			'category' => '',
+			'city'     => '',
 		);
 		$args     = wp_parse_args( $args, $defaults );
 
 		$where   = "visibility = 'public'";
-		$orderby = in_array( $args['orderby'], array( 'updated_at', 'created_at', 'view_count', 'title' ), true )
+		$orderby = in_array( $args['orderby'], array( 'updated_at', 'created_at', 'view_count', 'title', 'follower_count' ), true )
 			? $args['orderby'] : 'updated_at';
 		$order   = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
 
@@ -247,6 +249,13 @@ class ListManager {
 		if ( ! empty( $args['search'] ) ) {
 			$search = '%' . $wpdb->esc_like( $args['search'] ) . '%';
 			$where .= $wpdb->prepare( ' AND (title LIKE %s OR description LIKE %s)', $search, $search );
+		}
+		if ( ! empty( $args['category'] ) ) {
+			$cat_search = '%' . $wpdb->esc_like( $args['category'] ) . '%';
+			$where     .= $wpdb->prepare( ' AND (cached_categories LIKE %s OR theme_override LIKE %s)', $cat_search, $cat_search );
+		}
+		if ( ! empty( $args['city'] ) ) {
+			$where .= $wpdb->prepare( ' AND cached_city = %s', $args['city'] );
 		}
 
 		$total  = $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE $where" );
@@ -266,6 +275,7 @@ class ListManager {
 			$list['item_count']  = self::get_list_item_count( $list['id'] );
 			$list['cover_image'] = self::get_list_cover_image( $list );
 			$list['url']         = self::get_list_url( $list );
+			$list['categories']  = self::get_list_display_categories( $list );
 		}
 
 		return array(
@@ -335,6 +345,9 @@ class ListManager {
 				\BD\Social\ImageGenerator::invalidate_list_cache( $list_id );
 			}
 
+			// Refresh cached categories and city.
+			self::refresh_list_cache( $list_id );
+
 			BadgeSystem::check_and_award_badges( $user_id, 'list_item_added' );
 
 			return $wpdb->insert_id;
@@ -377,6 +390,9 @@ class ListManager {
 			if ( class_exists( 'BD\Social\ImageGenerator' ) ) {
 				\BD\Social\ImageGenerator::invalidate_list_cache( $list_id );
 			}
+
+			// Refresh cached categories and city.
+			self::refresh_list_cache( $list_id );
 		}
 
 		return false !== $result;
@@ -821,6 +837,28 @@ class ListManager {
 	}
 
 	/**
+	 * Toggle featured status (admin only)
+	 *
+	 * @param int  $list_id  List ID.
+	 * @param bool $featured Featured status.
+	 * @return bool Success or failure.
+	 */
+	public static function set_featured( $list_id, $featured ) {
+		global $wpdb;
+		$table = $wpdb->prefix . 'bd_lists';
+
+		$result = $wpdb->update(
+			$table,
+			array( 'featured' => $featured ? 1 : 0 ),
+			array( 'id' => $list_id ),
+			array( '%d' ),
+			array( '%d' )
+		);
+
+		return false !== $result;
+	}
+
+	/**
 	 * Get list URL
 	 */
 	public static function get_list_url( $list ) {
@@ -1070,5 +1108,344 @@ class ListManager {
 				$user_id
 			)
 		);
+	}
+
+	// =========================================================================
+	// CATEGORY & CITY CACHING FOR BROWSE/FILTER
+	// =========================================================================
+
+	/**
+	 * Refresh cached categories and city for a list.
+	 * Called when items are added/removed.
+	 *
+	 * @param int $list_id List ID.
+	 * @return bool Success.
+	 */
+	public static function refresh_list_cache( $list_id ) {
+		global $wpdb;
+		$table = $wpdb->prefix . 'bd_lists';
+
+		// Get categories and city from list items.
+		$categories = self::calculate_list_categories( $list_id );
+		$city       = self::calculate_list_city( $list_id );
+
+		// Update the cached values.
+		$result = $wpdb->update(
+			$table,
+			array(
+				'cached_categories' => ! empty( $categories ) ? implode( ',', $categories ) : null,
+				'cached_city'       => $city,
+			),
+			array( 'id' => $list_id ),
+			array( '%s', '%s' ),
+			array( '%d' )
+		);
+
+		return false !== $result;
+	}
+
+	/**
+	 * Calculate categories from businesses in a list.
+	 * Returns top 3 most common category slugs.
+	 *
+	 * @param int $list_id List ID.
+	 * @return array Array of category slugs.
+	 */
+	public static function calculate_list_categories( $list_id ) {
+		global $wpdb;
+		$items_table = $wpdb->prefix . 'bd_list_items';
+
+		// Get all business IDs in the list.
+		$business_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT business_id FROM $items_table WHERE list_id = %d",
+				$list_id
+			)
+		);
+
+		if ( empty( $business_ids ) ) {
+			return array();
+		}
+
+		// Count categories across all businesses.
+		$category_counts = array();
+		foreach ( $business_ids as $business_id ) {
+			$terms = wp_get_post_terms( $business_id, 'bd_category', array( 'fields' => 'slugs' ) );
+			if ( ! is_wp_error( $terms ) ) {
+				foreach ( $terms as $slug ) {
+					if ( ! isset( $category_counts[ $slug ] ) ) {
+						$category_counts[ $slug ] = 0;
+					}
+					++$category_counts[ $slug ];
+				}
+			}
+		}
+
+		if ( empty( $category_counts ) ) {
+			return array();
+		}
+
+		// Sort by count descending and take top 3.
+		arsort( $category_counts );
+		return array_slice( array_keys( $category_counts ), 0, 3 );
+	}
+
+	/**
+	 * Calculate primary city from businesses in a list.
+	 * Returns the most common city.
+	 *
+	 * @param int $list_id List ID.
+	 * @return string|null City name or null.
+	 */
+	public static function calculate_list_city( $list_id ) {
+		global $wpdb;
+		$items_table = $wpdb->prefix . 'bd_list_items';
+
+		// Get all business IDs in the list.
+		$business_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT business_id FROM $items_table WHERE list_id = %d",
+				$list_id
+			)
+		);
+
+		if ( empty( $business_ids ) ) {
+			return null;
+		}
+
+		// Count cities across all businesses.
+		$city_counts = array();
+		foreach ( $business_ids as $business_id ) {
+			$location = get_post_meta( $business_id, 'bd_location', true );
+			if ( ! empty( $location['city'] ) ) {
+				$city = $location['city'];
+				if ( ! isset( $city_counts[ $city ] ) ) {
+					$city_counts[ $city ] = 0;
+				}
+				++$city_counts[ $city ];
+			}
+		}
+
+		if ( empty( $city_counts ) ) {
+			return null;
+		}
+
+		// Return most common city.
+		arsort( $city_counts );
+		return array_key_first( $city_counts );
+	}
+
+	/**
+	 * Get display-ready categories for a list.
+	 * Uses cache if available, otherwise calculates.
+	 *
+	 * @param array $list List data.
+	 * @return array Array of category objects with slug, name, icon.
+	 */
+	public static function get_list_display_categories( $list ) {
+		// Use override if set.
+		if ( ! empty( $list['theme_override'] ) ) {
+			$slugs = array_map( 'trim', explode( ',', $list['theme_override'] ) );
+		} elseif ( ! empty( $list['cached_categories'] ) ) {
+			$slugs = array_map( 'trim', explode( ',', $list['cached_categories'] ) );
+		} else {
+			// Calculate on the fly (slower).
+			$slugs = self::calculate_list_categories( $list['id'] );
+		}
+
+		if ( empty( $slugs ) ) {
+			return array();
+		}
+
+		// Get term objects with names.
+		$categories = array();
+		foreach ( $slugs as $slug ) {
+			$term = get_term_by( 'slug', $slug, 'bd_category' );
+			if ( $term ) {
+				$categories[] = array(
+					'slug' => $term->slug,
+					'name' => $term->name,
+					'icon' => self::get_category_icon( $term->slug ),
+				);
+			}
+		}
+
+		return $categories;
+	}
+
+	/**
+	 * Get Font Awesome icon for a category.
+	 *
+	 * @param string $slug Category slug.
+	 * @return string Font Awesome class.
+	 */
+	public static function get_category_icon( $slug ) {
+		$icons = array(
+			// Dining & Food
+			'restaurants'       => 'fa-utensils',
+			'dining'            => 'fa-utensils',
+			'food'              => 'fa-utensils',
+			'cafes'             => 'fa-coffee',
+			'coffee'            => 'fa-coffee',
+			'bakeries'          => 'fa-bread-slice',
+			'bars'              => 'fa-glass-martini-alt',
+
+			// Wine & Breweries
+			'wineries'          => 'fa-wine-glass-alt',
+			'wine'              => 'fa-wine-glass-alt',
+			'breweries'         => 'fa-beer',
+			'tasting-rooms'     => 'fa-wine-bottle',
+
+			// Shopping
+			'shopping'          => 'fa-shopping-bag',
+			'retail'            => 'fa-store',
+			'boutiques'         => 'fa-gem',
+
+			// Services
+			'services'          => 'fa-wrench',
+			'professional'      => 'fa-briefcase',
+			'health'            => 'fa-heartbeat',
+			'beauty'            => 'fa-spa',
+
+			// Entertainment
+			'entertainment'     => 'fa-ticket-alt',
+			'arts'              => 'fa-palette',
+			'nightlife'         => 'fa-moon',
+
+			// Recreation
+			'outdoors'          => 'fa-hiking',
+			'recreation'        => 'fa-running',
+			'fitness'           => 'fa-dumbbell',
+			'parks'             => 'fa-tree',
+
+			// Family
+			'family'            => 'fa-child',
+			'kids'              => 'fa-child',
+			'education'         => 'fa-graduation-cap',
+
+			// Local Favorites
+			'local-favorites'   => 'fa-heart',
+			'hidden-gems'       => 'fa-gem',
+			'shop-local'        => 'fa-store-alt',
+		);
+
+		// Try exact match.
+		if ( isset( $icons[ $slug ] ) ) {
+			return 'fas ' . $icons[ $slug ];
+		}
+
+		// Try partial match.
+		foreach ( $icons as $key => $icon ) {
+			if ( strpos( $slug, $key ) !== false || strpos( $key, $slug ) !== false ) {
+				return 'fas ' . $icon;
+			}
+		}
+
+		// Default icon.
+		return 'fas fa-tag';
+	}
+
+	/**
+	 * Get all unique cities from public lists for filter dropdown.
+	 *
+	 * @return array Array of city names.
+	 */
+	public static function get_all_list_cities() {
+		global $wpdb;
+		$table = $wpdb->prefix . 'bd_lists';
+
+		$cities = $wpdb->get_col(
+			"SELECT DISTINCT cached_city FROM $table 
+			WHERE visibility = 'public' AND cached_city IS NOT NULL AND cached_city != ''
+			ORDER BY cached_city ASC"
+		);
+
+		return $cities;
+	}
+
+	/**
+	 * Get all unique categories from public lists for filter dropdown.
+	 *
+	 * @return array Array of category term objects.
+	 */
+	public static function get_all_list_categories() {
+		global $wpdb;
+		$table = $wpdb->prefix . 'bd_lists';
+
+		// Get all cached categories.
+		$all_cached = $wpdb->get_col(
+			"SELECT cached_categories FROM $table 
+			WHERE visibility = 'public' AND cached_categories IS NOT NULL AND cached_categories != ''"
+		);
+
+		// Extract unique slugs from cached data.
+		$slugs = array();
+		foreach ( $all_cached as $cached ) {
+			$parts = array_map( 'trim', explode( ',', $cached ) );
+			$slugs = array_merge( $slugs, $parts );
+		}
+		$slugs = array_unique( array_filter( $slugs ) );
+
+		// Fallback: If no cached categories, calculate from all public lists.
+		if ( empty( $slugs ) ) {
+			$list_ids = $wpdb->get_col(
+				"SELECT id FROM $table WHERE visibility = 'public'"
+			);
+
+			foreach ( $list_ids as $list_id ) {
+				$calculated = self::calculate_list_categories( $list_id );
+				$slugs      = array_merge( $slugs, $calculated );
+			}
+			$slugs = array_unique( $slugs );
+		}
+
+		if ( empty( $slugs ) ) {
+			return array();
+		}
+
+		// Get term objects.
+		$categories = array();
+		foreach ( $slugs as $slug ) {
+			$term = get_term_by( 'slug', $slug, 'bd_category' );
+			if ( $term ) {
+				$categories[] = array(
+					'slug' => $term->slug,
+					'name' => $term->name,
+					'icon' => self::get_category_icon( $term->slug ),
+				);
+			}
+		}
+
+		// Sort alphabetically by name.
+		usort(
+			$categories,
+			function ( $a, $b ) {
+				return strcmp( $a['name'], $b['name'] );
+			}
+		);
+
+		return $categories;
+	}
+
+	/**
+	 * Refresh cache for all existing lists.
+	 * Run once after adding the new columns.
+	 *
+	 * @return int Number of lists updated.
+	 */
+	public static function refresh_all_list_caches() {
+		global $wpdb;
+		$table = $wpdb->prefix . 'bd_lists';
+
+		$list_ids = $wpdb->get_col( "SELECT id FROM $table" );
+		$count    = 0;
+
+		foreach ( $list_ids as $list_id ) {
+			if ( self::refresh_list_cache( $list_id ) ) {
+				++$count;
+			}
+		}
+
+		return $count;
 	}
 }

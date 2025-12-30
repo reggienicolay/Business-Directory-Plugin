@@ -214,11 +214,11 @@
 
 		if (hasChecked) {
 			$btn.addClass('bd-saved');
-			$btn.find('.bd-save-icon').text('❤️');
+			$btn.find('.bd-save-icon').html('<i class="fas fa-heart"></i>');
 			$btn.find('.bd-save-text').text('Saved');
 		} else {
 			$btn.removeClass('bd-saved');
-			$btn.find('.bd-save-icon').text('🤍');
+			$btn.find('.bd-save-icon').html('<i class="far fa-heart"></i>');
 			$btn.find('.bd-save-text').text('Save');
 		}
 	}
@@ -269,7 +269,7 @@
 			data: {
 				title: $form.find('[name="title"]').val(),
 				description: $form.find('[name="description"]').val(),
-				visibility: $form.find('[name="visibility"]').val()
+				visibility: $form.find('[name="visibility"]:checked').val()
 			},
 			success: function (response) {
 				showToast(response.message);
@@ -387,7 +387,7 @@ $(document).on('submit', '.bd-edit-list-form', function (e) {
 		data: {
 			title: $form.find('[name="title"]').val(),
 			description: $form.find('[name="description"]').val(),
-			visibility: $form.find('[name="visibility"]').val()
+			visibility: $form.find('[name="visibility"]:checked').val()
 		},
 		success: function (response) {
 			showToast(response.message);
@@ -421,6 +421,7 @@ $(document).on('click', '.bd-remove-item-btn', function () {
 			$item.fadeOut(300, function () {
 				$(this).remove();
 				renumberListItems();
+				updateListItemCount();
 			});
 			showToast(response.message);
 		},
@@ -429,6 +430,20 @@ $(document).on('click', '.bd-remove-item-btn', function () {
 		}
 	});
 });
+
+/**
+ * Update the item count in the hero header
+ */
+function updateListItemCount() {
+	const currentCount = $('.bd-list-items .bd-list-item').length;
+	const countText = currentCount === 1 ? '1 business' : currentCount + ' businesses';
+	
+	// Update hero meta count (specific class)
+	$('.bd-list-count').text(countText);
+	
+	// Also update the list card count if visible (for card views)
+	$('.bd-list-card-count').text(currentCount + ' places');
+}
 
 /**
  * Renumber list items after removal
@@ -483,34 +498,56 @@ $(document).on('click', '.bd-edit-note-btn', function () {
  * Drag and drop reordering (if Sortable.js is available)
  */
 function initSortable() {
-	if (typeof Sortable === 'undefined') return;
+	if (typeof Sortable === 'undefined') {
+		console.log('Sortable.js not loaded');
+		return;
+	}
 
 	const $sortable = $('.bd-list-items.bd-sortable');
-	if (!$sortable.length) return;
+	if (!$sortable.length) {
+		console.log('No sortable container found');
+		return;
+	}
 
 	Sortable.create($sortable[0], {
 		handle: '.bd-list-item-handle',
 		animation: 150,
+		ghostClass: 'sortable-ghost',
+		chosenClass: 'sortable-chosen',
+		dragClass: 'sortable-drag',
 		onEnd: function () {
 			const order = [];
 			$sortable.find('.bd-list-item').each(function () {
-				order.push($(this).data('business-id'));
+				order.push(parseInt($(this).data('business-id'), 10));
 			});
 
 			const listId = $('.bd-single-list-page').data('list-id');
+
+			// Show saving indicator
+			showToast('Saving order...', 'info');
 
 			$.ajax({
 				url: bdLists.restUrl + 'lists/' + listId + '/reorder',
 				method: 'POST',
 				headers: { 'X-WP-Nonce': bdLists.nonce },
-				contentType: 'application/json',
-				data: JSON.stringify({ order: order }),
-				success: function () {
+				data: { order: order },
+				success: function (response) {
 					renumberListItems();
+					showToast('Order saved!', 'success');
+				},
+				error: function (xhr) {
+					console.error('Reorder failed:', xhr);
+					showToast(xhr.responseJSON?.message || 'Failed to save order', 'error');
+					// Reload to restore original order
+					setTimeout(function() {
+						window.location.reload();
+					}, 1500);
 				}
 			});
 		}
 	});
+	
+	console.log('Sortable initialized');
 }
 
 // ========================================================================
@@ -657,7 +694,17 @@ function showToast(message, type = 'success') {
 	// Remove existing toasts
 	$('.bd-toast').remove();
 
-	const icon = type === 'success' ? '✓' : '✕';
+	let icon;
+	if (type === 'success') {
+		icon = '<i class="fas fa-check-circle"></i>';
+	} else if (type === 'error') {
+		icon = '<i class="fas fa-times-circle"></i>';
+	} else if (type === 'info') {
+		icon = '<i class="fas fa-spinner fa-spin"></i>';
+	} else {
+		icon = '<i class="fas fa-info-circle"></i>';
+	}
+	
 	const $toast = $(`
 			<div class="bd-toast bd-toast-${type}">
 				<span class="bd-toast-icon">${icon}</span>
@@ -672,13 +719,14 @@ function showToast(message, type = 'success') {
 		$toast.addClass('bd-toast-show');
 	}, 10);
 
-	// Auto hide
+	// Auto hide (longer for info/loading toasts to allow for response)
+	const hideDelay = type === 'info' ? 5000 : 3000;
 	setTimeout(function () {
 		$toast.removeClass('bd-toast-show');
 		setTimeout(function () {
 			$toast.remove();
 		}, 300);
-	}, 3000);
+	}, hideDelay);
 }
 
 // ========================================================================
@@ -796,7 +844,10 @@ const ListMap = {
 		}
 
 		if (item.rating > 0) {
-			const stars = "★".repeat(Math.round(item.rating)) + "☆".repeat(5 - Math.round(item.rating));
+			const filledStars = Math.round(item.rating);
+			const emptyStars = 5 - filledStars;
+			let stars = '<i class="fas fa-star"></i>'.repeat(filledStars);
+			stars += '<i class="far fa-star"></i>'.repeat(emptyStars);
 			popupHtml += `<div class="bd-map-popup-rating">${stars}</div>`;
 		}
 

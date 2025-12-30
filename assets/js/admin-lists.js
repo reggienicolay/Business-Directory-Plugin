@@ -2,14 +2,34 @@
 	'use strict';
 
 	/**
+	 * Show admin notice
+	 */
+	function showAdminNotice(message, type) {
+		type = type || 'success';
+		
+		// Remove existing notices
+		$('.bd-lists-admin .bd-admin-notice').remove();
+		
+		var notice = $('<div class="notice bd-admin-notice notice-' + type + ' is-dismissible"><p>' + message + '</p></div>');
+		$('.bd-lists-admin h1').after(notice);
+		
+		// Auto-dismiss after 3 seconds
+		setTimeout(function() {
+			notice.fadeOut(300, function() {
+				$(this).remove();
+			});
+		}, 3000);
+	}
+
+	/**
 	 * Feature list
 	 */
 	$(document).on('click', '.bd-feature-btn', function () {
-		const $btn = $(this);
-		const listId = $btn.data('list-id');
-		const $row = $btn.closest('tr');
+		var $btn = $(this);
+		var listId = $btn.data('list-id');
+		var $row = $btn.closest('tr');
 
-		$btn.prop('disabled', true);
+		$btn.addClass('loading').prop('disabled', true);
 
 		$.ajax({
 			url: bdListsAdmin.ajaxUrl,
@@ -23,16 +43,17 @@
 			success: function (response) {
 				if (response.success) {
 					// Update button
-					$btn.removeClass('bd-feature-btn').addClass('bd-unfeature-btn');
-					$btn.html('⭐').attr('title', 'Remove Featured');
+					$btn.removeClass('bd-feature-btn loading').addClass('bd-unfeature-btn bd-featured');
+					$btn.find('i').removeClass('far').addClass('fas');
+					$btn.attr('title', 'Remove Featured');
 
 					// Add star to title
-					const $title = $row.find('.column-title strong');
-					if (!$title.find('.bd-featured-star').length) {
-						$title.prepend('<span class="bd-featured-star" title="Featured">⭐</span>');
+					var $titleWrap = $row.find('.bd-list-title-wrap');
+					if (!$titleWrap.find('.bd-featured-star').length) {
+						$titleWrap.prepend('<span class="bd-featured-star" title="Featured"><i class="fas fa-star"></i></span>');
 					}
 
-					showAdminNotice(response.data.message, 'success');
+					showAdminNotice(response.data.message);
 				} else {
 					showAdminNotice(response.data.message || 'Action failed', 'error');
 				}
@@ -41,7 +62,7 @@
 				showAdminNotice('An error occurred', 'error');
 			},
 			complete: function () {
-				$btn.prop('disabled', false);
+				$btn.removeClass('loading').prop('disabled', false);
 			}
 		});
 	});
@@ -50,11 +71,11 @@
 	 * Unfeature list
 	 */
 	$(document).on('click', '.bd-unfeature-btn', function () {
-		const $btn = $(this);
-		const listId = $btn.data('list-id');
-		const $row = $btn.closest('tr');
+		var $btn = $(this);
+		var listId = $btn.data('list-id');
+		var $row = $btn.closest('tr');
 
-		$btn.prop('disabled', true);
+		$btn.addClass('loading').prop('disabled', true);
 
 		$.ajax({
 			url: bdListsAdmin.ajaxUrl,
@@ -68,13 +89,14 @@
 			success: function (response) {
 				if (response.success) {
 					// Update button
-					$btn.removeClass('bd-unfeature-btn').addClass('bd-feature-btn');
-					$btn.html('☆').attr('title', 'Feature');
+					$btn.removeClass('bd-unfeature-btn bd-featured loading').addClass('bd-feature-btn');
+					$btn.find('i').removeClass('fas').addClass('far');
+					$btn.attr('title', 'Feature This List');
 
 					// Remove star from title
 					$row.find('.bd-featured-star').remove();
 
-					showAdminNotice(response.data.message, 'success');
+					showAdminNotice(response.data.message);
 				} else {
 					showAdminNotice(response.data.message || 'Action failed', 'error');
 				}
@@ -83,7 +105,7 @@
 				showAdminNotice('An error occurred', 'error');
 			},
 			complete: function () {
-				$btn.prop('disabled', false);
+				$btn.removeClass('loading').prop('disabled', false);
 			}
 		});
 	});
@@ -92,15 +114,15 @@
 	 * Delete list
 	 */
 	$(document).on('click', '.bd-delete-btn', function () {
-		const $btn = $(this);
-		const listId = $btn.data('list-id');
-		const $row = $btn.closest('tr');
+		var $btn = $(this);
+		var listId = $btn.data('list-id');
+		var $row = $btn.closest('tr');
 
 		if (!confirm('Are you sure you want to delete this list? This action cannot be undone.')) {
 			return;
 		}
 
-		$btn.prop('disabled', true);
+		$btn.addClass('loading').prop('disabled', true);
 
 		$.ajax({
 			url: bdListsAdmin.ajaxUrl,
@@ -115,61 +137,119 @@
 				if (response.success) {
 					$row.fadeOut(300, function () {
 						$(this).remove();
-
-						// Check if table is empty
+						
+						// Check if table is now empty
 						if ($('.bd-lists-table tbody tr').length === 0) {
 							$('.bd-lists-table tbody').html(
-								'<tr><td colspan="7" class="bd-no-items">No lists found.</td></tr>'
+								'<tr><td colspan="12" class="bd-no-items">' +
+								'<i class="fas fa-inbox"></i>No lists found.</td></tr>'
 							);
 						}
 					});
-
-					showAdminNotice(response.data.message, 'success');
+					showAdminNotice(response.data.message);
 				} else {
-					showAdminNotice(response.data.message || 'Delete failed', 'error');
-					$btn.prop('disabled', false);
+					showAdminNotice(response.data.message || 'Action failed', 'error');
 				}
 			},
 			error: function () {
 				showAdminNotice('An error occurred', 'error');
-				$btn.prop('disabled', false);
+			},
+			complete: function () {
+				$btn.removeClass('loading').prop('disabled', false);
 			}
 		});
 	});
 
 	/**
-	 * Show admin notice
+	 * Select all checkbox
 	 */
-	function showAdminNotice(message, type) {
-		const noticeClass = type === 'success' ? 'notice-success' : 'notice-error';
+	$('#bd-select-all').on('change', function () {
+		var isChecked = $(this).prop('checked');
+		$('.bd-list-checkbox').prop('checked', isChecked);
+	});
 
-		// Remove existing notices
-		$('.bd-admin-notice').remove();
+	/**
+	 * Update select-all state when individual checkboxes change
+	 */
+	$(document).on('change', '.bd-list-checkbox', function () {
+		var total = $('.bd-list-checkbox').length;
+		var checked = $('.bd-list-checkbox:checked').length;
+		
+		$('#bd-select-all').prop('checked', total === checked);
+		$('#bd-select-all').prop('indeterminate', checked > 0 && checked < total);
+	});
 
-		const $notice = $(`
-			<div class="notice ${noticeClass} is-dismissible bd-admin-notice">
-				<p>${message}</p>
-				<button type="button" class="notice-dismiss">
-					<span class="screen-reader-text">Dismiss this notice.</span>
-				</button>
-			</div>
-		`);
+	/**
+	 * Bulk action apply
+	 */
+	$('#bd-bulk-apply').on('click', function () {
+		var action = $('#bd-bulk-action').val();
+		var $checkedBoxes = $('.bd-list-checkbox:checked');
+		var listIds = [];
 
-		$('.bd-lists-admin h1').after($notice);
-
-		// Auto dismiss after 3 seconds
-		setTimeout(function () {
-			$notice.fadeOut(300, function () {
-				$(this).remove();
-			});
-		}, 3000);
-
-		// Manual dismiss
-		$notice.find('.notice-dismiss').on('click', function () {
-			$notice.fadeOut(300, function () {
-				$(this).remove();
-			});
+		$checkedBoxes.each(function () {
+			listIds.push($(this).val());
 		});
-	}
+
+		if (!action) {
+			showAdminNotice('Please select a bulk action', 'warning');
+			return;
+		}
+
+		if (listIds.length === 0) {
+			showAdminNotice('Please select at least one list', 'warning');
+			return;
+		}
+
+		// Confirm delete action
+		if (action === 'delete') {
+			if (!confirm('Are you sure you want to delete ' + listIds.length + ' list(s)? This action cannot be undone.')) {
+				return;
+			}
+		}
+
+		var $btn = $(this);
+		var $status = $('.bd-bulk-status');
+		
+		$btn.prop('disabled', true).text('Processing...');
+		$status.removeClass('error').text('');
+
+		$.ajax({
+			url: bdListsAdmin.ajaxUrl,
+			method: 'POST',
+			data: {
+				action: 'bd_admin_bulk_action',
+				bulk_action: action,
+				list_ids: listIds,
+				nonce: bdListsAdmin.nonce
+			},
+			success: function (response) {
+				if (response.success) {
+					$status.text(response.data.message);
+					
+					// Reload page to show changes
+					setTimeout(function() {
+						window.location.reload();
+					}, 1000);
+				} else {
+					$status.addClass('error').text(response.data.message || 'Action failed');
+				}
+			},
+			error: function () {
+				$status.addClass('error').text('An error occurred');
+			},
+			complete: function () {
+				$btn.prop('disabled', false).text('Apply');
+			}
+		});
+	});
+
+	/**
+	 * Auto-submit on filter change
+	 */
+	$('.bd-filter-select').on('change', function () {
+		// Optional: auto-submit when filters change
+		// $(this).closest('form').submit();
+	});
 
 })(jQuery);

@@ -405,10 +405,24 @@ class ShareButtons {
 	/**
 	 * Add review share prompt (called after review approval).
 	 *
-	 * @param int   $review_id Review ID.
-	 * @param array $review Review data.
+	 * @param int        $review_id Review ID.
+	 * @param array|null $review    Review data (optional, will be fetched if not provided).
 	 */
-	public function add_review_share_prompt( $review_id, $review ) {
+	public function add_review_share_prompt( $review_id, $review = null ) {
+		// Fetch review data if not provided.
+		if ( null === $review ) {
+			global $wpdb;
+			$table = $wpdb->prefix . 'bd_reviews';
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$review = $wpdb->get_row(
+				$wpdb->prepare( "SELECT * FROM {$table} WHERE id = %d", $review_id ),
+				ARRAY_A
+			);
+			if ( ! $review ) {
+				return;
+			}
+		}
+
 		// This stores the prompt data for display via JS.
 		if ( ! isset( $review['user_id'] ) || ! $review['user_id'] ) {
 			return;
