@@ -414,12 +414,24 @@ class ListDisplay {
 
 		// Map sort parameter to orderby/order.
 		$sort_options = array(
-			'updated_at'  => array( 'orderby' => 'updated_at', 'order' => 'DESC' ),
-			'popular'     => array( 'orderby' => 'view_count', 'order' => 'DESC' ),
-			'newest'      => array( 'orderby' => 'created_at', 'order' => 'DESC' ),
-			'title'       => array( 'orderby' => 'title', 'order' => 'ASC' ),
+			'updated_at' => array(
+				'orderby' => 'updated_at',
+				'order'   => 'DESC',
+			),
+			'popular'    => array(
+				'orderby' => 'view_count',
+				'order'   => 'DESC',
+			),
+			'newest'     => array(
+				'orderby' => 'created_at',
+				'order'   => 'DESC',
+			),
+			'title'      => array(
+				'orderby' => 'title',
+				'order'   => 'ASC',
+			),
 		);
-		$sort_config = $sort_options[ $sort ] ?? $sort_options['updated_at'];
+		$sort_config  = $sort_options[ $sort ] ?? $sort_options['updated_at'];
 
 		$result = ListManager::get_public_lists(
 			array(
