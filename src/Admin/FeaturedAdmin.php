@@ -110,8 +110,8 @@ class FeaturedAdmin {
 				'nonce'       => wp_create_nonce( 'bd_featured_nonce' ),
 				'maxFeatured' => self::MAX_FEATURED,
 				'strings'     => array(
-					'confirmRemove' => __( 'Remove this business from featured?', 'business-directory' ),
-					'maxReached'    => sprintf(
+					'confirmRemove'     => __( 'Remove this business from featured?', 'business-directory' ),
+					'maxReached'        => sprintf(
 						/* translators: %d: maximum number of featured businesses */
 						__( 'Maximum of %d featured businesses reached.', 'business-directory' ),
 						self::MAX_FEATURED

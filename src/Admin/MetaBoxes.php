@@ -181,8 +181,8 @@ class MetaBoxes {
 	 */
 	public function render_photos_metabox( $post ) {
 		// Get existing photos.
-		$photo_ids    = get_post_meta( $post->ID, 'bd_photos', true );
-		$featured_id  = get_post_thumbnail_id( $post->ID );
+		$photo_ids   = get_post_meta( $post->ID, 'bd_photos', true );
+		$featured_id = get_post_thumbnail_id( $post->ID );
 
 		if ( ! is_array( $photo_ids ) ) {
 			$photo_ids = array();

@@ -183,7 +183,7 @@ class LoginShortcode {
 
 		// Check for password reset key.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$reset_key   = isset( $_GET['key'] ) ? sanitize_text_field( $_GET['key'] ) : '';
+		$reset_key = isset( $_GET['key'] ) ? sanitize_text_field( $_GET['key'] ) : '';
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$reset_login = isset( $_GET['login'] ) ? sanitize_user( $_GET['login'] ) : '';
 

@@ -1282,51 +1282,51 @@ class ListManager {
 	public static function get_category_icon( $slug ) {
 		$icons = array(
 			// Dining & Food
-			'restaurants'       => 'fa-utensils',
-			'dining'            => 'fa-utensils',
-			'food'              => 'fa-utensils',
-			'cafes'             => 'fa-coffee',
-			'coffee'            => 'fa-coffee',
-			'bakeries'          => 'fa-bread-slice',
-			'bars'              => 'fa-glass-martini-alt',
+			'restaurants'     => 'fa-utensils',
+			'dining'          => 'fa-utensils',
+			'food'            => 'fa-utensils',
+			'cafes'           => 'fa-coffee',
+			'coffee'          => 'fa-coffee',
+			'bakeries'        => 'fa-bread-slice',
+			'bars'            => 'fa-glass-martini-alt',
 
 			// Wine & Breweries
-			'wineries'          => 'fa-wine-glass-alt',
-			'wine'              => 'fa-wine-glass-alt',
-			'breweries'         => 'fa-beer',
-			'tasting-rooms'     => 'fa-wine-bottle',
+			'wineries'        => 'fa-wine-glass-alt',
+			'wine'            => 'fa-wine-glass-alt',
+			'breweries'       => 'fa-beer',
+			'tasting-rooms'   => 'fa-wine-bottle',
 
 			// Shopping
-			'shopping'          => 'fa-shopping-bag',
-			'retail'            => 'fa-store',
-			'boutiques'         => 'fa-gem',
+			'shopping'        => 'fa-shopping-bag',
+			'retail'          => 'fa-store',
+			'boutiques'       => 'fa-gem',
 
 			// Services
-			'services'          => 'fa-wrench',
-			'professional'      => 'fa-briefcase',
-			'health'            => 'fa-heartbeat',
-			'beauty'            => 'fa-spa',
+			'services'        => 'fa-wrench',
+			'professional'    => 'fa-briefcase',
+			'health'          => 'fa-heartbeat',
+			'beauty'          => 'fa-spa',
 
 			// Entertainment
-			'entertainment'     => 'fa-ticket-alt',
-			'arts'              => 'fa-palette',
-			'nightlife'         => 'fa-moon',
+			'entertainment'   => 'fa-ticket-alt',
+			'arts'            => 'fa-palette',
+			'nightlife'       => 'fa-moon',
 
 			// Recreation
-			'outdoors'          => 'fa-hiking',
-			'recreation'        => 'fa-running',
-			'fitness'           => 'fa-dumbbell',
-			'parks'             => 'fa-tree',
+			'outdoors'        => 'fa-hiking',
+			'recreation'      => 'fa-running',
+			'fitness'         => 'fa-dumbbell',
+			'parks'           => 'fa-tree',
 
 			// Family
-			'family'            => 'fa-child',
-			'kids'              => 'fa-child',
-			'education'         => 'fa-graduation-cap',
+			'family'          => 'fa-child',
+			'kids'            => 'fa-child',
+			'education'       => 'fa-graduation-cap',
 
 			// Local Favorites
-			'local-favorites'   => 'fa-heart',
-			'hidden-gems'       => 'fa-gem',
-			'shop-local'        => 'fa-store-alt',
+			'local-favorites' => 'fa-heart',
+			'hidden-gems'     => 'fa-gem',
+			'shop-local'      => 'fa-store-alt',
 		);
 
 		// Try exact match.

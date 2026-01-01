@@ -409,8 +409,8 @@ class CityEventsShortcode {
 			}
 			
 			/* =====================================================
-			   GRID LAYOUT - Magazine Feature Cards
-			   ===================================================== */
+				GRID LAYOUT - Magazine Feature Cards
+				===================================================== */
 			#<?php echo esc_attr( $instance_id ); ?> .bd-events-grid {
 				display: grid;
 				grid-template-columns: repeat(<?php echo esc_attr( $columns ); ?>, 1fr);
@@ -562,8 +562,8 @@ class CityEventsShortcode {
 			}
 			
 			/* =====================================================
-			   LIST LAYOUT - Timeline Style
-			   ===================================================== */
+				LIST LAYOUT - Timeline Style
+				===================================================== */
 			#<?php echo esc_attr( $instance_id ); ?> .bd-events-list {
 				display: flex;
 				flex-direction: column;
@@ -740,8 +740,8 @@ class CityEventsShortcode {
 			}
 			
 			/* =====================================================
-			   COMPACT LAYOUT - Minimal Timeline
-			   ===================================================== */
+				COMPACT LAYOUT - Minimal Timeline
+				===================================================== */
 			#<?php echo esc_attr( $instance_id ); ?> .bd-events-compact {
 				background: var(--bd-white);
 				border-radius: var(--bd-radius);
@@ -1022,7 +1022,7 @@ class CityEventsShortcode {
 							// Only show venue if no business is linked (avoid redundancy)
 							$has_business = $show_business && ! empty( $event['business'] );
 							if ( $show_venue && ! empty( $event['venue'] ) && ! $has_business ) :
-							?>
+								?>
 								<span>
 									<i class="fas fa-map-marker-alt"></i>
 									<?php echo esc_html( $event['venue'] ); ?>
@@ -1089,7 +1089,7 @@ class CityEventsShortcode {
 							// Only show venue if no business is linked (avoid redundancy)
 							$has_business = $show_business && ! empty( $event['business'] );
 							if ( $show_venue && ! empty( $event['venue'] ) && ! $has_business ) :
-							?>
+								?>
 								<span>
 									<i class="fas fa-map-marker-alt"></i>
 									<?php echo esc_html( $event['venue'] ); ?>

@@ -290,13 +290,13 @@ class VenueSyncer {
 
 		// TEC Venue meta fields
 		$venue_meta = array(
-			'_VenueAddress'   => $location['address'] ?? '',
-			'_VenueCity'      => $location['city'] ?? '',
-			'_VenueState'     => $location['state'] ?? '',
-			'_VenueZip'       => $location['zip'] ?? '',
-			'_VenueCountry'   => 'United States', // Default for TriValley
-			'_VenuePhone'     => $contact['phone'] ?? '',
-			'_VenueURL'       => $contact['website'] ?? '',
+			'_VenueAddress' => $location['address'] ?? '',
+			'_VenueCity'    => $location['city'] ?? '',
+			'_VenueState'   => $location['state'] ?? '',
+			'_VenueZip'     => $location['zip'] ?? '',
+			'_VenueCountry' => 'United States', // Default for TriValley
+			'_VenuePhone'   => $contact['phone'] ?? '',
+			'_VenueURL'     => $contact['website'] ?? '',
 		);
 
 		// Handle coordinates if available
@@ -442,14 +442,14 @@ class VenueSyncer {
 		);
 
 		foreach ( $businesses as $business ) {
-			$results['processed']++;
+			++$results['processed'];
 
 			$venue_id = self::create_venue_for_business( $business->ID );
 
 			if ( $venue_id ) {
-				$results['success']++;
+				++$results['success'];
 			} else {
-				$results['failed']++;
+				++$results['failed'];
 				$results['errors'][] = sprintf(
 					/* translators: %s: business title */
 					__( 'Failed to create venue for: %s', 'business-directory' ),

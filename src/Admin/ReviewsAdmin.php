@@ -307,7 +307,7 @@ class ReviewsAdmin {
 			case 'delete':
 				// Get business ID before deletion.
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-				$review = $wpdb->get_row(
+				$review      = $wpdb->get_row(
 					$wpdb->prepare( "SELECT business_id FROM {$table} WHERE id = %d", $review_id ),
 					ARRAY_A
 				);
@@ -349,8 +349,8 @@ class ReviewsAdmin {
 		}
 
 		global $wpdb;
-		$table       = self::get_table_name();
-		$affected    = 0;
+		$table        = self::get_table_name();
+		$affected     = 0;
 		$business_ids = array();
 
 		// Get business IDs for all reviews.
@@ -379,7 +379,7 @@ class ReviewsAdmin {
 						array( '%d' )
 					);
 					if ( $result ) {
-						$affected++;
+						++$affected;
 						do_action( 'bd_review_approved', $review_id );
 					}
 				}
@@ -396,7 +396,7 @@ class ReviewsAdmin {
 						array( '%d' )
 					);
 					if ( $result ) {
-						$affected++;
+						++$affected;
 					}
 				}
 				break;
@@ -412,7 +412,7 @@ class ReviewsAdmin {
 						array( '%d' )
 					);
 					if ( $result ) {
-						$affected++;
+						++$affected;
 					}
 				}
 				break;
@@ -426,7 +426,7 @@ class ReviewsAdmin {
 						array( '%d' )
 					);
 					if ( $result ) {
-						$affected++;
+						++$affected;
 					}
 				}
 				break;
