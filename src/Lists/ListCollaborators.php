@@ -9,7 +9,11 @@
  * @subpackage Lists
  */
 
+
 namespace BD\Lists;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 use BD\Gamification\ActivityTracker;
 use BD\Gamification\BadgeSystem;

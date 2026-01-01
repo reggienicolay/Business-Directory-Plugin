@@ -11,6 +11,9 @@
 namespace BD\Integrations;
 
 if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
+
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 

@@ -1,5 +1,9 @@
 <?php
+
 namespace BusinessDirectory\Utils;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class Cache {
 

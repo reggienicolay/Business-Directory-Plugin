@@ -11,6 +11,9 @@
 namespace BD\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
+
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 

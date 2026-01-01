@@ -13,7 +13,11 @@
  * @package BusinessDirectory
  */
 
+
 namespace BD\Importer;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class CSV {
 

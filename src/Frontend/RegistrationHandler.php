@@ -1,6 +1,10 @@
 <?php
 
+
 namespace BD\Frontend;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 use BD\Gamification\ActivityTracker;
 

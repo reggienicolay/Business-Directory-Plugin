@@ -1,5 +1,9 @@
 <?php
+
 namespace BusinessDirectory\API;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 use BusinessDirectory\Search\FilterHandler;
 use BusinessDirectory\Search\QueryBuilder;

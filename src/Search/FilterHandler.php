@@ -1,5 +1,9 @@
 <?php
+
 namespace BusinessDirectory\Search;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class FilterHandler {
 

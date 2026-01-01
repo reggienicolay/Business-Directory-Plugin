@@ -9,6 +9,9 @@
 
 namespace BD\Admin;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
+
 use BD\DB\ChangeRequestsTable;
 
 if ( ! defined( 'ABSPATH' ) ) {

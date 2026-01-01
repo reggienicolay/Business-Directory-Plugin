@@ -8,7 +8,11 @@
  * @version 1.2.0
  */
 
+
 namespace BD\Admin;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 /**
  * Class ShortcodesAdmin
@@ -30,8 +34,8 @@ class ShortcodesAdmin {
 	public static function add_menu_page() {
 		add_submenu_page(
 			'edit.php?post_type=bd_business',
-			__( 'Shortcodes', 'developer-developer-developer' ),
-			__( 'Shortcodes', 'developer-developer-developer' ),
+			__( 'Shortcodes', 'business-directory' ),
+			__( 'Shortcodes', 'business-directory' ),
 			'manage_options',
 			'bd-shortcodes',
 			array( __CLASS__, 'render_page' )
@@ -828,10 +832,10 @@ class ShortcodesAdmin {
 		<div class="wrap bd-shortcodes-admin">
 			<h1 class="wp-heading-inline">
 				<span class="dashicons dashicons-shortcode"></span>
-				<?php esc_html_e( 'Shortcodes Reference', 'developer-developer-developer' ); ?>
+				<?php esc_html_e( 'Shortcodes Reference', 'business-directory' ); ?>
 			</h1>
 			<p class="bd-page-description">
-				<?php esc_html_e( 'Copy and paste these shortcodes into any page or post to display directory features.', 'developer-developer-developer' ); ?>
+				<?php esc_html_e( 'Copy and paste these shortcodes into any page or post to display directory features.', 'business-directory' ); ?>
 			</p>
 			<hr class="wp-header-end">
 
@@ -951,14 +955,14 @@ class ShortcodesAdmin {
 
 								<?php if ( ! empty( $shortcode['attributes'] ) ) : ?>
 									<div class="bd-shortcode-attributes">
-										<h4><?php esc_html_e( 'Attributes', 'developer-developer-developer' ); ?></h4>
+										<h4><?php esc_html_e( 'Attributes', 'business-directory' ); ?></h4>
 										<table class="bd-attributes-table">
 											<thead>
 												<tr>
-													<th><?php esc_html_e( 'Name', 'developer-developer-developer' ); ?></th>
-													<th><?php esc_html_e( 'Type', 'developer-developer-developer' ); ?></th>
-													<th><?php esc_html_e( 'Default', 'developer-developer-developer' ); ?></th>
-													<th><?php esc_html_e( 'Description', 'developer-developer-developer' ); ?></th>
+													<th><?php esc_html_e( 'Name', 'business-directory' ); ?></th>
+													<th><?php esc_html_e( 'Type', 'business-directory' ); ?></th>
+													<th><?php esc_html_e( 'Default', 'business-directory' ); ?></th>
+													<th><?php esc_html_e( 'Description', 'business-directory' ); ?></th>
 												</tr>
 											</thead>
 											<tbody>
@@ -977,7 +981,7 @@ class ShortcodesAdmin {
 
 								<?php if ( ! empty( $shortcode['examples'] ) ) : ?>
 									<div class="bd-shortcode-examples">
-										<h4><?php esc_html_e( 'Examples', 'developer-developer-developer' ); ?></h4>
+										<h4><?php esc_html_e( 'Examples', 'business-directory' ); ?></h4>
 										<?php foreach ( $shortcode['examples'] as $example ) : ?>
 											<div class="bd-example-row">
 												<code class="bd-example-code" data-copy="<?php echo esc_attr( $example ); ?>">

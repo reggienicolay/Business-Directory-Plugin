@@ -11,6 +11,9 @@
 
 namespace BD\Auth;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
+
 use BD\Gamification\ActivityTracker;
 
 if ( ! defined( 'ABSPATH' ) ) {

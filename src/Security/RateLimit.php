@@ -1,5 +1,9 @@
 <?php
+
 namespace BD\Security;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class RateLimit {
 

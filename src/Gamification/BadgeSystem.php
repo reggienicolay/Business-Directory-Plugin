@@ -10,7 +10,11 @@
  * @version 2.3.0
  */
 
+
 namespace BD\Gamification;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class BadgeSystem {
 

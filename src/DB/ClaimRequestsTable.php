@@ -1,5 +1,9 @@
 <?php
+
 namespace BD\DB;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 /**
  * Claim Requests Table Handler

@@ -1,5 +1,9 @@
 <?php
+
 namespace BD\PostTypes;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class Business {
 

@@ -1,6 +1,10 @@
 <?php
 
+
 namespace BD\REST;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 error_log( 'SubmitReviewController class loaded!' ); // ADD THIS
 

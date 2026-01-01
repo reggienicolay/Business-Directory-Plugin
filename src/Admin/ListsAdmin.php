@@ -8,7 +8,11 @@
  * @package BusinessDirectory
  */
 
+
 namespace BD\Admin;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 use BD\Lists\ListManager;
 

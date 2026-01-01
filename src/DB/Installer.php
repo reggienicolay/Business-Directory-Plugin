@@ -8,7 +8,11 @@
  * @version 2.4.0
  */
 
+
 namespace BD\DB;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class Installer {
 

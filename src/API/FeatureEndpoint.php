@@ -5,6 +5,9 @@
 namespace BD\API;
 
 if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
+
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 

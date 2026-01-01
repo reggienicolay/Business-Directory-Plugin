@@ -8,7 +8,11 @@
  * @package BusinessDirectory
  */
 
+
 namespace BD\Social;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 use BD\Lists\ListManager;
 

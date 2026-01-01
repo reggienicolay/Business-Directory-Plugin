@@ -10,6 +10,9 @@
 
 namespace BD\Frontend;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
+
 use BD\Admin\FeaturedAdmin;
 use BD\Admin\Settings;
 

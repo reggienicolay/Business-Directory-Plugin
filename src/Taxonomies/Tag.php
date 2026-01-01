@@ -1,5 +1,9 @@
 <?php
+
 namespace BD\Taxonomies;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class Tag {
 

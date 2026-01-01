@@ -16,6 +16,9 @@
 
 namespace BD\Integrations\EventsCalendar;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
+
 use BD\Admin\FeatureSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {

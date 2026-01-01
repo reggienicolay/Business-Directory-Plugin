@@ -1,5 +1,9 @@
 <?php
+
 namespace BD\Roles;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class Manager {
 

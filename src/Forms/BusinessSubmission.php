@@ -1,5 +1,9 @@
 <?php
+
 namespace BD\Forms;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class BusinessSubmission {
 

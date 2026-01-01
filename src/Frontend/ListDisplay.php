@@ -9,7 +9,11 @@
  * @package BusinessDirectory
  */
 
+
 namespace BD\Frontend;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 use BD\Lists\ListManager;
 use BD\Lists\ListCollaborators;

@@ -1,5 +1,9 @@
 <?php
+
 namespace BD\Frontend;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class RegistrationShortcode {
 

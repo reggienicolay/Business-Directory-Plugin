@@ -7,7 +7,11 @@
  * @package BusinessDirectory
  */
 
+
 namespace BD\Gamification;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 /**
  * Class ActivityTracker

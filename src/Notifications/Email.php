@@ -1,5 +1,9 @@
 <?php
+
 namespace BD\Notifications;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class Email {
 

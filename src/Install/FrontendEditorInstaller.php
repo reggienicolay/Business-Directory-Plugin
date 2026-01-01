@@ -10,6 +10,9 @@
 
 namespace BD\Install;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
+
 use BD\DB\ChangeRequestsTable;
 
 if ( ! defined( 'ABSPATH' ) ) {

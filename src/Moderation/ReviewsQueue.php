@@ -1,5 +1,9 @@
 <?php
+
 namespace BD\Moderation;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 use BD\Gamification\ActivityTracker;
 

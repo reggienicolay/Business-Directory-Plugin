@@ -8,7 +8,11 @@
  * @package BusinessDirectory
  */
 
+
 namespace BusinessDirectory\Frontend;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 use BusinessDirectory\Search\FilterHandler;
 use BD\Admin\Settings;

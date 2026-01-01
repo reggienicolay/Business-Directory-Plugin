@@ -1,5 +1,9 @@
 <?php
+
 namespace BD\Admin;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 // Load ClaimRequestsTable if not already loaded
 if ( ! class_exists( '\BD\DB\ClaimRequestsTable' ) ) {

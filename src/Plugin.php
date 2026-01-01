@@ -1,5 +1,9 @@
 <?php
+
 namespace BD;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class Plugin {
 

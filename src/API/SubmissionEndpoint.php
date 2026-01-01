@@ -1,5 +1,9 @@
 <?php
+
 namespace BD\API;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class SubmissionEndpoint {
 

@@ -1,6 +1,10 @@
 <?php
 
+
 namespace BD\Admin;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class Settings {
 

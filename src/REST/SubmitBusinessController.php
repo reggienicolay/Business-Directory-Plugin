@@ -1,5 +1,9 @@
 <?php
+
 namespace BD\REST;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class SubmitBusinessController {
 

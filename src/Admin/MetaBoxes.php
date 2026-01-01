@@ -1,5 +1,9 @@
 <?php
+
 namespace BD\Admin;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 /**
  * Business metaboxes for custom fields

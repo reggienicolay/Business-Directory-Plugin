@@ -12,6 +12,9 @@
 namespace BD\Integrations\EventsCalendar;
 
 if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
+
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 

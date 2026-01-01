@@ -1,5 +1,9 @@
 <?php
+
 namespace BD\REST;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 /**
  * REST API: /bd/v1/businesses

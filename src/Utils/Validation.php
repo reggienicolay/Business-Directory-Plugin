@@ -1,5 +1,9 @@
 <?php
+
 namespace BD\Utils;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class Validation {
 

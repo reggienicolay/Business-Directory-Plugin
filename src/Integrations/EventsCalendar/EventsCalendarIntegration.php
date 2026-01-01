@@ -11,6 +11,9 @@
 
 namespace BD\Integrations\EventsCalendar;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
+
 use BD\Integrations\IntegrationsManager;
 
 if ( ! defined( 'ABSPATH' ) ) {

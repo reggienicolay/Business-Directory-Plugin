@@ -5,7 +5,11 @@
  * @package BusinessDirectory
  */
 
+
 namespace BD\Admin;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit; }
 
 class FeatureBlock {
 
