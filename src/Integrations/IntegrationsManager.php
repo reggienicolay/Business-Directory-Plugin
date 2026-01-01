@@ -161,6 +161,9 @@ class IntegrationsManager {
 
 									<?php if ( 'events_calendar' === $key ) : ?>
 										<label style="display: block; margin-bottom: 8px;">
+											<input type="hidden" 
+												name="<?php echo esc_attr( $integration['option'] ); ?>_show_events_on_business" 
+												value="0">
 											<input type="checkbox" 
 												name="<?php echo esc_attr( $integration['option'] ); ?>_show_events_on_business" 
 												value="1"
@@ -169,6 +172,9 @@ class IntegrationsManager {
 										</label>
 
 										<label style="display: block; margin-bottom: 8px;">
+											<input type="hidden" 
+												name="<?php echo esc_attr( $integration['option'] ); ?>_show_business_on_events" 
+												value="0">
 											<input type="checkbox" 
 												name="<?php echo esc_attr( $integration['option'] ); ?>_show_business_on_events" 
 												value="1"
@@ -177,6 +183,9 @@ class IntegrationsManager {
 										</label>
 
 										<label style="display: block; margin-bottom: 8px;">
+											<input type="hidden" 
+												name="<?php echo esc_attr( $integration['option'] ); ?>_enable_city_events_api" 
+												value="0">
 											<input type="checkbox" 
 												name="<?php echo esc_attr( $integration['option'] ); ?>_enable_city_events_api" 
 												value="1"

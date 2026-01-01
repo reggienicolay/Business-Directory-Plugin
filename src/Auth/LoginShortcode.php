@@ -6,7 +6,7 @@
  *
  * @package BusinessDirectory
  * @subpackage Auth
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 namespace BD\Auth;
@@ -91,7 +91,9 @@ class LoginShortcode {
 	 * @return string
 	 */
 	private static function get_redirect_to() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! empty( $_GET['redirect_to'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return esc_url( $_GET['redirect_to'] );
 		}
 
@@ -101,6 +103,50 @@ class LoginShortcode {
 		}
 
 		return home_url();
+	}
+
+	/**
+	 * Render password input with toggle button
+	 *
+	 * @param string $id          Input ID.
+	 * @param string $name        Input name.
+	 * @param string $label       Label text.
+	 * @param string $placeholder Placeholder text.
+	 * @param string $autocomplete Autocomplete attribute.
+	 * @param int    $minlength   Minimum length (optional).
+	 * @return string
+	 */
+	private static function render_password_field( $id, $name, $label, $placeholder, $autocomplete = 'current-password', $minlength = 0 ) {
+		ob_start();
+		?>
+		<div class="bd-form-group">
+			<label for="<?php echo esc_attr( $id ); ?>">
+				<?php echo esc_html( $label ); ?>
+			</label>
+			<div class="bd-password-wrapper">
+				<input type="password" 
+					id="<?php echo esc_attr( $id ); ?>" 
+					name="<?php echo esc_attr( $name ); ?>" 
+					required 
+					autocomplete="<?php echo esc_attr( $autocomplete ); ?>"
+					<?php if ( $minlength ) : ?>
+						minlength="<?php echo esc_attr( $minlength ); ?>"
+					<?php endif; ?>
+					placeholder="<?php echo esc_attr( $placeholder ); ?>">
+				<button type="button" class="bd-password-toggle" aria-label="<?php esc_attr_e( 'Show password', 'business-directory' ); ?>">
+					<svg class="bd-icon-eye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+						<circle cx="12" cy="12" r="3"></circle>
+					</svg>
+					<svg class="bd-icon-eye-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+						<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+						<line x1="1" y1="1" x2="23" y2="23"></line>
+					</svg>
+				</button>
+			</div>
+		</div>
+		<?php
+		return ob_get_clean();
 	}
 
 	/**
@@ -126,7 +172,9 @@ class LoginShortcode {
 
 		// Determine active tab.
 		$active_tab = $atts['tab'];
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( empty( $active_tab ) && isset( $_GET['tab'] ) ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$active_tab = sanitize_key( $_GET['tab'] );
 		}
 		if ( ! in_array( $active_tab, array( 'login', 'register', 'reset' ), true ) ) {
@@ -134,7 +182,9 @@ class LoginShortcode {
 		}
 
 		// Check for password reset key.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$reset_key   = isset( $_GET['key'] ) ? sanitize_text_field( $_GET['key'] ) : '';
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$reset_login = isset( $_GET['login'] ) ? sanitize_user( $_GET['login'] ) : '';
 
 		$redirect_to = $atts['redirect_to'] ? $atts['redirect_to'] : self::get_redirect_to();
@@ -200,17 +250,15 @@ class LoginShortcode {
 								placeholder="<?php esc_attr_e( 'Enter your username or email', 'business-directory' ); ?>">
 						</div>
 
-						<div class="bd-form-group">
-							<label for="bd-login-password">
-								<?php esc_html_e( 'Password', 'business-directory' ); ?>
-							</label>
-							<input type="password" 
-								id="bd-login-password" 
-								name="password" 
-								required 
-								autocomplete="current-password"
-								placeholder="<?php esc_attr_e( 'Enter your password', 'business-directory' ); ?>">
-						</div>
+						<?php
+						echo self::render_password_field(
+							'bd-login-password',
+							'password',
+							__( 'Password', 'business-directory' ),
+							__( 'Enter your password', 'business-directory' ),
+							'current-password'
+						);
+						?>
 
 						<div class="bd-form-row bd-form-row-flex">
 							<label class="bd-checkbox-label">
@@ -268,18 +316,16 @@ class LoginShortcode {
 								placeholder="<?php esc_attr_e( 'your@email.com', 'business-directory' ); ?>">
 						</div>
 
-						<div class="bd-form-group">
-							<label for="bd-register-password">
-								<?php esc_html_e( 'Password', 'business-directory' ); ?>
-							</label>
-							<input type="password" 
-								id="bd-register-password" 
-								name="password" 
-								required 
-								autocomplete="new-password"
-								minlength="8"
-								placeholder="<?php esc_attr_e( 'At least 8 characters', 'business-directory' ); ?>">
-						</div>
+						<?php
+						echo self::render_password_field(
+							'bd-register-password',
+							'password',
+							__( 'Password', 'business-directory' ),
+							__( 'At least 8 characters', 'business-directory' ),
+							'new-password',
+							8
+						);
+						?>
 
 						<div class="bd-form-group">
 							<label for="bd-register-city">
@@ -492,30 +538,24 @@ class LoginShortcode {
 			<input type="hidden" name="rp_login" value="<?php echo esc_attr( $login ); ?>">
 			<input type="hidden" name="redirect_to" value="<?php echo esc_url( home_url( '/login/?reset=success' ) ); ?>">
 
-			<div class="bd-form-group">
-				<label for="bd-new-password">
-					<?php esc_html_e( 'New Password', 'business-directory' ); ?>
-				</label>
-				<input type="password" 
-					id="bd-new-password" 
-					name="pass1" 
-					required 
-					autocomplete="new-password"
-					minlength="8"
-					placeholder="<?php esc_attr_e( 'At least 8 characters', 'business-directory' ); ?>">
-			</div>
+			<?php
+			echo self::render_password_field(
+				'bd-new-password',
+				'pass1',
+				__( 'New Password', 'business-directory' ),
+				__( 'At least 8 characters', 'business-directory' ),
+				'new-password',
+				8
+			);
 
-			<div class="bd-form-group">
-				<label for="bd-confirm-password">
-					<?php esc_html_e( 'Confirm Password', 'business-directory' ); ?>
-				</label>
-				<input type="password" 
-					id="bd-confirm-password" 
-					name="pass2" 
-					required 
-					autocomplete="new-password"
-					placeholder="<?php esc_attr_e( 'Confirm your new password', 'business-directory' ); ?>">
-			</div>
+			echo self::render_password_field(
+				'bd-confirm-password',
+				'pass2',
+				__( 'Confirm Password', 'business-directory' ),
+				__( 'Confirm your new password', 'business-directory' ),
+				'new-password'
+			);
+			?>
 
 			<button type="submit" class="bd-btn bd-btn-primary bd-btn-full">
 				<?php esc_html_e( 'Reset Password', 'business-directory' ); ?>

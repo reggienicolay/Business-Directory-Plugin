@@ -223,7 +223,70 @@
 	padding-right: 40px;
 }
 
-/* Form Rows */
+/* ==========================================================================
+	Password Field with Toggle
+	========================================================================== */
+
+.bd-password-wrapper {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.bd-password-wrapper input {
+	flex: 1;
+	padding-right: 48px !important;
+}
+
+.bd-password-toggle {
+	position: absolute;
+	right: 4px;
+	top: 50%;
+	transform: translateY(-50%);
+	width: 40px;
+	height: 36px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent !important;
+	background-color: transparent !important;
+	border: none !important;
+	color: var(--bd-auth-text-muted) !important;
+	cursor: pointer;
+	border-radius: 6px;
+	transition: color 0.2s ease;
+	padding: 0 !important;
+	margin: 0 !important;
+	box-shadow: none !important;
+}
+
+.bd-password-toggle:hover {
+	color: var(--bd-auth-text) !important;
+	background: transparent !important;
+	background-color: transparent !important;
+}
+
+.bd-password-toggle:focus {
+	outline: none;
+	background: transparent !important;
+	box-shadow: none !important;
+}
+
+.bd-password-toggle:active {
+	background: transparent !important;
+	background-color: transparent !important;
+}
+
+.bd-password-toggle svg {
+	width: 20px;
+	height: 20px;
+	pointer-events: none;
+}
+
+/* ==========================================================================
+	Form Rows
+	========================================================================== */
+
 .bd-form-row {
 	margin: 0;
 }
@@ -482,6 +545,7 @@
 	cursor: pointer;
 	border-radius: 6px;
 	transition: all 0.2s;
+	padding: 2px;
 }
 
 .bd-modal-close:hover {

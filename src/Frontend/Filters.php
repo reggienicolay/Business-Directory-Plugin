@@ -1,8 +1,18 @@
 <?php
+/**
+ * Directory Filters and Display
+ *
+ * Renders either the Classic layout or Quick Filter layout
+ * based on admin settings.
+ *
+ * @package BusinessDirectory
+ */
 
 namespace BusinessDirectory\Frontend;
 
 use BusinessDirectory\Search\FilterHandler;
+use BD\Admin\Settings;
+use BD\Frontend\QuickFilterDisplay;
 
 class Filters {
 
@@ -13,6 +23,10 @@ class Filters {
 
 		// Disable wpautop for our shortcodes to prevent <br> injection
 		add_filter( 'the_content', array( __CLASS__, 'disable_wpautop_for_shortcodes' ), 9 );
+
+		// AJAX handler for category tags (used by Quick Filter)
+		add_action( 'wp_ajax_bd_get_category_tags', array( __CLASS__, 'ajax_get_category_tags' ) );
+		add_action( 'wp_ajax_nopriv_bd_get_category_tags', array( __CLASS__, 'ajax_get_category_tags' ) );
 	}
 
 	/**
@@ -31,10 +45,27 @@ class Filters {
 
 	/**
 	 * Render complete directory (filters + map + list)
+	 * Chooses between Classic and Quick Filter layout based on settings.
 	 */
 	public static function render_complete_directory( $atts = array() ) {
 		$metadata = FilterHandler::get_filter_metadata();
 
+		// Check layout setting
+		$layout = Settings::get_directory_layout();
+
+		// Use Quick Filter layout if enabled and class exists
+		if ( 'quick_filter' === $layout && class_exists( 'BD\Frontend\QuickFilterDisplay' ) ) {
+			return QuickFilterDisplay::render( $metadata );
+		}
+
+		// Default: Classic layout
+		return self::render_classic_directory( $metadata );
+	}
+
+	/**
+	 * Render classic directory layout
+	 */
+	private static function render_classic_directory( $metadata ) {
 		ob_start();
 		?>
 		<div class="bd-directory-wrapper" style="display: flex; gap: 20px; flex-wrap: wrap;">
@@ -44,7 +75,7 @@ class Filters {
 
 				<!-- Add Business CTA Button -->
 				<div class="bd-add-business-cta" style="margin-bottom: 24px;">
-					<a href="<?php echo home_url( '/add-your-business/' ); ?>" class="bd-add-business-btn">
+					<a href="<?php echo esc_url( home_url( '/add-your-business/' ) ); ?>" class="bd-add-business-btn">
 						<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
 							<path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
 						</svg> 
@@ -200,7 +231,7 @@ class Filters {
 							<?php foreach ( $metadata['categories'] as $category ) : ?>
 								<label class="bd-checkbox-label">
 									<input type="checkbox" name="categories[]" value="<?php echo esc_attr( $category['id'] ); ?>" />
-									<span><?php echo esc_html( $category['name'] ); ?> (<?php echo $category['count']; ?>)</span>
+									<span><?php echo esc_html( $category['name'] ); ?> (<?php echo esc_html( $category['count'] ); ?>)</span>
 								</label>
 							<?php endforeach; ?>
 						</div>
@@ -215,7 +246,7 @@ class Filters {
 							<?php foreach ( $metadata['areas'] as $area ) : ?>
 								<label class="bd-checkbox-label">
 									<input type="checkbox" name="areas[]" value="<?php echo esc_attr( $area['id'] ); ?>" />
-									<span><?php echo esc_html( $area['name'] ); ?> (<?php echo $area['count']; ?>)</span>
+									<span><?php echo esc_html( $area['name'] ); ?> (<?php echo esc_html( $area['count'] ); ?>)</span>
 								</label>
 							<?php endforeach; ?>
 						</div>
@@ -238,7 +269,7 @@ class Filters {
 							?>
 							<label class="bd-checkbox-label">
 								<input type="checkbox" name="price_level[]" value="<?php echo esc_attr( $symbol ); ?>" />
-								<span><?php echo esc_html( $symbol . ' ' . $label ); ?> (<?php echo $count; ?>)</span>
+								<span><?php echo esc_html( $symbol . ' ' . $label ); ?> (<?php echo esc_html( $count ); ?>)</span>
 							</label>
 						<?php endforeach; ?>
 					</div>
@@ -256,7 +287,7 @@ class Filters {
 							<label class="bd-radio-label">
 								<input type="radio" name="min_rating" value="<?php echo esc_attr( rtrim( $range, '+' ) ); ?>" />
 								<span class="bd-star-option" data-stars="<?php echo esc_attr( rtrim( $range, '+' ) ); ?>">
-									<?php echo esc_html( $range ); ?> stars (<?php echo $count; ?>)
+									<?php echo esc_html( $range ); ?> stars (<?php echo esc_html( $count ); ?>)
 								</span>
 							</label>
 						<?php endforeach; ?>
@@ -280,6 +311,31 @@ class Filters {
 		</script>
 		<?php
 		return ob_get_clean();
+	}
+
+	/**
+	 * AJAX handler: Get tags associated with a category
+	 */
+	public static function ajax_get_category_tags() {
+		// Verify nonce
+		if ( ! wp_verify_nonce( $_POST['nonce'] ?? '', 'wp_rest' ) ) {
+			wp_send_json_error( array( 'message' => 'Invalid nonce' ) );
+		}
+
+		$category_id = isset( $_POST['category_id'] ) ? absint( $_POST['category_id'] ) : 0;
+
+		if ( ! $category_id ) {
+			wp_send_json_error( array( 'message' => 'Invalid category ID' ) );
+		}
+
+		// Get tags for this category
+		if ( class_exists( 'BD\Frontend\QuickFilterDisplay' ) ) {
+			$tags = QuickFilterDisplay::get_tags_for_category( $category_id );
+		} else {
+			$tags = array();
+		}
+
+		wp_send_json_success( array( 'tags' => $tags ) );
 	}
 }
 

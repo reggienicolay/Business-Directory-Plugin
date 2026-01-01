@@ -7,7 +7,7 @@
  *
  * @package BusinessDirectory
  * @subpackage Auth
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 namespace BD\Auth;
@@ -57,6 +57,50 @@ class LoginModal {
 		);
 
 		wp_localize_script( 'bd-auth', 'bdAuth', LoginShortcode::get_js_data() );
+	}
+
+	/**
+	 * Render password input with toggle button
+	 *
+	 * @param string $id          Input ID.
+	 * @param string $name        Input name.
+	 * @param string $label       Label text.
+	 * @param string $placeholder Placeholder text.
+	 * @param string $autocomplete Autocomplete attribute.
+	 * @param int    $minlength   Minimum length (optional).
+	 * @return string
+	 */
+	private static function render_password_field( $id, $name, $label, $placeholder, $autocomplete = 'current-password', $minlength = 0 ) {
+		ob_start();
+		?>
+		<div class="bd-form-group">
+			<label for="<?php echo esc_attr( $id ); ?>">
+				<?php echo esc_html( $label ); ?>
+			</label>
+			<div class="bd-password-wrapper">
+				<input type="password" 
+					id="<?php echo esc_attr( $id ); ?>" 
+					name="<?php echo esc_attr( $name ); ?>" 
+					required 
+					autocomplete="<?php echo esc_attr( $autocomplete ); ?>"
+					<?php if ( $minlength ) : ?>
+						minlength="<?php echo esc_attr( $minlength ); ?>"
+					<?php endif; ?>
+					placeholder="<?php echo esc_attr( $placeholder ); ?>">
+				<button type="button" class="bd-password-toggle" aria-label="<?php esc_attr_e( 'Show password', 'business-directory' ); ?>">
+					<svg class="bd-icon-eye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+						<circle cx="12" cy="12" r="3"></circle>
+					</svg>
+					<svg class="bd-icon-eye-off" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+						<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+						<line x1="1" y1="1" x2="23" y2="23"></line>
+					</svg>
+				</button>
+			</div>
+		</div>
+		<?php
+		return ob_get_clean();
 	}
 
 	/**
@@ -130,17 +174,15 @@ class LoginModal {
 									placeholder="<?php esc_attr_e( 'Enter your username or email', 'business-directory' ); ?>">
 							</div>
 
-							<div class="bd-form-group">
-								<label for="bd-modal-login-password">
-									<?php esc_html_e( 'Password', 'business-directory' ); ?>
-								</label>
-								<input type="password" 
-									id="bd-modal-login-password" 
-									name="password" 
-									required 
-									autocomplete="current-password"
-									placeholder="<?php esc_attr_e( 'Enter your password', 'business-directory' ); ?>">
-							</div>
+							<?php
+							echo self::render_password_field(
+								'bd-modal-login-password',
+								'password',
+								__( 'Password', 'business-directory' ),
+								__( 'Enter your password', 'business-directory' ),
+								'current-password'
+							);
+							?>
 
 							<div class="bd-form-row bd-form-row-flex">
 								<label class="bd-checkbox-label">
@@ -199,18 +241,16 @@ class LoginModal {
 							</div>
 
 							<div class="bd-form-row bd-form-row-2col">
-								<div class="bd-form-group">
-									<label for="bd-modal-register-password">
-										<?php esc_html_e( 'Password', 'business-directory' ); ?>
-									</label>
-									<input type="password" 
-										id="bd-modal-register-password" 
-										name="password" 
-										required 
-										autocomplete="new-password"
-										minlength="8"
-										placeholder="<?php esc_attr_e( '8+ characters', 'business-directory' ); ?>">
-								</div>
+								<?php
+								echo self::render_password_field(
+									'bd-modal-register-password',
+									'password',
+									__( 'Password', 'business-directory' ),
+									__( '8+ characters', 'business-directory' ),
+									'new-password',
+									8
+								);
+								?>
 
 								<div class="bd-form-group">
 									<label for="bd-modal-register-city">

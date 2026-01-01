@@ -11,7 +11,7 @@
  *   [bd_city_events city="Dublin" source="lovetrivalley.com"]
  *
  * @package BusinessDirectory
- * @version 1.2.0
+ * @version 2.0.0
  */
 
 namespace BD\Integrations\EventsCalendar;
@@ -158,29 +158,30 @@ class CityEventsShortcode {
 		}
 
 		$code = wp_remote_retrieve_response_code( $response );
+
 		if ( 200 !== $code ) {
-			if ( current_user_can( 'manage_options' ) ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log( 'BD City Events: Remote fetch returned ' . $code );
-			}
 			return array();
 		}
 
 		$body = wp_remote_retrieve_body( $response );
 		$data = json_decode( $body, true );
 
-		return is_array( $data ) ? $data : array();
+		if ( ! is_array( $data ) ) {
+			return array();
+		}
+
+		return $data;
 	}
 
 	/**
-	 * Fetch events locally
+	 * Fetch events locally (when running on main site)
 	 *
 	 * @param string $city  City name.
 	 * @param int    $limit Number of events.
 	 * @return array Events data.
 	 */
 	private static function fetch_local_events( $city, $limit ) {
-		// Check if Events Calendar is active
+		// Check if TEC is active
 		if ( ! class_exists( 'Tribe__Events__Main' ) ) {
 			return array();
 		}
@@ -259,7 +260,7 @@ class CityEventsShortcode {
 	}
 
 	/**
-	 * Render events HTML with inline styles
+	 * Render events HTML with beautiful styling
 	 *
 	 * @param array $events Events data.
 	 * @param array $atts   Shortcode attributes.
@@ -275,118 +276,770 @@ class CityEventsShortcode {
 		$title         = sanitize_text_field( $atts['title'] );
 		$view_all_url  = esc_url( $atts['view_all_url'] );
 
+		// Generate unique ID for this instance
+		$instance_id = 'bd-events-' . wp_rand( 1000, 9999 );
+
 		ob_start();
 		?>
-		<div style="margin: 30px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;">
-
-			<?php if ( $title ) : ?>
-				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-					<h2 style="margin: 0; font-size: 1.5rem; font-weight: 600; color: #1a1a1a;"><?php echo esc_html( $title ); ?></h2>
+		<style>
+			/* Font Awesome */
+			@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+			
+			/* Google Fonts - Onest for headings */
+			@import url('https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap');
+			
+			/* Base container - Wine Country Theme with Burgundy Accent */
+			#<?php echo esc_attr( $instance_id ); ?> {
+				/* Primary - Navy (from design-tokens.css) */
+				--bd-primary-500: #2a7a94;
+				--bd-primary-600: #133453;
+				--bd-primary-700: #0f2530;
+				
+				/* Burgundy - Wine Country Accent */
+				--bd-burgundy: #722F37;
+				--bd-burgundy-light: #8b3d47;
+				--bd-burgundy-dark: #5a252c;
+				--bd-burgundy-shadow: rgba(114, 47, 55, 0.3);
+				
+				/* Gold */
+				--bd-gold-400: #f5c522;
+				--bd-gold-500: #C9A227;
+				--bd-gold-600: #9A7B1A;
+				
+				/* Neutrals */
+				--bd-neutral-50: #f8fafc;
+				--bd-neutral-100: #f1f5f9;
+				--bd-neutral-200: #e2e8f0;
+				--bd-neutral-300: #cbd5e1;
+				--bd-neutral-400: #94a3b8;
+				--bd-neutral-500: #64748b;
+				--bd-neutral-600: #475569;
+				--bd-neutral-800: #1e293b;
+				--bd-neutral-900: #0f172a;
+				
+				/* Semantic shortcuts */
+				--bd-primary: var(--bd-primary-600);
+				--bd-primary-light: var(--bd-primary-500);
+				--bd-accent: var(--bd-burgundy);
+				--bd-accent-light: var(--bd-burgundy-light);
+				--bd-gold: var(--bd-gold-500);
+				--bd-text: var(--bd-neutral-900);
+				--bd-text-light: var(--bd-neutral-500);
+				--bd-bg: var(--bd-neutral-50);
+				--bd-white: #fff;
+				--bd-border: var(--bd-neutral-200);
+				
+				/* Shadows */
+				--bd-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+				--bd-shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+				--bd-shadow-primary: 0 4px 14px rgba(19, 52, 83, 0.25);
+				--bd-shadow-accent: 0 4px 14px var(--bd-burgundy-shadow);
+				--bd-shadow-gold: 0 4px 14px rgba(201, 162, 39, 0.35);
+				
+				/* Sizing */
+				--bd-radius: 0.75rem;
+				--bd-radius-sm: 0.5rem;
+				--bd-radius-full: 9999px;
+				
+				/* Typography */
+				--bd-font-heading: 'Onest', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+				--bd-font-body: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+				
+				margin: 2rem 0;
+				font-family: var(--bd-font-body);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> * {
+				box-sizing: border-box;
+			}
+			
+			/* Section Header */
+			#<?php echo esc_attr( $instance_id ); ?> .bd-events-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 1.5rem;
+				padding-bottom: 1rem;
+				border-bottom: 2px solid var(--bd-border);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-events-title {
+				margin: 0;
+				font-family: var(--bd-font-heading);
+				font-size: 1.75rem;
+				font-weight: 700;
+				color: var(--bd-text);
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-events-title i {
+				color: var(--bd-gold);
+				font-size: 0.9em;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-events-view-all {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.5rem 1rem;
+				background: transparent;
+				border: 2px solid var(--bd-primary);
+				border-radius: 50px;
+				color: var(--bd-primary);
+				text-decoration: none;
+				font-weight: 600;
+				font-size: 0.9rem;
+				transition: all 0.3s ease;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-events-view-all:hover {
+				background: var(--bd-primary);
+				color: var(--bd-white);
+				transform: translateX(3px);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-events-view-all i {
+				transition: transform 0.3s ease;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-events-view-all:hover i {
+				transform: translateX(3px);
+			}
+			
+			/* =====================================================
+			   GRID LAYOUT - Magazine Feature Cards
+			   ===================================================== */
+			#<?php echo esc_attr( $instance_id ); ?> .bd-events-grid {
+				display: grid;
+				grid-template-columns: repeat(<?php echo esc_attr( $columns ); ?>, 1fr);
+				gap: 1.5rem;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-card {
+				position: relative;
+				background: var(--bd-white);
+				border-radius: var(--bd-radius);
+				overflow: hidden;
+				box-shadow: var(--bd-shadow);
+				transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-card:hover {
+				transform: translateY(-6px);
+				box-shadow: var(--bd-shadow-hover);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-image {
+				position: relative;
+				height: 200px;
+				overflow: hidden;
+				background: linear-gradient(135deg, var(--bd-bg), #e8e4e0);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-image img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-card:hover .bd-grid-image img {
+				transform: scale(1.08);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-image::after {
+				content: '';
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				right: 0;
+				height: 50%;
+				background: linear-gradient(to top, rgba(26, 58, 74, 0.6), transparent);
+				pointer-events: none;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-date-badge {
+				position: absolute;
+				top: 1rem;
+				left: 1rem;
+				padding: 0.5rem 1rem;
+				background: var(--bd-accent);
+				color: var(--bd-white);
+				font-family: var(--bd-font-heading);
+				font-size: 0.85rem;
+				font-weight: 700;
+				border-radius: 6px;
+				text-transform: uppercase;
+				letter-spacing: 0.5px;
+				box-shadow: var(--bd-shadow-accent);
+				z-index: 2;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-time-badge {
+				position: absolute;
+				bottom: 1rem;
+				right: 1rem;
+				padding: 0.4rem 0.8rem;
+				background: rgba(255, 255, 255, 0.95);
+				color: var(--bd-primary);
+				font-size: 0.8rem;
+				font-weight: 600;
+				border-radius: 20px;
+				display: flex;
+				align-items: center;
+				gap: 0.4rem;
+				z-index: 2;
+				backdrop-filter: blur(4px);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-content {
+				padding: 1.25rem;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-title {
+				margin: 0 0 0.75rem 0;
+				font-family: var(--bd-font-heading);
+				font-size: 1.15rem;
+				font-weight: 600;
+				line-height: 1.35;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-title a {
+				color: var(--bd-text);
+				text-decoration: none;
+				transition: color 0.2s ease;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-title a:hover {
+				color: var(--bd-accent);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-meta {
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+				font-size: 0.9rem;
+				color: var(--bd-text-light);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-meta span {
+				display: flex;
+				align-items: center;
+				gap: 0.5rem;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-meta i {
+				width: 16px;
+				color: var(--bd-primary);
+				opacity: 0.7;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-business {
+				margin-top: 1rem;
+				padding-top: 1rem;
+				border-top: 1px solid var(--bd-border);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-business a {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.4rem 0.75rem;
+				background: linear-gradient(135deg, var(--bd-bg), #f0ece8);
+				border-radius: 20px;
+				color: var(--bd-primary);
+				text-decoration: none;
+				font-size: 0.85rem;
+				font-weight: 600;
+				transition: all 0.2s ease;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-business a:hover {
+				background: var(--bd-primary);
+				color: var(--bd-white);
+			}
+			
+			/* =====================================================
+			   LIST LAYOUT - Timeline Style
+			   ===================================================== */
+			#<?php echo esc_attr( $instance_id ); ?> .bd-events-list {
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
+				position: relative;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-events-list::before {
+				content: '';
+				position: absolute;
+				left: 42px;
+				top: 0;
+				bottom: 0;
+				width: 2px;
+				background: linear-gradient(to bottom, var(--bd-accent), var(--bd-primary));
+				border-radius: 2px;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-card {
+				display: flex;
+				align-items: stretch;
+				gap: 1.25rem;
+				padding: 1.25rem;
+				background: var(--bd-white);
+				border-radius: var(--bd-radius);
+				box-shadow: var(--bd-shadow);
+				position: relative;
+				transition: all 0.3s ease;
+				margin-left: 20px;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-card:hover {
+				transform: translateX(8px);
+				box-shadow: var(--bd-shadow-hover);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-date {
+				flex-shrink: 0;
+				width: 65px;
+				text-align: center;
+				padding: 0.75rem 0.5rem;
+				background: linear-gradient(135deg, var(--bd-accent), var(--bd-burgundy-dark));
+				border-radius: var(--bd-radius-sm);
+				color: var(--bd-white);
+				position: relative;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-date::before {
+				content: '';
+				position: absolute;
+				left: -32px;
+				top: 50%;
+				transform: translateY(-50%);
+				width: 12px;
+				height: 12px;
+				background: var(--bd-white);
+				border: 3px solid var(--bd-accent);
+				border-radius: 50%;
+				box-shadow: 0 0 0 4px var(--bd-burgundy-shadow);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-date .bd-month {
+				display: block;
+				font-size: 0.7rem;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 1px;
+				opacity: 0.9;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-date .bd-day {
+				display: block;
+				font-family: var(--bd-font-heading);
+				font-size: 1.75rem;
+				font-weight: 700;
+				line-height: 1;
+				margin-top: 2px;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-image {
+				flex-shrink: 0;
+				width: 100px;
+				height: 100px;
+				border-radius: var(--bd-radius-sm);
+				overflow: hidden;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-image img {
+				width: 100%;
+				height: 100%;
+				object-fit: cover;
+				transition: transform 0.4s ease;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-card:hover .bd-list-image img {
+				transform: scale(1.1);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-content {
+				flex: 1;
+				min-width: 0;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-title {
+				margin: 0 0 0.5rem 0;
+				font-family: var(--bd-font-heading);
+				font-size: 1.1rem;
+				font-weight: 600;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-title a {
+				color: var(--bd-text);
+				text-decoration: none;
+				transition: color 0.2s ease;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-title a:hover {
+				color: var(--bd-accent);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-meta {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem 1.25rem;
+				font-size: 0.875rem;
+				color: var(--bd-text-light);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-meta span,
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-meta a {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.4rem;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-meta i {
+				color: var(--bd-primary);
+				opacity: 0.7;
+				font-size: 0.9em;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-meta a {
+				color: var(--bd-primary);
+				text-decoration: none;
+				font-weight: 600;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-meta a:hover {
+				color: var(--bd-accent);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-arrow {
+				flex-shrink: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 44px;
+				height: 44px;
+				background: var(--bd-bg);
+				border-radius: 50%;
+				color: var(--bd-primary);
+				font-size: 0.9rem;
+				transition: all 0.3s ease;
+				align-self: center;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-list-card:hover .bd-list-arrow {
+				background: var(--bd-primary);
+				color: var(--bd-white);
+				transform: translateX(4px);
+			}
+			
+			/* =====================================================
+			   COMPACT LAYOUT - Minimal Timeline
+			   ===================================================== */
+			#<?php echo esc_attr( $instance_id ); ?> .bd-events-compact {
+				background: var(--bd-white);
+				border-radius: var(--bd-radius);
+				box-shadow: var(--bd-shadow);
+				overflow: hidden;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-compact-item {
+				display: flex;
+				align-items: center;
+				padding: 1rem 1.25rem;
+				border-bottom: 1px solid var(--bd-border);
+				transition: all 0.2s ease;
+				text-decoration: none;
+				color: inherit;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-compact-item:last-child {
+				border-bottom: none;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-compact-item:hover {
+				background: linear-gradient(90deg, rgba(114, 47, 55, 0.08), transparent);
+				padding-left: 1.5rem;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-compact-date {
+				flex-shrink: 0;
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+				min-width: 100px;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-compact-date-icon {
+				width: 36px;
+				height: 36px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				background: var(--bd-accent);
+				border-radius: 6px;
+				color: var(--bd-white);
+				font-size: 0.65rem;
+				font-weight: 700;
+				text-transform: uppercase;
+				line-height: 1.1;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-compact-date-icon .bd-day {
+				font-size: 1rem;
+				font-family: var(--bd-font-heading);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-compact-title {
+				flex: 1;
+				font-weight: 600;
+				color: var(--bd-text);
+				margin: 0 1rem;
+				font-family: var(--bd-font-heading);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-compact-time {
+				flex-shrink: 0;
+				display: flex;
+				align-items: center;
+				gap: 0.4rem;
+				font-size: 0.85rem;
+				color: var(--bd-text-light);
+				padding: 0.3rem 0.75rem;
+				background: var(--bd-bg);
+				border-radius: 20px;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-compact-time i {
+				color: var(--bd-primary);
+				opacity: 0.7;
+				font-size: 0.8em;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-compact-arrow {
+				flex-shrink: 0;
+				margin-left: 0.75rem;
+				color: var(--bd-border);
+				transition: all 0.2s ease;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-compact-item:hover .bd-compact-arrow {
+				color: var(--bd-accent);
+				transform: translateX(3px);
+			}
+			
+			/* Footer CTA */
+			#<?php echo esc_attr( $instance_id ); ?> .bd-events-footer {
+				margin-top: 1.5rem;
+				text-align: center;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-events-footer-btn {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.5rem;
+				padding: 0.875rem 2rem;
+				background: linear-gradient(135deg, var(--bd-primary), var(--bd-primary-light));
+				color: var(--bd-white);
+				text-decoration: none;
+				border-radius: 50px;
+				font-weight: 600;
+				font-size: 1rem;
+				transition: all 0.3s ease;
+				box-shadow: 0 4px 15px rgba(26, 58, 74, 0.25);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-events-footer-btn:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 6px 20px rgba(26, 58, 74, 0.35);
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-events-footer-btn i {
+				transition: transform 0.3s ease;
+			}
+			
+			#<?php echo esc_attr( $instance_id ); ?> .bd-events-footer-btn:hover i {
+				transform: translateX(3px);
+			}
+			
+			/* Responsive */
+			@media (max-width: 992px) {
+				#<?php echo esc_attr( $instance_id ); ?> .bd-events-grid {
+					grid-template-columns: repeat(2, 1fr);
+				}
+			}
+			
+			@media (max-width: 768px) {
+				#<?php echo esc_attr( $instance_id ); ?> .bd-events-header {
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 1rem;
+				}
+				
+				#<?php echo esc_attr( $instance_id ); ?> .bd-events-grid {
+					grid-template-columns: 1fr;
+				}
+				
+				#<?php echo esc_attr( $instance_id ); ?> .bd-events-list::before {
+					display: none;
+				}
+				
+				#<?php echo esc_attr( $instance_id ); ?> .bd-list-card {
+					margin-left: 0;
+					flex-wrap: wrap;
+				}
+				
+				#<?php echo esc_attr( $instance_id ); ?> .bd-list-date::before {
+					display: none;
+				}
+				
+				#<?php echo esc_attr( $instance_id ); ?> .bd-list-image {
+					width: 100%;
+					height: 150px;
+					order: -1;
+				}
+				
+				#<?php echo esc_attr( $instance_id ); ?> .bd-list-content {
+					width: 100%;
+				}
+				
+				#<?php echo esc_attr( $instance_id ); ?> .bd-list-arrow {
+					display: none;
+				}
+				
+				#<?php echo esc_attr( $instance_id ); ?> .bd-compact-item {
+					flex-wrap: wrap;
+					gap: 0.5rem;
+				}
+				
+				#<?php echo esc_attr( $instance_id ); ?> .bd-compact-title {
+					width: 100%;
+					order: 1;
+					margin: 0.5rem 0 0 0;
+				}
+				
+				#<?php echo esc_attr( $instance_id ); ?> .bd-compact-time {
+					order: 0;
+				}
+			}
+		</style>
+		
+		<div id="<?php echo esc_attr( $instance_id ); ?>">
+			<?php if ( $title || $view_all_url ) : ?>
+				<div class="bd-events-header">
+					<?php if ( $title ) : ?>
+						<h2 class="bd-events-title">
+							<i class="fas fa-calendar-star"></i>
+							<?php echo esc_html( $title ); ?>
+						</h2>
+					<?php endif; ?>
 					<?php if ( $view_all_url ) : ?>
-						<a href="<?php echo esc_url( $view_all_url ); ?>" style="font-size: 0.9rem; color: #1a3a4a; text-decoration: none; font-weight: 500;">
-							<?php esc_html_e( 'View All Events →', 'business-directory' ); ?>
+						<a href="<?php echo esc_url( $view_all_url ); ?>" class="bd-events-view-all">
+							<?php esc_html_e( 'View All', 'business-directory' ); ?>
+							<i class="fas fa-arrow-right"></i>
 						</a>
 					<?php endif; ?>
 				</div>
 			<?php endif; ?>
 
 			<?php if ( 'grid' === $layout ) : ?>
-				<?php echo self::render_grid( $events, $show_image, $show_venue, $show_time, $show_business, $columns ); ?>
+				<?php echo self::render_grid_v2( $events, $show_image, $show_venue, $show_time, $show_business ); // phpcs:ignore ?>
 			<?php elseif ( 'list' === $layout ) : ?>
-				<?php echo self::render_list( $events, $show_image, $show_venue, $show_time, $show_business ); ?>
+				<?php echo self::render_list_v2( $events, $show_image, $show_venue, $show_time, $show_business ); // phpcs:ignore ?>
 			<?php elseif ( 'compact' === $layout ) : ?>
-				<?php echo self::render_compact( $events, $show_time ); ?>
+				<?php echo self::render_compact_v2( $events, $show_time ); // phpcs:ignore ?>
 			<?php endif; ?>
 
 			<?php if ( $view_all_url && ! $title ) : ?>
-				<div style="margin-top: 20px; text-align: center;">
-					<a href="<?php echo esc_url( $view_all_url ); ?>" style="display: inline-block; padding: 12px 24px; background: #1a3a4a; color: #fff; text-decoration: none; border-radius: 6px; font-weight: 500;">
-						<?php esc_html_e( 'View All Events →', 'business-directory' ); ?>
+				<div class="bd-events-footer">
+					<a href="<?php echo esc_url( $view_all_url ); ?>" class="bd-events-footer-btn">
+						<?php esc_html_e( 'View All Events', 'business-directory' ); ?>
+						<i class="fas fa-arrow-right"></i>
 					</a>
 				</div>
 			<?php endif; ?>
-
 		</div>
 		<?php
 		return ob_get_clean();
 	}
 
 	/**
-	 * Render grid layout with inline styles
-	 *
-	 * @param array $events        Events data.
-	 * @param bool  $show_image    Show image.
-	 * @param bool  $show_venue    Show venue.
-	 * @param bool  $show_time     Show time.
-	 * @param bool  $show_business Show business.
-	 * @param int   $columns       Number of columns.
-	 * @return string HTML.
+	 * Render grid layout v2
 	 */
-	private static function render_grid( $events, $show_image, $show_venue, $show_time, $show_business, $columns ) {
-		// Calculate column width percentage
-		$col_width = floor( 100 / $columns ) - 2;
-
+	private static function render_grid_v2( $events, $show_image, $show_venue, $show_time, $show_business ) {
 		ob_start();
 		?>
-		<div style="display: flex; flex-wrap: wrap; gap: 25px; margin: 0 -5px;">
+		<div class="bd-events-grid">
 			<?php foreach ( $events as $event ) : ?>
-				<div style="flex: 0 0 calc(<?php echo esc_attr( $col_width ); ?>% - 15px); min-width: 280px; max-width: 100%; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);">
-					<?php if ( $show_image && ! empty( $event['thumbnail'] ) ) : ?>
-						<div style="position: relative; height: 180px; overflow: hidden; background: linear-gradient(135deg, #f0f0f0, #e0e0e0);">
-							<a href="<?php echo esc_url( $event['url'] ); ?>">
-								<img src="<?php echo esc_url( $event['thumbnail'] ); ?>" 
-									alt="<?php echo esc_attr( $event['title'] ); ?>" 
-									loading="lazy"
-									style="width: 100%; height: 100%; object-fit: cover;">
-							</a>
-							<span style="position: absolute; top: 12px; left: 12px; padding: 6px 12px; background: #1a3a4a; color: #fff; font-size: 0.8rem; font-weight: 600; border-radius: 4px; text-transform: uppercase;">
+				<article class="bd-grid-card">
+					<?php if ( $show_image ) : ?>
+						<div class="bd-grid-image">
+							<?php if ( ! empty( $event['thumbnail'] ) ) : ?>
+								<a href="<?php echo esc_url( $event['url'] ); ?>">
+									<img src="<?php echo esc_url( $event['thumbnail'] ); ?>" 
+										alt="<?php echo esc_attr( $event['title'] ); ?>" 
+										loading="lazy">
+								</a>
+							<?php endif; ?>
+							<span class="bd-grid-date-badge">
 								<?php echo esc_html( gmdate( 'M j', strtotime( $event['start_date'] ) ) ); ?>
 							</span>
+							<?php if ( $show_time && ! empty( $event['start_time'] ) ) : ?>
+								<span class="bd-grid-time-badge">
+									<i class="far fa-clock"></i>
+									<?php echo esc_html( gmdate( 'g:i A', strtotime( $event['start_time'] ) ) ); ?>
+								</span>
+							<?php endif; ?>
 						</div>
 					<?php endif; ?>
-
-					<div style="padding: 18px;">
-						<?php if ( ! $show_image || empty( $event['thumbnail'] ) ) : ?>
-							<span style="display: block; font-size: 0.85rem; color: #1a3a4a; font-weight: 600; margin-bottom: 8px;">
+					
+					<div class="bd-grid-content">
+						<?php if ( ! $show_image ) : ?>
+							<span style="display: block; font-size: 0.85rem; color: var(--bd-primary); font-weight: 600; margin-bottom: 0.5rem;">
+								<i class="far fa-calendar" style="margin-right: 0.4rem;"></i>
 								<?php echo esc_html( gmdate( 'D, M j', strtotime( $event['start_date'] ) ) ); ?>
 								<?php if ( $show_time && ! empty( $event['start_time'] ) ) : ?>
-									<span style="color: #666; font-weight: 400;">
-										@ <?php echo esc_html( gmdate( 'g:i A', strtotime( $event['start_time'] ) ) ); ?>
-									</span>
+									@ <?php echo esc_html( gmdate( 'g:i A', strtotime( $event['start_time'] ) ) ); ?>
 								<?php endif; ?>
 							</span>
 						<?php endif; ?>
-
-						<h3 style="margin: 0 0 10px 0; font-size: 1.1rem; font-weight: 600; line-height: 1.3;">
-							<a href="<?php echo esc_url( $event['url'] ); ?>" style="color: #1a1a1a; text-decoration: none;">
+						
+						<h3 class="bd-grid-title">
+							<a href="<?php echo esc_url( $event['url'] ); ?>">
 								<?php echo esc_html( $event['title'] ); ?>
 							</a>
 						</h3>
-
-						<?php if ( $show_image && $show_time && ! empty( $event['start_time'] ) ) : ?>
-							<span style="display: block; font-size: 0.85rem; color: #666; margin-bottom: 8px;">
-								<?php echo esc_html( gmdate( 'g:i A', strtotime( $event['start_time'] ) ) ); ?>
-							</span>
-						<?php endif; ?>
-
-						<?php if ( $show_venue && ! empty( $event['venue'] ) ) : ?>
-							<p style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: #555; margin: 0 0 8px 0;">
-								<svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" style="flex-shrink: 0; opacity: 0.7;">
-									<path d="M7 0C4.2 0 2 2.2 2 5c0 3.5 5 9 5 9s5-5.5 5-9c0-2.8-2.2-5-5-5zm0 7c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
-								</svg>
-								<?php echo esc_html( $event['venue'] ); ?>
-							</p>
-						<?php endif; ?>
-
-						<?php if ( $show_business && ! empty( $event['business'] ) ) : ?>
-							<p style="margin: 0; padding-top: 10px; border-top: 1px solid #eee; font-size: 0.85rem;">
-								<a href="<?php echo esc_url( $event['business']['url'] ); ?>" style="color: #1a3a4a; text-decoration: none; font-weight: 500;">
+						
+						<div class="bd-grid-meta">
+							<?php
+							// Only show venue if no business is linked (avoid redundancy)
+							$has_business = $show_business && ! empty( $event['business'] );
+							if ( $show_venue && ! empty( $event['venue'] ) && ! $has_business ) :
+							?>
+								<span>
+									<i class="fas fa-map-marker-alt"></i>
+									<?php echo esc_html( $event['venue'] ); ?>
+								</span>
+							<?php endif; ?>
+						</div>
+						
+						<?php if ( $has_business ) : ?>
+							<div class="bd-grid-business">
+								<a href="<?php echo esc_url( $event['business']['url'] ); ?>">
+									<i class="fas fa-store"></i>
 									<?php echo esc_html( $event['business']['name'] ); ?>
 								</a>
-							</p>
+							</div>
 						<?php endif; ?>
 					</div>
-				</div>
+				</article>
 			<?php endforeach; ?>
 		</div>
 		<?php
@@ -394,67 +1047,68 @@ class CityEventsShortcode {
 	}
 
 	/**
-	 * Render list layout with inline styles
-	 *
-	 * @param array $events        Events data.
-	 * @param bool  $show_image    Show image.
-	 * @param bool  $show_venue    Show venue.
-	 * @param bool  $show_time     Show time.
-	 * @param bool  $show_business Show business.
-	 * @return string HTML.
+	 * Render list layout v2 - Timeline style
 	 */
-	private static function render_list( $events, $show_image, $show_venue, $show_time, $show_business ) {
+	private static function render_list_v2( $events, $show_image, $show_venue, $show_time, $show_business ) {
 		ob_start();
 		?>
-		<div style="display: flex; flex-direction: column; gap: 15px;">
+		<div class="bd-events-list">
 			<?php foreach ( $events as $event ) : ?>
-				<div style="display: flex; align-items: center; gap: 20px; padding: 15px 20px; background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);">
+				<article class="bd-list-card">
+					<div class="bd-list-date">
+						<span class="bd-month"><?php echo esc_html( gmdate( 'M', strtotime( $event['start_date'] ) ) ); ?></span>
+						<span class="bd-day"><?php echo esc_html( gmdate( 'j', strtotime( $event['start_date'] ) ) ); ?></span>
+					</div>
+					
 					<?php if ( $show_image && ! empty( $event['thumbnail'] ) ) : ?>
-						<div style="flex-shrink: 0; width: 80px; height: 80px; border-radius: 8px; overflow: hidden;">
+						<div class="bd-list-image">
 							<a href="<?php echo esc_url( $event['url'] ); ?>">
 								<img src="<?php echo esc_url( $event['thumbnail'] ); ?>" 
 									alt="<?php echo esc_attr( $event['title'] ); ?>" 
-									loading="lazy"
-									style="width: 100%; height: 100%; object-fit: cover;">
+									loading="lazy">
 							</a>
 						</div>
 					<?php endif; ?>
-
-					<div style="flex-shrink: 0; width: 60px; text-align: center; padding: 10px; background: #f8f4f0; border-radius: 8px;">
-						<span style="display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #1a3a4a; letter-spacing: 0.5px;"><?php echo esc_html( gmdate( 'M', strtotime( $event['start_date'] ) ) ); ?></span>
-						<span style="display: block; font-size: 1.5rem; font-weight: 700; color: #1a1a1a; line-height: 1; margin-top: 2px;"><?php echo esc_html( gmdate( 'j', strtotime( $event['start_date'] ) ) ); ?></span>
-					</div>
-
-					<div style="flex: 1; min-width: 0;">
-						<h3 style="margin: 0 0 6px 0; font-size: 1rem; font-weight: 600;">
-							<a href="<?php echo esc_url( $event['url'] ); ?>" style="color: #1a1a1a; text-decoration: none;">
+					
+					<div class="bd-list-content">
+						<h3 class="bd-list-title">
+							<a href="<?php echo esc_url( $event['url'] ); ?>">
 								<?php echo esc_html( $event['title'] ); ?>
 							</a>
 						</h3>
-
-						<div style="display: flex; flex-wrap: wrap; gap: 8px 15px; font-size: 0.85rem; color: #666;">
+						
+						<div class="bd-list-meta">
 							<?php if ( $show_time && ! empty( $event['start_time'] ) ) : ?>
-								<span>🕐 <?php echo esc_html( gmdate( 'g:i A', strtotime( $event['start_time'] ) ) ); ?></span>
+								<span>
+									<i class="far fa-clock"></i>
+									<?php echo esc_html( gmdate( 'g:i A', strtotime( $event['start_time'] ) ) ); ?>
+								</span>
 							<?php endif; ?>
-
-							<?php if ( $show_venue && ! empty( $event['venue'] ) ) : ?>
-								<span>📍 <?php echo esc_html( $event['venue'] ); ?></span>
+							
+							<?php
+							// Only show venue if no business is linked (avoid redundancy)
+							$has_business = $show_business && ! empty( $event['business'] );
+							if ( $show_venue && ! empty( $event['venue'] ) && ! $has_business ) :
+							?>
+								<span>
+									<i class="fas fa-map-marker-alt"></i>
+									<?php echo esc_html( $event['venue'] ); ?>
+								</span>
 							<?php endif; ?>
-
-							<?php if ( $show_business && ! empty( $event['business'] ) ) : ?>
-								<a href="<?php echo esc_url( $event['business']['url'] ); ?>" style="color: #1a3a4a; text-decoration: none; font-weight: 500;">
-									🏪 <?php echo esc_html( $event['business']['name'] ); ?>
+							
+							<?php if ( $has_business ) : ?>
+								<a href="<?php echo esc_url( $event['business']['url'] ); ?>">
+									<i class="fas fa-store"></i>
+									<?php echo esc_html( $event['business']['name'] ); ?>
 								</a>
 							<?php endif; ?>
 						</div>
 					</div>
-
-					<a href="<?php echo esc_url( $event['url'] ); ?>" style="flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #f5f5f5; border-radius: 50%; color: #666; text-decoration: none;">
-						<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-							<path d="M7 4l6 6-6 6V4z"/>
-						</svg>
+					
+					<a href="<?php echo esc_url( $event['url'] ); ?>" class="bd-list-arrow">
+						<i class="fas fa-chevron-right"></i>
 					</a>
-				</div>
+				</article>
 			<?php endforeach; ?>
 		</div>
 		<?php
@@ -462,34 +1116,38 @@ class CityEventsShortcode {
 	}
 
 	/**
-	 * Render compact layout with inline styles
-	 *
-	 * @param array $events    Events data.
-	 * @param bool  $show_time Show time.
-	 * @return string HTML.
+	 * Render compact layout v2 - Minimal with calendar icons
 	 */
-	private static function render_compact( $events, $show_time ) {
+	private static function render_compact_v2( $events, $show_time ) {
 		ob_start();
 		?>
-		<ul style="list-style: none; margin: 0; padding: 0;">
-			<?php foreach ( $events as $index => $event ) : ?>
-				<li style="<?php echo $index < count( $events ) - 1 ? 'border-bottom: 1px solid #eee;' : ''; ?>">
-					<a href="<?php echo esc_url( $event['url'] ); ?>" style="display: flex; align-items: center; gap: 15px; padding: 12px 0; text-decoration: none; color: inherit;">
-						<span style="flex-shrink: 0; min-width: 60px; font-size: 0.85rem; font-weight: 600; color: #1a3a4a;">
-							<?php echo esc_html( gmdate( 'M j', strtotime( $event['start_date'] ) ) ); ?>
+		<div class="bd-events-compact">
+			<?php foreach ( $events as $event ) : ?>
+				<a href="<?php echo esc_url( $event['url'] ); ?>" class="bd-compact-item">
+					<div class="bd-compact-date">
+						<div class="bd-compact-date-icon">
+							<span><?php echo esc_html( gmdate( 'M', strtotime( $event['start_date'] ) ) ); ?></span>
+							<span class="bd-day"><?php echo esc_html( gmdate( 'j', strtotime( $event['start_date'] ) ) ); ?></span>
+						</div>
+					</div>
+					
+					<span class="bd-compact-title">
+						<?php echo esc_html( $event['title'] ); ?>
+					</span>
+					
+					<?php if ( $show_time && ! empty( $event['start_time'] ) ) : ?>
+						<span class="bd-compact-time">
+							<i class="far fa-clock"></i>
+							<?php echo esc_html( gmdate( 'g:i A', strtotime( $event['start_time'] ) ) ); ?>
 						</span>
-						<span style="flex: 1; font-weight: 500; color: #1a1a1a;">
-							<?php echo esc_html( $event['title'] ); ?>
-						</span>
-						<?php if ( $show_time && ! empty( $event['start_time'] ) ) : ?>
-							<span style="flex-shrink: 0; font-size: 0.85rem; color: #666;">
-								<?php echo esc_html( gmdate( 'g:i A', strtotime( $event['start_time'] ) ) ); ?>
-							</span>
-						<?php endif; ?>
-					</a>
-				</li>
+					<?php endif; ?>
+					
+					<span class="bd-compact-arrow">
+						<i class="fas fa-chevron-right"></i>
+					</span>
+				</a>
 			<?php endforeach; ?>
-		</ul>
+		</div>
 		<?php
 		return ob_get_clean();
 	}

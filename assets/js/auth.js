@@ -6,7 +6,7 @@
  * Includes auth status check for cached pages.
  *
  * @package BusinessDirectory
- * @version 1.2.0
+ * @version 1.3.0
  */
 
 (function($) {
@@ -21,6 +21,7 @@
 			this.bindEvents();
 			this.initModal();
 			this.initDropdown();
+			this.initPasswordToggle();
 			this.checkMessages();
 			this.checkAuthStatus(); // Check auth on page load for cached pages
 		},
@@ -50,6 +51,35 @@
 			$(document).on('keydown', function(e) {
 				if (e.key === 'Escape') {
 					BD_Auth.closeModal();
+				}
+			});
+		},
+
+		/**
+		 * Initialize password toggle functionality
+		 */
+		initPasswordToggle: function() {
+			$(document).on('click', '.bd-password-toggle', function(e) {
+				e.preventDefault();
+				
+				const $toggle = $(this);
+				const $wrapper = $toggle.closest('.bd-password-wrapper');
+				const $input = $wrapper.find('input');
+				const $iconEye = $toggle.find('.bd-icon-eye');
+				const $iconEyeOff = $toggle.find('.bd-icon-eye-off');
+				
+				if ($input.attr('type') === 'password') {
+					// Show password
+					$input.attr('type', 'text');
+					$iconEye.hide();
+					$iconEyeOff.show();
+					$toggle.attr('aria-label', bdAuth.i18n?.hidePassword || 'Hide password');
+				} else {
+					// Hide password
+					$input.attr('type', 'password');
+					$iconEye.show();
+					$iconEyeOff.hide();
+					$toggle.attr('aria-label', bdAuth.i18n?.showPassword || 'Show password');
 				}
 			});
 		},
@@ -197,8 +227,8 @@
 										'<path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>' +
 									'</svg>' +
 									'My Business' +
-											'</a>' +
-											'</li>' +
+								'</a>' +
+							'</li>' +
 							'<li>' +
 								'<a href="' + urls.business_tools + '">' +
 									'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">' +
@@ -268,20 +298,30 @@
 		},
 
 		/**
-		 * Get fresh nonce from server (bypasses page cache)
+		 * Get fresh nonce via AJAX
 		 */
 		getFreshNonce: function() {
-			return $.ajax({
-				url: bdAuth.ajaxUrl,
-				type: 'POST',
-				data: { action: 'bd_get_nonce' }
-			}).then(function(response) {
-				if (response.success && response.data.nonce) {
-					return response.data.nonce;
+			return new Promise(function(resolve) {
+				if (typeof bdAuth === 'undefined' || !bdAuth.ajaxUrl) {
+					resolve(null);
+					return;
 				}
-				return null;
-			}).catch(function() {
-				return null;
+
+				$.ajax({
+					url: bdAuth.ajaxUrl,
+					type: 'POST',
+					data: { action: 'bd_get_auth_nonce' },
+					success: function(response) {
+						if (response.success && response.data.nonce) {
+							resolve(response.data.nonce);
+						} else {
+							resolve(null);
+						}
+					},
+					error: function() {
+						resolve(null);
+					}
+				});
 			});
 		},
 
@@ -300,7 +340,6 @@
 
 			// Show loading
 			$btn.addClass('bd-loading').prop('disabled', true);
-			$btn.data('original-text', $btn.text());
 
 			// Get fresh nonce first, then submit
 			BD_Auth.getFreshNonce().then(function(freshNonce) {
@@ -484,6 +523,11 @@
 
 			// Clear messages
 			$container.find('.bd-auth-messages').empty();
+
+			// Reset password visibility when switching tabs
+			$container.find('.bd-password-wrapper input').attr('type', 'password');
+			$container.find('.bd-icon-eye').show();
+			$container.find('.bd-icon-eye-off').hide();
 		},
 
 		/**
@@ -505,6 +549,11 @@
 
 			// Clear messages
 			$container.find('.bd-auth-messages').empty();
+
+			// Reset password visibility when switching panels
+			$container.find('.bd-password-wrapper input').attr('type', 'password');
+			$container.find('.bd-icon-eye').show();
+			$container.find('.bd-icon-eye-off').hide();
 		},
 
 		/**
@@ -530,6 +579,11 @@
 			const redirectTo = $trigger.data('redirect') || window.location.href;
 			$modal.find('input[name="redirect_to"]').val(redirectTo);
 
+			// Reset password visibility
+			$modal.find('.bd-password-wrapper input').attr('type', 'password');
+			$modal.find('.bd-icon-eye').show();
+			$modal.find('.bd-icon-eye-off').hide();
+
 			// Show modal
 			$modal.fadeIn(200);
 			$('body').addClass('bd-modal-open');
@@ -554,7 +608,15 @@
 
 			// Clear messages and reset forms
 			$modal.find('.bd-auth-messages').empty();
-			$modal.find('form')[0]?.reset();
+			var $form = $modal.find('form').first();
+			if ($form.length) {
+				$form[0].reset();
+			}
+
+			// Reset password visibility
+			$modal.find('.bd-password-wrapper input').attr('type', 'password');
+			$modal.find('.bd-icon-eye').show();
+			$modal.find('.bd-icon-eye-off').hide();
 		},
 
 		/**

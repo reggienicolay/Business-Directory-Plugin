@@ -147,6 +147,53 @@ class Settings {
 		// Page settings.
 		register_setting( 'bd_settings', 'bd_business_tools_page' );
 		register_setting( 'bd_settings', 'bd_edit_listing_page' );
+
+		// Directory layout setting.
+		register_setting( 'bd_settings', 'bd_directory_layout' );
+	}
+
+	/**
+	 * Get the current directory layout setting.
+	 *
+	 * @return string 'classic' or 'quick_filter'
+	 */
+	public static function get_directory_layout() {
+		return get_option( 'bd_directory_layout', 'classic' );
+	}
+
+	/**
+	 * Render directory layout setting field.
+	 */
+	public function render_layout_field() {
+		$value = get_option( 'bd_directory_layout', 'classic' );
+		?>
+		<tr>
+			<th scope="row">
+				<label><?php esc_html_e( 'Directory Layout', 'business-directory' ); ?></label>
+			</th>
+			<td>
+				<fieldset>
+					<label style="display: block; margin-bottom: 12px;">
+						<input type="radio" name="bd_directory_layout" value="classic" 
+							<?php checked( $value, 'classic' ); ?>>
+						<strong><?php esc_html_e( 'Classic Layout', 'business-directory' ); ?></strong>
+						<p class="description" style="margin: 4px 0 0 24px;">
+							<?php esc_html_e( 'Sidebar filters with tags below map', 'business-directory' ); ?>
+						</p>
+					</label>
+					<label style="display: block;">
+						<input type="radio" name="bd_directory_layout" value="quick_filter" 
+							<?php checked( $value, 'quick_filter' ); ?>>
+						<strong><?php esc_html_e( 'Quick Filter Bar', 'business-directory' ); ?></strong>
+						<span style="background: #dba617; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 3px; margin-left: 6px;">NEW</span>
+						<p class="description" style="margin: 4px 0 0 24px;">
+							<?php esc_html_e( 'Experiences bar with prominent tags (Recommended for discovery-focused browsing)', 'business-directory' ); ?>
+						</p>
+					</label>
+				</fieldset>
+			</td>
+		</tr>
+		<?php
 	}
 
 	public function render_page() {
@@ -176,6 +223,7 @@ class Settings {
 		<div class="wrap">
 			<h1><?php _e( 'Business Directory Settings', 'business-directory' ); ?></h1>
 
+			<!-- SINGLE FORM FOR ALL SETTINGS -->
 			<form method="post" action="options.php">
 				<?php settings_fields( 'bd_settings' ); ?>
 
@@ -230,49 +278,10 @@ class Settings {
 							</p>
 						</td>
 					</tr>
+					<?php $this->render_layout_field(); ?>
 				</table>
 
-				<?php submit_button(); ?>
-			</form>
-
-			<!-- Quick Page Creation -->
-			<hr style="margin: 40px 0;">
-
-			<h2><?php _e( 'Quick Page Setup', 'business-directory' ); ?></h2>
-			<p><?php _e( 'Automatically create pages with the correct shortcodes.', 'business-directory' ); ?></p>
-
-			<form method="post" action="" style="display: inline-block; margin-right: 10px;">
-				<?php wp_nonce_field( 'bd_create_page' ); ?>
-				<input type="hidden" name="create_tools_page" value="1">
-				<?php
-				$tools_exists = get_option( 'bd_business_tools_page' );
-				submit_button(
-					$tools_exists ? __( '📄 Recreate Business Tools Page', 'business-directory' ) : __( '📄 Create Business Tools Page', 'business-directory' ),
-					'secondary',
-					'submit',
-					false
-				);
-				?>
-			</form>
-
-			<form method="post" action="" style="display: inline-block;">
-				<?php wp_nonce_field( 'bd_create_page' ); ?>
-				<input type="hidden" name="create_edit_page" value="1">
-				<?php
-				$edit_exists = get_option( 'bd_edit_listing_page' );
-				submit_button(
-					$edit_exists ? __( '📄 Recreate Edit Listing Page', 'business-directory' ) : __( '📄 Create Edit Listing Page', 'business-directory' ),
-					'secondary',
-					'submit',
-					false
-				);
-				?>
-			</form>
-
-			<hr style="margin: 40px 0;">
-
-			<form method="post" action="options.php">
-				<?php settings_fields( 'bd_settings' ); ?>
+				<hr style="margin: 40px 0;">
 
 				<h2><?php _e( 'Cloudflare Turnstile', 'business-directory' ); ?></h2>
 				<p><?php _e( 'Get free keys at: <a href="https://dash.cloudflare.com/sign-up/turnstile" target="_blank">Cloudflare Turnstile</a>', 'business-directory' ); ?></p>
@@ -292,6 +301,8 @@ class Settings {
 					</tr>
 				</table>
 
+				<hr style="margin: 40px 0;">
+
 				<h2><?php _e( 'Notifications', 'business-directory' ); ?></h2>
 
 				<table class="form-table">
@@ -304,9 +315,48 @@ class Settings {
 					</tr>
 				</table>
 
+				<?php
+				// Hook for integrations and other settings - INSIDE THE FORM
+				do_action( 'bd_settings_after_pages' );
+				?>
+
 				<?php submit_button(); ?>
 			</form>
-				<?php do_action( 'bd_settings_after_pages' ); ?>
+
+			<!-- Quick Page Creation (separate forms, not options.php) -->
+			<hr style="margin: 40px 0;">
+
+			<h2><?php _e( 'Quick Page Setup', 'business-directory' ); ?></h2>
+			<p><?php _e( 'Automatically create pages with the correct shortcodes.', 'business-directory' ); ?></p>
+
+			<form method="post" action="" style="display: inline-block; margin-right: 10px;">
+				<?php wp_nonce_field( 'bd_create_page' ); ?>
+				<input type="hidden" name="create_tools_page" value="1">
+				<?php
+				$tools_exists = get_option( 'bd_business_tools_page' );
+				submit_button(
+					$tools_exists ? __( '🔄 Recreate Business Tools Page', 'business-directory' ) : __( '🔄 Create Business Tools Page', 'business-directory' ),
+					'secondary',
+					'submit',
+					false
+				);
+				?>
+			</form>
+
+			<form method="post" action="" style="display: inline-block;">
+				<?php wp_nonce_field( 'bd_create_page' ); ?>
+				<input type="hidden" name="create_edit_page" value="1">
+				<?php
+				$edit_exists = get_option( 'bd_edit_listing_page' );
+				submit_button(
+					$edit_exists ? __( '🔄 Recreate Edit Listing Page', 'business-directory' ) : __( '🔄 Create Edit Listing Page', 'business-directory' ),
+					'secondary',
+					'submit',
+					false
+				);
+				?>
+			</form>
+
 			<!-- Cache Management Section -->
 			<hr style="margin: 40px 0;">
 

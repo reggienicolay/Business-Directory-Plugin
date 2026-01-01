@@ -6,7 +6,7 @@
  * Links businesses to events, venues, and organizers.
  *
  * @package BusinessDirectory
- * @version 1.3.0
+ * @version 1.4.0
  */
 
 namespace BD\Integrations\EventsCalendar;
@@ -29,10 +29,12 @@ class EventsCalendarIntegration {
 		// Load sub-components
 		require_once __DIR__ . '/BusinessLinker.php';
 		require_once __DIR__ . '/CityEventsShortcode.php';
+		require_once __DIR__ . '/VenueSyncer.php';
 
 		// Initialize components
 		BusinessLinker::init();
 		CityEventsShortcode::init();
+		VenueSyncer::init();
 
 		// Display events on business pages
 		if ( IntegrationsManager::get_setting( 'events_calendar', 'show_events_on_business', true ) ) {
@@ -42,9 +44,8 @@ class EventsCalendarIntegration {
 
 		// Display business card on event pages (replaces venue when linked)
 		if ( IntegrationsManager::get_setting( 'events_calendar', 'show_business_on_events', true ) ) {
-			add_filter( 'the_content', array( __CLASS__, 'add_business_card_to_event' ), 20 );
-			// Note: Venue hiding is handled via inline CSS in render_business_card()
-			// This works for both block-based and classic TEC templates
+			// Use wp_footer to inject the business card - works with both classic and block TEC templates
+			add_action( 'wp_footer', array( __CLASS__, 'inject_business_card_on_event' ) );
 		}
 
 		// Register REST API endpoints for city sites
@@ -79,6 +80,181 @@ class EventsCalendarIntegration {
 			array( 'bd-design-tokens' ),
 			BD_VERSION
 		);
+	}
+
+	/**
+	 * Inject business card on single event pages via wp_footer
+	 *
+	 * This approach works with both classic and block-based TEC templates
+	 * because it injects the HTML via JavaScript after the page loads.
+	 */
+	public static function inject_business_card_on_event() {
+		// Only run on single event pages
+		if ( ! is_singular( 'tribe_events' ) ) {
+			return;
+		}
+
+		$event_id    = get_the_ID();
+		$business_id = self::get_business_for_event( $event_id );
+
+		// No linked business, don't output anything
+		if ( ! $business_id ) {
+			return;
+		}
+
+		$business = get_post( $business_id );
+
+		if ( ! $business || 'publish' !== $business->post_status ) {
+			return;
+		}
+
+		// Get business data
+		$location    = get_post_meta( $business->ID, 'bd_location', true );
+		$address     = is_array( $location ) ? ( $location['address'] ?? '' ) : '';
+		$city        = is_array( $location ) ? ( $location['city'] ?? '' ) : '';
+		$rating_data = self::get_business_rating( $business->ID );
+		$categories  = get_the_terms( $business->ID, 'bd_category' );
+		$thumbnail   = get_the_post_thumbnail_url( $business->ID, 'medium' );
+		$permalink   = get_permalink( $business->ID );
+
+		// Build category string
+		$cat_string = '';
+		if ( $categories && ! is_wp_error( $categories ) ) {
+			$cat_names  = wp_list_pluck( array_slice( $categories, 0, 2 ), 'name' );
+			$cat_string = implode( ' · ', $cat_names );
+		}
+
+		// Build location string
+		$location_string = trim( $address . ', ' . $city, ', ' );
+
+		?>
+		<style>
+			/* Hide TEC venue block when business card is shown */
+			.tribe-block__venue,
+			.tribe-events-venue,
+			.tribe-events-meta-group-venue,
+			.tribe-events-single-event-venue,
+			.tribe-block__event-venue {
+				display: none !important;
+			}
+		</style>
+
+		<div id="bd-event-business-card-container" style="display: none;">
+			<div class="bd-event-business-card">
+				<div class="bd-event-business-card-header">
+					<h4 class="bd-event-business-card-title">
+						<i class="fas fa-store"></i>
+						<?php esc_html_e( 'Hosted By', 'business-directory' ); ?>
+					</h4>
+				</div>
+				<div class="bd-event-business-card-body">
+					<div class="bd-event-business-card-inner">
+						<?php if ( $thumbnail ) : ?>
+							<div class="bd-event-business-card-image">
+								<a href="<?php echo esc_url( $permalink ); ?>">
+									<img src="<?php echo esc_url( $thumbnail ); ?>" alt="<?php echo esc_attr( $business->post_title ); ?>">
+								</a>
+							</div>
+						<?php endif; ?>
+
+						<div class="bd-event-business-card-content">
+							<h5 class="bd-event-business-card-name">
+								<a href="<?php echo esc_url( $permalink ); ?>">
+									<?php echo esc_html( $business->post_title ); ?>
+								</a>
+							</h5>
+
+							<?php if ( $rating_data['count'] > 0 ) : ?>
+								<div class="bd-event-business-card-rating">
+									<span class="bd-stars">
+										<i class="fas fa-star"></i>
+										<?php echo esc_html( number_format( $rating_data['average'], 1 ) ); ?>
+									</span>
+									<span class="bd-review-count">(<?php echo esc_html( $rating_data['count'] ); ?> reviews)</span>
+								</div>
+							<?php endif; ?>
+
+							<?php if ( $location_string ) : ?>
+								<div class="bd-event-business-card-location">
+									<i class="fas fa-map-marker-alt"></i>
+									<span><?php echo esc_html( $location_string ); ?></span>
+								</div>
+							<?php endif; ?>
+
+							<?php if ( $cat_string ) : ?>
+								<div class="bd-event-business-card-categories">
+									<i class="fas fa-tag"></i>
+									<?php echo esc_html( $cat_string ); ?>
+								</div>
+							<?php endif; ?>
+
+							<a href="<?php echo esc_url( $permalink ); ?>" class="bd-event-business-card-link">
+								<?php esc_html_e( 'View Business', 'business-directory' ); ?>
+								<i class="fas fa-arrow-right"></i>
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<script>
+		(function() {
+			'use strict';
+
+			function insertBusinessCard() {
+				var container = document.getElementById('bd-event-business-card-container');
+				if (!container) return;
+
+				var card = container.querySelector('.bd-event-business-card');
+				if (!card) return;
+
+				// Try multiple insertion points in order of preference
+				var insertionPoints = [
+					// TEC Block Editor - insert after datetime
+					'.tribe-block__event-datetime',
+					'.tribe-events-schedule',
+					// Classic TEC templates
+					'.tribe-events-schedule__datetime',
+					// Fallback - before Add to Calendar
+					'.tribe-block__events-link',
+					'.tribe-events-cal-links',
+					'.tribe-block__event-links'
+				];
+
+				var inserted = false;
+
+				for (var i = 0; i < insertionPoints.length; i++) {
+					var target = document.querySelector(insertionPoints[i]);
+					if (target) {
+						// Insert after the target element
+						target.parentNode.insertBefore(card.cloneNode(true), target.nextSibling);
+						inserted = true;
+						break;
+					}
+				}
+
+				// If we couldn't find a good spot, append to event content
+				if (!inserted) {
+					var mainContent = document.querySelector('.tribe-events-content, .tribe-events-single-event-description, .entry-content, article');
+					if (mainContent) {
+						mainContent.insertBefore(card.cloneNode(true), mainContent.firstChild);
+					}
+				}
+
+				// Remove the hidden container
+				container.remove();
+			}
+
+			// Run when DOM is ready
+			if (document.readyState === 'loading') {
+				document.addEventListener('DOMContentLoaded', insertBusinessCard);
+			} else {
+				insertBusinessCard();
+			}
+		})();
+		</script>
+		<?php
 	}
 
 	/**
@@ -187,6 +363,7 @@ class EventsCalendarIntegration {
 		?>
 		<div class="bd-business-events">
 			<h3 class="bd-business-events-title">
+				<i class="far fa-calendar-alt"></i>
 				<?php esc_html_e( 'Upcoming Events', 'business-directory' ); ?>
 			</h3>
 			<ul class="bd-events-list">
@@ -200,6 +377,7 @@ class EventsCalendarIntegration {
 								<?php echo esc_html( get_the_title( $event->ID ) ); ?>
 							</span>
 							<span class="bd-event-time">
+								<i class="far fa-clock"></i>
 								<?php echo esc_html( tribe_get_start_date( $event->ID, false, 'g:i A' ) ); ?>
 							</span>
 						</a>
@@ -207,7 +385,8 @@ class EventsCalendarIntegration {
 				<?php endforeach; ?>
 			</ul>
 			<a href="<?php echo esc_url( self::get_business_events_link( $business_id ) ); ?>" class="bd-events-view-all">
-				<?php esc_html_e( 'View All Events →', 'business-directory' ); ?>
+				<?php esc_html_e( 'View All Events', 'business-directory' ); ?>
+				<i class="fas fa-arrow-right"></i>
 			</a>
 		</div>
 		<?php
@@ -263,6 +442,7 @@ class EventsCalendarIntegration {
 		?>
 		<div class="bd-business-events">
 			<h3 class="bd-business-events-title">
+				<i class="far fa-calendar-alt"></i>
 				<?php esc_html_e( 'Upcoming Events', 'business-directory' ); ?>
 			</h3>
 			<ul class="bd-events-list">
@@ -276,6 +456,7 @@ class EventsCalendarIntegration {
 								<?php echo esc_html( get_the_title( $event->ID ) ); ?>
 							</span>
 							<span class="bd-event-time">
+								<i class="far fa-clock"></i>
 								<?php echo esc_html( tribe_get_start_date( $event->ID, false, 'g:i A' ) ); ?>
 							</span>
 						</a>
@@ -283,7 +464,8 @@ class EventsCalendarIntegration {
 				<?php endforeach; ?>
 			</ul>
 			<a href="<?php echo esc_url( self::get_business_events_link( $business_id ) ); ?>" class="bd-events-view-all">
-				<?php esc_html_e( 'View All Events →', 'business-directory' ); ?>
+				<?php esc_html_e( 'View All Events', 'business-directory' ); ?>
+				<i class="fas fa-arrow-right"></i>
 			</a>
 		</div>
 		<?php
@@ -364,19 +546,20 @@ class EventsCalendarIntegration {
 		$link_style .= 'background: #fff; border-radius: 6px; border: 1px solid #e5e5e5; ';
 		$link_style .= 'text-decoration: none; color: inherit;';
 
-		$date_style  = 'min-width: 60px; padding: 4px 10px; background: #1a3a4a; ';
+		$date_style  = 'min-width: 60px; padding: 4px 10px; background: #133453; ';
 		$date_style .= 'color: #fff; font-size: 0.8rem; font-weight: 600; ';
 		$date_style .= 'text-align: center; border-radius: 4px; margin-right: 15px;';
 
-		$btn_style  = 'display: inline-block; margin-top: 15px; padding: 10px 20px; ';
-		$btn_style .= 'background: #1a3a4a; color: #fff; text-decoration: none; ';
+		$btn_style  = 'display: inline-flex; align-items: center; gap: 8px; margin-top: 15px; padding: 10px 20px; ';
+		$btn_style .= 'background: #133453; color: #fff; text-decoration: none; ';
 		$btn_style .= 'border-radius: 5px; font-size: 0.9rem; font-weight: 500;';
 
 		ob_start();
 		?>
 		<div class="bd-business-events" style="<?php echo esc_attr( $container_style ); ?>">
 			<h3 class="bd-business-events-title" style="<?php echo esc_attr( $title_style ); ?>">
-				📅 <?php esc_html_e( 'Upcoming Events', 'business-directory' ); ?>
+				<i class="far fa-calendar-alt"></i>
+				<?php esc_html_e( 'Upcoming Events', 'business-directory' ); ?>
 			</h3>
 			<ul class="bd-events-list" style="list-style: none; margin: 0; padding: 0;">
 				<?php foreach ( $events as $event ) : ?>
@@ -391,7 +574,8 @@ class EventsCalendarIntegration {
 							<span class="bd-event-title" style="flex: 1; font-weight: 500; color: #333;">
 								<?php echo esc_html( $event['title'] ); ?>
 							</span>
-							<span class="bd-event-time" style="font-size: 0.85rem; color: #666; margin-left: 15px;">
+							<span class="bd-event-time" style="font-size: 0.85rem; color: #666; margin-left: 15px; display: flex; align-items: center; gap: 5px;">
+								<i class="far fa-clock" style="opacity: 0.7;"></i>
 								<?php
 								$datetime = $event['start_date'] . ' ' . $event['start_time'];
 								echo esc_html( gmdate( 'g:i A', strtotime( $datetime ) ) );
@@ -406,7 +590,8 @@ class EventsCalendarIntegration {
 					class="bd-events-view-all" 
 					target="_blank" 
 					style="<?php echo esc_attr( $btn_style ); ?>">
-					<?php esc_html_e( 'View All Events →', 'business-directory' ); ?>
+					<?php esc_html_e( 'View All Events', 'business-directory' ); ?>
+					<i class="fas fa-arrow-right" style="font-size: 0.85em;"></i>
 				</a>
 			<?php endif; ?>
 		</div>
@@ -657,48 +842,61 @@ class EventsCalendarIntegration {
 			});
 		</script>
 		<div class="bd-event-business-card">
-			<h4 class="bd-event-business-card-title">
-				<?php esc_html_e( 'Hosted At', 'business-directory' ); ?>
-			</h4>
-			<div class="bd-event-business-card-inner">
-				<?php if ( $thumbnail ) : ?>
-					<div class="bd-event-business-card-image">
-						<img src="<?php echo esc_url( $thumbnail ); ?>" alt="<?php echo esc_attr( $business->post_title ); ?>">
-					</div>
-				<?php endif; ?>
+			<div class="bd-event-business-card-header">
+				<h4 class="bd-event-business-card-title">
+					<i class="fas fa-store"></i>
+					<?php esc_html_e( 'Hosted By', 'business-directory' ); ?>
+				</h4>
+			</div>
+			<div class="bd-event-business-card-body">
+				<div class="bd-event-business-card-inner">
+					<?php if ( $thumbnail ) : ?>
+						<div class="bd-event-business-card-image">
+							<a href="<?php echo esc_url( get_permalink( $business->ID ) ); ?>">
+								<img src="<?php echo esc_url( $thumbnail ); ?>" alt="<?php echo esc_attr( $business->post_title ); ?>">
+							</a>
+						</div>
+					<?php endif; ?>
 
-				<div class="bd-event-business-card-content">
-					<h5 class="bd-event-business-card-name">
-						<a href="<?php echo esc_url( get_permalink( $business->ID ) ); ?>">
-							<?php echo esc_html( $business->post_title ); ?>
+					<div class="bd-event-business-card-content">
+						<h5 class="bd-event-business-card-name">
+							<a href="<?php echo esc_url( get_permalink( $business->ID ) ); ?>">
+								<?php echo esc_html( $business->post_title ); ?>
+							</a>
+						</h5>
+
+						<?php if ( $rating_data['count'] > 0 ) : ?>
+							<div class="bd-event-business-card-rating">
+								<span class="bd-stars">
+									<i class="fas fa-star"></i>
+									<?php echo esc_html( number_format( $rating_data['average'], 1 ) ); ?>
+								</span>
+								<span class="bd-review-count">(<?php echo esc_html( $rating_data['count'] ); ?> reviews)</span>
+							</div>
+						<?php endif; ?>
+
+						<?php if ( $address || $city ) : ?>
+							<div class="bd-event-business-card-location">
+								<i class="fas fa-map-marker-alt"></i>
+								<span><?php echo esc_html( trim( $address . ', ' . $city, ', ' ) ); ?></span>
+							</div>
+						<?php endif; ?>
+
+						<?php if ( $categories && ! is_wp_error( $categories ) ) : ?>
+							<div class="bd-event-business-card-categories">
+								<i class="fas fa-tag"></i>
+								<?php
+								$cat_names = wp_list_pluck( array_slice( $categories, 0, 2 ), 'name' );
+								echo esc_html( implode( ' · ', $cat_names ) );
+								?>
+							</div>
+						<?php endif; ?>
+
+						<a href="<?php echo esc_url( get_permalink( $business->ID ) ); ?>" class="bd-event-business-card-link">
+							<?php esc_html_e( 'View Business', 'business-directory' ); ?>
+							<i class="fas fa-arrow-right"></i>
 						</a>
-					</h5>
-
-					<?php if ( $rating_data['count'] > 0 ) : ?>
-						<div class="bd-event-business-card-rating">
-							<span class="bd-stars">★ <?php echo esc_html( number_format( $rating_data['average'], 1 ) ); ?></span>
-							<span class="bd-review-count">(<?php echo esc_html( $rating_data['count'] ); ?>)</span>
-						</div>
-					<?php endif; ?>
-
-					<?php if ( $address || $city ) : ?>
-						<div class="bd-event-business-card-location">
-							<?php echo esc_html( trim( $address . ', ' . $city, ', ' ) ); ?>
-						</div>
-					<?php endif; ?>
-
-					<?php if ( $categories && ! is_wp_error( $categories ) ) : ?>
-						<div class="bd-event-business-card-categories">
-							<?php
-							$cat_names = wp_list_pluck( array_slice( $categories, 0, 2 ), 'name' );
-							echo esc_html( implode( ' · ', $cat_names ) );
-							?>
-						</div>
-					<?php endif; ?>
-
-					<a href="<?php echo esc_url( get_permalink( $business->ID ) ); ?>" class="bd-event-business-card-link">
-						<?php esc_html_e( 'View Business →', 'business-directory' ); ?>
-					</a>
+					</div>
 				</div>
 			</div>
 		</div>

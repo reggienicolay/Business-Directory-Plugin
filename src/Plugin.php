@@ -34,11 +34,13 @@ class Plugin {
 			new Admin\Settings();
 			new Moderation\ReviewsQueue();
 			new Admin\ClaimsQueue();
+			Admin\FeaturedAdmin::init();
 			// BadgeAdmin is loaded by gamification-loader.php
 		}
 
 		// Frontend components
 		new Frontend\Shortcodes();
+		Frontend\QuickFilterDisplay::init();
 		new Forms\BusinessSubmission();
 		new Forms\ReviewSubmission();
 		new Forms\ClaimRequest();

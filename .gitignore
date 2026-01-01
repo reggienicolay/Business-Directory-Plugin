@@ -30,3 +30,4 @@ Thumbs.db
 .env.local
 *.backup.css
 *.backup2.css
+*.bak.php
