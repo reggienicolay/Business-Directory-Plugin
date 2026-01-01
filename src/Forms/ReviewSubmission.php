@@ -214,7 +214,7 @@ class ReviewSubmission {
 				
 				<div class="bd-form-row">
 					<label for="photos"><?php _e( 'Add Photos', 'business-directory' ); ?></label>
-					<input type="file" name="photos[]" accept="image/*" multiple />
+					<input type="file" id="photos" name="photos[]" accept="image/*" multiple />
 					<p class="description"><?php _e( 'Up to 3 photos, 5MB each', 'business-directory' ); ?></p>
 				</div>
 				
