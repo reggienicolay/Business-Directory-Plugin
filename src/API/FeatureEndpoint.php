@@ -192,7 +192,7 @@ class FeatureEndpoint {
 		}
 		if ( is_multisite() ) {
 			foreach ( get_sites( array( 'number' => 100 ) ) as $site ) {
-				if ( wp_parse_url( get_site_url( $site->blog_id ), PHP_URL_HOST ) === $host ) {
+				if ( wp_parse_url( get_site_url( (int) $site->blog_id ), PHP_URL_HOST ) === $host ) {
 					return true;
 				}
 			}

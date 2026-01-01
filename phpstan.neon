@@ -1,0 +1,51 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+parameters:
+    level: 5
+    paths:
+        - src
+    excludePaths:
+        - src/**/*.bak.php
+    parallel:
+        maximumNumberOfProcesses: 1
+    treatPhpDocTypesAsCertain: false
+    scanFiles:
+        - phpstan-bootstrap.php
+    ignoreErrors:
+        # Plugin constants defined in main file
+        - '#Constant BD_\w+ not found#'
+        - '#Constant COOKIEPATH not found#'
+        # JavaScript template literals in PHP heredoc
+        - '#Constant (COLORS|white|text|light|primary|accent|star|secondary|lightBg|textLight) not found#'
+        # The Events Calendar functions (optional dependency)
+        - '#Function tribe_get_(start|end)_date not found#'
+        # GD functions use GdImage in PHP 8, but PHPDocs say resource
+        - '#expects GdImage, resource given#'
+        - '#should return resource#'
+        - '#never returns resource#'
+        # WP classes in PHPDocs need backslash prefix
+        - '#has invalid (type|return type) BD\\.*\\WP_(Post|REST_Request|REST_Response|Error)#'
+        - '#on an unknown class BD\\.*\\WP_(Post|REST_Request|REST_Response|Error)#'
+        - '#expects BD\\.*\\WP_Post, WP_Post given#'
+        - '#should return BD\\.*\\WP_(Post|REST_Response).*but returns WP_(Post|REST_Response|Error)#'
+        # Defensive coding patterns (not bugs)
+        - '#always exists and is not nullable#'
+        - '#always exists and is not falsy#'
+        - '#in empty\(\) always exists#'
+        - '#will always evaluate to (true|false)#'
+        - '#is always (true|false)#'
+        # Dead code in switch statements (intentional early returns)
+        - '#Unreachable statement#'
+        # Unused method (may be used via hooks)
+        - '#Method.*is unused#'
+        # Type casting warnings (esc_attr/esc_html with int/float)
+        - '#Parameter \#1 \$text of function esc_(attr|html) expects string#'
+        # Other minor PHPDoc issues
+        - '#on a separate line has no effect#'
+        - '#can be removed from the return type#'
+        - '#is already a list, call has no effect#'
+        # Parameter default value issues in filters
+        - '#Default value of the parameter#'
+        # WordPress media_handle_sideload accepts mixed array
+        - '#Parameter \#1 \$file_array of function media_handle_sideload#'
+    reportUnmatchedIgnoredErrors: false

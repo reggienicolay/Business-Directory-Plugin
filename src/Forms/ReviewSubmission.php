@@ -148,7 +148,7 @@ class ReviewSubmission {
 									<?php
 									$photo_ids = explode( ',', $review['photo_ids'] );
 									foreach ( $photo_ids as $photo_id ) {
-										echo wp_get_attachment_image( $photo_id, 'thumbnail' );
+										echo wp_get_attachment_image( (int) $photo_id, 'thumbnail' );
 									}
 									?>
 								</div>

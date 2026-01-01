@@ -329,7 +329,7 @@ class ProfileShortcode {
 
 							if ( $next_rank ) :
 								$points_needed = $next_rank['threshold'] - $current_points;
-								$progress      = ( ( $current_points - $current_threshold ) / ( $next_rank['threshold'] - $current_threshold ) ) * 100;
+								$progress      = ( $next_rank['threshold'] - $current_threshold ) > 0 ? ( ( $current_points - $current_threshold ) / ( $next_rank['threshold'] - $current_threshold ) ) * 100 : 0;
 								?>
 								<div class="bd-rank-progress">
 									<div class="bd-progress-info">

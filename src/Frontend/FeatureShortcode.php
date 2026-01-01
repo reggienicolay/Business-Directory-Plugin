@@ -237,7 +237,7 @@ class FeatureShortcode {
 		$full  = floor( $rating );
 		$half  = ( $rating - $full ) >= 0.5 ? 1 : 0;
 		$empty = 5 - $full - $half;
-		return '<span class="bd-stars">' . str_repeat( '<span class="bd-star-filled">★</span>', $full ) . ( $half ? '<span class="bd-star-half">½</span>' : '' ) . str_repeat( '<span class="bd-star-empty">☆</span>', $empty ) . '</span>';
+		return '<span class="bd-stars">' . str_repeat( '<span class="bd-star-filled">★</span>', (int) $full ) . ( $half ? '<span class="bd-star-half">½</span>' : '' ) . str_repeat( '<span class="bd-star-empty">☆</span>', (int) $empty ) . '</span>';
 	}
 
 	private static function enqueue_assets() {

@@ -306,7 +306,7 @@ class WidgetGenerator {
 				?>
 				<div class="ltv-widget ltv-compact <?php echo esc_attr( $theme_class ); ?>">
 					<div class="ltv-rating">
-						<span class="ltv-stars"><?php echo esc_html( str_repeat( '★', round( $data['rating']['average'] ) ) ); ?></span>
+						<span class="ltv-stars"><?php echo esc_html( str_repeat( '★', (int) round( $data['rating']['average'] ) ) ); ?></span>
 						<span class="ltv-rating-text"><?php echo esc_html( $data['rating']['average'] ); ?> (<?php echo esc_html( $data['rating']['count'] ); ?>)</span>
 					</div>
 					<a href="<?php echo esc_url( $data['review_url'] ); ?>" class="ltv-review-btn">Write a Review</a>
@@ -341,7 +341,7 @@ class WidgetGenerator {
 					<div class="ltv-header">
 						<strong><?php echo esc_html( $data['business']['name'] ); ?></strong>
 						<span class="ltv-rating">
-							<?php echo esc_html( str_repeat( '★', round( $data['rating']['average'] ) ) ); ?>
+							<?php echo esc_html( str_repeat( '★', (int) round( $data['rating']['average'] ) ) ); ?>
 							<?php echo esc_html( $data['rating']['average'] ); ?> · <?php echo esc_html( $data['rating']['count'] ); ?> reviews
 						</span>
 					</div>

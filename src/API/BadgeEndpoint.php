@@ -224,7 +224,7 @@ class BadgeEndpoint {
 			: $business_name;
 
 		// Generate stars SVG.
-		$stars_svg = self::generate_stars_svg( $rating, $dim['font'] * 1.2 );
+		$stars_svg = self::generate_stars_svg( $rating, (int) ( $dim['font'] * 1.2 ) );
 
 		// Site name.
 		$site_name = get_bloginfo( 'name' );

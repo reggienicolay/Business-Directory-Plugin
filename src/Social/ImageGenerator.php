@@ -468,7 +468,7 @@ class ImageGenerator {
 		// Rating.
 		$rating = get_post_meta( $business_id, 'bd_rating_avg', true );
 		if ( $rating ) {
-			$stars = str_repeat( '★', round( (float) $rating ) );
+			$stars = str_repeat( '★', (int) round( (float) $rating ) );
 			$this->add_text( $image, $stars . ' ' . number_format( (float) $rating, 1 ), 60, 420, 28, self::COLOR_STEEL_BLUE );
 		}
 
@@ -755,7 +755,7 @@ class ImageGenerator {
 		}
 
 		foreach ( $lines as $i => $line ) {
-			$this->add_text( $image, $line, $x, $y + ( $i * $line_height ), $size, $color );
+			$this->add_text( $image, $line, $x, (int) ( $y + ( $i * $line_height ) ), $size, $color );
 		}
 	}
 

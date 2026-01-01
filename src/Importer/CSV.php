@@ -50,7 +50,7 @@ class CSV {
 	 *
 	 * @param string $file_path Path to CSV file.
 	 * @param array  $options   Import options.
-	 * @return array|WP_Error Results array or error.
+	 * @return array|\WP_Error Results array or error.
 	 */
 	public static function import( $file_path, $options = array() ) {
 		if ( ! file_exists( $file_path ) ) {

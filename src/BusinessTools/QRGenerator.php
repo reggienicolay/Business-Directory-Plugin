@@ -246,7 +246,7 @@ class QRGenerator {
 			$type_char = 'm';
 		}
 
-		return base_convert( $business_id, 10, 36 ) . $type_char;
+		return base_convert( (string) $business_id, 10, 36 ) . $type_char;
 	}
 
 	/**

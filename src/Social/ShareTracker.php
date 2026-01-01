@@ -131,25 +131,19 @@ class ShareTracker {
 				$points         = ShareButtons::SHARE_POINTS[ 'share_' . $type ] ?? 5;
 				$points_awarded = $points;
 
-				// Track activity if ActivityTracker is available.
-				if ( class_exists( 'BD\Gamification\ActivityTracker' ) ) {
-					ActivityTracker::track(
-						$user_id,
-						'share',
-						$points,
-						sprintf(
-							// translators: %1$s is share type, %2$s is platform.
-							__( 'Shared %1$s on %2$s', 'business-directory' ),
-							$type,
-							$platform
-						),
-						array(
-							'type'      => $type,
-							'object_id' => $object_id,
-							'platform'  => $platform,
-						)
-					);
-				}
+                                // Track activity if ActivityTracker is available.
+                                if ( class_exists( 'BD\Gamification\ActivityTracker' ) ) {
+                                        ActivityTracker::track(
+                                                $user_id,
+                                                'share',
+                                                $object_id,
+                                                array(
+                                                        'type'     => $type,
+                                                        'platform' => $platform,
+                                                        'points'   => $points,
+                                                )
+                                        );
+                                }
 			}
 		}
 

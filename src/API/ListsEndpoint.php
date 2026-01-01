@@ -654,7 +654,7 @@ class ListsEndpoint {
 	 * Track list share for gamification
 	 *
 	 * @param \WP_REST_Request $request Request object.
-	 * @return \WP_REST_Response Response.
+	 * @return \WP_REST_Response|\WP_Error Response or error.
 	 */
 	public static function track_share( $request ) {
 		$list_id  = $request->get_param( 'list_id' );
@@ -687,7 +687,7 @@ class ListsEndpoint {
 	 * Get share data for a list (publicly accessible for non-private lists)
 	 *
 	 * @param \WP_REST_Request $request Request object.
-	 * @return \WP_REST_Response Response.
+	 * @return \WP_REST_Response|\WP_Error Response or error.
 	 */
 	public static function get_share_data( $request ) {
 		$list_id = $request->get_param( 'list_id' );
