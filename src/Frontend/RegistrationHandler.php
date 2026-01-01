@@ -25,7 +25,7 @@ class RegistrationHandler {
 		// Sanitize inputs
 		$username = sanitize_user( $_POST['username'] );
 		$email    = sanitize_email( $_POST['email'] );
-		$password = $_POST['password'];
+		$password = wp_unslash( $_POST['password'] );
 
 		// Validate
 		$errors = array();
