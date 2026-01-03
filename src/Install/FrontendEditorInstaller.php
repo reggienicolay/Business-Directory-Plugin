@@ -11,13 +11,11 @@
 namespace BD\Install;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; }
-
-use BD\DB\ChangeRequestsTable;
-
-if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+use BD\DB\ChangeRequestsTable;
+use BD\DB\Installer;
 
 /**
  * Class FrontendEditorInstaller
@@ -28,7 +26,12 @@ class FrontendEditorInstaller {
 	 * Run installation.
 	 */
 	public static function install() {
-		self::create_tables();
+		// Only create tables if this site should have them
+		if ( Installer::should_create_tables() ) {
+			self::create_tables();
+		}
+
+		// Always add capabilities (needed on all sites for role consistency)
 		self::add_capabilities();
 		self::schedule_cleanup();
 	}
@@ -61,6 +64,11 @@ class FrontendEditorInstaller {
 	 * Schedule cleanup cron job.
 	 */
 	private static function schedule_cleanup() {
+		// Only schedule cleanup if this site has tables
+		if ( ! Installer::should_create_tables() ) {
+			return;
+		}
+
 		if ( ! wp_next_scheduled( 'bd_cleanup_change_requests' ) ) {
 			wp_schedule_event( time(), 'daily', 'bd_cleanup_change_requests' );
 		}
@@ -70,6 +78,11 @@ class FrontendEditorInstaller {
 	 * Run cleanup of old requests.
 	 */
 	public static function cleanup() {
+		// Only cleanup if this site has tables
+		if ( ! Installer::should_create_tables() ) {
+			return;
+		}
+
 		ChangeRequestsTable::cleanup( 90 ); // Delete requests older than 90 days.
 	}
 
@@ -79,9 +92,12 @@ class FrontendEditorInstaller {
 	public static function uninstall() {
 		global $wpdb;
 
-		// Drop table.
-		$table = $wpdb->prefix . 'bd_change_requests';
-		$wpdb->query( "DROP TABLE IF EXISTS {$table}" );
+		// Only drop tables if this site has them
+		if ( Installer::should_create_tables() ) {
+			$table = $wpdb->prefix . 'bd_change_requests';
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
+			$wpdb->query( "DROP TABLE IF EXISTS {$table}" );
+		}
 
 		// Clear scheduled events.
 		wp_clear_scheduled_hook( 'bd_cleanup_change_requests' );

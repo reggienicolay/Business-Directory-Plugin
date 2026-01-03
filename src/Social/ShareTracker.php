@@ -11,7 +11,8 @@
 namespace BD\Social;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; }
+	exit;
+}
 
 use BD\Gamification\ActivityTracker;
 
@@ -38,6 +39,39 @@ class ShareTracker {
 	}
 
 	/**
+	 * Check if this site should have local database tables.
+	 * Mirrors the logic in BD\DB\Installer::should_create_tables().
+	 *
+	 * @return bool
+	 */
+	private function should_create_tables() {
+		// Single site always gets tables.
+		if ( ! is_multisite() ) {
+			return true;
+		}
+
+		// Use the setting from FeatureSettings if available.
+		if ( class_exists( '\BD\Admin\FeatureSettings' ) ) {
+			return \BD\Admin\FeatureSettings::is_local_features_enabled();
+		}
+
+		// Fallback: main site gets tables, subsites don't.
+		return is_main_site();
+	}
+
+	/**
+	 * Check if the share tracking table exists.
+	 *
+	 * @return bool
+	 */
+	private function table_exists() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'bd_share_tracking';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return (bool) $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) );
+	}
+
+	/**
 	 * Register REST API routes.
 	 */
 	public function register_routes() {
@@ -50,18 +84,20 @@ class ShareTracker {
 				'permission_callback' => '__return_true',
 				'args'                => array(
 					'type'      => array(
-						'required' => true,
-						'type'     => 'string',
-						'enum'     => array( 'business', 'review', 'badge', 'profile' ),
+						'required'          => true,
+						'type'              => 'string',
+						'enum'              => array( 'business', 'review', 'badge', 'profile' ),
+						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'object_id' => array(
 						'required' => true,
 						'type'     => 'mixed',
 					),
 					'platform'  => array(
-						'required' => true,
-						'type'     => 'string',
-						'enum'     => array( 'facebook', 'linkedin', 'nextdoor', 'email', 'copy_link' ),
+						'required'          => true,
+						'type'              => 'string',
+						'enum'              => array( 'facebook', 'linkedin', 'nextdoor', 'email', 'copy_link' ),
+						'sanitize_callback' => 'sanitize_text_field',
 					),
 				),
 			)
@@ -76,12 +112,14 @@ class ShareTracker {
 				'permission_callback' => '__return_true',
 				'args'                => array(
 					'type'      => array(
-						'required' => true,
-						'type'     => 'string',
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
 					),
 					'object_id' => array(
-						'required' => true,
-						'type'     => 'integer',
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
 					),
 				),
 			)
@@ -116,7 +154,9 @@ class ShareTracker {
 
 		// Get visitor info for anonymous shares.
 		$ip_address = $this->get_client_ip();
-		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] )
+			? mb_substr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 0, 500 )
+			: '';
 
 		// Check daily limit for logged-in users.
 		$points_awarded   = 0;
@@ -131,45 +171,56 @@ class ShareTracker {
 			if ( $daily_count >= $limit ) {
 				$limit_reached = true;
 			} else {
-				// Award points.
-				$points         = ShareButtons::SHARE_POINTS[ 'share_' . $type ] ?? 5;
+				// Award points - check if ShareButtons class and constant exist.
+				$points = 5; // Default fallback.
+				if ( class_exists( 'BD\Social\ShareButtons' ) && defined( 'BD\Social\ShareButtons::SHARE_POINTS' ) ) {
+					$points = ShareButtons::SHARE_POINTS[ 'share_' . $type ] ?? 5;
+				}
 				$points_awarded = $points;
 
-								// Track activity if ActivityTracker is available.
+				// Track activity if ActivityTracker is available.
 				if ( class_exists( 'BD\Gamification\ActivityTracker' ) ) {
-						ActivityTracker::track(
-							$user_id,
-							'share',
-							$object_id,
-							array(
-								'type'     => $type,
-								'platform' => $platform,
-								'points'   => $points,
-							)
-						);
+					ActivityTracker::track(
+						$user_id,
+						'share',
+						$object_id,
+						array(
+							'type'     => $type,
+							'platform' => $platform,
+							'points'   => $points,
+						)
+					);
 				}
 			}
 		}
 
-		// Record the share.
-		$table = $wpdb->prefix . 'bd_share_tracking';
+		// Record the share (only if table exists on this site).
+		if ( $this->should_create_tables() && $this->table_exists() ) {
+			$table = $wpdb->prefix . 'bd_share_tracking';
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
-		$wpdb->insert(
-			$table,
-			array(
-				'share_type'     => $type,
-				'object_id'      => is_numeric( $object_id ) ? (int) $object_id : 0,
-				'object_key'     => is_string( $object_id ) && ! is_numeric( $object_id ) ? $object_id : '',
-				'platform'       => $platform,
-				'user_id'        => $user_id,
-				'ip_address'     => $ip_address,
-				'user_agent'     => $user_agent,
-				'points_awarded' => $points_awarded,
-				'created_at'     => current_time( 'mysql' ),
-			),
-			array( '%s', '%d', '%s', '%s', '%d', '%s', '%s', '%d', '%s' )
-		);
+			// Sanitize object_id and object_key.
+			$clean_object_id  = is_numeric( $object_id ) ? absint( $object_id ) : 0;
+			$clean_object_key = ( is_string( $object_id ) && ! is_numeric( $object_id ) )
+				? sanitize_text_field( $object_id )
+				: '';
+
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$wpdb->insert(
+				$table,
+				array(
+					'share_type'     => $type,
+					'object_id'      => $clean_object_id,
+					'object_key'     => $clean_object_key,
+					'platform'       => $platform,
+					'user_id'        => $user_id,
+					'ip_address'     => $ip_address,
+					'user_agent'     => $user_agent,
+					'points_awarded' => $points_awarded,
+					'created_at'     => current_time( 'mysql' ),
+				),
+				array( '%s', '%d', '%s', '%s', '%d', '%s', '%s', '%d', '%s' )
+			);
+		}
 
 		return rest_ensure_response(
 			array(
@@ -181,7 +232,7 @@ class ShareTracker {
 					? __( 'Daily share limit reached. Thanks for sharing!', 'business-directory' )
 					: ( $points_awarded > 0
 						? sprintf(
-							// translators: %d is number of points.
+							/* translators: %d is number of points. */
 							__( '+%d points! Thanks for sharing!', 'business-directory' ),
 							$points_awarded
 						)
@@ -198,10 +249,20 @@ class ShareTracker {
 	 * @return \WP_REST_Response Response.
 	 */
 	public function get_share_stats( $request ) {
+		// Return empty stats if table doesn't exist.
+		if ( ! $this->table_exists() ) {
+			return rest_ensure_response(
+				array(
+					'total'     => 0,
+					'platforms' => array(),
+				)
+			);
+		}
+
 		global $wpdb;
 
 		$type      = sanitize_text_field( $request->get_param( 'type' ) );
-		$object_id = (int) $request->get_param( 'object_id' );
+		$object_id = absint( $request->get_param( 'object_id' ) );
 
 		$table = $wpdb->prefix . 'bd_share_tracking';
 
@@ -249,6 +310,21 @@ class ShareTracker {
 	 * @return \WP_REST_Response Response.
 	 */
 	public function get_user_share_stats( $request ) {
+		// Return empty stats if table doesn't exist.
+		if ( ! $this->table_exists() ) {
+			$remaining = array();
+			foreach ( self::DAILY_LIMITS as $type => $limit ) {
+				$remaining[ $type ] = $limit;
+			}
+			return rest_ensure_response(
+				array(
+					'total_shares'    => 0,
+					'total_points'    => 0,
+					'remaining_today' => $remaining,
+				)
+			);
+		}
+
 		global $wpdb;
 
 		$user_id = get_current_user_id();
@@ -316,6 +392,11 @@ class ShareTracker {
 	 * @return int Count.
 	 */
 	private function get_user_daily_share_count( $user_id, $type ) {
+		// Return 0 if table doesn't exist.
+		if ( ! $this->table_exists() ) {
+			return 0;
+		}
+
 		global $wpdb;
 
 		$table       = $wpdb->prefix . 'bd_share_tracking';
@@ -342,14 +423,21 @@ class ShareTracker {
 	private function get_client_ip() {
 		$ip = '';
 
-		if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
-		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
-			$ip = explode( ',', $ip )[0];
-		} elseif ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
+		// Prefer REMOTE_ADDR as it's harder to spoof.
+		// Only use forwarded headers if behind a trusted proxy.
+		if ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
 			$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 		}
+
+		// Check for proxy headers only if REMOTE_ADDR is a known proxy.
+		// For now, we use REMOTE_ADDR as the primary source.
+		// Uncomment below if you have trusted proxies configured.
+		/*
+		if ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
+			$forwarded = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
+			$ip = trim( explode( ',', $forwarded )[0] );
+		}
+		*/
 
 		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '';
 	}
@@ -358,14 +446,19 @@ class ShareTracker {
 	 * Create share tracking table if not exists.
 	 */
 	public function maybe_create_table() {
+		// Skip table creation on subsites that don't need local features.
+		if ( ! $this->should_create_tables() ) {
+			return;
+		}
+
 		global $wpdb;
 
 		$table_name      = $wpdb->prefix . 'bd_share_tracking';
 		$charset_collate = $wpdb->get_charset_collate();
 
-		// Check if table exists.
+		// Check if table exists using prepare().
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$exists = $wpdb->get_var( "SHOW TABLES LIKE '$table_name'" );
+		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) );
 
 		if ( $exists ) {
 			return;

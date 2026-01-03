@@ -71,41 +71,35 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	========================================================================= */
 
 .bd-back-link {
-	position: fixed !important;
-	top: 80px !important;
-	right: 40px !important;
-	z-index: 999 !important;
 	display: inline-flex !important;
 	align-items: center !important;
-	gap: 8px !important;
-	padding: 10px 20px !important;
-	background: white !important;
-	border: 2px solid var(--bd-accent) !important;
-	border-radius: 8px !important;
+	gap: 6px !important;
+	padding: 8px 0 !important;
+	margin: 0 0 0 40px !important;
+	background: transparent !important;
+	border: none !important;
 	font-family: var(--bd-font-body) !important;
 	font-size: 14px !important;
-	font-weight: 600 !important;
+	font-weight: 500 !important;
 	color: var(--bd-primary) !important;
 	text-decoration: none !important;
-	box-shadow: var(--bd-shadow-md, 0 4px 12px rgba(15, 42, 67, 0.15)) !important;
-	transition: all var(--bd-transition-slow, 0.3s ease) !important;
+	transition: color 0.2s ease !important;
 }
-
 .bd-back-link:hover {
-	background: var(--bd-primary) !important;
-	color: white !important;
-	transform: translateY(-2px) !important;
-	box-shadow: var(--bd-shadow-lg, 0 8px 24px rgba(15, 42, 67, 0.25)) !important;
+	color: var(--bd-accent) !important;
+	text-decoration: underline !important;
 }
-
 .bd-back-link svg {
-	width: 16px !important;
-	height: 16px !important;
-	transition: transform 0.2s ease !important;
+	width: 12px !important;
+	height: 12px !important;
 }
-
-.bd-back-link:hover svg {
-	transform: translateX(-3px) !important;
+/* Mobile */
+@media (max-width: 768px) {
+	.bd-back-link {
+		margin: 10px 20px 10px auto !important;
+		display: flex !important;
+		justify-content: flex-end !important;
+	}
 }
 
 /* ============================================================================
@@ -1562,13 +1556,6 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	.bd-star-rating label {
 		font-size: var(--bd-text-2xl, 28px) !important;
 	}
-
-	.bd-back-link {
-		position: relative !important;
-		top: auto !important;
-		right: auto !important;
-		margin-bottom: 24px !important;
-		display: inline-flex !important;
 	}
 
 	.page-header h1.entry-title,
@@ -1653,13 +1640,6 @@ body.single-bd_business header h1:not(.entry-title):not(.business-title) {
 	========================================================================= */
 @media (max-width: 768px) {
 	/* Back button - inline instead of fixed */
-	.bd-back-link {
-		position: relative !important;
-		top: auto !important;
-		right: auto !important;
-		margin: 16px 16px 0 16px !important;
-		display: inline-flex !important;
-	}
 
 	/* Hero section */
 	.bd-business-hero {

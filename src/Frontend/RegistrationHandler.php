@@ -1,15 +1,21 @@
 <?php
-
+/**
+ * Registration Handler
+ *
+ * Handles user registration and review claiming.
+ *
+ * @package BusinessDirectory
+ */
 
 namespace BD\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; }
+	exit;
+}
 
 use BD\Gamification\ActivityTracker;
 
 class RegistrationHandler {
-
 
 	public function __construct() {
 		add_action( 'admin_post_nopriv_ll_register_user', array( $this, 'handle_registration' ) );
@@ -22,14 +28,14 @@ class RegistrationHandler {
 	 */
 	public function handle_registration() {
 		// Verify nonce
-		if ( ! isset( $_POST['ll_register_nonce'] ) || ! wp_verify_nonce( $_POST['ll_register_nonce'], 'll_register_user' ) ) {
+		if ( ! isset( $_POST['ll_register_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['ll_register_nonce'] ) ), 'll_register_user' ) ) {
 			wp_die( 'Security check failed' );
 		}
 
 		// Sanitize inputs
-		$username = sanitize_user( $_POST['username'] );
-		$email    = sanitize_email( $_POST['email'] );
-		$password = wp_unslash( $_POST['password'] );
+		$username = isset( $_POST['username'] ) ? sanitize_user( wp_unslash( $_POST['username'] ) ) : '';
+		$email    = isset( $_POST['email'] ) ? sanitize_email( wp_unslash( $_POST['email'] ) ) : '';
+		$password = isset( $_POST['password'] ) ? wp_unslash( $_POST['password'] ) : '';
 
 		// Validate
 		$errors = array();
@@ -86,7 +92,6 @@ class RegistrationHandler {
 		$user->set_role( 'subscriber' );
 
 		// Auto login
-		// Auto login
 		wp_set_current_user( $user_id );
 		wp_set_auth_cookie( $user_id );
 
@@ -95,7 +100,7 @@ class RegistrationHandler {
 
 		// Redirect with claimed count
 		if ( $claimed_count ) {
-			wp_redirect( home_url( '/register?registered=success&claimed=' . $claimed_count ) );
+			wp_redirect( home_url( '/register?registered=success&claimed=' . intval( $claimed_count ) ) );
 		} else {
 			wp_redirect( home_url( '/profile?registered=success' ) );
 		}
@@ -116,15 +121,24 @@ class RegistrationHandler {
 		global $wpdb;
 		$reviews_table = $wpdb->prefix . 'bd_reviews';
 
+		// Check if reviews table exists (multisite safety)
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$table_exists = $wpdb->get_var(
+			$wpdb->prepare( 'SHOW TABLES LIKE %s', $reviews_table )
+		);
+
+		if ( ! $table_exists ) {
+			return;
+		}
+
 		// Find reviews with matching email but no user_id
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$unclaimed_reviews = $wpdb->get_results(
 			$wpdb->prepare(
-				"
-            SELECT id, business_id, content, photo_ids, status
-            FROM $reviews_table
-            WHERE author_email = %s
-            AND (user_id IS NULL OR user_id = 0)
-        ",
+				"SELECT id, business_id, content, photo_ids, status
+				FROM {$reviews_table}
+				WHERE author_email = %s
+				AND (user_id IS NULL OR user_id = 0)",
 				$user->user_email
 			),
 			ARRAY_A
@@ -138,6 +152,7 @@ class RegistrationHandler {
 
 		foreach ( $unclaimed_reviews as $review ) {
 			// Update review with user_id
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->update(
 				$reviews_table,
 				array( 'user_id' => $user_id ),
@@ -157,7 +172,7 @@ class RegistrationHandler {
 				}
 
 				// Bonus for detailed review
-				if ( strlen( $review['content'] ) > 100 ) {
+				if ( ! empty( $review['content'] ) && strlen( $review['content'] ) > 100 ) {
 					ActivityTracker::track( $user_id, 'review_detailed', $review['id'] );
 				}
 
@@ -180,15 +195,24 @@ class RegistrationHandler {
 		global $wpdb;
 		$reviews_table = $wpdb->prefix . 'bd_reviews';
 
+		// Check if reviews table exists (multisite safety)
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$table_exists = $wpdb->get_var(
+			$wpdb->prepare( 'SHOW TABLES LIKE %s', $reviews_table )
+		);
+
+		if ( ! $table_exists ) {
+			return;
+		}
+
 		// Check if there are unclaimed reviews for this email
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$unclaimed_count = $wpdb->get_var(
 			$wpdb->prepare(
-				"
-            SELECT COUNT(*)
-            FROM $reviews_table
-            WHERE author_email = %s
-            AND (user_id IS NULL OR user_id = 0)
-        ",
+				"SELECT COUNT(*)
+				FROM {$reviews_table}
+				WHERE author_email = %s
+				AND (user_id IS NULL OR user_id = 0)",
 				$user->user_email
 			)
 		);
@@ -215,14 +239,14 @@ class RegistrationHandler {
 		$show_notice   = get_user_meta( $user_id, 'll_show_claim_notice', true );
 
 		if ( $claimed_count || $show_notice ) {
-			$count = ! empty( $claimed_count ) ? $claimed_count : $show_notice;
+			$count = ! empty( $claimed_count ) ? (int) $claimed_count : (int) $show_notice;
 			?>
 			<div class="ll-claim-notice">
 				<div class="ll-claim-notice-inner">
 					<span class="ll-claim-icon">🎉</span>
 					<div class="ll-claim-text">
 						<strong>Welcome to Love Livermore!</strong>
-						<p>We found and claimed <?php echo $count; ?> review<?php echo $count > 1 ? 's' : ''; ?> you wrote. You've earned your first <?php echo $count * 10; ?> points!</p>
+						<p>We found and claimed <?php echo esc_html( $count ); ?> review<?php echo $count > 1 ? 's' : ''; ?> you wrote. You've earned your first <?php echo esc_html( $count * 10 ); ?> points!</p>
 					</div>
 					<button class="ll-claim-dismiss" onclick="this.parentElement.parentElement.remove()">×</button>
 				</div>

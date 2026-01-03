@@ -38,20 +38,20 @@ foreach ( $required_files as $file ) {
 }
 
 // Initialize components only if classes exist.
-if ( class_exists( 'BD\BusinessTools\ToolsDashboard' ) ) {
-	new BD\BusinessTools\ToolsDashboard();
+if ( class_exists( '\BD\BusinessTools\ToolsDashboard' ) ) {
+	new \BD\BusinessTools\ToolsDashboard();
 }
-if ( class_exists( 'BD\BusinessTools\WidgetEndpoint' ) ) {
-	new BD\BusinessTools\WidgetEndpoint();
+if ( class_exists( '\BD\BusinessTools\WidgetEndpoint' ) ) {
+	new \BD\BusinessTools\WidgetEndpoint();
 }
-if ( class_exists( 'BD\BusinessTools\QRGenerator' ) ) {
-	new BD\BusinessTools\QRGenerator();
+if ( class_exists( '\BD\BusinessTools\QRGenerator' ) ) {
+	new \BD\BusinessTools\QRGenerator();
 }
-if ( class_exists( 'BD\BusinessTools\BadgeGenerator' ) ) {
-	new BD\BusinessTools\BadgeGenerator();
+if ( class_exists( '\BD\BusinessTools\BadgeGenerator' ) ) {
+	new \BD\BusinessTools\BadgeGenerator();
 }
-if ( class_exists( 'BD\BusinessTools\StatsEmail' ) ) {
-	new BD\BusinessTools\StatsEmail();
+if ( class_exists( '\BD\BusinessTools\StatsEmail' ) ) {
+	new \BD\BusinessTools\StatsEmail();
 }
 
 // Create database tables on activation - only if constant is defined.
@@ -60,9 +60,35 @@ if ( defined( 'BD_PLUGIN_FILE' ) ) {
 }
 
 /**
+ * Check if this site should have local database tables.
+ * Mirrors the logic in BD\DB\Installer::should_create_tables().
+ *
+ * @return bool
+ */
+function bd_business_tools_should_create_tables() {
+	// Single site always gets tables.
+	if ( ! is_multisite() ) {
+		return true;
+	}
+
+	// Use the setting from FeatureSettings if available.
+	if ( class_exists( '\BD\Admin\FeatureSettings' ) ) {
+		return \BD\Admin\FeatureSettings::is_local_features_enabled();
+	}
+
+	// Fallback: main site gets tables, subsites don't.
+	return is_main_site();
+}
+
+/**
  * Create business tools database tables.
  */
 function bd_business_tools_create_tables() {
+	// Skip table creation on subsites that don't need local features.
+	if ( ! bd_business_tools_should_create_tables() ) {
+		return;
+	}
+
 	global $wpdb;
 	$charset_collate = $wpdb->get_charset_collate();
 
@@ -117,6 +143,11 @@ function bd_business_tools_create_tables() {
 add_action(
 	'admin_init',
 	function () {
+		// Skip on subsites that don't need local features.
+		if ( ! bd_business_tools_should_create_tables() ) {
+			return;
+		}
+
 		global $wpdb;
 		$table = $wpdb->prefix . 'bd_widget_domains';
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
@@ -126,6 +157,18 @@ add_action(
 		}
 	}
 );
+
+/**
+ * Get the asset version for cache busting.
+ *
+ * @return string Version string.
+ */
+function bd_business_tools_get_version() {
+	if ( defined( 'BD_VERSION' ) ) {
+		return BD_VERSION;
+	}
+	return '1.0.0';
+}
 
 // Enqueue assets for business tools pages.
 add_action(
@@ -150,19 +193,20 @@ add_action(
 		}
 
 		$plugin_url = plugin_dir_url( __DIR__ );
+		$version    = bd_business_tools_get_version();
 
 		wp_enqueue_style(
 			'bd-business-tools',
 			$plugin_url . 'assets/css/business-tools.css',
 			array(),
-			'1.0.0'
+			$version
 		);
 
 		wp_enqueue_script(
 			'bd-business-tools',
 			$plugin_url . 'assets/js/business-tools.js',
 			array( 'jquery' ),
-			'1.0.0',
+			$version,
 			true
 		);
 
@@ -194,19 +238,20 @@ add_action(
 		}
 
 		$plugin_url = plugin_dir_url( __DIR__ );
+		$version    = bd_business_tools_get_version();
 
 		wp_enqueue_style(
 			'bd-business-tools-admin',
 			$plugin_url . 'assets/css/business-tools.css',
 			array(),
-			'1.0.0'
+			$version
 		);
 
 		wp_enqueue_script(
 			'bd-business-tools-admin',
 			$plugin_url . 'assets/js/business-tools.js',
 			array( 'jquery' ),
-			'1.0.0',
+			$version,
 			true
 		);
 	}

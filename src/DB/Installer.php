@@ -5,14 +5,14 @@
  * Creates and upgrades database tables.
  *
  * @package BusinessDirectory
- * @version 2.4.0
+ * @version 2.5.0
  */
-
 
 namespace BD\DB;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; }
+	exit;
+}
 
 class Installer {
 
@@ -30,19 +30,47 @@ class Installer {
 	}
 
 	/**
+	 * Check if this site should have local database tables.
+	 *
+	 * In multisite: checks the bd_enable_local_features setting
+	 * In single site: always returns true
+	 *
+	 * @return bool
+	 */
+	public static function should_create_tables() {
+		// Single site always gets tables
+		if ( ! is_multisite() ) {
+			return true;
+		}
+
+		// Use the setting from FeatureSettings if available
+		if ( class_exists( '\BD\Admin\FeatureSettings' ) ) {
+			return \BD\Admin\FeatureSettings::is_local_features_enabled();
+		}
+
+		// Fallback: main site gets tables, subsites don't
+		return is_main_site();
+	}
+
+	/**
 	 * Run on plugin activation.
 	 */
 	public static function activate() {
-		self::create_tables();
-		self::create_roles();
-		self::flush_rewrite_rules();
+		// Only create tables if this site should have them
+		if ( self::should_create_tables() ) {
+			self::create_tables();
 
-		$current_version = get_option( 'bd_db_version', '1.0.0' );
-		if ( version_compare( $current_version, self::DB_VERSION, '<' ) ) {
-			self::upgrade_database( $current_version );
+			$current_version = get_option( 'bd_db_version', '1.0.0' );
+			if ( version_compare( $current_version, self::DB_VERSION, '<' ) ) {
+				self::upgrade_database( $current_version );
+			}
+
+			update_option( 'bd_db_version', self::DB_VERSION );
 		}
 
-		update_option( 'bd_db_version', self::DB_VERSION );
+		// Always create roles and flush rewrite rules (needed on all sites)
+		self::create_roles();
+		self::flush_rewrite_rules();
 	}
 
 	/**
@@ -50,6 +78,11 @@ class Installer {
 	 * This catches updates that don't trigger activation (e.g., FTP uploads).
 	 */
 	public static function maybe_upgrade() {
+		// Skip table operations on sites that shouldn't have tables
+		if ( ! self::should_create_tables() ) {
+			return;
+		}
+
 		$current_version = get_option( 'bd_db_version', '1.0.0' );
 
 		if ( version_compare( $current_version, self::DB_VERSION, '<' ) ) {
@@ -203,37 +236,19 @@ class Installer {
 		$user_reputation_table = $wpdb->prefix . 'bd_user_reputation';
 		$user_reputation_sql   = "CREATE TABLE IF NOT EXISTS $user_reputation_table (
 			user_id bigint(20) UNSIGNED NOT NULL,
-			total_points int(11) NOT NULL DEFAULT 0,
-			total_reviews int(11) NOT NULL DEFAULT 0,
+			points int(11) NOT NULL DEFAULT 0,
+			level varchar(50) NOT NULL DEFAULT 'newcomer',
+			reviews_count int(11) NOT NULL DEFAULT 0,
 			helpful_votes int(11) NOT NULL DEFAULT 0,
-			lists_created int(11) NOT NULL DEFAULT 0,
-			photos_uploaded int(11) NOT NULL DEFAULT 0,
-			categories_reviewed int(11) NOT NULL DEFAULT 0,
-			badges text DEFAULT NULL,
-			badge_count int(11) NOT NULL DEFAULT 0,
-			current_rank varchar(50) NOT NULL DEFAULT 'newcomer',
+			photos_count int(11) NOT NULL DEFAULT 0,
+			lists_count int(11) NOT NULL DEFAULT 0,
+			claims_count int(11) NOT NULL DEFAULT 0,
+			shares_count int(11) NOT NULL DEFAULT 0,
+			streak_days int(11) NOT NULL DEFAULT 0,
+			last_activity datetime DEFAULT NULL,
 			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-			PRIMARY KEY (user_id),
-			KEY idx_points (total_points),
-			KEY idx_rank (current_rank)
-		) $charset_collate;";
-
-		// =====================================================================
-		// GAMIFICATION: USER ACTIVITY TABLE
-		// =====================================================================
-		$user_activity_table = $wpdb->prefix . 'bd_user_activity';
-		$user_activity_sql   = "CREATE TABLE IF NOT EXISTS $user_activity_table (
-			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-			user_id bigint(20) UNSIGNED NOT NULL,
-			activity_type varchar(50) NOT NULL,
-			points int(11) NOT NULL DEFAULT 0,
-			reference_id bigint(20) UNSIGNED DEFAULT NULL,
-			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			PRIMARY KEY (id),
-			KEY idx_user (user_id),
-			KEY idx_type (activity_type),
-			KEY idx_created (created_at)
+			PRIMARY KEY (user_id)
 		) $charset_collate;";
 
 		// =====================================================================
@@ -243,29 +258,46 @@ class Installer {
 		$badge_awards_sql   = "CREATE TABLE IF NOT EXISTS $badge_awards_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			user_id bigint(20) UNSIGNED NOT NULL,
-			badge_key varchar(100) NOT NULL,
+			badge_id varchar(50) NOT NULL,
 			awarded_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			awarded_by bigint(20) UNSIGNED DEFAULT NULL,
 			PRIMARY KEY (id),
-			UNIQUE KEY idx_user_badge (user_id, badge_key),
+			UNIQUE KEY idx_user_badge (user_id, badge_id),
 			KEY idx_user (user_id),
-			KEY idx_badge (badge_key),
-			KEY idx_awarded (awarded_at)
+			KEY idx_badge (badge_id)
 		) $charset_collate;";
 
 		// =====================================================================
-		// LISTS TABLE (with collaborative columns and browse filters)
+		// GAMIFICATION: USER ACTIVITY TABLE
+		// =====================================================================
+		$user_activity_table = $wpdb->prefix . 'bd_user_activity';
+		$user_activity_sql   = "CREATE TABLE IF NOT EXISTS $user_activity_table (
+			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+			user_id bigint(20) UNSIGNED NOT NULL,
+			action_type varchar(50) NOT NULL,
+			points_earned int(11) NOT NULL DEFAULT 0,
+			reference_type varchar(50) DEFAULT NULL,
+			reference_id bigint(20) UNSIGNED DEFAULT NULL,
+			metadata longtext DEFAULT NULL,
+			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id),
+			KEY idx_user (user_id),
+			KEY idx_action (action_type),
+			KEY idx_created (created_at)
+		) $charset_collate;";
+
+		// =====================================================================
+		// USER LISTS TABLE
 		// =====================================================================
 		$lists_table = $wpdb->prefix . 'bd_lists';
 		$lists_sql   = "CREATE TABLE IF NOT EXISTS $lists_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			user_id bigint(20) UNSIGNED NOT NULL,
-			title varchar(200) NOT NULL,
-			slug varchar(200) NOT NULL,
+			name varchar(200) NOT NULL,
+			slug varchar(220) NOT NULL,
 			description text DEFAULT NULL,
-			cover_image_id bigint(20) UNSIGNED DEFAULT NULL,
 			visibility varchar(20) NOT NULL DEFAULT 'private',
 			featured tinyint(1) NOT NULL DEFAULT 0,
+			cover_image_id bigint(20) UNSIGNED DEFAULT NULL,
 			view_count int(11) NOT NULL DEFAULT 0,
 			cached_categories varchar(500) DEFAULT NULL,
 			cached_city varchar(100) DEFAULT NULL,
@@ -292,35 +324,15 @@ class Installer {
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			list_id bigint(20) UNSIGNED NOT NULL,
 			business_id bigint(20) UNSIGNED NOT NULL,
-			user_note text DEFAULT NULL,
+			note text DEFAULT NULL,
 			sort_order int(11) NOT NULL DEFAULT 0,
 			added_by bigint(20) UNSIGNED DEFAULT NULL,
-			added_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (id),
 			UNIQUE KEY idx_list_business (list_id, business_id),
 			KEY idx_list (list_id),
 			KEY idx_business (business_id),
-			KEY idx_sort (sort_order),
 			KEY idx_added_by (added_by)
-		) $charset_collate;";
-
-		// =====================================================================
-		// LIST COLLABORATORS TABLE
-		// =====================================================================
-		$collaborators_table = $wpdb->prefix . 'bd_list_collaborators';
-		$collaborators_sql   = "CREATE TABLE IF NOT EXISTS $collaborators_table (
-			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-			list_id bigint(20) UNSIGNED NOT NULL,
-			user_id bigint(20) UNSIGNED NOT NULL,
-			role varchar(20) NOT NULL DEFAULT 'contributor',
-			status varchar(20) NOT NULL DEFAULT 'pending',
-			added_by bigint(20) UNSIGNED NOT NULL DEFAULT 0,
-			added_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			PRIMARY KEY (id),
-			UNIQUE KEY idx_list_user (list_id, user_id),
-			KEY idx_user (user_id),
-			KEY idx_status (status),
-			KEY idx_list_status (list_id, status)
 		) $charset_collate;";
 
 		// =====================================================================
@@ -331,44 +343,138 @@ class Installer {
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			list_id bigint(20) UNSIGNED NOT NULL,
 			user_id bigint(20) UNSIGNED NOT NULL,
-			followed_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (id),
 			UNIQUE KEY idx_list_user (list_id, user_id),
-			KEY idx_user (user_id),
-			KEY idx_list (list_id)
+			KEY idx_list (list_id),
+			KEY idx_user (user_id)
 		) $charset_collate;";
 
-		// Run all table creations.
+		// =====================================================================
+		// LIST COLLABORATORS TABLE
+		// =====================================================================
+		$list_collaborators_table = $wpdb->prefix . 'bd_list_collaborators';
+		$list_collaborators_sql   = "CREATE TABLE IF NOT EXISTS $list_collaborators_table (
+			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+			list_id bigint(20) UNSIGNED NOT NULL,
+			user_id bigint(20) UNSIGNED NOT NULL,
+			role varchar(20) NOT NULL DEFAULT 'contributor',
+			status varchar(20) NOT NULL DEFAULT 'pending',
+			invited_by bigint(20) UNSIGNED DEFAULT NULL,
+			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id),
+			UNIQUE KEY idx_list_user (list_id, user_id),
+			KEY idx_list (list_id),
+			KEY idx_user (user_id),
+			KEY idx_status (status)
+		) $charset_collate;";
+
+		// =====================================================================
+		// SOCIAL SHARING: SHARE TRACKING TABLE
+		// =====================================================================
+		$share_tracking_table = $wpdb->prefix . 'bd_share_tracking';
+		$share_tracking_sql   = "CREATE TABLE IF NOT EXISTS $share_tracking_table (
+			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+			user_id bigint(20) UNSIGNED DEFAULT NULL,
+			business_id bigint(20) UNSIGNED NOT NULL,
+			platform varchar(50) NOT NULL,
+			ip_address varchar(45) DEFAULT NULL,
+			user_agent varchar(255) DEFAULT NULL,
+			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id),
+			KEY idx_business (business_id),
+			KEY idx_user (user_id),
+			KEY idx_platform (platform),
+			KEY idx_created (created_at)
+		) $charset_collate;";
+
+		// =====================================================================
+		// SOCIAL SHARING: QR CODE SCANS TABLE
+		// =====================================================================
+		$qr_scans_table = $wpdb->prefix . 'bd_qr_scans';
+		$qr_scans_sql   = "CREATE TABLE IF NOT EXISTS $qr_scans_table (
+			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+			business_id bigint(20) UNSIGNED NOT NULL,
+			scan_type varchar(50) DEFAULT 'qr',
+			ip_address varchar(45) DEFAULT NULL,
+			user_agent varchar(255) DEFAULT NULL,
+			referrer varchar(500) DEFAULT NULL,
+			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id),
+			KEY idx_business (business_id),
+			KEY idx_created (created_at)
+		) $charset_collate;";
+
+		// =====================================================================
+		// WIDGET: EMBED TRACKING TABLE
+		// =====================================================================
+		$widget_clicks_table = $wpdb->prefix . 'bd_widget_clicks';
+		$widget_clicks_sql   = "CREATE TABLE IF NOT EXISTS $widget_clicks_table (
+			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+			business_id bigint(20) UNSIGNED NOT NULL,
+			domain varchar(255) DEFAULT NULL,
+			click_type varchar(50) DEFAULT 'view',
+			ip_address varchar(45) DEFAULT NULL,
+			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id),
+			KEY idx_business (business_id),
+			KEY idx_domain (domain),
+			KEY idx_created (created_at)
+		) $charset_collate;";
+
+		// =====================================================================
+		// WIDGET: ALLOWED DOMAINS TABLE
+		// =====================================================================
+		$widget_domains_table = $wpdb->prefix . 'bd_widget_domains';
+		$widget_domains_sql   = "CREATE TABLE IF NOT EXISTS $widget_domains_table (
+			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+			business_id bigint(20) UNSIGNED NOT NULL,
+			domain varchar(255) NOT NULL,
+			status varchar(20) NOT NULL DEFAULT 'pending',
+			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id),
+			KEY idx_business (business_id),
+			KEY idx_domain (domain),
+			KEY idx_status (status)
+		) $charset_collate;";
+
+		// Execute table creation
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
 		dbDelta( $locations_sql );
 		dbDelta( $reviews_sql );
 		dbDelta( $submissions_sql );
 		dbDelta( $claim_requests_sql );
 		dbDelta( $change_requests_sql );
 		dbDelta( $user_reputation_sql );
-		dbDelta( $user_activity_sql );
 		dbDelta( $badge_awards_sql );
+		dbDelta( $user_activity_sql );
 		dbDelta( $lists_sql );
 		dbDelta( $list_items_sql );
-		dbDelta( $collaborators_sql );
 		dbDelta( $list_follows_sql );
+		dbDelta( $list_collaborators_sql );
+		dbDelta( $share_tracking_sql );
+		dbDelta( $qr_scans_sql );
+		dbDelta( $widget_clicks_sql );
+		dbDelta( $widget_domains_sql );
 	}
 
 	/**
-	 * Handle database upgrades between versions.
+	 * Handle database upgrades from older versions.
 	 *
-	 * @param string $from_version Previous version.
+	 * @param string $from_version Previous database version.
 	 */
 	private static function upgrade_database( $from_version ) {
 		global $wpdb;
 
 		// =====================================================================
-		// Upgrade from pre-2.0.0: Add missing review columns.
+		// Upgrade from pre-2.2.0: Add review columns if missing.
 		// =====================================================================
-		if ( version_compare( $from_version, '2.0.0', '<' ) ) {
+		if ( version_compare( $from_version, '2.2.0', '<' ) ) {
 			$reviews_table = $wpdb->prefix . 'bd_reviews';
 
-			// Check if table exists first.
+			// Check if table exists before altering.
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 			$table_exists = $wpdb->get_var(
 				$wpdb->prepare( 'SHOW TABLES LIKE %s', $reviews_table )
 			);
@@ -378,10 +484,6 @@ class Installer {
 				$columns      = $wpdb->get_results( "SHOW COLUMNS FROM {$reviews_table}" );
 				$column_names = array_column( $columns, 'Field' );
 
-				if ( ! in_array( 'photo_ids', $column_names, true ) ) {
-					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
-					$wpdb->query( "ALTER TABLE {$reviews_table} ADD COLUMN photo_ids text DEFAULT NULL AFTER content" );
-				}
 				if ( ! in_array( 'author_email', $column_names, true ) ) {
 					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
 					$wpdb->query( "ALTER TABLE {$reviews_table} ADD COLUMN author_email varchar(120) DEFAULT NULL AFTER author_name" );

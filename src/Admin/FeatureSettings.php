@@ -5,11 +5,11 @@
  * @package BusinessDirectory
  */
 
-
 namespace BD\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; }
+	exit;
+}
 
 class FeatureSettings {
 
@@ -25,7 +25,7 @@ class FeatureSettings {
 	 * Register settings
 	 */
 	public static function register_settings() {
-		// Register the setting
+		// Register the source URL setting
 		register_setting(
 			'bd_feature_settings',
 			'bd_feature_source_url',
@@ -36,7 +36,18 @@ class FeatureSettings {
 			)
 		);
 
-		// Add settings section to existing BD settings or create new submenu
+		// Register local features setting (for multisite)
+		register_setting(
+			'bd_feature_settings',
+			'bd_enable_local_features',
+			array(
+				'type'              => 'boolean',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_local_features' ),
+				'default'           => null,
+			)
+		);
+
+		// Add settings section
 		add_settings_section(
 			'bd_feature_section',
 			'Feature Embed Settings',
@@ -52,6 +63,28 @@ class FeatureSettings {
 			'bd-feature-settings',
 			'bd_feature_section'
 		);
+
+		// Local features field (only show in multisite)
+		if ( is_multisite() ) {
+			add_settings_field(
+				'bd_enable_local_features',
+				'Local Directory Features',
+				array( __CLASS__, 'render_local_features_field' ),
+				'bd-feature-settings',
+				'bd_feature_section'
+			);
+		}
+	}
+
+	/**
+	 * Sanitize the local features checkbox value.
+	 * Ensures we always get a boolean, even when checkbox is unchecked.
+	 *
+	 * @param mixed $value The submitted value.
+	 * @return bool
+	 */
+	public static function sanitize_local_features( $value ) {
+		return (bool) $value;
 	}
 
 	/**
@@ -66,6 +99,30 @@ class FeatureSettings {
 			'bd-feature-settings',
 			array( __CLASS__, 'render_settings_page' )
 		);
+	}
+
+	/**
+	 * Check if local directory features are enabled on this site.
+	 * Used by Installer to determine if tables should be created.
+	 *
+	 * @return bool
+	 */
+	public static function is_local_features_enabled() {
+		// Single site always has local features
+		if ( ! is_multisite() ) {
+			return true;
+		}
+
+		// Use a sentinel value to detect if option was ever saved
+		$setting = get_option( 'bd_enable_local_features', 'not_set' );
+
+		// If never explicitly set, use default behavior
+		if ( 'not_set' === $setting ) {
+			return is_main_site();
+		}
+
+		// Return the explicit setting (works for both true and false)
+		return (bool) $setting;
 	}
 
 	/**
@@ -94,6 +151,39 @@ class FeatureSettings {
 		echo '<p>Configure the source site for embedding businesses from your directory network.</p>';
 		echo '<p>If this site <strong>IS</strong> the main directory site (e.g., LoveTrivalley.com), leave this empty.</p>';
 		echo '<p>If this site pulls businesses from another site, enter that site\'s URL below.</p>';
+	}
+
+	/**
+	 * Render local features checkbox field
+	 */
+	public static function render_local_features_field() {
+		$enabled    = self::is_local_features_enabled();
+		$is_main    = is_main_site();
+		$source_url = get_option( 'bd_feature_source_url', '' );
+		?>
+		<!-- Hidden field ensures "0" is submitted when checkbox is unchecked -->
+		<input type="hidden" name="bd_enable_local_features" value="0">
+		<label>
+			<input 
+				type="checkbox" 
+				name="bd_enable_local_features" 
+				id="bd_enable_local_features" 
+				value="1"
+				<?php checked( $enabled ); ?>
+			>
+			Enable local directory database on this site
+		</label>
+		<p class="description">
+			When enabled, this site will have its own database tables for reviews, gamification, user profiles, and claims.<br>
+			<?php if ( $is_main ) : ?>
+				<strong>This is the main network site</strong> - local features are typically enabled here.
+			<?php elseif ( ! empty( $source_url ) ) : ?>
+				<strong>This site pulls from <?php echo esc_html( $source_url ); ?></strong> - local features are typically disabled.
+			<?php else : ?>
+				Enable this if you want this site to function as an independent directory hub.
+			<?php endif; ?>
+		</p>
+		<?php
 	}
 
 	/**
