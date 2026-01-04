@@ -90,10 +90,10 @@ add_action(
 	function () {
 		Plugin::instance();
 		// Initialize SSO for multisite.
-		if (is_multisite()) {
+		if ( is_multisite() ) {
 			\BD\Auth\SSO\Loader::init();
 		}
-		
+
 		// Frontend edit form
 		new \BD\Frontend\EditListing();
 
