@@ -6,19 +6,16 @@
  *
  * @package BusinessDirectory
  * @subpackage Auth
- * @version 1.1.0
+ * @version 1.2.0
  */
 
 namespace BD\Auth;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; }
-
-use BD\Gamification\ActivityTracker;
-
-if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+use BD\Gamification\ActivityTracker;
 
 /**
  * Class AuthHandler
@@ -48,6 +45,10 @@ class AuthHandler {
 		add_action( 'wp_ajax_bd_check_auth', array( __CLASS__, 'check_auth_status' ) );
 		add_action( 'wp_ajax_nopriv_bd_check_auth', array( __CLASS__, 'check_auth_status' ) );
 
+		// Fresh nonce endpoint.
+		add_action( 'wp_ajax_bd_get_auth_nonce', array( __CLASS__, 'get_fresh_nonce' ) );
+		add_action( 'wp_ajax_nopriv_bd_get_auth_nonce', array( __CLASS__, 'get_fresh_nonce' ) );
+
 		// Track login for multisite.
 		add_action( 'wp_login', array( __CLASS__, 'track_login' ), 10, 2 );
 
@@ -56,6 +57,17 @@ class AuthHandler {
 
 		// Claim past reviews on registration.
 		add_action( 'user_register', array( __CLASS__, 'claim_past_reviews' ), 10, 1 );
+	}
+
+	/**
+	 * Get fresh nonce for auth forms
+	 */
+	public static function get_fresh_nonce() {
+		wp_send_json_success(
+			array(
+				'nonce' => wp_create_nonce( 'bd_auth_nonce' ),
+			)
+		);
 	}
 
 	/**
@@ -189,18 +201,27 @@ class AuthHandler {
 		wp_set_current_user( $user->ID );
 		wp_set_auth_cookie( $user->ID, $remember );
 
-		// Success.
-		wp_send_json_success(
-			array(
-				'message'  => __( 'Login successful! Redirecting...', 'business-directory' ),
-				'redirect' => self::get_redirect_url(),
-				'user'     => array(
-					'id'           => $user->ID,
-					'display_name' => $user->display_name,
-					'avatar'       => get_avatar_url( $user->ID, array( 'size' => 32 ) ),
-				),
-			)
+		// Build response.
+		$response = array(
+			'message'  => __( 'Login successful! Redirecting...', 'business-directory' ),
+			'redirect' => self::get_redirect_url(),
+			'user'     => array(
+				'id'           => $user->ID,
+				'display_name' => $user->display_name,
+				'avatar'       => get_avatar_url( $user->ID, array( 'size' => 32 ) ),
+			),
 		);
+
+		/**
+		 * Filter login response data before sending.
+		 * Used by SSO to add iframe sync URLs for cross-domain authentication.
+		 *
+		 * @param array    $response Response data.
+		 * @param \WP_User $user     Logged in user.
+		 */
+		$response = apply_filters( 'bd_auth_login_response', $response, $user );
+
+		wp_send_json_success( $response );
 	}
 
 	/**
@@ -312,17 +333,27 @@ class AuthHandler {
 			);
 		}
 
-		wp_send_json_success(
-			array(
-				'message'  => $message,
-				'redirect' => self::get_redirect_url( home_url( '/my-profile/?registered=1' ) ),
-				'user'     => array(
-					'id'           => $user_id,
-					'display_name' => $user->display_name,
-					'avatar'       => get_avatar_url( $user_id, array( 'size' => 32 ) ),
-				),
-			)
+		// Build response.
+		$response = array(
+			'message'  => $message,
+			'redirect' => self::get_redirect_url( home_url( '/my-profile/?registered=1' ) ),
+			'user'     => array(
+				'id'           => $user_id,
+				'display_name' => $user->display_name,
+				'avatar'       => get_avatar_url( $user_id, array( 'size' => 32 ) ),
+			),
 		);
+
+		/**
+		 * Filter registration response data before sending.
+		 * Used by SSO to add iframe sync URLs for cross-domain authentication.
+		 *
+		 * @param array    $response Response data.
+		 * @param \WP_User $user     Registered user.
+		 */
+		$response = apply_filters( 'bd_auth_login_response', $response, $user );
+
+		wp_send_json_success( $response );
 	}
 
 	/**
@@ -393,18 +424,12 @@ class AuthHandler {
 		);
 
 		$message = sprintf(
-			/* translators: 1: username, 2: site name, 3: reset URL */
-			// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralText
-			__(
-				"Hi %1\$s,\n\n" .
-				"Someone requested a password reset for your account on %2\$s.\n\n" .
-				"If this was you, click the link below to reset your password:\n%3\$s\n\n" .
-				"If you didn't request this, you can safely ignore this email.\n\n" .
-				"This link will expire in 24 hours.\n\n" .
-				"Thanks,\n%2\$s Team",
-				'business-directory'
-			),
-			// phpcs:enable WordPress.WP.I18n.NonSingularStringLiteralText
+			"Hi %1\$s,\n\n" .
+			"Someone requested a password reset for your account on %2\$s.\n\n" .
+			"If this was you, click the link below to reset your password:\n%3\$s\n\n" .
+			"If you didn't request this, you can safely ignore this email.\n\n" .
+			"This link will expire in 24 hours.\n\n" .
+			"Thanks,\n%2\$s Team",
 			$user->display_name,
 			get_bloginfo( 'name' ),
 			$reset_url
@@ -434,6 +459,29 @@ class AuthHandler {
 	}
 
 	/**
+	 * Get redirect URL
+	 *
+	 * @param string $default Default URL.
+	 * @return string
+	 */
+	public static function get_redirect_url( $default = '' ) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $_REQUEST['redirect_to'] ) ) {
+			$redirect = esc_url_raw( wp_unslash( $_REQUEST['redirect_to'] ) );
+			// Ensure it's a local URL.
+			if ( wp_validate_redirect( $redirect ) ) {
+				return $redirect;
+			}
+		}
+
+		if ( $default ) {
+			return $default;
+		}
+
+		return home_url();
+	}
+
+	/**
 	 * Track login for multisite
 	 *
 	 * @param string   $user_login Username.
@@ -451,21 +499,28 @@ class AuthHandler {
 	 * @param \WP_User $user       User object.
 	 */
 	public static function maybe_award_first_login( $user_login, $user ) {
-		$first_login_awarded = get_user_meta( $user->ID, 'bd_first_login_points', true );
+		// Check if already awarded.
+		$awarded = get_user_meta( $user->ID, 'bd_first_login_awarded', true );
 
-		if ( ! $first_login_awarded && class_exists( '\BD\Gamification\ActivityTracker' ) ) {
-			ActivityTracker::track( $user->ID, 'first_login', 0 );
-			update_user_meta( $user->ID, 'bd_first_login_points', current_time( 'mysql' ) );
+		if ( $awarded ) {
+			return;
 		}
+
+		// Award points via gamification if available.
+		if ( class_exists( '\BD\Gamification\ActivityTracker' ) ) {
+			ActivityTracker::track( $user->ID, 'first_login' );
+		}
+
+		update_user_meta( $user->ID, 'bd_first_login_awarded', true );
 	}
 
 	/**
-	 * Claim past reviews when user registers
+	 * Claim past reviews on registration
 	 *
 	 * @param int $user_id User ID.
 	 */
 	public static function claim_past_reviews( $user_id ) {
-		$user = get_userdata( $user_id );
+		$user = get_user_by( 'id', $user_id );
 		if ( ! $user ) {
 			return;
 		}
@@ -483,79 +538,18 @@ class AuthHandler {
 			return;
 		}
 
-		// Find reviews with matching email but no user_id.
+		// Find reviews by email.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$unclaimed_reviews = $wpdb->get_results(
+		$claimed = $wpdb->query(
 			$wpdb->prepare(
-				"SELECT id, business_id, content, photo_ids, status
-				FROM {$reviews_table}
-				WHERE author_email = %s
-				AND (user_id IS NULL OR user_id = 0)",
+				"UPDATE {$reviews_table} SET user_id = %d WHERE reviewer_email = %s AND user_id = 0",
+				$user_id,
 				$user->user_email
-			),
-			ARRAY_A
+			)
 		);
 
-		if ( empty( $unclaimed_reviews ) ) {
-			return;
+		if ( $claimed > 0 ) {
+			update_user_meta( $user_id, 'bd_claimed_reviews', $claimed );
 		}
-
-		$claimed_count = 0;
-
-		foreach ( $unclaimed_reviews as $review ) {
-			// Update review with user_id.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->update(
-				$reviews_table,
-				array( 'user_id' => $user_id ),
-				array( 'id' => $review['id'] ),
-				array( '%d' ),
-				array( '%d' )
-			);
-
-			// Award points if review was already approved.
-			if ( 'approved' === $review['status'] && class_exists( '\BD\Gamification\ActivityTracker' ) ) {
-				ActivityTracker::track( $user_id, 'review_created', $review['id'] );
-
-				if ( ! empty( $review['photo_ids'] ) ) {
-					ActivityTracker::track( $user_id, 'review_with_photo', $review['id'] );
-				}
-
-				if ( strlen( $review['content'] ) > 100 ) {
-					ActivityTracker::track( $user_id, 'review_detailed', $review['id'] );
-				}
-
-				++$claimed_count;
-			}
-		}
-
-		if ( $claimed_count > 0 ) {
-			update_user_meta( $user_id, 'bd_claimed_reviews', $claimed_count );
-		}
-	}
-
-	/**
-	 * Get redirect URL after login/register
-	 *
-	 * @param string $default Default URL.
-	 * @return string
-	 */
-	private static function get_redirect_url( $default = '' ) {
-		// Check for redirect_to parameter.
-		if ( ! empty( $_POST['redirect_to'] ) ) {
-			$redirect = esc_url_raw( $_POST['redirect_to'] );
-			if ( wp_validate_redirect( $redirect ) ) {
-				return $redirect;
-			}
-		}
-
-		// Check referer.
-		$referer = wp_get_referer();
-		if ( $referer && strpos( $referer, '/login' ) === false ) {
-			return $referer;
-		}
-
-		// Default.
-		return $default ? $default : home_url();
 	}
 }

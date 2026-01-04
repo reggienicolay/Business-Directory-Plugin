@@ -4,9 +4,10 @@
  * Handles login, register, password reset forms.
  * Modal popup and user dropdown functionality.
  * Includes auth status check for cached pages.
+ * Integrates with SSO for cross-domain authentication.
  *
  * @package BusinessDirectory
- * @version 1.3.0
+ * @version 1.5.0
  */
 
 (function($) {
@@ -267,38 +268,17 @@
 
 			// Replace logged-out with logged-in
 			$loggedOut.replaceWith(html);
-
-			// Re-init dropdown functionality
-			BD_Auth.initDropdown();
 		},
 
 		/**
-		 * Update header to logged-out state (usually not needed - cached page already shows this)
+		 * Show logged-out header state
 		 */
 		showLoggedOutHeader: function() {
-			// Check if we're incorrectly showing logged-in state
-			var $loggedIn = $('.bd-auth-logged-in');
-
-			if (!$loggedIn.length || !$loggedIn.is(':visible')) {
-				return;
-			}
-
-			// Page is cached with logged-in state but user is logged out
-			// Reload to get fresh page
-			window.location.reload();
+			// Header is already showing logged-out state from cache
 		},
 
 		/**
-		 * Escape HTML to prevent XSS
-		 */
-		escapeHtml: function(text) {
-			var div = document.createElement('div');
-			div.textContent = text;
-			return div.innerHTML;
-		},
-
-		/**
-		 * Get fresh nonce via AJAX
+		 * Get fresh nonce via AJAX (for cached pages)
 		 */
 		getFreshNonce: function() {
 			return new Promise(function(resolve) {
@@ -310,7 +290,7 @@
 				$.ajax({
 					url: bdAuth.ajaxUrl,
 					type: 'POST',
-					data: { action: 'bd_get_auth_nonce' },
+					data: { action: 'bd_get_nonce' },
 					success: function(response) {
 						if (response.success && response.data.nonce) {
 							resolve(response.data.nonce);
@@ -323,6 +303,15 @@
 					}
 				});
 			});
+		},
+
+		/**
+		 * Escape HTML
+		 */
+		escapeHtml: function(text) {
+			var div = document.createElement('div');
+			div.textContent = text;
+			return div.innerHTML;
 		},
 
 		/**
@@ -366,11 +355,19 @@
 						if (response.success) {
 							BD_Auth.showMessage('success', response.data.message, $messages);
 
-							// Redirect after short delay with cache-busting param
+							// Check for SSO redirect chain (multisite cross-domain auth)
+							if (response.data.sso_redirect) {
+								// Redirect to start SSO chain - will return to original page when complete
+								console.log('[BD Auth] Starting SSO redirect chain');
+								window.location.href = response.data.sso_redirect;
+								return;
+							}
+
+							// No SSO - redirect after short delay
+							var redirectUrl = response.data.redirect || window.location.href;
+							redirectUrl += (redirectUrl.indexOf('?') > -1 ? '&' : '?') + '_nocache=' + Date.now();
+
 							setTimeout(function() {
-								var redirectUrl = response.data.redirect || window.location.href;
-								// Add cache-busting parameter to force fresh page load
-								redirectUrl += (redirectUrl.indexOf('?') > -1 ? '&' : '?') + '_nocache=' + Date.now();
 								window.location.href = redirectUrl;
 							}, 500);
 						} else {
@@ -398,13 +395,6 @@
 
 			// Clear messages
 			$messages.empty();
-
-			// Client-side validation
-			const password = $form.find('input[name="password"]').val();
-			if (password.length < 8) {
-				BD_Auth.showMessage('error', 'Password must be at least 8 characters.', $messages);
-				return;
-			}
 
 			// Show loading
 			$btn.addClass('bd-loading').prop('disabled', true);
@@ -434,13 +424,21 @@
 						if (response.success) {
 							BD_Auth.showMessage('success', response.data.message, $messages);
 
-							// Redirect after short delay with cache-busting param
+							// Check for SSO redirect chain (multisite cross-domain auth)
+							if (response.data.sso_redirect) {
+								// Redirect to start SSO chain - will return to original page when complete
+								console.log('[BD Auth] Starting SSO redirect chain');
+								window.location.href = response.data.sso_redirect;
+								return;
+							}
+
+							// No SSO - redirect after short delay
+							var redirectUrl = response.data.redirect || window.location.href;
+							redirectUrl += (redirectUrl.indexOf('?') > -1 ? '&' : '?') + '_nocache=' + Date.now();
+
 							setTimeout(function() {
-								var redirectUrl = response.data.redirect || window.location.href;
-								// Add cache-busting parameter to force fresh page load
-								redirectUrl += (redirectUrl.indexOf('?') > -1 ? '&' : '?') + '_nocache=' + Date.now();
 								window.location.href = redirectUrl;
-							}, 1000);
+							}, 500);
 						} else {
 							BD_Auth.showMessage('error', response.data.message, $messages);
 							$btn.removeClass('bd-loading').prop('disabled', false);
