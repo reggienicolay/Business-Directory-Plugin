@@ -6,7 +6,7 @@
  *
  * @package BusinessDirectory
  * @subpackage Auth
- * @version 1.2.0
+ * @version 1.3.1
  */
 
 namespace BD\Auth;
@@ -85,8 +85,11 @@ class AuthHandler {
 				$display_name = substr( $display_name, 0, 12 ) . '...';
 			}
 
-			// Check if user has claimed businesses.
+			// Check if user has claimed businesses (checks hub site).
 			$has_businesses = self::user_has_businesses( $user->ID );
+
+			// Get hub URL for account pages (all account features live on main site).
+			$hub_url = self::get_hub_url();
 
 			wp_send_json_success(
 				array(
@@ -101,12 +104,12 @@ class AuthHandler {
 						'has_businesses' => $has_businesses,
 					),
 					'urls'      => array(
-						'profile'        => home_url( '/my-profile/' ),
-						'lists'          => home_url( '/my-lists/' ),
-						'edit_listing'   => home_url( '/edit-listing/' ),
-						'business_tools' => home_url( '/business-tools/' ),
+						'profile'        => $hub_url . '/my-profile/',
+						'lists'          => $hub_url . '/my-lists/',
+						'edit_listing'   => $hub_url . '/edit-listing/',
+						'business_tools' => $hub_url . '/business-tools/',
 						'admin'          => admin_url(),
-						'logout'         => wp_logout_url( home_url() ),
+						'logout'         => wp_logout_url( home_url() ), // Stay on current site for logout.
 					),
 				)
 			);
@@ -120,7 +123,33 @@ class AuthHandler {
 	}
 
 	/**
+	 * Get hub (main site) URL
+	 *
+	 * @return string Hub URL.
+	 */
+	private static function get_hub_url() {
+		return is_multisite() ? get_home_url( get_main_site_id() ) : home_url();
+	}
+
+	/**
+	 * Get hub database table prefix
+	 *
+	 * @return string Table prefix for hub site.
+	 */
+	private static function get_hub_prefix() {
+		global $wpdb;
+
+		if ( is_multisite() ) {
+			return $wpdb->get_blog_prefix( get_main_site_id() );
+		}
+
+		return $wpdb->prefix;
+	}
+
+	/**
 	 * Check if user has claimed businesses
+	 *
+	 * Checks the hub site's claims table since all claims live there.
 	 *
 	 * @param int $user_id User ID.
 	 * @return bool
@@ -131,7 +160,8 @@ class AuthHandler {
 		}
 
 		global $wpdb;
-		$claims_table = $wpdb->prefix . 'bd_claim_requests';
+
+		$claims_table = self::get_hub_prefix() . 'bd_claim_requests';
 
 		// Check if table exists.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -143,7 +173,7 @@ class AuthHandler {
 			return false;
 		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$count = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$claims_table} WHERE user_id = %d AND status = 'approved'",
@@ -214,7 +244,7 @@ class AuthHandler {
 
 		/**
 		 * Filter login response data before sending.
-		 * Used by SSO to add iframe sync URLs for cross-domain authentication.
+		 * Used by SSO to add redirect chain URL for cross-domain authentication.
 		 *
 		 * @param array    $response Response data.
 		 * @param \WP_User $user     Logged in user.
@@ -333,10 +363,11 @@ class AuthHandler {
 			);
 		}
 
-		// Build response.
+		// Build response - redirect to hub profile page.
+		$hub_url  = self::get_hub_url();
 		$response = array(
 			'message'  => $message,
-			'redirect' => self::get_redirect_url( home_url( '/my-profile/?registered=1' ) ),
+			'redirect' => self::get_redirect_url( $hub_url . '/my-profile/?registered=1' ),
 			'user'     => array(
 				'id'           => $user_id,
 				'display_name' => $user->display_name,
@@ -346,7 +377,7 @@ class AuthHandler {
 
 		/**
 		 * Filter registration response data before sending.
-		 * Used by SSO to add iframe sync URLs for cross-domain authentication.
+		 * Used by SSO to add redirect chain URL for cross-domain authentication.
 		 *
 		 * @param array    $response Response data.
 		 * @param \WP_User $user     Registered user.
@@ -517,6 +548,9 @@ class AuthHandler {
 	/**
 	 * Claim past reviews on registration
 	 *
+	 * Claims any reviews written by the user's email before they registered.
+	 * Checks the hub site's reviews table since all reviews live there.
+	 *
 	 * @param int $user_id User ID.
 	 */
 	public static function claim_past_reviews( $user_id ) {
@@ -526,7 +560,8 @@ class AuthHandler {
 		}
 
 		global $wpdb;
-		$reviews_table = $wpdb->prefix . 'bd_reviews';
+
+		$reviews_table = self::get_hub_prefix() . 'bd_reviews';
 
 		// Check if table exists.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -539,7 +574,7 @@ class AuthHandler {
 		}
 
 		// Find reviews by email.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$claimed = $wpdb->query(
 			$wpdb->prepare(
 				"UPDATE {$reviews_table} SET user_id = %d WHERE reviewer_email = %s AND user_id = 0",

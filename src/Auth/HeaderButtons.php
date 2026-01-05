@@ -7,13 +7,10 @@
  *
  * @package BusinessDirectory
  * @subpackage Auth
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 namespace BD\Auth;
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; }
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -30,6 +27,30 @@ class HeaderButtons {
 	public static function init() {
 		add_shortcode( 'bd_auth_buttons', array( __CLASS__, 'render' ) );
 		add_shortcode( 'bd_auth_nav', array( __CLASS__, 'render' ) ); // Alias.
+	}
+
+	/**
+	 * Get hub (main site) URL
+	 *
+	 * @return string Hub URL.
+	 */
+	private static function get_hub_url() {
+		return is_multisite() ? get_home_url( get_main_site_id() ) : home_url();
+	}
+
+	/**
+	 * Get hub database table prefix
+	 *
+	 * @return string Table prefix for hub site.
+	 */
+	private static function get_hub_prefix() {
+		global $wpdb;
+
+		if ( is_multisite() ) {
+			return $wpdb->get_blog_prefix( get_main_site_id() );
+		}
+
+		return $wpdb->prefix;
 	}
 
 	/**
@@ -117,9 +138,9 @@ class HeaderButtons {
 	 * @return string
 	 */
 	private static function render_logged_in( $atts ) {
-		$user        = wp_get_current_user();
-		$profile_url = home_url( '/my-profile/' );
-		$logout_url  = wp_logout_url( home_url() );
+		$user       = wp_get_current_user();
+		$hub_url    = self::get_hub_url();
+		$logout_url = wp_logout_url( home_url() ); // Stay on current site for logout.
 
 		// Get user display name (first name or display name).
 		$display_name = $user->first_name ? $user->first_name : $user->display_name;
@@ -167,7 +188,7 @@ class HeaderButtons {
 
 						<ul class="bd-auth-dropdown-menu">
 							<li>
-								<a href="<?php echo esc_url( $profile_url ); ?>">
+								<a href="<?php echo esc_url( $hub_url . '/my-profile/' ); ?>">
 									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 										<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
 										<circle cx="12" cy="7" r="4"></circle>
@@ -176,7 +197,7 @@ class HeaderButtons {
 								</a>
 							</li>
 							<li>
-								<a href="<?php echo esc_url( home_url( '/my-lists/' ) ); ?>">
+								<a href="<?php echo esc_url( $hub_url . '/my-lists/' ); ?>">
 									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 										<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
 									</svg>
@@ -186,7 +207,7 @@ class HeaderButtons {
 
 							<?php if ( self::user_has_businesses() ) : ?>
 								<li>
-									<a href="<?php echo esc_url( home_url( '/edit-listing/' ) ); ?>">
+									<a href="<?php echo esc_url( $hub_url . '/edit-listing/' ); ?>">
 										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 											<path d="M12 20h9"></path>
 											<path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
@@ -195,7 +216,7 @@ class HeaderButtons {
 									</a>
 								</li>
 								<li>
-									<a href="<?php echo esc_url( home_url( '/business-tools/' ) ); ?>">
+									<a href="<?php echo esc_url( $hub_url . '/business-tools/' ); ?>">
 										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
 											<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
 										</svg>
@@ -242,6 +263,8 @@ class HeaderButtons {
 	/**
 	 * Check if current user has claimed businesses
 	 *
+	 * Checks the hub site's claims table since all claims live there.
+	 *
 	 * @return bool
 	 */
 	private static function user_has_businesses() {
@@ -252,7 +275,8 @@ class HeaderButtons {
 		}
 
 		global $wpdb;
-		$claims_table = $wpdb->prefix . 'bd_claim_requests';
+
+		$claims_table = self::get_hub_prefix() . 'bd_claim_requests';
 
 		// Check if table exists.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
@@ -264,7 +288,7 @@ class HeaderButtons {
 			return false;
 		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$count = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$claims_table} WHERE user_id = %d AND status = 'approved'",
