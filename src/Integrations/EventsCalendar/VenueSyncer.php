@@ -6,7 +6,7 @@
  * Handles both auto-sync on publish and bulk sync via admin.
  *
  * @package BusinessDirectory
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 namespace BD\Integrations\EventsCalendar;
@@ -398,20 +398,34 @@ class VenueSyncer {
 	public static function get_unsynced_businesses( $limit = 50 ) {
 		global $wpdb;
 
-		// Get business IDs that don't have a synced venue
+		// Get business IDs that need sync:
+		// 1. No venue meta at all (NULL or empty)
+		// 2. Venue meta exists but venue was deleted (stale reference)
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$business_ids = $wpdb->get_col(
 			$wpdb->prepare(
 				"SELECT p.ID FROM {$wpdb->posts} p
 				LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = %s
+				LEFT JOIN {$wpdb->posts} v ON pm.meta_value = v.ID AND v.post_type = 'tribe_venue' AND v.post_status = 'publish'
 				WHERE p.post_type = 'bd_business' 
 				AND p.post_status = 'publish'
-				AND (pm.meta_value IS NULL OR pm.meta_value = '')
+				AND (pm.meta_value IS NULL OR pm.meta_value = '' OR v.ID IS NULL)
 				LIMIT %d",
 				self::VENUE_META_KEY,
 				$limit
 			)
 		);
+
+		// Also clear stale venue references so they don't block future syncs
+		if ( ! empty( $business_ids ) ) {
+			foreach ( $business_ids as $business_id ) {
+				$venue_id = get_post_meta( $business_id, self::VENUE_META_KEY, true );
+				if ( $venue_id && ! get_post( $venue_id ) ) {
+					// Venue was deleted - clear the stale reference
+					delete_post_meta( $business_id, self::VENUE_META_KEY );
+				}
+			}
+		}
 
 		if ( empty( $business_ids ) ) {
 			return array();

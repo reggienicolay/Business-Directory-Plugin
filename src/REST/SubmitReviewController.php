@@ -6,13 +6,10 @@ namespace BD\REST;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; }
 
-error_log( 'SubmitReviewController class loaded!' ); // ADD THIS
-
 class SubmitReviewController {
 
 
 	public static function register() {
-		error_log( 'SubmitReviewController::register() called!' ); // ADD THIS
 		register_rest_route(
 			'bd/v1',
 			'/submit-review',

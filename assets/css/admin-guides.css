@@ -1,0 +1,268 @@
+/**
+ * Guides Admin Styles
+ *
+ * Styling for the Community Guides admin management page.
+ *
+ * @package BusinessDirectory
+ * @version 1.0.0
+ */
+
+.bd-guides-admin {
+	max-width: 1200px;
+}
+
+.bd-page-description {
+	font-size: 14px;
+	color: #50575e;
+	margin-top: 0;
+	margin-bottom: 30px;
+}
+
+/* ==========================================================================
+   ADD GUIDE BOX
+   ========================================================================== */
+
+.bd-add-guide-box {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 8px;
+	padding: 24px;
+	margin-bottom: 30px;
+}
+
+.bd-add-guide-box h2 {
+	font-size: 16px;
+	color: #1a3a4a;
+	margin: 0 0 16px 0;
+	padding: 0;
+	border: none;
+}
+
+.bd-add-guide-form {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+
+.bd-add-guide-form select {
+	min-width: 350px;
+	padding: 8px 12px;
+}
+
+.bd-add-guide-form .button {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.bd-add-guide-form .button .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	margin-top: -2px;
+}
+
+/* ==========================================================================
+   GUIDES LIST TABLE
+   ========================================================================== */
+
+.bd-guides-list {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 8px;
+	padding: 24px;
+	margin-bottom: 30px;
+}
+
+.bd-guides-list h2 {
+	font-size: 16px;
+	color: #1a3a4a;
+	margin: 0 0 20px 0;
+	padding: 0;
+	border: none;
+}
+
+.bd-guides-list table {
+	border-collapse: collapse;
+}
+
+.bd-guides-list th {
+	text-align: left;
+	font-weight: 600;
+	color: #1a3a4a;
+}
+
+.bd-guides-list .column-order {
+	width: 80px;
+}
+
+.bd-guides-list .column-avatar {
+	width: 60px;
+}
+
+.bd-guides-list .column-name {
+	min-width: 200px;
+}
+
+.bd-guides-list .column-title {
+	width: 180px;
+}
+
+.bd-guides-list .column-cities {
+	width: 180px;
+}
+
+.bd-guides-list .column-stats {
+	width: 120px;
+}
+
+.bd-guides-list .column-actions {
+	width: 100px;
+	text-align: right;
+}
+
+/* Drag Handle */
+.bd-drag-handle {
+	cursor: move;
+	color: #999;
+	margin-right: 8px;
+	vertical-align: middle;
+}
+
+.bd-drag-handle:hover {
+	color: #666;
+}
+
+.bd-guide-order {
+	width: 50px;
+	padding: 4px 6px;
+	text-align: center;
+}
+
+/* Avatar */
+.bd-guides-list .column-avatar img {
+	width: 50px;
+	height: 50px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+/* Stats */
+.bd-stat {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: 13px;
+	color: #666;
+}
+
+.bd-stat .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	color: #c9a227;
+}
+
+/* Actions Button */
+.bd-guides-list .button-small {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.bd-guides-list .button-small .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+/* No Guides Message */
+.bd-no-guides {
+	text-align: center;
+	padding: 40px 20px;
+	color: #666;
+}
+
+/* ==========================================================================
+   SHORTCODE INFO BOX
+   ========================================================================== */
+
+.bd-shortcode-info {
+	background: #f6f7f7;
+	border: 1px solid #c3c4c7;
+	border-radius: 8px;
+	padding: 24px;
+}
+
+.bd-shortcode-info h2 {
+	font-size: 16px;
+	color: #1a3a4a;
+	margin: 0 0 12px 0;
+	padding: 0;
+	border: none;
+}
+
+.bd-shortcode-info p {
+	color: #50575e;
+	margin: 0 0 16px 0;
+}
+
+.bd-shortcode-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.bd-shortcode-table td {
+	padding: 10px 12px;
+	border-bottom: 1px solid #e2e4e7;
+	vertical-align: top;
+}
+
+.bd-shortcode-table td:first-child {
+	width: 300px;
+}
+
+.bd-shortcode-table code {
+	background: #fff;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 13px;
+}
+
+.bd-shortcode-table tr:last-child td {
+	border-bottom: none;
+}
+
+/* ==========================================================================
+   USER PROFILE PAGE - GUIDE SETTINGS
+   ========================================================================== */
+
+#bd-guide-settings {
+	color: #1a3a4a;
+	border-bottom: 2px solid #c9a227;
+	padding-bottom: 8px;
+}
+
+#bd-guide-settings + .description {
+	margin-bottom: 20px;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 782px) {
+	.bd-add-guide-form {
+		flex-direction: column;
+		align-items: stretch;
+	}
+
+	.bd-add-guide-form select {
+		min-width: 100%;
+	}
+
+	.bd-guides-list .column-cities,
+	.bd-guides-list .column-stats {
+		display: none;
+	}
+}
