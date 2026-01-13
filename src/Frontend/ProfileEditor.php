@@ -289,16 +289,7 @@ class ProfileEditor {
 
 		$message = sprintf(
 			/* translators: 1: display name, 2: site name, 3: new email, 4: verify URL */
-			__(
-				"Hi %1\$s,\n\n" .
-				"You requested to change your email address on %2\$s.\n\n" .
-				"New email: %3\$s\n\n" .
-				"Click the link below to verify this change:\n%4\$s\n\n" .
-				"This link expires in 24 hours.\n\n" .
-				"If you didn't request this change, please ignore this email.\n\n" .
-				"Thanks,\n%2\$s Team",
-				'business-directory'
-			),
+			__( "Hi %1\$s,\n\nYou requested to change your email address on %2\$s.\n\nNew email: %3\$s\n\nClick the link below to verify this change:\n%4\$s\n\nThis link expires in 24 hours.\n\nIf you didn't request this change, please ignore this email.\n\nThanks,\n%2\$s Team", 'business-directory' ),
 			$user->display_name,
 			get_bloginfo( 'name' ),
 			$new_email,

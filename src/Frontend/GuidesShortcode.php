@@ -425,7 +425,7 @@ class GuidesShortcode {
 
 		// Badges.
 		if ( class_exists( 'BD\Gamification\BadgeSystem' ) ) {
-			$badges = BadgeSystem::get_user_badges( $user_id );
+			$badges          = BadgeSystem::get_user_badges( $user_id );
 			$stats['badges'] = is_array( $badges ) ? count( $badges ) : 0;
 		}
 

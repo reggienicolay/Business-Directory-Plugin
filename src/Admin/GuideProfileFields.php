@@ -161,13 +161,13 @@ class GuideProfileFields {
 	public static function render_guide_fields( $user ) {
 		// Check if user is a guide
 		$is_guide = get_user_meta( $user->ID, 'bd_is_guide', true );
-		
+
 		// Get current cover selection
 		$current_cover = get_user_meta( $user->ID, 'bd_cover_photo', true );
-		
+
 		// Get available covers
 		$covers = self::get_available_covers();
-		
+
 		?>
 		<div class="bd-guide-fields">
 			<h2><?php esc_html_e( 'Community Guide Settings', 'business-directory' ); ?></h2>
@@ -187,12 +187,12 @@ class GuideProfileFields {
 							<?php if ( empty( $covers ) ) : ?>
 								<div class="bd-no-covers-notice">
 									<strong><?php esc_html_e( 'No cover images found.', 'business-directory' ); ?></strong><br>
-									<?php 
+									<?php
 									printf(
 										/* translators: %s: folder path */
 										esc_html__( 'Add .jpg images to: %s', 'business-directory' ),
 										'<code>/wp-content/plugins/business-directory/assets/images/covers/</code>'
-									); 
+									);
 									?>
 								</div>
 							<?php else : ?>
@@ -255,7 +255,7 @@ class GuideProfileFields {
 		// Save cover photo
 		if ( isset( $_POST['bd_cover_photo'] ) ) {
 			$cover = sanitize_text_field( wp_unslash( $_POST['bd_cover_photo'] ) );
-			
+
 			// Validate cover exists (or is empty for default)
 			if ( empty( $cover ) || self::cover_exists( $cover ) ) {
 				update_user_meta( $user_id, 'bd_cover_photo', $cover );
@@ -267,7 +267,7 @@ class GuideProfileFields {
 	 * Get available cover images from folder
 	 */
 	public static function get_available_covers() {
-		$covers = array();
+		$covers     = array();
 		$covers_dir = BD_PLUGIN_DIR . 'assets/images/covers/';
 		$covers_url = BD_PLUGIN_URL . 'assets/images/covers/';
 
@@ -276,7 +276,7 @@ class GuideProfileFields {
 		}
 
 		$files = scandir( $covers_dir );
-		
+
 		foreach ( $files as $file ) {
 			// Only process jpg/jpeg files
 			$ext = strtolower( pathinfo( $file, PATHINFO_EXTENSION ) );
@@ -284,7 +284,7 @@ class GuideProfileFields {
 				continue;
 			}
 
-			$key = pathinfo( $file, PATHINFO_FILENAME );
+			$key   = pathinfo( $file, PATHINFO_FILENAME );
 			$label = self::format_cover_label( $key );
 
 			$covers[] = array(
@@ -296,9 +296,12 @@ class GuideProfileFields {
 		}
 
 		// Sort alphabetically by label
-		usort( $covers, function( $a, $b ) {
-			return strcmp( $a['label'], $b['label'] );
-		});
+		usort(
+			$covers,
+			function ( $a, $b ) {
+				return strcmp( $a['label'], $b['label'] );
+			}
+		);
 
 		return $covers;
 	}

@@ -93,10 +93,10 @@ class Profile {
 	 */
 	public static function handle_profile_routing() {
 		// Handle /my-profile/ redirect (but NOT subpages like /my-profile/my-lists/).
-		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		$request_uri  = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 		$request_path = parse_url( $request_uri, PHP_URL_PATH );
 		$request_path = rtrim( $request_path, '/' ); // Normalize trailing slash
-		
+
 		// Only redirect exact /my-profile path, not subpages.
 		if ( $request_path === '/my-profile' ) {
 			if ( is_user_logged_in() ) {
@@ -149,9 +149,9 @@ class Profile {
 	public static function enqueue_assets() {
 		$profile_user = get_query_var( 'bd_profile_user' );
 		$request_uri  = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
-		
+
 		// Check if we're on a profile page.
-		$is_profile_page = ! empty( $profile_user ) 
+		$is_profile_page = ! empty( $profile_user )
 			|| strpos( $request_uri, '/my-profile' ) !== false
 			|| strpos( $request_uri, '/profile' ) !== false
 			|| is_page( array( 'my-profile', 'profile' ) );
@@ -210,13 +210,13 @@ class Profile {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'bd_profile_nonce' ),
 				'i18n'    => array(
-					'saving'       => __( 'Saving...', 'business-directory' ),
-					'saved'        => __( 'Profile updated!', 'business-directory' ),
-					'error'        => __( 'An error occurred. Please try again.', 'business-directory' ),
-					'copied'       => __( 'Link copied!', 'business-directory' ),
-					'copyError'    => __( 'Could not copy link', 'business-directory' ),
-					'showMore'     => __( 'Show More', 'business-directory' ),
-					'showLess'     => __( 'Show Less', 'business-directory' ),
+					'saving'    => __( 'Saving...', 'business-directory' ),
+					'saved'     => __( 'Profile updated!', 'business-directory' ),
+					'error'     => __( 'An error occurred. Please try again.', 'business-directory' ),
+					'copied'    => __( 'Link copied!', 'business-directory' ),
+					'copyError' => __( 'Could not copy link', 'business-directory' ),
+					'showMore'  => __( 'Show More', 'business-directory' ),
+					'showLess'  => __( 'Show Less', 'business-directory' ),
 				),
 			)
 		);
@@ -470,12 +470,12 @@ class Profile {
 						</div>
 					</section>
 
-					<?php 
+					<?php
 					// Guide quote.
-					$quote = isset( $data['guide_quote'] ) ? trim( $data['guide_quote'] ) : '';
-					$is_real_quote = ! empty( $quote ) 
-						&& strtolower( $quote ) !== '*quote*' 
-						&& strtolower( $quote ) !== 'quote' 
+					$quote         = isset( $data['guide_quote'] ) ? trim( $data['guide_quote'] ) : '';
+					$is_real_quote = ! empty( $quote )
+						&& strtolower( $quote ) !== '*quote*'
+						&& strtolower( $quote ) !== 'quote'
 						&& strlen( $quote ) > 10;
 					?>
 					<?php if ( $data['is_guide'] && $is_real_quote ) : ?>
@@ -581,10 +581,10 @@ class Profile {
 
 									if ( $next_rank ) :
 										$points_needed = $next_rank['threshold'] - $current_points;
-										$progress      = ( $next_rank['threshold'] - $current_threshold ) > 0 
-											? ( ( $current_points - $current_threshold ) / ( $next_rank['threshold'] - $current_threshold ) ) * 100 
+										$progress      = ( $next_rank['threshold'] - $current_threshold ) > 0
+											? ( ( $current_points - $current_threshold ) / ( $next_rank['threshold'] - $current_threshold ) ) * 100
 											: 0;
-									?>
+										?>
 									<div class="bd-rank-progress">
 										<div class="bd-progress-info">
 											<span>
@@ -701,7 +701,10 @@ class Profile {
 								</div>
 								<div class="bd-reviews-list bd-collapsed">
 									<?php foreach ( $data['recent_reviews'] as $review ) : ?>
-										<?php if ( ! is_array( $review ) ) { continue; } ?>
+										<?php
+										if ( ! is_array( $review ) ) {
+											continue; }
+										?>
 										<div class="bd-review-card">
 											<div class="bd-review-header">
 												<?php if ( ! empty( $review['business_image'] ) ) : ?>
@@ -807,7 +810,7 @@ class Profile {
 								<div class="bd-profile-section-icon"><i class="fas fa-trophy"></i></div>
 								<h2 class="bd-profile-section-title"><?php esc_html_e( 'Top Contributors', 'business-directory' ); ?></h2>
 							</div>
-							<?php 
+							<?php
 							if ( class_exists( 'BD\Frontend\BadgeDisplay' ) ) {
 								echo \BD\Frontend\BadgeDisplay::render_leaderboard( 'all_time', 5, false );
 							}
@@ -872,21 +875,21 @@ class Profile {
 		}
 
 		$data = array(
-			'user_id'      => $user_id,
-			'display_name' => $user->display_name,
-			'bio'          => get_user_meta( $user_id, 'description', true ),
-			'public_bio'   => get_user_meta( $user_id, 'bd_public_bio', true ),
-			'city'         => get_user_meta( $user_id, 'bd_city', true ),
+			'user_id'        => $user_id,
+			'display_name'   => $user->display_name,
+			'bio'            => get_user_meta( $user_id, 'description', true ),
+			'public_bio'     => get_user_meta( $user_id, 'bd_public_bio', true ),
+			'city'           => get_user_meta( $user_id, 'bd_city', true ),
 
 			// Guide fields.
-			'is_guide'     => (bool) get_user_meta( $user_id, 'bd_is_guide', true ),
-			'guide_title'  => get_user_meta( $user_id, 'bd_guide_title', true ),
-			'guide_quote'  => get_user_meta( $user_id, 'bd_guide_quote', true ),
-			'guide_cities' => get_user_meta( $user_id, 'bd_guide_cities', true ) ?: array(),
-			'cover_photo'  => get_user_meta( $user_id, 'bd_cover_photo', true ),
+			'is_guide'       => (bool) get_user_meta( $user_id, 'bd_is_guide', true ),
+			'guide_title'    => get_user_meta( $user_id, 'bd_guide_title', true ),
+			'guide_quote'    => get_user_meta( $user_id, 'bd_guide_quote', true ),
+			'guide_cities'   => get_user_meta( $user_id, 'bd_guide_cities', true ) ?: array(),
+			'cover_photo'    => get_user_meta( $user_id, 'bd_cover_photo', true ),
 
 			// Social links.
-			'social_links' => array(
+			'social_links'   => array(
 				'instagram' => self::get_social_url( 'instagram', get_user_meta( $user_id, 'bd_instagram', true ) ),
 				'facebook'  => get_user_meta( $user_id, 'bd_facebook', true ),
 				'twitter'   => self::get_social_url( 'twitter', get_user_meta( $user_id, 'bd_twitter', true ) ),
@@ -1104,7 +1107,7 @@ class Profile {
 
 		// Batch fetch business IDs for priming caches.
 		$business_ids = array_unique( array_filter( array_column( $reviews, 'business_id' ) ) );
-		
+
 		if ( ! empty( $business_ids ) ) {
 			// Prime post cache to reduce individual queries.
 			_prime_post_caches( $business_ids, true, true );
