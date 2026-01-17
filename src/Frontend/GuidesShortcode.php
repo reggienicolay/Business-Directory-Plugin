@@ -5,9 +5,14 @@
  * Displays Community Guides in a beautiful grid layout.
  * Used on the main Guides page to showcase team members.
  *
+ * ENHANCEMENTS (v1.3.0):
+ * - Fixed avatar overlap effect - badge icon now inside avatar container
+ * - Added quote validation to hide placeholder text like "Quote"
+ * - Added verified checkmark next to guide names
+ *
  * @package BusinessDirectory
  * @subpackage Frontend
- * @version 1.1.0
+ * @version 1.3.0
  */
 
 namespace BD\Frontend;
@@ -68,6 +73,46 @@ class GuidesShortcode {
 			array( 'bd-design-tokens', 'font-awesome' ),
 			BD_VERSION
 		);
+	}
+
+	/**
+	 * Check if a quote is valid (not empty or placeholder)
+	 *
+	 * @param string $quote The quote text.
+	 * @return bool True if valid quote, false otherwise.
+	 */
+	private static function is_valid_quote( $quote ) {
+		if ( empty( $quote ) ) {
+			return false;
+		}
+
+		$quote       = trim( $quote );
+		$quote_lower = strtolower( $quote );
+
+		// List of invalid placeholder values.
+		$invalid_values = array(
+			'quote',
+			'*quote*',
+			'**quote**',
+			'"quote"',
+			'""quote""',
+			'your quote here',
+			'add your quote',
+			'enter quote',
+			'[quote]',
+			'(quote)',
+		);
+
+		if ( in_array( $quote_lower, $invalid_values, true ) ) {
+			return false;
+		}
+
+		// Must be at least 10 characters to be meaningful.
+		if ( strlen( $quote ) < 10 ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -167,6 +212,9 @@ class GuidesShortcode {
 			}
 		}
 
+		// ENHANCEMENT: Validate quote.
+		$has_valid_quote = self::is_valid_quote( $quote );
+
 		ob_start();
 		?>
 		<article class="bd-guide-card">
@@ -174,16 +222,23 @@ class GuidesShortcode {
 				<!-- Card Header with Avatar -->
 				<div class="bd-guide-card-header">
 					<div class="bd-guide-avatar">
-						<?php echo get_avatar( $guide['user_id'], 120 ); ?>
+						<?php echo get_avatar( $guide['user_id'], 130 ); ?>
+						<!-- FIX: Badge icon INSIDE avatar for proper positioning -->
+						<span class="bd-guide-badge-icon">
+							<i class="fas fa-user-shield"></i>
+						</span>
 					</div>
-					<span class="bd-guide-badge-icon">
-						<i class="fas fa-user-shield"></i>
-					</span>
 				</div>
 
 				<!-- Card Body -->
 				<div class="bd-guide-card-body">
-					<h3 class="bd-guide-name"><?php echo esc_html( $user->display_name ); ?></h3>
+					<!-- ENHANCEMENT: Added verified checkmark -->
+					<h3 class="bd-guide-name">
+						<?php echo esc_html( $user->display_name ); ?>
+						<span class="bd-guide-verified" title="<?php esc_attr_e( 'Verified Guide', 'business-directory' ); ?>">
+							<i class="fas fa-circle-check"></i>
+						</span>
+					</h3>
 
 					<?php if ( $title ) : ?>
 						<p class="bd-guide-title"><?php echo esc_html( $title ); ?></p>
@@ -196,7 +251,8 @@ class GuidesShortcode {
 						</p>
 					<?php endif; ?>
 
-					<?php if ( $quote ) : ?>
+					<?php // ENHANCEMENT: Only show quote if valid. ?>
+					<?php if ( $has_valid_quote ) : ?>
 						<blockquote class="bd-guide-quote">
 							"<?php echo esc_html( wp_trim_words( $quote, 15 ) ); ?>"
 						</blockquote>
@@ -207,15 +263,15 @@ class GuidesShortcode {
 
 				<!-- Stats Row -->
 				<div class="bd-guide-stats">
-					<span class="bd-guide-stat">
+					<span class="bd-guide-stat" title="<?php esc_attr_e( 'Reviews', 'business-directory' ); ?>">
 						<i class="fas fa-star"></i>
 						<?php echo esc_html( $stats['reviews'] ); ?>
 					</span>
-					<span class="bd-guide-stat">
+					<span class="bd-guide-stat" title="<?php esc_attr_e( 'Lists', 'business-directory' ); ?>">
 						<i class="fas fa-list"></i>
 						<?php echo esc_html( $stats['lists'] ); ?>
 					</span>
-					<span class="bd-guide-stat">
+					<span class="bd-guide-stat" title="<?php esc_attr_e( 'Badges', 'business-directory' ); ?>">
 						<i class="fas fa-award"></i>
 						<?php echo esc_html( $stats['badges'] ); ?>
 					</span>
@@ -299,6 +355,9 @@ class GuidesShortcode {
 		$cities      = get_user_meta( $guide['user_id'], 'bd_guide_cities', true ) ?: array();
 		$profile_url = home_url( '/profile/' . $user->user_nicename . '/' );
 
+		// ENHANCEMENT: Validate quote.
+		$has_valid_quote = self::is_valid_quote( $quote );
+
 		ob_start();
 		?>
 		<article class="bd-guide-featured">
@@ -311,7 +370,13 @@ class GuidesShortcode {
 			</div>
 
 			<div class="bd-guide-featured-content">
-				<h3 class="bd-guide-name"><?php echo esc_html( $user->display_name ); ?></h3>
+				<!-- ENHANCEMENT: Added verified checkmark -->
+				<h3 class="bd-guide-name">
+					<?php echo esc_html( $user->display_name ); ?>
+					<span class="bd-guide-verified" title="<?php esc_attr_e( 'Verified Guide', 'business-directory' ); ?>">
+						<i class="fas fa-circle-check"></i>
+					</span>
+				</h3>
 
 				<?php if ( $title ) : ?>
 					<p class="bd-guide-title"><?php echo esc_html( $title ); ?></p>
@@ -324,7 +389,8 @@ class GuidesShortcode {
 					</p>
 				<?php endif; ?>
 
-				<?php if ( $quote ) : ?>
+				<?php // ENHANCEMENT: Only show quote if valid. ?>
+				<?php if ( $has_valid_quote ) : ?>
 					<blockquote class="bd-guide-quote-lg">
 						<i class="fas fa-quote-left"></i>
 						<?php echo esc_html( $quote ); ?>

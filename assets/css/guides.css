@@ -1,11 +1,11 @@
 /**
- * Community Guides Styles
+ * Community Guides Styles - ENHANCED VERSION
  *
  * Styling for the [bd_guides] shortcode and guide cards.
  * Uses design tokens for consistent theming.
  *
  * @package BusinessDirectory
- * @version 1.2.0
+ * @version 1.4.1
  */
 
 /* ==========================================================================
@@ -64,13 +64,13 @@
 }
 
 /* ==========================================================================
-	GUIDE CARD - ENHANCED
+	GUIDE CARD
 	========================================================================== */
 
 .bd-guide-card {
 	background: #fff;
 	border-radius: var(--bd-radius-2xl);
-	overflow: hidden;
+	overflow: visible !important; /* CRITICAL: Allow avatar to overflow */
 	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	display: flex;
@@ -79,9 +79,14 @@
 	border: 1px solid var(--bd-neutral-100);
 }
 
+/* Gold glow on hover */
 .bd-guide-card:hover {
 	transform: translateY(-8px);
-	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	box-shadow: 
+		0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+		0 10px 10px -5px rgba(0, 0, 0, 0.04),
+		0 0 30px rgba(201, 162, 39, 0.2);
+	border-color: var(--bd-gold-300);
 }
 
 .bd-guide-card-link {
@@ -90,18 +95,25 @@
 	display: flex;
 	flex-direction: column;
 	flex: 1;
+	overflow: visible !important; /* CRITICAL: Allow avatar to overflow */
 }
 
 .bd-guide-card-link:hover {
 	text-decoration: none;
 }
 
-/* Card Header (Avatar Area) */
+/* ==========================================================================
+	CARD HEADER - Avatar overlaps bottom edge
+	========================================================================== */
+
 .bd-guide-card-header {
 	background: linear-gradient(135deg, var(--bd-primary-600) 0%, var(--bd-primary-700) 50%, var(--bd-primary-800) 100%);
-	padding: var(--bd-space-10) var(--bd-space-5) var(--bd-space-14);
+	padding: var(--bd-space-6) var(--bd-space-5);
+	padding-bottom: 80px; /* Extra space for avatar to sit in */
 	text-align: center;
-	position: relative;
+	position: relative !important; /* CRITICAL: Required for absolute positioning of avatar */
+	border-radius: var(--bd-radius-2xl) var(--bd-radius-2xl) 0 0;
+	overflow: visible !important; /* CRITICAL: Allow avatar to overflow */
 }
 
 /* Subtle pattern overlay */
@@ -112,48 +124,94 @@
 	background-image: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.05) 0%, transparent 50%),
 						radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05) 0%, transparent 50%);
 	pointer-events: none;
+	border-radius: var(--bd-radius-2xl) var(--bd-radius-2xl) 0 0;
 }
+
+/* ==========================================================================
+	AVATAR - Positioned to overlap header/body boundary
+	========================================================================== */
 
 .bd-guide-avatar {
-	position: relative;
-	display: inline-block;
+	position: absolute !important; /* CRITICAL: Position relative to header */
+	bottom: -65px; /* Half the avatar hangs below header */
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 10;
 }
 
-.bd-guide-avatar img {
-	width: 110px;
-	height: 110px;
-	border-radius: var(--bd-radius-full);
-	border: 4px solid rgba(255, 255, 255, 0.25);
-	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
-	object-fit: cover;
-	transition: transform 0.3s ease;
-}
-
-.bd-guide-card:hover .bd-guide-avatar img {
-	transform: scale(1.05);
-}
-
-.bd-guide-badge-icon {
+/* Outer gold ring (appears on hover) */
+.bd-guide-avatar::before {
+	content: '';
 	position: absolute;
-	bottom: -12px;
+	inset: -8px;
+	border-radius: 50%;
+	border: 2px solid var(--bd-gold-400);
+	opacity: 0;
+	transition: all 0.3s ease;
+	z-index: 1;
+}
+
+.bd-guide-card:hover .bd-guide-avatar::before {
+	opacity: 0.6;
+	inset: -12px;
+}
+
+/* Main avatar image */
+.bd-guide-avatar img {
+	width: 130px !important;
+	height: 130px !important;
+	border-radius: 50% !important;
+	border: 4px solid rgba(255, 255, 255, 0.9) !important;
+	box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25) !important;
+	object-fit: cover !important;
+	transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+	background: linear-gradient(#fff, #fff) padding-box,
+	            linear-gradient(135deg, var(--bd-gold-400), var(--bd-gold-500)) border-box;
+	position: relative;
+	z-index: 2;
+	display: block !important;
+}
+
+/* Hover: scale + rotation + gold glow */
+.bd-guide-card:hover .bd-guide-avatar img {
+	transform: scale(1.08) rotate(3deg);
+	box-shadow: 
+		0 12px 40px rgba(0, 0, 0, 0.3),
+		0 0 20px rgba(201, 162, 39, 0.4) !important;
+}
+
+/* Badge icon - positioned below avatar */
+.bd-guide-badge-icon {
+	position: absolute !important;
+	bottom: -18px;
 	left: 50%;
 	transform: translateX(-50%);
 	background: linear-gradient(135deg, var(--bd-gold-400) 0%, var(--bd-gold-500) 100%);
 	color: #fff;
 	width: 36px;
 	height: 36px;
-	border-radius: var(--bd-radius-full);
+	border-radius: 50%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	font-size: var(--bd-text-md);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 4px 12px rgba(201, 162, 39, 0.4);
 	border: 3px solid #fff;
+	transition: transform 0.3s ease;
+	z-index: 15;
 }
 
-/* Card Body */
+.bd-guide-card:hover .bd-guide-badge-icon {
+	transform: translateX(-50%) scale(1.1);
+}
+
+/* ==========================================================================
+	CARD BODY - Extra top padding to clear the overlapping avatar
+	========================================================================== */
+
 .bd-guide-card-body {
-	padding: var(--bd-space-8) var(--bd-space-6) var(--bd-space-4);
+	padding: var(--bd-space-6) var(--bd-space-6) var(--bd-space-4);
+	padding-top: 85px !important; /* CRITICAL: Space for overlapping avatar + badge */
 	text-align: center;
 	flex: 1;
 	display: flex;
@@ -167,6 +225,23 @@
 	color: var(--bd-primary-700);
 	margin: 0 0 var(--bd-space-1) 0;
 	line-height: var(--bd-leading-tight);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--bd-space-2);
+}
+
+/* Verified checkmark */
+.bd-guide-verified {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--bd-gold-500);
+	font-size: var(--bd-text-base);
+}
+
+.bd-guide-verified i {
+	filter: drop-shadow(0 1px 2px rgba(201, 162, 39, 0.3));
 }
 
 .bd-guide-title {
@@ -211,7 +286,10 @@
 	flex: 1;
 }
 
-/* Stats Row */
+/* ==========================================================================
+	STATS ROW
+	========================================================================== */
+
 .bd-guide-stats {
 	display: flex;
 	justify-content: center;
@@ -228,6 +306,7 @@
 	font-size: var(--bd-text-sm);
 	font-weight: var(--bd-font-semibold);
 	color: var(--bd-neutral-600);
+	cursor: help;
 }
 
 .bd-guide-stat i {
@@ -235,7 +314,10 @@
 	font-size: var(--bd-text-sm);
 }
 
-/* Badges Row */
+/* ==========================================================================
+	BADGES ROW
+	========================================================================== */
+
 .bd-guide-badges {
 	display: flex;
 	justify-content: center;
@@ -245,26 +327,31 @@
 }
 
 .bd-guide-badge-mini {
-	width: 32px;
-	height: 32px;
-	background: #fff;
-	border-radius: var(--bd-radius-full);
+	width: 36px;
+	height: 36px;
+	background: linear-gradient(135deg, #fff 0%, #fefbeb 100%);
+	border-radius: 50%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: var(--bd-text-md);
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-	color: var(--bd-gold-500);
-	border: 1px solid var(--bd-neutral-200);
+	font-size: var(--bd-text-lg);
+	box-shadow: 0 2px 6px rgba(201, 162, 39, 0.2);
+	color: var(--bd-gold-600);
+	border: 2px solid var(--bd-gold-200);
 	transition: all 0.2s ease;
+	cursor: help;
 }
 
 .bd-guide-badge-mini:hover {
-	transform: scale(1.15);
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+	transform: scale(1.2);
+	box-shadow: 0 4px 12px rgba(201, 162, 39, 0.3);
+	border-color: var(--bd-gold-400);
 }
 
-/* Social Links */
+/* ==========================================================================
+	SOCIAL LINKS
+	========================================================================== */
+
 .bd-guide-social {
 	display: flex;
 	justify-content: center;
@@ -278,7 +365,7 @@
 	width: 40px;
 	height: 40px;
 	background: #fff;
-	border-radius: var(--bd-radius-full);
+	border-radius: 50%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -309,7 +396,10 @@
 	color: #fff;
 }
 
-/* View Profile CTA */
+/* ==========================================================================
+	VIEW PROFILE CTA
+	========================================================================== */
+
 .bd-guide-cta {
 	display: flex;
 	align-items: center;
@@ -322,6 +412,7 @@
 	font-weight: var(--bd-font-semibold);
 	text-decoration: none;
 	transition: all 0.2s ease;
+	border-radius: 0 0 var(--bd-radius-2xl) var(--bd-radius-2xl);
 }
 
 .bd-guide-cta:hover {
@@ -360,6 +451,14 @@
 	box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
 	align-items: center;
 	border: 1px solid var(--bd-neutral-100);
+	transition: all 0.3s ease;
+}
+
+.bd-guide-featured:hover {
+	box-shadow: 
+		0 15px 50px rgba(0, 0, 0, 0.12),
+		0 0 40px rgba(201, 162, 39, 0.15);
+	border-color: var(--bd-gold-200);
 }
 
 .bd-guide-featured:nth-child(even) {
@@ -374,10 +473,15 @@
 .bd-guide-featured-avatar img {
 	width: 200px;
 	height: 200px;
-	border-radius: var(--bd-radius-full);
+	border-radius: 50%;
 	object-fit: cover;
 	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
 	border: 4px solid #fff;
+	transition: transform 0.3s ease;
+}
+
+.bd-guide-featured:hover .bd-guide-featured-avatar img {
+	transform: scale(1.03);
 }
 
 .bd-guide-badge-lg {
@@ -388,13 +492,13 @@
 	background: linear-gradient(135deg, var(--bd-gold-400) 0%, var(--bd-gold-500) 100%);
 	color: #fff;
 	padding: var(--bd-space-2) var(--bd-space-4);
-	border-radius: var(--bd-radius-full);
+	border-radius: 20px;
 	font-size: var(--bd-text-xs);
 	font-weight: var(--bd-font-bold);
 	display: flex;
 	align-items: center;
 	gap: var(--bd-space-1);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 4px 12px rgba(201, 162, 39, 0.4);
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
 }
@@ -406,8 +510,13 @@
 .bd-guide-featured-content .bd-guide-name {
 	font-size: var(--bd-text-4xl);
 	text-align: left;
+	justify-content: flex-start;
 	margin-bottom: var(--bd-space-2);
 	color: var(--bd-primary-700);
+}
+
+.bd-guide-featured-content .bd-guide-verified {
+	font-size: var(--bd-text-2xl);
 }
 
 .bd-guide-featured-content .bd-guide-title {
@@ -427,7 +536,7 @@
 	line-height: var(--bd-leading-relaxed);
 	margin: 0 0 var(--bd-space-5) 0;
 	padding: var(--bd-space-5);
-	background: var(--bd-neutral-50);
+	background: linear-gradient(135deg, var(--bd-neutral-50) 0%, #fefbeb 100%);
 	border-radius: var(--bd-radius-lg);
 	border-left: 4px solid var(--bd-gold-500);
 	position: relative;
@@ -457,14 +566,14 @@
 	font-size: var(--bd-text-md);
 	font-weight: var(--bd-font-semibold);
 	text-decoration: none;
-	border-radius: var(--bd-radius-full);
+	border-radius: 30px;
 	transition: all 0.3s ease;
-	box-shadow: 0 4px 15px rgba(var(--bd-primary-600-rgb), 0.3);
+	box-shadow: 0 4px 15px rgba(19, 52, 83, 0.3);
 }
 
 .bd-guide-cta-lg:hover {
 	transform: translateY(-2px);
-	box-shadow: 0 8px 25px rgba(var(--bd-primary-600-rgb), 0.4);
+	box-shadow: 0 8px 25px rgba(19, 52, 83, 0.4);
 	color: #fff;
 	text-decoration: none;
 }
@@ -480,6 +589,7 @@
 	.bd-guide-featured-content .bd-guide-name,
 	.bd-guide-featured-content .bd-guide-title {
 		text-align: center;
+		justify-content: center;
 	}
 
 	.bd-guide-featured-content .bd-guide-cities {
@@ -527,7 +637,7 @@
 .bd-guide-compact-avatar img {
 	width: 50px;
 	height: 50px;
-	border-radius: var(--bd-radius-full);
+	border-radius: 50%;
 	object-fit: cover;
 	border: 2px solid var(--bd-neutral-200);
 }
@@ -570,16 +680,28 @@
 	}
 
 	.bd-guide-card-header {
-		padding: var(--bd-space-6) var(--bd-space-4) var(--bd-space-10);
+		padding: var(--bd-space-5) var(--bd-space-4);
+		padding-bottom: 65px;
+	}
+
+	.bd-guide-avatar {
+		bottom: -50px;
 	}
 
 	.bd-guide-avatar img {
-		width: 90px;
-		height: 90px;
+		width: 100px !important;
+		height: 100px !important;
+	}
+
+	.bd-guide-badge-icon {
+		width: 32px;
+		height: 32px;
+		bottom: -14px;
 	}
 
 	.bd-guide-card-body {
-		padding: var(--bd-space-6) var(--bd-space-4) var(--bd-space-4);
+		padding: var(--bd-space-4) var(--bd-space-4) var(--bd-space-4);
+		padding-top: 70px !important;
 	}
 
 	.bd-guide-name {

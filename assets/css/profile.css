@@ -1572,6 +1572,95 @@
 	letter-spacing: 0.3px;
 }
 
+/* ==========================================================================
+   GUIDE QUOTE SECTION
+   ========================================================================== */
+
+.bd-guide-quote-section {
+	background: linear-gradient(135deg, #fefbeb 0%, #fff7ed 100%);
+	border: 1px solid var(--bd-gold-200);
+	border-radius: var(--bd-radius-lg);
+	padding: var(--bd-space-5);
+	margin-bottom: var(--bd-space-4);
+}
+
+.bd-guide-quote-section h3 {
+	display: flex;
+	align-items: center;
+	gap: var(--bd-space-2);
+	margin: 0 0 var(--bd-space-2) 0;
+	color: var(--bd-primary-700);
+	font-size: var(--bd-text-lg);
+	font-weight: var(--bd-font-semibold);
+	text-transform: none;
+	letter-spacing: normal;
+}
+
+.bd-guide-quote-section h3 i {
+	color: var(--bd-gold-500);
+}
+
+.bd-badge-gold {
+	background: linear-gradient(135deg, var(--bd-gold-400) 0%, var(--bd-gold-500) 100%);
+	color: #fff;
+	font-size: 10px;
+	font-weight: var(--bd-font-bold);
+	padding: 2px 8px;
+	border-radius: var(--bd-radius-full);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	margin-left: auto;
+}
+
+.bd-form-description {
+	font-size: var(--bd-text-sm);
+	color: var(--bd-neutral-600);
+	margin: 0 0 var(--bd-space-4) 0;
+	line-height: 1.5;
+}
+
+.bd-guide-quote-section textarea {
+	width: 100%;
+	padding: var(--bd-space-3);
+	border: 1px solid var(--bd-gold-300);
+	border-radius: var(--bd-radius-md);
+	font-size: var(--bd-text-sm);
+	font-style: italic;
+	resize: vertical;
+	min-height: 80px;
+	background: #fff;
+	font-family: inherit;
+	line-height: 1.5;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bd-guide-quote-section textarea:focus {
+	outline: none;
+	border-color: var(--bd-gold-500);
+	box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.2);
+}
+
+.bd-guide-quote-section textarea::placeholder {
+	color: var(--bd-neutral-400);
+	font-style: italic;
+}
+
+.bd-char-count {
+	display: block;
+	text-align: right;
+	font-size: var(--bd-text-xs);
+	color: var(--bd-neutral-500);
+	margin-top: var(--bd-space-1);
+}
+
+.bd-char-count.bd-char-warning {
+	color: #f59e0b;
+}
+
+.bd-char-count.bd-char-danger {
+	color: #ef4444;
+}
+
 /* Form Groups */
 .bd-form-group {
 	margin-bottom: 16px;

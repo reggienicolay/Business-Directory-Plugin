@@ -163,7 +163,7 @@ class QuickFilterDisplay {
 					<input type="text" 
 						id="bd-qf-search" 
 						class="bd-qf-search-input" 
-						placeholder="Search businesses..." 
+						placeholder="Search places..." 
 						autocomplete="off">
 				</div>
 
