@@ -137,7 +137,7 @@ class ListDisplay {
 					'saved'         => __( 'Saved!', 'business-directory' ),
 					'removed'       => __( 'Removed', 'business-directory' ),
 					'error'         => __( 'Something went wrong', 'business-directory' ),
-					'loginRequired' => __( 'Please log in to save businesses', 'business-directory' ),
+					'loginRequired' => __( 'Please log in to save places', 'business-directory' ),
 					'createList'    => __( 'Create New List', 'business-directory' ),
 					'copied'        => __( 'Copied to clipboard!', 'business-directory' ),
 					'shareTitle'    => __( 'Share This List', 'business-directory' ),
@@ -287,7 +287,7 @@ class ListDisplay {
 			<div class="bd-lists-header">
 				<div class="bd-lists-header-content">
 					<h1><i class="fas fa-heart"></i> My Lists</h1>
-					<p>Organize your favorite businesses into collections</p>
+					<p>Organize your favorite places into collections</p>
 				</div>
 				<button type="button" class="bd-btn bd-btn-primary bd-create-list-open">
 					<i class="fas fa-plus"></i> Create List
@@ -333,7 +333,7 @@ class ListDisplay {
 					<div class="bd-lists-empty">
 						<div class="bd-empty-icon"><i class="fas fa-clipboard-list"></i></div>
 						<h3>No lists yet</h3>
-						<p>Create your first list to start organizing your favorite businesses!</p>
+						<p>Create your first list to start organizing your favorite places!</p>
 						<button type="button" class="bd-btn bd-btn-primary bd-create-list-open">
 							<i class="fas fa-plus"></i> Create Your First List
 						</button>
@@ -693,10 +693,17 @@ class ListDisplay {
 		// Check if user is a collaborator.
 		$is_collaborator = false;
 		$user_role       = null;
+		$can_add_items   = false;
 		if ( $current_user_id && ! $is_owner ) {
 			$permissions     = ListCollaborators::get_user_permissions( $list['id'], $current_user_id );
 			$is_collaborator = ! empty( $permissions );
 			$user_role       = $permissions['role'] ?? null;
+			$can_add_items   = ! empty( $permissions['can_add_items'] );
+		}
+
+		// Owners can always add items.
+		if ( $is_owner ) {
+			$can_add_items = true;
 		}
 
 		if ( 'private' === $list['visibility'] && ! $is_owner && ! $is_collaborator ) {
@@ -763,7 +770,7 @@ class ListDisplay {
 							<?php echo get_avatar( $list['user_id'], 24 ); ?>
 							By <?php echo esc_html( $author->display_name ?? 'Unknown' ); ?>
 						</span>
-						<span class="bd-list-count"><?php echo count( $items ); ?> businesses</span>
+						<span class="bd-list-count"><?php echo count( $items ); ?> places</span>
 						<span class="bd-list-views"><?php echo number_format( $list['view_count'] ); ?> views</span>
 						<?php if ( $follower_count > 0 ) : ?>
 							<span class="bd-list-followers"><?php echo number_format( $follower_count ); ?> followers</span>
@@ -801,6 +808,9 @@ class ListDisplay {
 			<!-- Owner Actions -->
 			<?php if ( $is_owner ) : ?>
 				<div class="bd-list-owner-actions">
+					<button type="button" class="bd-btn bd-btn-primary bd-add-business-btn">
+						<i class="fas fa-plus"></i> Add a Place
+					</button>
 					<button type="button" class="bd-btn bd-btn-secondary bd-edit-list-btn">
 						<i class="fas fa-edit"></i> Edit List
 					</button>
@@ -812,10 +822,17 @@ class ListDisplay {
 					</span>
 				</div>
 			<?php elseif ( $is_collaborator ) : ?>
-				<!-- Collaborator Badge -->
-				<div class="bd-list-collab-badge">
-					<i class="fas fa-user-check"></i> You're a collaborator on this list
-					<span class="bd-collab-role">(<?php echo esc_html( ucfirst( $user_role ) ); ?>)</span>
+				<!-- Collaborator Actions -->
+				<div class="bd-list-collab-actions">
+					<?php if ( $can_add_items ) : ?>
+						<button type="button" class="bd-btn bd-btn-primary bd-add-business-btn">
+							<i class="fas fa-plus"></i> Add a Place
+						</button>
+					<?php endif; ?>
+					<div class="bd-list-collab-badge">
+						<i class="fas fa-user-check"></i> You're a collaborator on this list
+						<span class="bd-collab-role">(<?php echo esc_html( ucfirst( $user_role ) ); ?>)</span>
+					</div>
 				</div>
 			<?php endif; ?>
 
@@ -835,11 +852,11 @@ class ListDisplay {
 				<div class="bd-list-empty">
 					<div class="bd-empty-icon"><i class="fas fa-map-marker-alt"></i></div>
 					<h3>This list is empty</h3>
-					<?php if ( $is_owner || $is_collaborator ) : ?>
-						<p>Start adding businesses to this list!</p>
-						<a href="<?php echo esc_url( home_url( '/local/' ) ); ?>" class="bd-btn bd-btn-primary">
-							Browse Businesses
-						</a>
+					<?php if ( $can_add_items ) : ?>
+						<p>Start adding places to this list!</p>
+						<button type="button" class="bd-btn bd-btn-primary bd-add-business-btn">
+							<i class="fas fa-plus"></i> Add a Place
+						</button>
 					<?php endif; ?>
 				</div>
 			<?php else : ?>
@@ -935,6 +952,11 @@ class ListDisplay {
 			<?php if ( $is_owner ) : ?>
 				<?php echo self::render_edit_list_modal( $list ); ?>
 				<?php echo self::render_confirm_modal(); ?>
+			<?php endif; ?>
+
+			<!-- Add Place Modal (for owners and collaborators with add permission) -->
+			<?php if ( $can_add_items ) : ?>
+				<?php echo self::render_add_business_modal( $list, $items ); ?>
 			<?php endif; ?>
 
 			<!-- Share Modal -->
@@ -1308,6 +1330,85 @@ class ListDisplay {
 				</div>
 			</div>
 		</div>
+		<?php
+		return ob_get_clean();
+	}
+
+	/**
+	 * Render add business modal
+	 *
+	 * @param array $list  List data.
+	 * @param array $items Current items in the list.
+	 * @return string HTML output.
+	 */
+	private static function render_add_business_modal( $list, $items ) {
+		// Get IDs of businesses already in the list.
+		$existing_ids = array_map(
+			function ( $item ) {
+				return (int) $item['business_id'];
+			},
+			$items
+		);
+
+		ob_start();
+		?>
+		<div class="bd-modal bd-add-business-modal" style="display: none;" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
+			<div class="bd-modal-overlay"></div>
+			<div class="bd-modal-content bd-add-business-content">
+				<div class="bd-modal-header">
+					<h3><i class="fas fa-plus"></i> Add Places to "<?php echo esc_html( $list['title'] ); ?>"</h3>
+					<button type="button" class="bd-modal-close">&times;</button>
+				</div>
+
+				<div class="bd-modal-body">
+					<!-- Search Input -->
+					<div class="bd-add-business-search">
+						<i class="fas fa-search"></i>
+						<input type="text" 
+							class="bd-add-business-search-input" 
+							placeholder="Search places..."
+							autocomplete="off">
+					</div>
+
+					<!-- Filters Row -->
+					<div class="bd-add-business-filters">
+						<select class="bd-add-business-filter" data-filter="categories">
+							<option value="">All Categories</option>
+						</select>
+						<select class="bd-add-business-filter" data-filter="areas">
+							<option value="">All Cities</option>
+						</select>
+					</div>
+
+					<!-- Results Container -->
+					<div class="bd-add-business-results">
+						<div class="bd-add-business-loading" style="display: none;">
+							<i class="fas fa-spinner fa-spin"></i> Searching...
+						</div>
+						<div class="bd-add-business-empty" style="display: none;">
+							<i class="fas fa-search"></i>
+							<p>No places found. Try a different search.</p>
+						</div>
+						<div class="bd-add-business-list"></div>
+					</div>
+
+					<!-- Selected Count -->
+					<div class="bd-add-business-selected" style="display: none;">
+						<span class="bd-selected-count">0</span> selected
+					</div>
+				</div>
+
+				<div class="bd-form-actions">
+					<button type="button" class="bd-btn bd-btn-secondary bd-modal-close">Cancel</button>
+					<button type="button" class="bd-btn bd-btn-primary bd-add-selected-btn" disabled>
+						<i class="fas fa-plus"></i> Add Selected
+					</button>
+				</div>
+			</div>
+		</div>
+		<script>
+			window.bdListExistingItems = <?php echo wp_json_encode( $existing_ids ); ?>;
+		</script>
 		<?php
 		return ob_get_clean();
 	}

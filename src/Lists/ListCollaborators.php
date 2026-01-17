@@ -800,6 +800,32 @@ class ListCollaborators {
 		return false;
 	}
 
+	/**
+	 * Check if user can edit a specific item's note.
+	 *
+	 * @param int $list_id     List ID.
+	 * @param int $user_id     User ID.
+	 * @param int $added_by_id User who added the item.
+	 * @return bool Can edit note.
+	 */
+	public static function can_edit_note( $list_id, $user_id, $added_by_id ) {
+		$perms = self::get_user_permissions( $list_id, $user_id );
+		if ( ! $perms ) {
+			return false;
+		}
+
+		$edit_perm = $perms['can_edit_notes'] ?? false;
+
+		if ( 'all' === $edit_perm ) {
+			return true;
+		}
+		if ( 'own' === $edit_perm ) {
+			return (int) $user_id === (int) $added_by_id;
+		}
+
+		return false;
+	}
+
 	// =========================================================================
 	// LIMITS & VALIDATION
 	// =========================================================================

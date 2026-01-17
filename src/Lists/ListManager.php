@@ -5,6 +5,13 @@
  * Core CRUD operations for user-created business lists.
  * Follows ActivityTracker pattern with static methods.
  *
+ * PERFORMANCE OPTIMIZATIONS (v1.1.0):
+ * - Batch query helpers to eliminate N+1 patterns
+ * - Optimized get_list_items() uses batch meta/term fetching
+ * - Optimized get_public_lists() uses subquery for item counts
+ * - Migrated follower system to bd_list_follows table
+ * - Added cache invalidation hooks
+ *
  * @package BusinessDirectory
  */
 
@@ -123,6 +130,9 @@ class ListManager {
 			\BD\Social\ImageGenerator::invalidate_list_cache( $list_id );
 		}
 
+		// Invalidate caches.
+		self::invalidate_list_cache( $list_id );
+
 		return false !== $result;
 	}
 
@@ -131,8 +141,9 @@ class ListManager {
 	 */
 	public static function delete_list( $list_id, $user_id ) {
 		global $wpdb;
-		$lists_table = $wpdb->prefix . 'bd_lists';
-		$items_table = $wpdb->prefix . 'bd_list_items';
+		$lists_table   = $wpdb->prefix . 'bd_lists';
+		$items_table   = $wpdb->prefix . 'bd_list_items';
+		$follows_table = $wpdb->prefix . 'bd_list_follows';
 
 		$list = self::get_list( $list_id );
 		if ( ! $list ) {
@@ -143,7 +154,9 @@ class ListManager {
 			return false;
 		}
 
+		// Delete related data.
 		$wpdb->delete( $items_table, array( 'list_id' => $list_id ), array( '%d' ) );
+		$wpdb->delete( $follows_table, array( 'list_id' => $list_id ), array( '%d' ) );
 		$result = $wpdb->delete( $lists_table, array( 'id' => $list_id ), array( '%d' ) );
 
 		if ( false !== $result && class_exists( 'BD\Social\ImageGenerator' ) ) {
@@ -200,35 +213,43 @@ class ListManager {
 	 */
 	public static function get_user_lists( $user_id, $visibility = null, $limit = 20, $offset = 0 ) {
 		global $wpdb;
-		$table = $wpdb->prefix . 'bd_lists';
+		$table       = $wpdb->prefix . 'bd_lists';
+		$items_table = $wpdb->prefix . 'bd_list_items';
 
-		$where = $wpdb->prepare( 'user_id = %d', $user_id );
+		$where = $wpdb->prepare( 'l.user_id = %d', $user_id );
 		if ( $visibility && in_array( $visibility, array( 'public', 'private', 'unlisted' ), true ) ) {
-			$where .= $wpdb->prepare( ' AND visibility = %s', $visibility );
+			$where .= $wpdb->prepare( ' AND l.visibility = %s', $visibility );
 		}
 
+		// Use subquery to get item counts in single query.
 		$lists = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT * FROM $table WHERE $where ORDER BY updated_at DESC LIMIT %d OFFSET %d",
+				"SELECT l.*, 
+				        (SELECT COUNT(*) FROM $items_table WHERE list_id = l.id) as item_count
+				 FROM $table l 
+				 WHERE $where 
+				 ORDER BY l.updated_at DESC 
+				 LIMIT %d OFFSET %d",
 				$limit,
 				$offset
 			),
 			ARRAY_A
 		);
 
-		foreach ( $lists as &$list ) {
-			$list['item_count'] = self::get_list_item_count( $list['id'] );
-		}
-
 		return $lists;
 	}
 
 	/**
-	 * Get public lists (for browse page)
+	 * Get public lists (for browse page).
+	 * OPTIMIZED: Uses subquery for item counts and batch cover image fetching.
+	 *
+	 * @param array $args Query arguments.
+	 * @return array Lists and pagination info.
 	 */
 	public static function get_public_lists( $args = array() ) {
 		global $wpdb;
-		$table = $wpdb->prefix . 'bd_lists';
+		$lists_table = $wpdb->prefix . 'bd_lists';
+		$items_table = $wpdb->prefix . 'bd_list_items';
 
 		$defaults = array(
 			'per_page' => 12,
@@ -240,54 +261,93 @@ class ListManager {
 			'category' => '',
 			'city'     => '',
 		);
-		$args     = wp_parse_args( $args, $defaults );
+		$args = wp_parse_args( $args, $defaults );
 
-		$where   = "visibility = 'public'";
-		$orderby = in_array( $args['orderby'], array( 'updated_at', 'created_at', 'view_count', 'title', 'follower_count' ), true )
-			? $args['orderby'] : 'updated_at';
-		$order   = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
+		// Build WHERE clause.
+		$where        = "l.visibility = 'public'";
+		$where_values = array();
 
 		if ( null !== $args['featured'] ) {
-			$where .= $wpdb->prepare( ' AND featured = %d', $args['featured'] ? 1 : 0 );
+			$where         .= ' AND l.featured = %d';
+			$where_values[] = $args['featured'] ? 1 : 0;
 		}
+
 		if ( ! empty( $args['search'] ) ) {
-			$search = '%' . $wpdb->esc_like( $args['search'] ) . '%';
-			$where .= $wpdb->prepare( ' AND (title LIKE %s OR description LIKE %s)', $search, $search );
+			$search         = '%' . $wpdb->esc_like( $args['search'] ) . '%';
+			$where         .= ' AND (l.title LIKE %s OR l.description LIKE %s)';
+			$where_values[] = $search;
+			$where_values[] = $search;
 		}
+
 		if ( ! empty( $args['category'] ) ) {
-			$cat_search = '%' . $wpdb->esc_like( $args['category'] ) . '%';
-			$where     .= $wpdb->prepare( ' AND (cached_categories LIKE %s OR theme_override LIKE %s)', $cat_search, $cat_search );
+			$cat_search     = '%' . $wpdb->esc_like( $args['category'] ) . '%';
+			$where         .= ' AND (l.cached_categories LIKE %s OR l.theme_override LIKE %s)';
+			$where_values[] = $cat_search;
+			$where_values[] = $cat_search;
 		}
+
 		if ( ! empty( $args['city'] ) ) {
-			$where .= $wpdb->prepare( ' AND cached_city = %s', $args['city'] );
+			$where         .= ' AND l.cached_city = %s';
+			$where_values[] = $args['city'];
 		}
 
-		$total  = $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE $where" );
-		$offset = ( $args['page'] - 1 ) * $args['per_page'];
-		$lists  = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT l.*, u.display_name as author_name FROM $table l
-				LEFT JOIN {$wpdb->users} u ON l.user_id = u.ID
-				WHERE $where ORDER BY $orderby $order LIMIT %d OFFSET %d",
-				$args['per_page'],
-				$offset
-			),
-			ARRAY_A
-		);
+		// Validate orderby.
+		$allowed_orderby = array( 'updated_at', 'created_at', 'view_count', 'title', 'follower_count' );
+		$orderby         = in_array( $args['orderby'], $allowed_orderby, true ) ? $args['orderby'] : 'updated_at';
+		$order           = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
 
+		// Get total count (for pagination).
+		if ( ! empty( $where_values ) ) {
+			$count_sql = $wpdb->prepare( "SELECT COUNT(*) FROM $lists_table l WHERE $where", $where_values );
+		} else {
+			$count_sql = "SELECT COUNT(*) FROM $lists_table l WHERE $where";
+		}
+		$total = (int) $wpdb->get_var( $count_sql );
+
+		// Calculate offset.
+		$offset = ( max( 1, $args['page'] ) - 1 ) * $args['per_page'];
+
+		// Main query with item_count subquery - eliminates N+1 for counts.
+		$sql = "SELECT l.*, 
+		               u.display_name as author_name,
+		               (SELECT COUNT(*) FROM $items_table WHERE list_id = l.id) as item_count
+		        FROM $lists_table l
+		        LEFT JOIN {$wpdb->users} u ON l.user_id = u.ID
+		        WHERE $where
+		        ORDER BY l.$orderby $order
+		        LIMIT %d OFFSET %d";
+
+		// Build final query with all values.
+		$query_values = array_merge( $where_values, array( $args['per_page'], $offset ) );
+		$sql          = $wpdb->prepare( $sql, $query_values );
+
+		$lists = $wpdb->get_results( $sql, ARRAY_A );
+
+		if ( empty( $lists ) ) {
+			return array(
+				'lists'    => array(),
+				'total'    => $total,
+				'pages'    => 0,
+				'page'     => $args['page'],
+				'per_page' => $args['per_page'],
+			);
+		}
+
+		// Batch process cover images - eliminates N+1 for images.
+		$lists = self::batch_add_cover_images( $lists );
+
+		// Add URLs and parse cached categories (cheap string operations).
 		foreach ( $lists as &$list ) {
-			$list['item_count']  = self::get_list_item_count( $list['id'] );
-			$list['cover_image'] = self::get_list_cover_image( $list );
-			$list['url']         = self::get_list_url( $list );
-			$list['categories']  = self::get_list_display_categories( $list );
+			$list['url']        = self::get_list_url( $list );
+			$list['categories'] = self::get_list_display_categories( $list );
 		}
 
 		return array(
 			'lists'    => $lists,
-			'total'    => (int) $total,
-			'pages'    => ceil( $total / $args['per_page'] ),
-			'page'     => $args['page'],
-			'per_page' => $args['per_page'],
+			'total'    => $total,
+			'pages'    => (int) ceil( $total / $args['per_page'] ),
+			'page'     => (int) $args['page'],
+			'per_page' => (int) $args['per_page'],
 		);
 	}
 
@@ -331,9 +391,10 @@ class ListManager {
 				'business_id' => $business_id,
 				'user_note'   => sanitize_textarea_field( $note ),
 				'sort_order'  => ( $max_order ?? 0 ) + 1,
+				'added_by'    => $user_id,
 				'added_at'    => current_time( 'mysql' ),
 			),
-			array( '%d', '%d', '%s', '%d', '%s' )
+			array( '%d', '%d', '%s', '%d', '%d', '%s' )
 		);
 
 		if ( $result ) {
@@ -352,7 +413,105 @@ class ListManager {
 			// Refresh cached categories and city.
 			self::refresh_list_cache( $list_id );
 
+			// Invalidate object cache.
+			self::invalidate_list_cache( $list_id );
+
 			BadgeSystem::check_and_award_badges( $user_id, 'list_item_added' );
+
+			return $wpdb->insert_id;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Add business to list with attribution tracking.
+	 * Supports both owners and collaborators.
+	 *
+	 * @param int    $list_id     List ID.
+	 * @param int    $business_id Business post ID.
+	 * @param int    $user_id     User adding the item (for attribution).
+	 * @param string $note        Optional note.
+	 * @return int|false Item ID on success, false on failure.
+	 */
+	public static function add_item_with_attribution( $list_id, $business_id, $user_id, $note = '' ) {
+		global $wpdb;
+		$lists_table = $wpdb->prefix . 'bd_lists';
+		$items_table = $wpdb->prefix . 'bd_list_items';
+
+		// Verify list exists.
+		$list = self::get_list( $list_id );
+		if ( ! $list ) {
+			return false;
+		}
+
+		// Check permission: owner or collaborator with add rights.
+		$is_owner = (int) $list['user_id'] === $user_id;
+		$can_add  = $is_owner || ListCollaborators::can_add_items( $list_id, $user_id );
+
+		if ( ! $can_add ) {
+			return false;
+		}
+
+		// Verify business exists.
+		$business = get_post( $business_id );
+		if ( ! $business || 'bd_business' !== $business->post_type ) {
+			return false;
+		}
+
+		// Check if already in list.
+		$exists = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT id FROM $items_table WHERE list_id = %d AND business_id = %d",
+				$list_id,
+				$business_id
+			)
+		);
+		if ( $exists ) {
+			return false;
+		}
+
+		// Get next sort order.
+		$max_order = $wpdb->get_var(
+			$wpdb->prepare( "SELECT MAX(sort_order) FROM $items_table WHERE list_id = %d", $list_id )
+		);
+
+		// Insert with added_by attribution.
+		$result = $wpdb->insert(
+			$items_table,
+			array(
+				'list_id'     => $list_id,
+				'business_id' => $business_id,
+				'user_note'   => sanitize_textarea_field( $note ),
+				'sort_order'  => ( $max_order ?? 0 ) + 1,
+				'added_by'    => $user_id,
+				'added_at'    => current_time( 'mysql' ),
+			),
+			array( '%d', '%d', '%s', '%d', '%d', '%s' )
+		);
+
+		if ( $result ) {
+			// Update list timestamp.
+			$wpdb->update(
+				$lists_table,
+				array( 'updated_at' => current_time( 'mysql' ) ),
+				array( 'id' => $list_id ),
+				array( '%s' ),
+				array( '%d' )
+			);
+
+			// Refresh cached data.
+			self::refresh_list_cache( $list_id );
+			self::invalidate_list_cache( $list_id );
+
+			if ( class_exists( 'BD\Social\ImageGenerator' ) ) {
+				\BD\Social\ImageGenerator::invalidate_list_cache( $list_id );
+			}
+
+			// Award badge.
+			if ( class_exists( 'BD\Gamification\BadgeSystem' ) ) {
+				BadgeSystem::check_and_award_badges( $user_id, 'list_item_added' );
+			}
 
 			return $wpdb->insert_id;
 		}
@@ -397,6 +556,9 @@ class ListManager {
 
 			// Refresh cached categories and city.
 			self::refresh_list_cache( $list_id );
+
+			// Invalidate object cache.
+			self::invalidate_list_cache( $list_id );
 		}
 
 		return false !== $result;
@@ -429,7 +591,143 @@ class ListManager {
 	}
 
 	/**
-	 * Reorder list items
+	 * Remove business from list with collaborator permission support.
+	 * Allows owners OR collaborators with can_remove_items permission.
+	 *
+	 * @param int $list_id     List ID.
+	 * @param int $business_id Business post ID.
+	 * @param int $user_id     User attempting removal.
+	 * @return bool Success.
+	 */
+	public static function remove_item_with_permission( $list_id, $business_id, $user_id ) {
+		global $wpdb;
+		$lists_table = $wpdb->prefix . 'bd_lists';
+		$items_table = $wpdb->prefix . 'bd_list_items';
+
+		$list = self::get_list( $list_id );
+		if ( ! $list ) {
+			return false;
+		}
+
+		$is_owner = (int) $list['user_id'] === $user_id;
+
+		// If not owner, check collaborator permissions.
+		if ( ! $is_owner ) {
+			// Get who added this item.
+			$item = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT added_by FROM $items_table WHERE list_id = %d AND business_id = %d",
+					$list_id,
+					$business_id
+				),
+				ARRAY_A
+			);
+
+			if ( ! $item ) {
+				return false; // Item doesn't exist.
+			}
+
+			$added_by = (int) ( $item['added_by'] ?? 0 );
+
+			// Check collaborator permission.
+			if ( ! ListCollaborators::can_remove_item( $list_id, $user_id, $added_by ) ) {
+				return false;
+			}
+		}
+
+		// Perform the deletion.
+		$result = $wpdb->delete(
+			$items_table,
+			array(
+				'list_id'     => $list_id,
+				'business_id' => $business_id,
+			),
+			array( '%d', '%d' )
+		);
+
+		if ( $result ) {
+			$wpdb->update(
+				$lists_table,
+				array( 'updated_at' => current_time( 'mysql' ) ),
+				array( 'id' => $list_id ),
+				array( '%s' ),
+				array( '%d' )
+			);
+
+			if ( class_exists( 'BD\Social\ImageGenerator' ) ) {
+				\BD\Social\ImageGenerator::invalidate_list_cache( $list_id );
+			}
+
+			self::refresh_list_cache( $list_id );
+			self::invalidate_list_cache( $list_id );
+		}
+
+		return false !== $result;
+	}
+
+	/**
+	 * Update item note with collaborator permission support.
+	 * Allows owners OR collaborators with can_edit_notes permission.
+	 *
+	 * @param int    $list_id     List ID.
+	 * @param int    $business_id Business post ID.
+	 * @param int    $user_id     User attempting edit.
+	 * @param string $note        New note text.
+	 * @return bool Success.
+	 */
+	public static function update_item_note_with_permission( $list_id, $business_id, $user_id, $note ) {
+		global $wpdb;
+		$items_table = $wpdb->prefix . 'bd_list_items';
+
+		$list = self::get_list( $list_id );
+		if ( ! $list ) {
+			return false;
+		}
+
+		$is_owner = (int) $list['user_id'] === $user_id;
+
+		// If not owner, check collaborator permissions.
+		if ( ! $is_owner ) {
+			// Get who added this item.
+			$item = $wpdb->get_row(
+				$wpdb->prepare(
+					"SELECT added_by FROM $items_table WHERE list_id = %d AND business_id = %d",
+					$list_id,
+					$business_id
+				),
+				ARRAY_A
+			);
+
+			if ( ! $item ) {
+				return false; // Item doesn't exist.
+			}
+
+			$added_by = (int) ( $item['added_by'] ?? 0 );
+
+			// Check collaborator permission using can_edit_note helper.
+			if ( ! ListCollaborators::can_edit_note( $list_id, $user_id, $added_by ) ) {
+				return false;
+			}
+		}
+
+		$result = $wpdb->update(
+			$items_table,
+			array( 'user_note' => sanitize_textarea_field( $note ) ),
+			array(
+				'list_id'     => $list_id,
+				'business_id' => $business_id,
+			),
+			array( '%s' ),
+			array( '%d', '%d' )
+		);
+
+		return false !== $result;
+	}
+
+	/**
+	 * Reorder list items.
+	 * OPTIMIZED: Uses single CASE statement instead of N updates.
+	 * FIXED: Added max items limit to prevent DoS.
 	 */
 	public static function reorder_items( $list_id, $user_id, $order ) {
 		global $wpdb;
@@ -440,39 +738,143 @@ class ListManager {
 			return false;
 		}
 
-		foreach ( $order as $position => $business_id ) {
-			$wpdb->update(
-				$items_table,
-				array( 'sort_order' => $position + 1 ),
-				array(
-					'list_id'     => $list_id,
-					'business_id' => (int) $business_id,
-				),
-				array( '%d' ),
-				array( '%d', '%d' )
-			);
+		if ( empty( $order ) || ! is_array( $order ) ) {
+			return true;
 		}
+
+		// Limit array size to prevent DoS via huge SQL CASE statement.
+		$max_items = 500;
+		if ( count( $order ) > $max_items ) {
+			$order = array_slice( $order, 0, $max_items, true );
+		}
+
+		// Build CASE statement for bulk update - single query instead of N.
+		$cases = array();
+		$ids   = array();
+
+		foreach ( $order as $position => $business_id ) {
+			$business_id = (int) $business_id;
+			$position    = (int) $position + 1;
+			$cases[]     = $wpdb->prepare( 'WHEN business_id = %d THEN %d', $business_id, $position );
+			$ids[]       = $business_id;
+		}
+
+		if ( empty( $cases ) ) {
+			return true;
+		}
+
+		$case_sql = implode( ' ', $cases );
+		$ids_sql  = implode( ',', array_map( 'intval', $ids ) );
+
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE $items_table 
+				 SET sort_order = CASE $case_sql ELSE sort_order END 
+				 WHERE list_id = %d AND business_id IN ($ids_sql)",
+				$list_id
+			)
+		);
+
+		// Invalidate cache.
+		self::invalidate_list_cache( $list_id );
 
 		return true;
 	}
 
 	/**
-	 * Get list items with business data
+	 * Get list items with business data.
+	 * OPTIMIZED: Uses batch queries instead of N+1 pattern.
+	 *
+	 * @param int $list_id List ID.
+	 * @return array Array of items with business data.
 	 */
 	public static function get_list_items( $list_id ) {
 		global $wpdb;
 		$table = $wpdb->prefix . 'bd_list_items';
 
+		// Get item records.
 		$items = $wpdb->get_results(
-			$wpdb->prepare( "SELECT * FROM $table WHERE list_id = %d ORDER BY sort_order ASC", $list_id ),
+			$wpdb->prepare(
+				"SELECT * FROM $table WHERE list_id = %d ORDER BY sort_order ASC",
+				$list_id
+			),
 			ARRAY_A
 		);
 
-		foreach ( $items as &$item ) {
-			$item['business'] = self::format_business_for_list( $item['business_id'] );
+		if ( empty( $items ) ) {
+			return array();
 		}
 
-		return $items;
+		// Collect all business IDs.
+		$business_ids = wp_list_pluck( $items, 'business_id' );
+		$business_ids = array_map( 'absint', $business_ids );
+		$business_ids = array_filter( $business_ids );
+
+		if ( empty( $business_ids ) ) {
+			return array();
+		}
+
+		// Prime the post cache in a single query.
+		_prime_post_caches( $business_ids, true, true );
+
+		// Batch fetch all meta we need.
+		$locations     = self::batch_get_post_meta( $business_ids, 'bd_location' );
+		$ratings       = self::batch_get_post_meta( $business_ids, 'bd_avg_rating' );
+		$review_counts = self::batch_get_post_meta( $business_ids, 'bd_review_count' );
+		$price_levels  = self::batch_get_post_meta( $business_ids, 'bd_price_level' );
+		$contacts      = self::batch_get_post_meta( $business_ids, 'bd_contact' );
+
+		// Batch fetch thumbnails.
+		$thumbnails = self::batch_get_thumbnails( $business_ids, 'thumbnail' );
+
+		// Batch fetch categories.
+		$all_categories = self::batch_get_terms( $business_ids, 'bd_category' );
+
+		// Now format each item using cached data.
+		foreach ( $items as &$item ) {
+			$bid  = absint( $item['business_id'] );
+			$post = get_post( $bid ); // Served from cache.
+
+			// Check if post exists and is published.
+			if ( ! $post || 'publish' !== $post->post_status || 'bd_business' !== $post->post_type ) {
+				$item['business'] = null;
+				continue;
+			}
+
+			// Get categories for this business.
+			$categories     = $all_categories[ $bid ] ?? array();
+			$category_names = wp_list_pluck( $categories, 'name' );
+
+			// Get location data.
+			$location = $locations[ $bid ] ?? array();
+			$contact  = $contacts[ $bid ] ?? array();
+
+			// Build business data array.
+			$item['business'] = array(
+				'id'             => $bid,
+				'title'          => $post->post_title,
+				'slug'           => $post->post_name,
+				'permalink'      => get_permalink( $bid ), // Uses cached post.
+				'featured_image' => $thumbnails[ $bid ] ?? null,
+				'rating'         => floatval( $ratings[ $bid ] ?? 0 ),
+				'review_count'   => intval( $review_counts[ $bid ] ?? 0 ),
+				'price_level'    => $price_levels[ $bid ] ?? '',
+				'categories'     => $category_names,
+				'city'           => $location['city'] ?? '',
+				'phone'          => $contact['phone'] ?? '',
+			);
+		}
+
+		// Filter out items with null/deleted businesses.
+		$items = array_filter(
+			$items,
+			function ( $item ) {
+				return ! empty( $item['business'] );
+			}
+		);
+
+		// Re-index array to ensure sequential keys.
+		return array_values( $items );
 	}
 
 	/**
@@ -482,12 +884,22 @@ class ListManager {
 		$items     = self::get_list_items( $list_id );
 		$map_items = array();
 
+		// Batch fetch locations for items that need them.
+		$business_ids = array();
+		foreach ( $items as $item ) {
+			if ( ! empty( $item['business'] ) ) {
+				$business_ids[] = $item['business_id'];
+			}
+		}
+
+		$locations = self::batch_get_post_meta( $business_ids, 'bd_location' );
+
 		foreach ( $items as $item ) {
 			if ( empty( $item['business'] ) ) {
 				continue;
 			}
 
-			$location = get_post_meta( $item['business_id'], 'bd_location', true );
+			$location = $locations[ $item['business_id'] ] ?? array();
 			if ( empty( $location['lat'] ) || empty( $location['lng'] ) ) {
 				continue;
 			}
@@ -517,6 +929,25 @@ class ListManager {
 
 		return (int) $wpdb->get_var(
 			$wpdb->prepare( "SELECT COUNT(*) FROM $table WHERE list_id = %d", $list_id )
+		);
+	}
+
+	/**
+	 * Get list item business IDs only (without full data).
+	 * Useful for checking what's already in a list.
+	 *
+	 * @param int $list_id List ID.
+	 * @return array Array of business IDs.
+	 */
+	public static function get_list_item_ids( $list_id ) {
+		global $wpdb;
+		$table = $wpdb->prefix . 'bd_list_items';
+
+		return $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT business_id FROM $table WHERE list_id = %d ORDER BY sort_order ASC",
+				$list_id
+			)
 		);
 	}
 
@@ -602,16 +1033,21 @@ class ListManager {
 
 	// =========================================================================
 	// FEATURE 10: LIST FOLLOWING
+	// Uses dedicated bd_list_follows table for performance.
 	// =========================================================================
 
 	/**
-	 * Follow a list
+	 * Follow a list.
+	 * OPTIMIZED: Uses dedicated bd_list_follows table.
+	 * FIXED: Uses INSERT IGNORE to prevent race condition.
 	 *
 	 * @param int $list_id List ID to follow.
 	 * @param int $user_id User ID who is following.
 	 * @return bool Success.
 	 */
 	public static function follow_list( $list_id, $user_id ) {
+		global $wpdb;
+
 		if ( ! $list_id || ! $user_id ) {
 			return false;
 		}
@@ -626,63 +1062,72 @@ class ListManager {
 			return false;
 		}
 
-		$following = get_user_meta( $user_id, 'bd_following_lists', true );
-		if ( ! is_array( $following ) ) {
-			$following = array();
+		$table = $wpdb->prefix . 'bd_list_follows';
+
+		// Use INSERT IGNORE to handle race condition gracefully.
+		// If already following, this will do nothing (no error).
+		$wpdb->query(
+			$wpdb->prepare(
+				"INSERT IGNORE INTO $table (list_id, user_id, created_at) VALUES (%d, %d, %s)",
+				$list_id,
+				$user_id,
+				current_time( 'mysql' )
+			)
+		);
+
+		// Check if we actually inserted (vs already existed).
+		$was_inserted = $wpdb->rows_affected > 0;
+
+		if ( $was_inserted ) {
+			// Only update stats if we actually inserted a new follow.
+			$list_owner_id  = (int) $list['user_id'];
+			$saves_received = (int) get_user_meta( $list_owner_id, 'bd_list_saves_received', true );
+			update_user_meta( $list_owner_id, 'bd_list_saves_received', $saves_received + 1 );
+
+			// Check for tastemaker badge (50 list saves).
+			if ( class_exists( 'BD\Gamification\BadgeSystem' ) ) {
+				BadgeSystem::check_and_award_badges( $list_owner_id, 'list_followed' );
+			}
+
+			if ( class_exists( 'BD\Gamification\ActivityTracker' ) ) {
+				ActivityTracker::track( $user_id, 'list_followed', $list_id );
+			}
 		}
 
-		if ( in_array( $list_id, $following, true ) ) {
-			return true; // Already following.
-		}
-
-		$following[] = $list_id;
-		update_user_meta( $user_id, 'bd_following_lists', array_unique( $following ) );
-
-		// Increment list owner's saves received for tastemaker badge.
-		$list_owner_id  = (int) $list['user_id'];
-		$saves_received = (int) get_user_meta( $list_owner_id, 'bd_list_saves_received', true );
-		update_user_meta( $list_owner_id, 'bd_list_saves_received', $saves_received + 1 );
-
-		// Check for tastemaker badge (50 list saves).
-		if ( class_exists( 'BD\Gamification\BadgeSystem' ) ) {
-			BadgeSystem::check_and_award_badges( $list_owner_id, 'list_followed' );
-		}
-
-		if ( class_exists( 'BD\Gamification\ActivityTracker' ) ) {
-			ActivityTracker::track( $user_id, 'list_followed', $list_id );
-		}
-
-		return true;
+		return true; // Success either way (already following or just followed).
 	}
 
 	/**
-	 * Unfollow a list
+	 * Unfollow a list.
 	 *
 	 * @param int $list_id List ID to unfollow.
 	 * @param int $user_id User ID who is unfollowing.
 	 * @return bool Success.
 	 */
 	public static function unfollow_list( $list_id, $user_id ) {
+		global $wpdb;
+
 		if ( ! $list_id || ! $user_id ) {
 			return false;
 		}
 
-		$following = get_user_meta( $user_id, 'bd_following_lists', true );
-		if ( ! is_array( $following ) ) {
-			return true;
-		}
+		$table = $wpdb->prefix . 'bd_list_follows';
 
-		$key = array_search( $list_id, $following, true );
-		if ( false === $key ) {
-			return true;
-		}
+		// Get list for owner stats update.
+		$list = self::get_list( $list_id );
 
-		unset( $following[ $key ] );
-		update_user_meta( $user_id, 'bd_following_lists', array_values( $following ) );
+		// Delete from follows table.
+		$result = $wpdb->delete(
+			$table,
+			array(
+				'list_id' => $list_id,
+				'user_id' => $user_id,
+			),
+			array( '%d', '%d' )
+		);
 
 		// Decrement list owner's follower count.
-		$list = self::get_list( $list_id );
-		if ( $list ) {
+		if ( $result && $list ) {
 			$list_owner_id  = (int) $list['user_id'];
 			$saves_received = (int) get_user_meta( $list_owner_id, 'bd_list_saves_received', true );
 			if ( $saves_received > 0 ) {
@@ -690,72 +1135,89 @@ class ListManager {
 			}
 		}
 
-		return true;
+		return $result !== false;
 	}
 
 	/**
-	 * Check if user is following a list
+	 * Check if user is following a list.
 	 *
 	 * @param int $list_id List ID.
 	 * @param int $user_id User ID.
 	 * @return bool Is following.
 	 */
 	public static function is_following( $list_id, $user_id ) {
+		global $wpdb;
+
 		if ( ! $list_id || ! $user_id ) {
 			return false;
 		}
 
-		$following = get_user_meta( $user_id, 'bd_following_lists', true );
-		if ( ! is_array( $following ) ) {
-			return false;
-		}
+		$table = $wpdb->prefix . 'bd_list_follows';
 
-		return in_array( (int) $list_id, array_map( 'intval', $following ), true );
+		$exists = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT id FROM $table WHERE list_id = %d AND user_id = %d",
+				$list_id,
+				$user_id
+			)
+		);
+
+		return (bool) $exists;
 	}
 
 	/**
-	 * Get follower count for a list
+	 * Get follower count for a list.
+	 * OPTIMIZED: Uses dedicated bd_list_follows table with indexed query.
 	 *
 	 * @param int $list_id List ID.
 	 * @return int Follower count.
 	 */
 	public static function get_follower_count( $list_id ) {
 		global $wpdb;
+		$table = $wpdb->prefix . 'bd_list_follows';
 
-		// Count users who have this list in their bd_following_lists meta.
-		// Note: This is a serialized array, so we use LIKE with the pattern.
-		$count = $wpdb->get_var(
+		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(DISTINCT user_id) FROM {$wpdb->usermeta}
-				WHERE meta_key = 'bd_following_lists'
-				AND (meta_value LIKE %s OR meta_value LIKE %s)",
-				'%i:' . $list_id . ';%',
-				'%"' . $list_id . '"%'
+				"SELECT COUNT(*) FROM $table WHERE list_id = %d",
+				$list_id
 			)
 		);
-
-		return (int) $count;
 	}
 
 	/**
-	 * Get lists a user is following
+	 * Get lists a user is following.
 	 *
 	 * @param int $user_id User ID.
 	 * @return array List of lists being followed.
 	 */
 	public static function get_following_lists( $user_id ) {
-		$following = get_user_meta( $user_id, 'bd_following_lists', true );
-		if ( ! is_array( $following ) || empty( $following ) ) {
+		global $wpdb;
+		$follows_table = $wpdb->prefix . 'bd_list_follows';
+		$lists_table   = $wpdb->prefix . 'bd_lists';
+		$items_table   = $wpdb->prefix . 'bd_list_items';
+
+		if ( ! $user_id ) {
 			return array();
 		}
 
-		$lists = array();
-		foreach ( $following as $list_id ) {
-			$list = self::get_list( $list_id );
-			if ( $list && 'private' !== $list['visibility'] ) {
-				$list['url'] = self::get_list_url( $list );
-				$lists[]     = $list;
-			}
+		// Join to get list data and item counts in single query.
+		$lists = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT l.*, 
+				        f.created_at as followed_at,
+				        (SELECT COUNT(*) FROM $items_table WHERE list_id = l.id) as item_count
+				 FROM $follows_table f
+				 INNER JOIN $lists_table l ON f.list_id = l.id
+				 WHERE f.user_id = %d AND l.visibility != 'private'
+				 ORDER BY f.created_at DESC",
+				$user_id
+			),
+			ARRAY_A
+		);
+
+		// Add URLs.
+		foreach ( $lists as &$list ) {
+			$list['url'] = self::get_list_url( $list );
 		}
 
 		return $lists;
@@ -772,32 +1234,52 @@ class ListManager {
 		global $wpdb;
 		$table = $wpdb->prefix . 'bd_lists';
 
-		$slug      = sanitize_title( $title );
-		$base_slug = $slug;
-		$counter   = 1;
+		$slug         = sanitize_title( $title );
+		$base_slug    = $slug;
+		$counter      = 0;
+		$max_attempts = 100; // Prevent infinite loop / DoS
 
-		while ( $wpdb->get_var( $wpdb->prepare( "SELECT id FROM $table WHERE slug = %s", $slug ) ) ) {
-			$slug = $base_slug . '-' . $counter;
+		while ( $counter < $max_attempts ) {
+			$test_slug = 0 === $counter ? $base_slug : $base_slug . '-' . $counter;
+			$exists    = $wpdb->get_var(
+				$wpdb->prepare( "SELECT id FROM $table WHERE slug = %s", $test_slug )
+			);
+
+			if ( ! $exists ) {
+				return $test_slug;
+			}
 			++$counter;
 		}
 
-		return $slug;
+		// Fallback: append timestamp to guarantee uniqueness
+		return $base_slug . '-' . time() . '-' . wp_rand( 100, 999 );
 	}
 
 	/**
-	 * Get cover image for list
+	 * Get cover image for list.
+	 * OPTIMIZED: Direct query for first item's thumbnail when no custom cover.
 	 */
 	public static function get_list_cover_image( $list ) {
 		if ( ! empty( $list['cover_image_id'] ) ) {
 			return wp_get_attachment_image_url( $list['cover_image_id'], 'medium' );
 		}
 
-		$items = self::get_list_items( $list['id'] );
-		if ( ! empty( $items[0]['business']['featured_image'] ) ) {
-			return $items[0]['business']['featured_image'];
+		global $wpdb;
+		$items_table = $wpdb->prefix . 'bd_list_items';
+
+		// Get first business ID only - single query.
+		$first_business_id = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT business_id FROM $items_table WHERE list_id = %d ORDER BY sort_order ASC LIMIT 1",
+				$list['id']
+			)
+		);
+
+		if ( ! $first_business_id ) {
+			return null;
 		}
 
-		return null;
+		return get_the_post_thumbnail_url( $first_business_id, 'medium' );
 	}
 
 	/**
@@ -805,11 +1287,14 @@ class ListManager {
 	 */
 	public static function get_featured_lists( $limit = 4 ) {
 		global $wpdb;
-		$table = $wpdb->prefix . 'bd_lists';
+		$table       = $wpdb->prefix . 'bd_lists';
+		$items_table = $wpdb->prefix . 'bd_list_items';
 
 		$lists = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT l.*, u.display_name as author_name
+				"SELECT l.*, 
+				        u.display_name as author_name,
+				        (SELECT COUNT(*) FROM $items_table WHERE list_id = l.id) as item_count
 				FROM $table l
 				LEFT JOIN {$wpdb->users} u ON l.user_id = u.ID
 				WHERE l.visibility = 'public' AND l.featured = 1
@@ -819,10 +1304,11 @@ class ListManager {
 			ARRAY_A
 		);
 
+		// Batch add cover images.
+		$lists = self::batch_add_cover_images( $lists );
+
 		foreach ( $lists as &$list ) {
-			$list['item_count']  = self::get_list_item_count( $list['id'] );
-			$list['cover_image'] = self::get_list_cover_image( $list );
-			$list['url']         = self::get_list_url( $list );
+			$list['url'] = self::get_list_url( $list );
 		}
 
 		return $lists;
@@ -869,12 +1355,20 @@ class ListManager {
 		$lists_page = get_option( 'bd_lists_page_id' );
 
 		if ( ! $lists_page ) {
-			global $wpdb;
-			$lists_page = $wpdb->get_var(
-				"SELECT ID FROM {$wpdb->posts} 
-				WHERE post_type = 'page' AND post_status = 'publish' 
-				AND post_content LIKE '%[bd_list]%' LIMIT 1"
-			);
+			// Check transient first to avoid repeated LIKE queries.
+			$lists_page = get_transient( 'bd_lists_page_fallback' );
+
+			if ( false === $lists_page ) {
+				global $wpdb;
+				$lists_page = $wpdb->get_var(
+					"SELECT ID FROM {$wpdb->posts} 
+					WHERE post_type = 'page' AND post_status = 'publish' 
+					AND post_content LIKE '%[bd_list]%' LIMIT 1"
+				);
+
+				// Cache even if null to prevent repeated lookups.
+				set_transient( 'bd_lists_page_fallback', $lists_page ?: 0, DAY_IN_SECONDS );
+			}
 
 			if ( $lists_page ) {
 				update_option( 'bd_lists_page_id', $lists_page );
@@ -894,7 +1388,14 @@ class ListManager {
 	}
 
 	/**
-	 * Format business data for list display
+	 * Format business data for list display.
+	 *
+	 * NOTE: This is now primarily a fallback method.
+	 * get_list_items() uses batch queries for better performance.
+	 * This method is kept for single-item operations and backward compatibility.
+	 *
+	 * @param int $business_id Business post ID.
+	 * @return array|null Business data or null if not found.
 	 */
 	private static function format_business_for_list( $business_id ) {
 		$post = get_post( $business_id );
@@ -1151,6 +1652,7 @@ class ListManager {
 	/**
 	 * Calculate categories from businesses in a list.
 	 * Returns top 3 most common category slugs.
+	 * OPTIMIZED: Uses batch term fetching.
 	 *
 	 * @param int $list_id List ID.
 	 * @return array Array of category slugs.
@@ -1171,17 +1673,18 @@ class ListManager {
 			return array();
 		}
 
+		// Batch fetch all terms.
+		$all_terms = self::batch_get_terms( $business_ids, 'bd_category' );
+
 		// Count categories across all businesses.
 		$category_counts = array();
-		foreach ( $business_ids as $business_id ) {
-			$terms = wp_get_post_terms( $business_id, 'bd_category', array( 'fields' => 'slugs' ) );
-			if ( ! is_wp_error( $terms ) ) {
-				foreach ( $terms as $slug ) {
-					if ( ! isset( $category_counts[ $slug ] ) ) {
-						$category_counts[ $slug ] = 0;
-					}
-					++$category_counts[ $slug ];
+		foreach ( $all_terms as $terms ) {
+			foreach ( $terms as $term ) {
+				$slug = $term['slug'];
+				if ( ! isset( $category_counts[ $slug ] ) ) {
+					$category_counts[ $slug ] = 0;
 				}
+				++$category_counts[ $slug ];
 			}
 		}
 
@@ -1197,6 +1700,7 @@ class ListManager {
 	/**
 	 * Calculate primary city from businesses in a list.
 	 * Returns the most common city.
+	 * OPTIMIZED: Uses batch meta fetching.
 	 *
 	 * @param int $list_id List ID.
 	 * @return string|null City name or null.
@@ -1217,10 +1721,12 @@ class ListManager {
 			return null;
 		}
 
+		// Batch fetch all locations.
+		$locations = self::batch_get_post_meta( $business_ids, 'bd_location' );
+
 		// Count cities across all businesses.
 		$city_counts = array();
-		foreach ( $business_ids as $business_id ) {
-			$location = get_post_meta( $business_id, 'bd_location', true );
+		foreach ( $locations as $location ) {
 			if ( ! empty( $location['city'] ) ) {
 				$city = $location['city'];
 				if ( ! isset( $city_counts[ $city ] ) ) {
@@ -1451,5 +1957,249 @@ class ListManager {
 		}
 
 		return $count;
+	}
+
+	// =========================================================================
+	// BATCH QUERY HELPERS (Performance Optimization)
+	// =========================================================================
+
+	/**
+	 * Batch fetch post meta for multiple posts.
+	 * Reduces N queries to 1 query.
+	 *
+	 * @param array  $post_ids Array of post IDs.
+	 * @param string $meta_key Meta key to fetch.
+	 * @return array Associative array of post_id => meta_value.
+	 */
+	public static function batch_get_post_meta( $post_ids, $meta_key ) {
+		global $wpdb;
+
+		if ( empty( $post_ids ) ) {
+			return array();
+		}
+
+		// Sanitize IDs.
+		$post_ids = array_map( 'absint', $post_ids );
+		$post_ids = array_filter( $post_ids );
+
+		if ( empty( $post_ids ) ) {
+			return array();
+		}
+
+		$placeholders = implode( ',', array_fill( 0, count( $post_ids ), '%d' ) );
+
+		// Build query with meta_key as last parameter.
+		$query = $wpdb->prepare(
+			"SELECT post_id, meta_value 
+			 FROM {$wpdb->postmeta} 
+			 WHERE post_id IN ($placeholders) AND meta_key = %s",
+			array_merge( $post_ids, array( $meta_key ) )
+		);
+
+		$results = $wpdb->get_results( $query );
+		$meta    = array();
+
+		foreach ( $results as $row ) {
+			$meta[ $row->post_id ] = maybe_unserialize( $row->meta_value );
+		}
+
+		return $meta;
+	}
+
+	/**
+	 * Batch fetch terms for multiple posts.
+	 * Reduces N queries to 1 query.
+	 *
+	 * @param array  $post_ids Array of post IDs.
+	 * @param string $taxonomy Taxonomy name.
+	 * @return array Associative array of post_id => array of terms.
+	 */
+	public static function batch_get_terms( $post_ids, $taxonomy ) {
+		global $wpdb;
+
+		if ( empty( $post_ids ) ) {
+			return array();
+		}
+
+		// Sanitize IDs.
+		$post_ids = array_map( 'absint', $post_ids );
+		$post_ids = array_filter( $post_ids );
+
+		if ( empty( $post_ids ) ) {
+			return array();
+		}
+
+		$placeholders = implode( ',', array_fill( 0, count( $post_ids ), '%d' ) );
+
+		$query = $wpdb->prepare(
+			"SELECT tr.object_id, t.term_id, t.name, t.slug 
+			 FROM {$wpdb->term_relationships} tr
+			 INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+			 INNER JOIN {$wpdb->terms} t ON tt.term_id = t.term_id
+			 WHERE tr.object_id IN ($placeholders) AND tt.taxonomy = %s",
+			array_merge( $post_ids, array( $taxonomy ) )
+		);
+
+		$results = $wpdb->get_results( $query );
+		$terms   = array();
+
+		foreach ( $results as $row ) {
+			$post_id = $row->object_id;
+			if ( ! isset( $terms[ $post_id ] ) ) {
+				$terms[ $post_id ] = array();
+			}
+			$terms[ $post_id ][] = array(
+				'term_id' => $row->term_id,
+				'name'    => $row->name,
+				'slug'    => $row->slug,
+			);
+		}
+
+		return $terms;
+	}
+
+	/**
+	 * Batch fetch thumbnail URLs for multiple posts.
+	 * Reduces N queries to 2 queries.
+	 *
+	 * @param array  $post_ids Array of post IDs.
+	 * @param string $size     Image size.
+	 * @return array Associative array of post_id => thumbnail_url.
+	 */
+	public static function batch_get_thumbnails( $post_ids, $size = 'medium' ) {
+		global $wpdb;
+
+		if ( empty( $post_ids ) ) {
+			return array();
+		}
+
+		// First, get thumbnail IDs.
+		$thumbnail_ids = self::batch_get_post_meta( $post_ids, '_thumbnail_id' );
+
+		if ( empty( $thumbnail_ids ) ) {
+			return array();
+		}
+
+		// Get attachment URLs.
+		$attachment_ids = array_filter( array_values( $thumbnail_ids ) );
+
+		if ( empty( $attachment_ids ) ) {
+			return array();
+		}
+
+		// Prime attachment cache.
+		_prime_post_caches( $attachment_ids, false, false );
+
+		// Build URL map.
+		$urls = array();
+		foreach ( $thumbnail_ids as $post_id => $attachment_id ) {
+			if ( $attachment_id ) {
+				$url = wp_get_attachment_image_url( $attachment_id, $size );
+				if ( $url ) {
+					$urls[ $post_id ] = $url;
+				}
+			}
+		}
+
+		return $urls;
+	}
+
+	/**
+	 * Batch add cover images to lists array.
+	 * For lists without cover_image_id, fetches first item's thumbnail.
+	 *
+	 * @param array $lists Array of list data.
+	 * @return array Lists with cover_image added.
+	 */
+	private static function batch_add_cover_images( $lists ) {
+		global $wpdb;
+		$items_table = $wpdb->prefix . 'bd_list_items';
+
+		if ( empty( $lists ) ) {
+			return $lists;
+		}
+
+		// Separate lists with and without custom cover images.
+		$lists_with_cover    = array();
+		$lists_needing_cover = array();
+
+		foreach ( $lists as $index => $list ) {
+			if ( ! empty( $list['cover_image_id'] ) ) {
+				$lists_with_cover[ $index ] = $list['cover_image_id'];
+			} else {
+				$lists_needing_cover[ $index ] = $list['id'];
+			}
+		}
+
+		// Get custom cover image URLs.
+		foreach ( $lists_with_cover as $index => $attachment_id ) {
+			$lists[ $index ]['cover_image'] = wp_get_attachment_image_url( $attachment_id, 'medium' );
+		}
+
+		// For lists without custom cover, get first item's thumbnail.
+		if ( ! empty( $lists_needing_cover ) ) {
+			$list_ids     = array_values( $lists_needing_cover );
+			$placeholders = implode( ',', array_fill( 0, count( $list_ids ), '%d' ) );
+
+			// Get first business_id for each list (by lowest sort_order).
+			$first_items_sql = $wpdb->prepare(
+				"SELECT li.list_id, li.business_id 
+				 FROM $items_table li
+				 INNER JOIN (
+				     SELECT list_id, MIN(sort_order) as min_order 
+				     FROM $items_table 
+				     WHERE list_id IN ($placeholders) 
+				     GROUP BY list_id
+				 ) first_items ON li.list_id = first_items.list_id AND li.sort_order = first_items.min_order
+				 WHERE li.list_id IN ($placeholders)",
+				array_merge( $list_ids, $list_ids )
+			);
+
+			$first_items = $wpdb->get_results( $first_items_sql, ARRAY_A );
+
+			if ( ! empty( $first_items ) ) {
+				// Get business IDs and fetch their thumbnails.
+				$business_ids = wp_list_pluck( $first_items, 'business_id' );
+				$thumbnails   = self::batch_get_thumbnails( $business_ids, 'medium' );
+
+				// Map list_id => business_id => thumbnail.
+				$list_to_business = array();
+				foreach ( $first_items as $item ) {
+					$list_to_business[ $item['list_id'] ] = $item['business_id'];
+				}
+
+				// Apply to lists.
+				foreach ( $lists_needing_cover as $index => $list_id ) {
+					$business_id                    = $list_to_business[ $list_id ] ?? null;
+					$lists[ $index ]['cover_image'] = $business_id ? ( $thumbnails[ $business_id ] ?? null ) : null;
+				}
+			} else {
+				// No items in these lists.
+				foreach ( $lists_needing_cover as $index => $list_id ) {
+					$lists[ $index ]['cover_image'] = null;
+				}
+			}
+		}
+
+		return $lists;
+	}
+
+	// =========================================================================
+	// CACHE INVALIDATION
+	// =========================================================================
+
+	/**
+	 * Invalidate all caches related to a list.
+	 * Call this when list data changes.
+	 *
+	 * @param int $list_id List ID.
+	 */
+	public static function invalidate_list_cache( $list_id ) {
+		// Clear WordPress object cache.
+		wp_cache_delete( 'bd_list_' . $list_id, 'bd_lists' );
+		wp_cache_delete( 'bd_list_items_' . $list_id, 'bd_lists' );
+
+		// Clear any transients.
+		delete_transient( 'bd_list_route_' . $list_id );
 	}
 }

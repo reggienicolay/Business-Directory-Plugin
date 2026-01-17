@@ -5,6 +5,9 @@
  * REST API for user-created business lists.
  * Follows BusinessEndpoint pattern with static init().
  *
+ * UPDATES (v1.1.0):
+ * - Fixed add_item() to support collaborator permissions
+ *
  * @package BusinessDirectory
  */
 
@@ -15,6 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; }
 
 use BD\Lists\ListManager;
+use BD\Lists\ListCollaborators;
 
 class ListsEndpoint {
 
@@ -328,6 +332,18 @@ class ListsEndpoint {
 	public static function create_list( $request ) {
 		$user_id = get_current_user_id();
 
+		// Rate limit: max 10 lists per hour to prevent spam.
+		$transient_key = 'bd_list_create_rate_' . $user_id;
+		$count         = (int) get_transient( $transient_key );
+
+		if ( $count >= 10 ) {
+			return new \WP_Error(
+				'rate_limited',
+				'You can only create 10 lists per hour. Please try again later.',
+				array( 'status' => 429 )
+			);
+		}
+
 		$list_id = ListManager::create_list(
 			$user_id,
 			$request->get_param( 'title' ),
@@ -342,6 +358,9 @@ class ListsEndpoint {
 				array( 'status' => 500 )
 			);
 		}
+
+		// Increment rate limit counter.
+		set_transient( $transient_key, $count + 1, HOUR_IN_SECONDS );
 
 		$list = ListManager::get_list( $list_id );
 
@@ -393,11 +412,15 @@ class ListsEndpoint {
 		// Check visibility permissions.
 		$current_user_id = get_current_user_id();
 		if ( 'private' === $list['visibility'] && (int) $list['user_id'] !== $current_user_id ) {
-			return new \WP_Error(
-				'forbidden',
-				'This list is private',
-				array( 'status' => 403 )
-			);
+			// Check if user is a collaborator on this private list.
+			$is_collaborator = ListCollaborators::get_user_permissions( $list['id'], $current_user_id );
+			if ( ! $is_collaborator ) {
+				return new \WP_Error(
+					'forbidden',
+					'This list is private',
+					array( 'status' => 403 )
+				);
+			}
 		}
 
 		// Increment view count for public/unlisted lists.
@@ -480,7 +503,11 @@ class ListsEndpoint {
 	}
 
 	/**
-	 * Add item to list
+	 * Add item to list.
+	 * UPDATED: Now supports collaborator permissions via add_item_with_attribution().
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|\WP_Error Response or error.
 	 */
 	public static function add_item( $request ) {
 		$list_id     = $request->get_param( 'list_id' );
@@ -488,7 +515,29 @@ class ListsEndpoint {
 		$note        = $request->get_param( 'note' );
 		$user_id     = get_current_user_id();
 
-		$item_id = ListManager::add_item( $list_id, $business_id, $user_id, $note );
+		// Check if user can add to this list (owner OR collaborator with permission).
+		$list = ListManager::get_list( $list_id );
+		if ( ! $list ) {
+			return new \WP_Error(
+				'not_found',
+				'List not found',
+				array( 'status' => 404 )
+			);
+		}
+
+		$is_owner = (int) $list['user_id'] === $user_id;
+		$can_add  = $is_owner || ListCollaborators::can_add_items( $list_id, $user_id );
+
+		if ( ! $can_add ) {
+			return new \WP_Error(
+				'forbidden',
+				'You do not have permission to add items to this list',
+				array( 'status' => 403 )
+			);
+		}
+
+		// Use the attribution-tracking method for both owners and collaborators.
+		$item_id = ListManager::add_item_with_attribution( $list_id, $business_id, $user_id, $note );
 
 		if ( ! $item_id ) {
 			return new \WP_Error(
@@ -508,19 +557,31 @@ class ListsEndpoint {
 	}
 
 	/**
-	 * Remove item from list
+	 * Remove item from list.
+	 * UPDATED: Now supports collaborator permissions via remove_item_with_permission().
 	 */
 	public static function remove_item( $request ) {
 		$list_id     = $request->get_param( 'list_id' );
 		$business_id = $request->get_param( 'business_id' );
 		$user_id     = get_current_user_id();
 
-		$result = ListManager::remove_item( $list_id, $business_id, $user_id );
+		// Check if list exists first for better error message.
+		$list = ListManager::get_list( $list_id );
+		if ( ! $list ) {
+			return new \WP_Error(
+				'not_found',
+				'List not found.',
+				array( 'status' => 404 )
+			);
+		}
+
+		// Use permission-aware method (allows owners and collaborators with remove rights).
+		$result = ListManager::remove_item_with_permission( $list_id, $business_id, $user_id );
 
 		if ( ! $result ) {
 			return new \WP_Error(
 				'remove_failed',
-				'Could not remove business from list.',
+				'Could not remove business from list. You may not have permission.',
 				array( 'status' => 400 )
 			);
 		}
@@ -534,7 +595,8 @@ class ListsEndpoint {
 	}
 
 	/**
-	 * Update item (note)
+	 * Update item (note).
+	 * UPDATED: Now supports collaborator permissions via update_item_note_with_permission().
 	 */
 	public static function update_item( $request ) {
 		$list_id     = $request->get_param( 'list_id' );
@@ -542,12 +604,23 @@ class ListsEndpoint {
 		$note        = $request->get_param( 'note' );
 		$user_id     = get_current_user_id();
 
-		$result = ListManager::update_item_note( $list_id, $business_id, $user_id, $note );
+		// Check if list exists first for better error message.
+		$list = ListManager::get_list( $list_id );
+		if ( ! $list ) {
+			return new \WP_Error(
+				'not_found',
+				'List not found.',
+				array( 'status' => 404 )
+			);
+		}
+
+		// Use permission-aware method (allows owners and collaborators with edit rights).
+		$result = ListManager::update_item_note_with_permission( $list_id, $business_id, $user_id, $note );
 
 		if ( ! $result ) {
 			return new \WP_Error(
 				'update_failed',
-				'Could not update note.',
+				'Could not update note. You may not have permission.',
 				array( 'status' => 400 )
 			);
 		}
@@ -630,7 +703,7 @@ class ListsEndpoint {
 		return rest_ensure_response(
 			array(
 				'success'  => true,
-				'message'  => 'Saved to "' . $list['title'] . '"!',
+				'message'  => 'Saved to "' . esc_html( $list['title'] ) . '"!',
 				'list'     => $list,
 				'new_list' => ! empty( $new_list ),
 			)

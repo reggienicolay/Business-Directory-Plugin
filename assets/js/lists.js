@@ -2,6 +2,22 @@
 	'use strict';
 
 	// ========================================================================
+	// UTILITY FUNCTIONS
+	// ========================================================================
+
+	/**
+	 * Escape HTML to prevent XSS attacks
+	 * @param {string} text - Text to escape
+	 * @returns {string} - Escaped HTML
+	 */
+	function escapeHtml(text) {
+		if (!text) return "";
+		const div = document.createElement("div");
+		div.textContent = text;
+		return div.innerHTML;
+	}
+
+	// ========================================================================
 	// SAVE TO LIST FUNCTIONALITY
 	// ========================================================================
 
@@ -175,16 +191,13 @@
 				new_list: listTitle
 			},
 			success: function (response) {
-				// Add new list to the modal
+				// Add new list to the modal (using jQuery to prevent XSS)
 				const $lists = $modal.find('.bd-save-lists');
-				const newItem = `
-					<label class="bd-save-list-item bd-in-list">
-						<input type="checkbox" checked data-list-id="${response.list.id}">
-						<span class="bd-save-list-title">${response.list.title}</span>
-						<span class="bd-save-list-count">1 items</span>
-					</label>
-				`;
-				$lists.append(newItem);
+				const $newItem = $('<label class="bd-save-list-item bd-in-list"></label>')
+					.append($('<input type="checkbox" checked>').attr('data-list-id', response.list.id))
+					.append($('<span class="bd-save-list-title"></span>').text(response.list.title))
+					.append($('<span class="bd-save-list-count"></span>').text('1 items'));
+				$lists.append($newItem);
 
 				// Clear input and hide form
 				$input.val('');
@@ -409,7 +422,7 @@ $(document).on('click', '.bd-remove-item-btn', function () {
 	const businessId = $item.data('business-id');
 	const listId = $('.bd-single-list-page').data('list-id');
 
-	if (!confirm('Remove this business from the list?')) {
+	if (!confirm('Remove this place from the list?')) {
 		return;
 	}
 
@@ -436,7 +449,7 @@ $(document).on('click', '.bd-remove-item-btn', function () {
  */
 function updateListItemCount() {
 	const currentCount = $('.bd-list-items .bd-list-item').length;
-	const countText = currentCount === 1 ? '1 business' : currentCount + ' businesses';
+	const countText = currentCount === 1 ? '1 place' : currentCount + ' places';
 	
 	// Update hero meta count (specific class)
 	$('.bd-list-count').text(countText);
@@ -476,12 +489,17 @@ $(document).on('click', '.bd-edit-note-btn', function () {
 		data: { note: newNote },
 		success: function (response) {
 			if (newNote) {
+				// Build note HTML safely using jQuery (prevents XSS)
+				const $noteContent = $('<span></span>')
+					.append('<i class="fas fa-comment"></i> "')
+					.append($('<span></span>').text(newNote))
+					.append('"');
+				
 				if ($noteDiv.length) {
-					$noteDiv.html('<i class="fas fa-comment"></i> "' + newNote + '"');
+					$noteDiv.empty().append($noteContent.contents());
 				} else {
-					$item.find('.bd-list-item-content').append(
-						'<div class="bd-list-item-note"><i class="fas fa-comment"></i> "' + newNote + '"</div>'
-					);
+					const $newNoteDiv = $('<div class="bd-list-item-note"></div>').append($noteContent.contents());
+					$item.find('.bd-list-item-content').append($newNoteDiv);
 				}
 			} else {
 				$noteDiv.remove();
@@ -705,12 +723,11 @@ function showToast(message, type = 'success') {
 		icon = '<i class="fas fa-info-circle"></i>';
 	}
 	
-	const $toast = $(`
-			<div class="bd-toast bd-toast-${type}">
-				<span class="bd-toast-icon">${icon}</span>
-				<span class="bd-toast-message">${message}</span>
-			</div>
-		`);
+	// Build toast safely using jQuery to prevent XSS
+	const $toast = $('<div class="bd-toast"></div>')
+		.addClass('bd-toast-' + type)
+		.append($('<span class="bd-toast-icon"></span>').html(icon))
+		.append($('<span class="bd-toast-message"></span>').text(message));
 
 	$('body').append($toast);
 
@@ -830,17 +847,24 @@ const ListMap = {
 
 		const marker = L.marker([item.lat, item.lng], { icon: icon });
 
-		let popupHtml = `<a href="${item.permalink}" class="bd-map-popup">`;
+		// Escape all user content to prevent XSS
+		const safeTitle = escapeHtml(item.title);
+		const safePermalink = escapeHtml(item.permalink);
+		const safeImage = escapeHtml(item.image);
+		const safeCategory = escapeHtml(item.category);
+		const safeNote = escapeHtml(item.note);
+
+		let popupHtml = `<a href="${safePermalink}" class="bd-map-popup">`;
 
 		if (item.image) {
-			popupHtml += `<img src="${item.image}" alt="${item.title}" class="bd-map-popup-image">`;
+			popupHtml += `<img src="${safeImage}" alt="${safeTitle}" class="bd-map-popup-image">`;
 		}
 
 		popupHtml += `<div class="bd-map-popup-content">`;
-		popupHtml += `<h4 class="bd-map-popup-title">${item.title}</h4>`;
+		popupHtml += `<h4 class="bd-map-popup-title">${safeTitle}</h4>`;
 
 		if (item.category) {
-			popupHtml += `<div class="bd-map-popup-category">${item.category}</div>`;
+			popupHtml += `<div class="bd-map-popup-category">${safeCategory}</div>`;
 		}
 
 		if (item.rating > 0) {
@@ -852,7 +876,7 @@ const ListMap = {
 		}
 
 		if (item.note) {
-			popupHtml += `<div class="bd-map-popup-note">"${item.note}"</div>`;
+			popupHtml += `<div class="bd-map-popup-note">"${safeNote}"</div>`;
 		}
 
 		popupHtml += `</div></a>`;
@@ -963,6 +987,351 @@ const ListsTabs = {
 };
 
 // ========================================================================
+// ADD BUSINESS MODAL
+// ========================================================================
+
+const AddBusinessModal = {
+	$modal: null,
+	listId: null,
+	existingItems: [],
+	selectedItems: new Set(),
+	searchTimeout: null,
+	currentRequest: null,
+	filtersLoaded: false,
+
+	init: function () {
+		this.$modal = $(".bd-add-business-modal");
+		if (!this.$modal.length) return;
+
+		this.listId = this.$modal.data("list-id");
+		this.existingItems = window.bdListExistingItems || [];
+
+		// Bind events
+		$(document).on("click", ".bd-add-business-btn", this.open.bind(this));
+		$(document).on("input", ".bd-add-business-search-input", this.handleSearch.bind(this));
+		$(document).on("change", ".bd-add-business-filter", this.handleFilterChange.bind(this));
+		$(document).on("change", ".bd-add-business-checkbox", this.handleCheckboxChange.bind(this));
+		$(document).on("click", ".bd-add-selected-btn", this.addSelectedItems.bind(this));
+	},
+
+	/**
+	 * Decode HTML entities from API response.
+	 * The WordPress API returns pre-encoded strings (e.g., &amp; for &).
+	 * We need to decode them for display, not double-encode.
+	 */
+	decodeHtml: function (text) {
+		if (!text) return "";
+		const textarea = document.createElement("textarea");
+		textarea.innerHTML = text;
+		return textarea.value;
+	},
+
+	/**
+	 * Escape HTML for safe insertion (only for untrusted content)
+	 */
+	escapeHtml: function (text) {
+		if (!text) return "";
+		const div = document.createElement("div");
+		div.textContent = text;
+		return div.innerHTML;
+	},
+
+	/**
+	 * Get the API base URL
+	 */
+	getApiBaseUrl: function () {
+		// bdLists.restUrl is like "/wp-json/bd/v1/" - we need "/wp-json/"
+		return bdLists.restUrl.replace(/bd\/v1\/?$/, "");
+	},
+
+	open: function () {
+		// Move modal to body if not already there
+		if (!this.$modal.parent().is("body")) {
+			this.$modal.appendTo("body");
+		}
+
+		// Load filters if not already loaded
+		if (!this.filtersLoaded) {
+			this.loadFilters();
+		}
+
+		// Clear previous state
+		this.selectedItems.clear();
+		this.$modal.find(".bd-add-business-search-input").val("");
+		this.$modal.find(".bd-add-business-filter").val(""); // Reset filters
+		this.$modal.find(".bd-add-business-list").empty();
+		this.$modal.find(".bd-add-business-empty").hide();
+		this.updateSelectedCount();
+
+		// Show modal
+		this.$modal.fadeIn(200);
+		$("body").addClass("bd-modal-open");
+		this.$modal.find(".bd-add-business-search-input").focus();
+
+		// Load initial results
+		this.search("");
+	},
+
+	loadFilters: function () {
+		const self = this;
+
+		$.ajax({
+			url: this.getApiBaseUrl() + "bd/v1/filters",
+			method: "GET",
+			success: function (response) {
+				// Populate category filter
+				const $catFilter = self.$modal.find('[data-filter="categories"]');
+				$catFilter.find("option:not(:first)").remove();
+				if (response.categories) {
+					response.categories.forEach(function (cat) {
+						// Decode HTML entities in category names
+						const name = self.decodeHtml(cat.name);
+						$catFilter.append(
+							$("<option>")
+								.val(cat.id)  // Use term ID, not slug - API expects integers
+								.text(name + " (" + cat.count + ")")
+						);
+					});
+				}
+
+				// Populate area/city filter
+				const $areaFilter = self.$modal.find('[data-filter="areas"]');
+				$areaFilter.find("option:not(:first)").remove();
+				if (response.areas) {
+					response.areas.forEach(function (area) {
+						// Decode HTML entities in area names
+						const name = self.decodeHtml(area.name);
+						$areaFilter.append(
+							$("<option>")
+								.val(area.id)  // Use term ID, not slug - API expects integers
+								.text(name + " (" + area.count + ")")
+						);
+					});
+				}
+
+				self.filtersLoaded = true;
+			},
+			error: function () {
+				// Mark as loaded to prevent infinite retry attempts
+				self.filtersLoaded = true;
+				console.error("Failed to load filters");
+			}
+		});
+	},
+
+	handleSearch: function (e) {
+		const query = $(e.target).val();
+
+		// Debounce search
+		clearTimeout(this.searchTimeout);
+		this.searchTimeout = setTimeout(() => {
+			this.search(query);
+		}, 300);
+	},
+
+	handleFilterChange: function () {
+		const query = this.$modal.find(".bd-add-business-search-input").val();
+		this.search(query);
+	},
+
+	search: function (query) {
+		const self = this;
+		const $results = this.$modal.find(".bd-add-business-list");
+		const $loading = this.$modal.find(".bd-add-business-loading");
+		const $empty = this.$modal.find(".bd-add-business-empty");
+
+		// Abort previous request to prevent race conditions
+		if (this.currentRequest) {
+			this.currentRequest.abort();
+		}
+
+		// Get filter values
+		const category = this.$modal.find('[data-filter="categories"]').val();
+		const area = this.$modal.find('[data-filter="areas"]').val();
+
+		// Build request params
+		const params = {
+			per_page: 20
+		};
+
+		if (query) params.q = query;
+		// API expects arrays for filters (FilterHandler uses count())
+		if (category) params["categories"] = category;
+		if (area) params["areas"] = area;
+
+		// Show loading
+		$loading.show();
+		$empty.hide();
+		$results.empty();
+
+		this.currentRequest = $.ajax({
+			url: this.getApiBaseUrl() + "bd/v1/businesses",
+			method: "GET",
+			data: params,
+			success: function (response) {
+				$loading.hide();
+
+				if (!response.businesses || response.businesses.length === 0) {
+					$empty.show();
+					return;
+				}
+
+				response.businesses.forEach(function (business) {
+					$results.append(self.renderBusinessItem(business));
+				});
+			},
+			error: function (xhr, status) {
+				// Don't show error for aborted requests
+				if (status === "abort") return;
+				
+				$loading.hide();
+				$empty.find("p").text("Error loading places. Please try again.");
+				$empty.show();
+			},
+			complete: function () {
+				self.currentRequest = null;
+			}
+		});
+	},
+
+	renderBusinessItem: function (business) {
+		const isInList = this.existingItems.includes(business.id);
+		const isSelected = this.selectedItems.has(business.id);
+
+		// Decode HTML entities from API, then escape for safe HTML output
+		const title = this.escapeHtml(this.decodeHtml(business.title));
+		const city = business.areas && business.areas.length > 0 
+			? this.escapeHtml(this.decodeHtml(business.areas[0])) 
+			: "";
+		const category = business.categories && business.categories.length > 0 
+			? this.escapeHtml(this.decodeHtml(business.categories[0])) 
+			: "";
+		
+		const rating = business.rating ? business.rating.toFixed(1) : "";
+		const ratingHtml = rating ? `<span class="bd-add-biz-rating"><i class="fas fa-star"></i> ${rating}</span>` : "";
+
+		// Image URL should be safe from API, but escape alt text
+		const imageUrl = business.featured_image || "";
+		const imageHtml = imageUrl
+			? `<img src="${this.escapeHtml(imageUrl)}" alt="${title}">`
+			: `<div class="bd-add-biz-no-image"><i class="fas fa-store"></i></div>`;
+
+		return `
+			<label class="bd-add-business-item ${isInList ? "bd-in-list" : ""} ${isSelected ? "bd-selected" : ""}">
+				<input type="checkbox" 
+					class="bd-add-business-checkbox" 
+					value="${parseInt(business.id, 10)}"
+					${isInList ? "disabled checked" : ""}
+					${isSelected ? "checked" : ""}>
+				<div class="bd-add-biz-image">${imageHtml}</div>
+				<div class="bd-add-biz-info">
+					<div class="bd-add-biz-title">${title}</div>
+					<div class="bd-add-biz-meta">
+						${city ? `<span class="bd-add-biz-city">${city}</span>` : ""}
+						${category ? `<span class="bd-add-biz-category">${category}</span>` : ""}
+						${ratingHtml}
+					</div>
+				</div>
+				${isInList ? '<span class="bd-add-biz-status"><i class="fas fa-check"></i> In list</span>' : ""}
+			</label>
+		`;
+	},
+
+	handleCheckboxChange: function (e) {
+		const $checkbox = $(e.target);
+		const businessId = parseInt($checkbox.val(), 10);
+		const $item = $checkbox.closest(".bd-add-business-item");
+
+		if ($checkbox.is(":checked")) {
+			this.selectedItems.add(businessId);
+			$item.addClass("bd-selected");
+		} else {
+			this.selectedItems.delete(businessId);
+			$item.removeClass("bd-selected");
+		}
+
+		this.updateSelectedCount();
+	},
+
+	updateSelectedCount: function () {
+		const count = this.selectedItems.size;
+		const $counter = this.$modal.find(".bd-add-business-selected");
+		const $btn = this.$modal.find(".bd-add-selected-btn");
+
+		if (count > 0) {
+			$counter.find(".bd-selected-count").text(count);
+			$counter.show();
+			$btn.prop("disabled", false).html(`<i class="fas fa-plus"></i> Add ${count} Selected`);
+		} else {
+			$counter.hide();
+			$btn.prop("disabled", true).html('<i class="fas fa-plus"></i> Add Selected');
+		}
+	},
+
+	addSelectedItems: function () {
+		const self = this;
+		const items = Array.from(this.selectedItems);
+		
+		if (items.length === 0) return;
+
+		const $btn = this.$modal.find(".bd-add-selected-btn");
+		$btn.prop("disabled", true).html('<i class="fas fa-spinner fa-spin"></i> Adding...');
+
+		// Add items sequentially to avoid overwhelming the server
+		let succeeded = 0;
+		let index = 0;
+
+		function addNext() {
+			if (index >= items.length) {
+				// All done
+				self.selectedItems.clear();
+				self.updateSelectedCount();
+				
+				if (succeeded > 0) {
+					showToast(`Added ${succeeded} place${succeeded > 1 ? "s" : ""} to list!`);
+					// Reload page to show new items
+					setTimeout(function () {
+						window.location.reload();
+					}, 1000);
+				} else {
+					showToast("Could not add places. They may already be in the list.", "error");
+					$btn.prop("disabled", false).html('<i class="fas fa-plus"></i> Add Selected');
+				}
+				return;
+			}
+
+			const businessId = items[index];
+			
+			$.ajax({
+				url: bdLists.restUrl + "lists/" + self.listId + "/items",
+				method: "POST",
+				headers: { "X-WP-Nonce": bdLists.nonce },
+				data: { business_id: businessId },
+				success: function () {
+					succeeded++;
+					// Mark as in list
+					self.existingItems.push(businessId);
+					self.$modal.find(`.bd-add-business-checkbox[value="${businessId}"]`)
+						.prop("disabled", true)
+						.prop("checked", true)
+						.closest(".bd-add-business-item")
+						.addClass("bd-in-list")
+						.removeClass("bd-selected")
+						.find(".bd-add-biz-info")
+						.after('<span class="bd-add-biz-status"><i class="fas fa-check"></i> In list</span>');
+				},
+				complete: function () {
+					index++;
+					addNext(); // Process next item
+				}
+			});
+		}
+
+		addNext(); // Start the chain
+	}
+};
+
+// ========================================================================
 // INITIALIZATION
 // ========================================================================
 
@@ -971,6 +1340,7 @@ $(document).ready(function () {
 	ListMap.init();
 	FollowButton.init();
 	ListsTabs.init();
+	AddBusinessModal.init();
 });
 
 }) (jQuery);
