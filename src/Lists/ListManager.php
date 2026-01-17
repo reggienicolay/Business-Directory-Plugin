@@ -261,7 +261,7 @@ class ListManager {
 			'category' => '',
 			'city'     => '',
 		);
-		$args = wp_parse_args( $args, $defaults );
+		$args     = wp_parse_args( $args, $defaults );
 
 		// Build WHERE clause.
 		$where        = "l.visibility = 'public'";

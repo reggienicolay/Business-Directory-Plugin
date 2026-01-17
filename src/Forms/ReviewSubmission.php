@@ -47,7 +47,7 @@ class ReviewSubmission {
 			wp_enqueue_script( 'bd-review-form', BD_PLUGIN_URL . 'assets/js/review-form.js', array( 'jquery' ), BD_VERSION, true );
 
 			// Get current user info for JS.
-			$user_id     = get_current_user_id();
+			$user_id      = get_current_user_id();
 			$is_logged_in = $user_id > 0;
 
 			wp_localize_script(
@@ -251,9 +251,9 @@ class ReviewSubmission {
 	 * @return string Review card HTML.
 	 */
 	private function render_single_review( $review ) {
-		$review_id   = absint( $review['id'] );
-		$user_id     = absint( $review['user_id'] ?? 0 );
-		$author_name = ! empty( $review['author_name'] ) ? $review['author_name'] : __( 'Anonymous', 'business-directory' );
+		$review_id     = absint( $review['id'] );
+		$user_id       = absint( $review['user_id'] ?? 0 );
+		$author_name   = ! empty( $review['author_name'] ) ? $review['author_name'] : __( 'Anonymous', 'business-directory' );
 		$helpful_count = absint( $review['helpful_count'] ?? 0 );
 
 		ob_start();
@@ -380,11 +380,11 @@ class ReviewSubmission {
 				<div class="bd-form-row bd-nickname-editor" id="bd-nickname-editor" style="display: none;">
 					<label for="bd_display_name"><?php esc_html_e( 'Display Name', 'business-directory' ); ?></label>
 					<input type="text" 
-						   id="bd_display_name" 
-						   name="bd_display_name" 
-						   value="<?php echo esc_attr( $display_name ); ?>" 
-						   maxlength="100"
-						   placeholder="<?php esc_attr_e( 'Enter your display name', 'business-directory' ); ?>" />
+							id="bd_display_name" 
+							name="bd_display_name" 
+							value="<?php echo esc_attr( $display_name ); ?>" 
+							maxlength="100"
+							placeholder="<?php esc_attr_e( 'Enter your display name', 'business-directory' ); ?>" />
 					<p class="description"><?php esc_html_e( 'This name will be shown with your reviews.', 'business-directory' ); ?></p>
 				</div>
 			<?php else : ?>
