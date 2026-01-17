@@ -82,8 +82,8 @@
 /* Gold glow on hover */
 .bd-guide-card:hover {
 	transform: translateY(-8px);
-	box-shadow: 
-		0 20px 25px -5px rgba(0, 0, 0, 0.1), 
+	box-shadow:
+		0 20px 25px -5px rgba(0, 0, 0, 0.1),
 		0 10px 10px -5px rgba(0, 0, 0, 0.04),
 		0 0 30px rgba(201, 162, 39, 0.2);
 	border-color: var(--bd-gold-300);
@@ -166,7 +166,7 @@
 	object-fit: cover !important;
 	transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 	background: linear-gradient(#fff, #fff) padding-box,
-	            linear-gradient(135deg, var(--bd-gold-400), var(--bd-gold-500)) border-box;
+				linear-gradient(135deg, var(--bd-gold-400), var(--bd-gold-500)) border-box;
 	position: relative;
 	z-index: 2;
 	display: block !important;
@@ -175,7 +175,7 @@
 /* Hover: scale + rotation + gold glow */
 .bd-guide-card:hover .bd-guide-avatar img {
 	transform: scale(1.08) rotate(3deg);
-	box-shadow: 
+	box-shadow:
 		0 12px 40px rgba(0, 0, 0, 0.3),
 		0 0 20px rgba(201, 162, 39, 0.4) !important;
 }
@@ -455,7 +455,7 @@
 }
 
 .bd-guide-featured:hover {
-	box-shadow: 
+	box-shadow:
 		0 15px 50px rgba(0, 0, 0, 0.12),
 		0 0 40px rgba(201, 162, 39, 0.15);
 	border-color: var(--bd-gold-200);

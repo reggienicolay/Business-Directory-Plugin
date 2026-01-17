@@ -258,7 +258,7 @@ class QueryBuilder {
 						return $this->is_open_now_from_cache( $b['id'], $hours_cache );
 					}
 				);
-				$businesses = array_values( $businesses ); // Re-index array.
+				$businesses  = array_values( $businesses ); // Re-index array.
 			}
 
 			$result              = $this->paginate_array( $businesses );
