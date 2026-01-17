@@ -3,11 +3,11 @@
  * Profile Editor
  *
  * Handles AJAX profile updates for frontend users.
- * Updated with public profile visibility settings.
+ * Updated with public profile visibility settings and Guide Quote field.
  *
  * @package BusinessDirectory
  * @subpackage Frontend
- * @version 1.1.1
+ * @version 1.2.0
  */
 
 namespace BD\Frontend;
@@ -40,7 +40,7 @@ class ProfileEditor {
 					'message' => __( 'Security check failed. Please refresh the page.', 'business-directory' ),
 				)
 			);
-			return; // Explicit return for clarity
+			return;
 		}
 
 		// Must be logged in.
@@ -101,6 +101,18 @@ class ProfileEditor {
 			$bio = sanitize_textarea_field( wp_unslash( $_POST['bio'] ) );
 			update_user_meta( $user_id, 'description', $bio );
 			$updated[] = 'bio';
+		}
+
+		// Guide Quote (only for Guides).
+		if ( isset( $_POST['guide_quote'] ) ) {
+			$is_guide = get_user_meta( $user_id, 'bd_is_guide', true );
+			if ( $is_guide ) {
+				$guide_quote = sanitize_textarea_field( wp_unslash( $_POST['guide_quote'] ) );
+				// Limit to 200 characters.
+				$guide_quote = substr( $guide_quote, 0, 200 );
+				update_user_meta( $user_id, 'bd_guide_quote', $guide_quote );
+				$updated[] = 'guide_quote';
+			}
 		}
 
 		// Phone.
@@ -171,10 +183,10 @@ class ProfileEditor {
 			}
 		}
 
-		// FIX: Only process section toggles if the public profile section was included
-		// Check for hidden field that indicates this section was submitted
+		// FIX: Only process section toggles if the public profile section was included.
+		// Check for hidden field that indicates this section was submitted.
 		if ( isset( $_POST['public_profile_section_submitted'] ) ) {
-			// Process checkboxes - unchecked means not present in POST
+			// Process checkboxes - unchecked means not present in POST.
 			$show_badges  = isset( $_POST['profile_show_badges'] ) ? 1 : 0;
 			$show_reviews = isset( $_POST['profile_show_reviews'] ) ? 1 : 0;
 			$show_lists   = isset( $_POST['profile_show_lists'] ) ? 1 : 0;
@@ -454,6 +466,7 @@ class ProfileEditor {
 			'facebook'           => get_user_meta( $user_id, 'bd_facebook', true ),
 			'twitter'            => get_user_meta( $user_id, 'bd_twitter', true ),
 			'linkedin'           => get_user_meta( $user_id, 'bd_linkedin', true ),
+			'guide_quote'        => get_user_meta( $user_id, 'bd_guide_quote', true ),
 			'profile_visibility' => $visibility,
 			'show_badges'        => '' === $show_badges ? true : (bool) $show_badges,
 			'show_reviews'       => '' === $show_reviews ? true : (bool) $show_reviews,
@@ -471,6 +484,9 @@ class ProfileEditor {
 	public static function render_edit_form( $user_id ) {
 		$data = self::get_profile_data( $user_id );
 		$user = get_userdata( $user_id );
+
+		// Check if user is a Guide.
+		$is_guide = get_user_meta( $user_id, 'bd_is_guide', true );
 
 		// Get public profile URL.
 		$public_profile_url = home_url( '/profile/' . $user->user_nicename . '/' );
@@ -577,6 +593,31 @@ class ProfileEditor {
 						</div>
 					</div>
 				</div>
+
+				<?php // Guide Quote Field (Guides only). ?>
+				<?php if ( $is_guide ) : ?>
+					<div class="bd-form-section bd-guide-quote-section">
+						<h3>
+							<i class="fa-solid fa-quote-left"></i>
+							<?php esc_html_e( 'Guide Quote', 'business-directory' ); ?>
+							<span class="bd-badge bd-badge-gold"><?php esc_html_e( 'Guide', 'business-directory' ); ?></span>
+						</h3>
+						<p class="bd-form-description">
+							<?php esc_html_e( 'A short quote or tagline that appears on your Guide card. Make it memorable!', 'business-directory' ); ?>
+						</p>
+						<div class="bd-form-group">
+							<label for="bd-guide-quote"><?php esc_html_e( 'Your Quote', 'business-directory' ); ?></label>
+							<textarea 
+								id="bd-guide-quote" 
+								name="guide_quote" 
+								rows="2" 
+								maxlength="200"
+								placeholder="<?php esc_attr_e( 'e.g., "I\'ve watched this community grow for over a decade and love connecting people to hidden gems."', 'business-directory' ); ?>"
+							><?php echo esc_textarea( $data['guide_quote'] ); ?></textarea>
+							<span class="bd-char-count"><span id="bd-quote-char-count"><?php echo esc_html( strlen( $data['guide_quote'] ) ); ?></span>/200</span>
+						</div>
+					</div>
+				<?php endif; ?>
 
 				<!-- Personal Information -->
 				<div class="bd-form-section">
