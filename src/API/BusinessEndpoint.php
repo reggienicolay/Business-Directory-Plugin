@@ -8,7 +8,7 @@
  *
  * @package BusinessDirectory
  * @subpackage API
- * @version 1.1.0
+ * @version 1.1.2
  */
 
 namespace BusinessDirectory\API;
@@ -19,7 +19,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use BusinessDirectory\Search\FilterHandler;
 use BusinessDirectory\Search\QueryBuilder;
-use BusinessDirectory\Utils\Cache;
 
 /**
  * Class BusinessEndpoint
@@ -105,7 +104,7 @@ class BusinessEndpoint {
 		$filters = FilterHandler::sanitize_filters( $request->get_params() );
 
 		// Check cache first.
-		$cache_key = Cache::get_query_key( $filters );
+		$cache_key = 'bd_businesses_' . md5( wp_json_encode( $filters ) );
 		$cached    = get_transient( $cache_key );
 
 		if ( false !== $cached ) {
@@ -183,20 +182,16 @@ class BusinessEndpoint {
 		}
 
 		// Prime the post cache (1 query for all posts).
-		// _prime_post_caches is available since WP 3.0.
 		if ( function_exists( '_prime_post_caches' ) ) {
 			\_prime_post_caches( $business_ids, true, true );
 		}
 
 		// Prime the post meta cache (1 query for ALL meta for ALL posts).
-		// FIX: Correct function is update_meta_cache(), not update_post_meta_cache().
-		// update_meta_cache() has been available since WP 2.9.
 		if ( function_exists( 'update_meta_cache' ) ) {
 			\update_meta_cache( 'post', $business_ids );
 		}
 
 		// Prime the term cache for all relevant taxonomies (1 query per taxonomy).
-		// update_object_term_cache() available since WP 2.3.
 		if ( function_exists( 'update_object_term_cache' ) ) {
 			\update_object_term_cache( $business_ids, 'bd_business' );
 		}

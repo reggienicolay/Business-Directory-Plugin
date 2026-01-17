@@ -7,10 +7,10 @@
  *
  * @package BusinessDirectory
  * @subpackage Search
- * @version 1.2.0
+ * @version 1.2.1
  */
 
-namespace BD\Search;
+namespace BusinessDirectory\Search;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -299,56 +299,41 @@ class QueryBuilder {
 	 * Filter businesses to only those currently open.
 	 *
 	 * @param array $businesses Array of business data.
-	 * @return array Filtered array of businesses.
+	 * @return array Filtered array of businesses that are open now.
 	 */
 	private function filter_open_now( $businesses ) {
-		$hours_cache = $this->hours_cache;
-		$filtered    = array_filter(
-			$businesses,
-			function ( $b ) use ( $hours_cache ) {
-				return $this->is_open_now_from_cache( $b['id'], $hours_cache );
-			}
+		return array_values(
+			array_filter(
+				$businesses,
+				function ( $b ) {
+					return $this->is_open_now_from_cache( $b['id'], $this->hours_cache );
+				}
+			)
 		);
-
-		return array_values( $filtered );
 	}
 
 	/**
-	 * Sanitize and validate an array of IDs for SQL queries.
+	 * Sanitize array of IDs for use in SQL queries.
 	 *
-	 * @param array $ids Raw array of IDs.
-	 * @return array Sanitized, validated, re-indexed array of positive integers.
+	 * @param array $ids Array of IDs.
+	 * @return array Array of sanitized integer IDs.
 	 */
 	private function sanitize_ids_for_query( $ids ) {
-		if ( empty( $ids ) || ! is_array( $ids ) ) {
-			return array();
-		}
-
-		// Convert to integers, remove non-positive values, re-index.
-		$sanitized = array_map( 'absint', $ids );
-		$sanitized = array_filter(
-			$sanitized,
-			function ( $id ) {
-				return $id > 0;
-			}
-		);
-
-		return array_values( $sanitized );
+		return array_map( 'absint', array_filter( (array) $ids ) );
 	}
 
 	/**
-	 * Build a safe IN clause with prepared placeholders.
+	 * Build placeholder string for IN clause.
 	 *
-	 * @param array  $ids    Array of integer IDs (must be non-empty).
-	 * @param string $format Placeholder format ('%d' for integers, '%s' for strings).
-	 * @return string Comma-separated placeholders string.
+	 * @param array  $ids    Array of IDs.
+	 * @param string $format Placeholder format (default '%d').
+	 * @return string Comma-separated placeholders.
 	 */
 	private function build_in_placeholders( $ids, $format = '%d' ) {
 		$count = count( $ids );
-		if ( $count === 0 ) {
+		if ( 0 === $count ) {
 			return '';
 		}
-
 		return implode( ',', array_fill( 0, $count, $format ) );
 	}
 
