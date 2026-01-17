@@ -733,7 +733,7 @@
 /* ============================================================================
 	BUSINESS CARDS
 	========================================================================= */
-#bd-business-list>div {
+#bd-business-list > div:not(.bd-grid-container):not(.bd-list-container) {
 	border: 2px solid var(--bd-border-gold) !important;
 	padding: 28px !important;
 	margin-bottom: 20px !important;
@@ -2157,6 +2157,8 @@ body.page-template-directory .entry-title {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
+	min-width: 0;
+	width: 100%;
 }
 
 .bd-grid-title {

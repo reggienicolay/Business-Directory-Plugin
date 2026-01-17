@@ -827,7 +827,9 @@
 	}
 
 	.bd-qf-main-content.bd-qf-no-split .bd-qf-view-grid .bd-qf-card {
+		display: flex !important;
 		flex-direction: column;
+		grid-template-columns: unset;
 	}
 
 	.bd-qf-main-content.bd-qf-no-split .bd-qf-view-grid .bd-qf-card-image {
