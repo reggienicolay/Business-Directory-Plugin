@@ -593,7 +593,6 @@
 				$loading.show();
 				$listsContainer.empty();
 
-				console.log('Fetching lists from:', bdQuickFilters.restUrl + 'lists');
 
 				// Get user's lists
 				$.ajax({
@@ -601,7 +600,6 @@
 					method: 'GET',
 					headers: { 'X-WP-Nonce': bdQuickFilters.nonce },
 					success: function(response) {
-						console.log('Lists API response:', response);
 						$loading.hide();
 						
 						// API returns { lists: [...], total: X }
@@ -612,13 +610,11 @@
 							lists = response;
 						}
 						
-						console.log('Parsed lists count:', lists.length);
 						
 						if (lists.length > 0) {
 							// Render each list
 							for (var i = 0; i < lists.length; i++) {
 								var list = lists[i];
-								console.log('Rendering list:', list.id, list.title);
 								
 								var listHtml = '<label class="bd-qf-save-list-item">' +
 									'<input type="checkbox" data-list-id="' + list.id + '">' +
@@ -802,7 +798,6 @@
 					},
 					function () {
 						// Use default location
-						console.log('Geolocation denied, using default location');
 					}
 				);
 			}
@@ -912,7 +907,6 @@
 				try {
 					self.map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
 				} catch (e) {
-					console.log('Could not fit bounds:', e);
 				}
 			}
 		},

@@ -43,10 +43,8 @@
          * Initialize the entire directory system
          */
         init: function () {
-            console.log('Business Directory initializing...');
 
             if (!$('#bd-filter-panel').length) {
-                console.log('No filter panel found, aborting init');
                 return;
             }
 
@@ -126,7 +124,6 @@
                         this.renderTagBar(tags);
                     }
                 } catch (e) {
-                    console.log('Could not parse initial tags data');
                 }
             }
         },
@@ -267,20 +264,17 @@
             }
 
             if (!$('#bd-map').length) {
-                console.log('No map container found');
                 return;
             }
 
             // Check if map is already initialized (in this instance)
             if (this.map) {
-                console.log('Map already initialized, skipping');
                 return;
             }
 
             // Check if map container already has a Leaflet map (from another script instance)
             const mapContainer = document.getElementById('bd-map');
             if (mapContainer && mapContainer._leaflet_id) {
-                console.log('Map container already has a Leaflet map, skipping');
                 return;
             }
 
@@ -352,7 +346,6 @@
 
             this.map.addLayer(this.markerCluster);
 
-            console.log('Map initialized');
         },
 
         /**
@@ -466,7 +459,6 @@
             this.markers = [];
 
             if (!businesses || businesses.length === 0) {
-                console.log('No businesses to display on map');
                 return;
             }
 
@@ -496,7 +488,6 @@
                 this.markerCluster.addLayer(marker);
             });
 
-            console.log(`Added ${this.markers.length} markers to map`);
 
             // Fit bounds if we have bounds data
             if (this.state.bounds) {
@@ -648,7 +639,6 @@
             const $list = $('#bd-business-list');
 
             if (!$list.length) {
-                console.log('No business list container found');
                 return;
             }
 
@@ -748,7 +738,6 @@
 
             html += '</div>';
             $list.html(html);
-            console.log(`Rendered ${businesses.length} businesses in list view`);
         },
 
         // ====================================================================
@@ -831,7 +820,6 @@
 
             html += '</div>';
             $list.html(html);
-            console.log(`Rendered ${businesses.length} businesses in grid view`);
         },
 
         // Helper function to render star ratings
@@ -1020,7 +1008,6 @@
             const self = this;
             const params = this.buildQueryParams();
 
-            console.log('Applying filters:', params);
 
             // Show loading state
             $('#bd-result-count-text').text('Loading...');
@@ -1114,7 +1101,6 @@
             // Update filter count badge
             this.updateFilterCount();
 
-            console.log(`Updated directory with ${count} businesses`);
         },
 
         // ====================================================================
