@@ -413,9 +413,9 @@ while ( have_posts() ) :
 
 				<!-- About Section (Description Only) -->
 				<div class="bd-info-card bd-about-section">
-					<h2><?php echo esc_html( sprintf( __( 'About %s', 'business-directory' ), get_the_title() ) ); ?></h2>
+					<h2><?php /* translators: %s: business name */ echo esc_html( sprintf( __( 'About %s', 'business-directory' ), get_the_title() ) ); ?></h2>
 					<div class="bd-description">
-						<?php 
+						<?php
 						// Get raw post content WITHOUT BD Pro's the_content filters
 						$raw_content = get_post_field( 'post_content', $business_id );
 						// Use WordPress native function to strip shortcodes (more reliable than regex)
@@ -435,12 +435,12 @@ while ( have_posts() ) :
 
 				<!-- Reviews Section -->
 				<div class="bd-info-card bd-reviews-section">
-					<?php 
+					<?php
 					// Fetch reviews from BD Pro's database
-					$reviews = class_exists( 'BD\DB\ReviewsTable' ) 
-						? \BD\DB\ReviewsTable::get_by_business( $business_id ) 
+					$reviews = class_exists( 'BD\DB\ReviewsTable' )
+						? \BD\DB\ReviewsTable::get_by_business( $business_id )
 						: array();
-					
+
 					// Use cached meta from top of template (already fetched as $avg_rating, $review_count)
 					$turnstile_site_key = get_option( 'bd_turnstile_site_key', '' );
 					?>
@@ -468,7 +468,7 @@ while ( have_posts() ) :
 											<div>
 												<strong><?php echo esc_html( $review['author_name'] ?? 'Anonymous' ); ?></strong>
 												<div class="bd-review-date">
-													<?php 
+													<?php
 													$created = strtotime( $review['created_at'] ?? '' );
 													if ( $created ) {
 														echo esc_html( human_time_diff( $created, current_time( 'timestamp' ) ) . ' ago' );
@@ -523,21 +523,21 @@ while ( have_posts() ) :
 					$is_logged_in    = $current_user_id > 0;
 					$display_name    = '';
 					$needs_nickname  = false;
-					
+
 					if ( $is_logged_in ) {
-						$current_user = get_userdata( $current_user_id );
-						if ( $current_user ) {
+						$reviewer_user = get_userdata( $current_user_id );
+						if ( $reviewer_user ) {
 							// Get display name: BD nickname → WP display_name → user_login
 							$bd_nickname  = get_user_meta( $current_user_id, 'bd_display_name', true );
-							$display_name = ! empty( $bd_nickname ) ? $bd_nickname : ( $current_user->display_name ?: $current_user->user_login );
-							
+							$display_name = ! empty( $bd_nickname ) ? $bd_nickname : ( $reviewer_user->display_name ?: $reviewer_user->user_login );
+
 							// Check if name looks "ugly" (email-like or matches username)
 							$needs_nickname = (
 								empty( $bd_nickname ) && (
 									strpos( $display_name, '@' ) !== false ||
-									$display_name === $current_user->user_login ||
-									empty( $current_user->display_name ) ||
-									$current_user->display_name === $current_user->user_login
+									$display_name === $reviewer_user->user_login ||
+									empty( $reviewer_user->display_name ) ||
+									$reviewer_user->display_name === $reviewer_user->user_login
 								)
 							);
 						} else {
@@ -576,11 +576,11 @@ while ( have_posts() ) :
 							<div class="bd-form-row bd-nickname-editor" id="bd-nickname-editor" style="<?php echo $needs_nickname ? '' : 'display: none;'; ?>">
 								<label for="bd_display_name"><?php esc_html_e( 'Display Name', 'business-directory' ); ?></label>
 								<input type="text" 
-									   id="bd_display_name" 
-									   name="bd_display_name" 
-									   value="<?php echo $needs_nickname ? '' : esc_attr( $display_name ); ?>" 
-									   maxlength="100"
-									   placeholder="<?php esc_attr_e( 'Enter a friendly name for your reviews', 'business-directory' ); ?>" />
+										id="bd_display_name" 
+										name="bd_display_name" 
+										value="<?php echo $needs_nickname ? '' : esc_attr( $display_name ); ?>" 
+										maxlength="100"
+										placeholder="<?php esc_attr_e( 'Enter a friendly name for your reviews', 'business-directory' ); ?>" />
 								<p class="description"><?php esc_html_e( 'This name will be shown publicly with your reviews.', 'business-directory' ); ?></p>
 							</div>
 						<?php else : ?>
@@ -639,7 +639,7 @@ while ( have_posts() ) :
 
 				<!-- Share Buttons -->
 				<div class="bd-share-wrapper">
-					<?php 
+					<?php
 					if ( shortcode_exists( 'bd_share_buttons' ) ) {
 						echo do_shortcode( '[bd_share_buttons]' );
 					}
@@ -671,7 +671,7 @@ while ( have_posts() ) :
 
 				<!-- Save to List Button -->
 				<div class="bd-info-card bd-save-card">
-					<?php 
+					<?php
 					if ( shortcode_exists( 'bd_save_button' ) ) {
 						echo do_shortcode( '[bd_save_button style="button"]' );
 					}
