@@ -7,6 +7,225 @@
 
 get_header();
 
+// Add styles for the review form posting-as section
+?>
+<style>
+/* Posting As Section */
+.bd-posting-as {
+	background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+	border-radius: 12px;
+	padding: 16px 20px;
+	border: 1px solid #dee2e6;
+}
+
+.bd-posting-as > label {
+	display: block;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: #6c757d;
+	margin-bottom: 10px;
+}
+
+.bd-user-identity {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.bd-user-identity img.avatar {
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	border: 2px solid #fff;
+	box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+	object-fit: cover;
+}
+
+.bd-user-display-name {
+	flex: 1;
+	font-size: 16px;
+	font-weight: 600;
+	color: #212529;
+}
+
+.bd-change-nickname-btn {
+	background: transparent;
+	border: 1px solid #0d6efd;
+	color: #0d6efd;
+	padding: 6px 14px;
+	border-radius: 20px;
+	font-size: 13px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.bd-change-nickname-btn:hover {
+	background: #0d6efd;
+	color: #fff;
+}
+
+/* Nickname Editor */
+.bd-nickname-editor {
+	background: #fff;
+	border-radius: 8px;
+	padding: 16px;
+	border: 1px solid #dee2e6;
+	margin-top: -8px;
+}
+
+.bd-nickname-editor label {
+	font-weight: 600;
+	color: #495057;
+	margin-bottom: 6px;
+	display: block;
+}
+
+.bd-nickname-editor input[type="text"] {
+	width: 100%;
+	padding: 10px 14px;
+	border: 2px solid #dee2e6;
+	border-radius: 8px;
+	font-size: 15px;
+	transition: border-color 0.2s ease;
+}
+
+.bd-nickname-editor input[type="text"]:focus {
+	outline: none;
+	border-color: #0d6efd;
+}
+
+.bd-nickname-editor .description {
+	font-size: 13px;
+	color: #6c757d;
+	margin-top: 6px;
+}
+
+/* Login Prompt */
+.bd-login-prompt {
+	background: #e7f1ff;
+	border-radius: 8px;
+	padding: 12px 16px;
+	font-size: 14px;
+	color: #0a58ca;
+	margin-top: 8px;
+}
+
+.bd-login-prompt a {
+	font-weight: 600;
+	color: #0d6efd;
+	text-decoration: underline;
+}
+
+.bd-login-prompt a:hover {
+	color: #0a58ca;
+}
+
+/* Star Rating Interaction */
+.bd-star-rating {
+	display: flex;
+	flex-direction: row-reverse;
+	justify-content: flex-end;
+	gap: 4px;
+}
+
+.bd-star-rating input {
+	display: none;
+}
+
+.bd-star-rating label {
+	font-size: 32px;
+	color: #d1d5db;
+	cursor: pointer;
+	transition: color 0.15s ease, transform 0.15s ease;
+	line-height: 1;
+}
+
+.bd-star-rating label:hover,
+.bd-star-rating label:hover ~ label {
+	color: #fbbf24;
+	transform: scale(1.1);
+}
+
+.bd-star-rating input:checked ~ label {
+	color: #f59e0b;
+}
+
+.bd-star-rating label.selected {
+	color: #f59e0b;
+}
+
+/* Field Error States */
+.bd-field-error {
+	border-color: #dc3545 !important;
+	box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15) !important;
+}
+
+.bd-star-rating.bd-field-error {
+	background: rgba(220, 53, 69, 0.08);
+	border-radius: 8px;
+	padding: 8px;
+	margin: -8px;
+}
+
+.bd-inline-error {
+	color: #dc3545;
+	font-size: 13px;
+	font-weight: 500;
+	margin-top: 6px;
+	margin-bottom: 0;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.bd-inline-error::before {
+	content: "⚠";
+	font-size: 14px;
+}
+
+/* Shake Animation */
+@keyframes bd-shake {
+	0%, 100% { transform: translateX(0); }
+	10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+	20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+.bd-shake {
+	animation: bd-shake 0.5s ease-in-out;
+}
+
+/* Photo Preview */
+.bd-photo-preview {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	margin-top: 10px;
+}
+
+.bd-photo-thumbnail {
+	width: 80px;
+	height: 80px;
+	object-fit: cover;
+	border-radius: 8px;
+	border: 2px solid #dee2e6;
+}
+
+/* Review Photos - Clickable */
+.bd-review-photos img {
+	cursor: pointer;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bd-review-photos img:hover {
+	transform: scale(1.05);
+	box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+</style>
+<?php
+
 while ( have_posts() ) :
 	the_post();
 	$business_id  = get_the_ID();
@@ -192,12 +411,239 @@ while ( have_posts() ) :
 			<!-- Left Column: About & Features -->
 			<div class="bd-business-main">
 
-				<!-- About Section -->
+				<!-- About Section (Description Only) -->
 				<div class="bd-info-card bd-about-section">
-					<h2>About <?php the_title(); ?></h2>
+					<h2><?php echo esc_html( sprintf( __( 'About %s', 'business-directory' ), get_the_title() ) ); ?></h2>
 					<div class="bd-description">
-						<?php the_content(); ?>
+						<?php 
+						// Get raw post content WITHOUT BD Pro's the_content filters
+						$raw_content = get_post_field( 'post_content', $business_id );
+						// Use WordPress native function to strip shortcodes (more reliable than regex)
+						$raw_content = strip_shortcodes( $raw_content );
+						// Apply basic formatting
+						echo wp_kses_post( wpautop( $raw_content ) );
+						?>
 					</div>
+				</div>
+
+				<?php
+				// Trail Route & Stats
+				if ( class_exists( 'BDOutdoor\Frontend\TrailDisplay' ) ) {
+					\BDOutdoor\Frontend\TrailDisplay::render_main_content( $business_id );
+				}
+				?>
+
+				<!-- Reviews Section -->
+				<div class="bd-info-card bd-reviews-section">
+					<?php 
+					// Fetch reviews from BD Pro's database
+					$reviews = class_exists( 'BD\DB\ReviewsTable' ) 
+						? \BD\DB\ReviewsTable::get_by_business( $business_id ) 
+						: array();
+					
+					// Use cached meta from top of template (already fetched as $avg_rating, $review_count)
+					$turnstile_site_key = get_option( 'bd_turnstile_site_key', '' );
+					?>
+					
+					<h2><?php esc_html_e( 'Reviews', 'business-directory' ); ?></h2>
+					
+					<?php if ( $review_count > 0 && $avg_rating ) : ?>
+						<?php $rating_rounded = (int) round( (float) $avg_rating ); ?>
+						<div class="bd-rating-summary">
+							<span class="bd-stars"><?php echo esc_html( str_repeat( '★', $rating_rounded ) . str_repeat( '☆', 5 - $rating_rounded ) ); ?></span>
+							<span><?php echo esc_html( number_format( (float) $avg_rating, 1 ) ); ?> (<?php echo esc_html( $review_count ); ?> reviews)</span>
+						</div>
+					<?php endif; ?>
+					
+					<div class="bd-reviews-list">
+						<?php if ( ! empty( $reviews ) ) : ?>
+							<?php foreach ( $reviews as $review ) : ?>
+								<?php $review_rating = isset( $review['rating'] ) ? (int) $review['rating'] : 0; ?>
+								<div class="bd-review-card" data-review-id="<?php echo esc_attr( $review['id'] ); ?>">
+									<div class="bd-review-header">
+										<div class="bd-review-author-info">
+											<?php if ( ! empty( $review['user_id'] ) ) : ?>
+												<?php echo get_avatar( $review['user_id'], 48 ); ?>
+											<?php endif; ?>
+											<div>
+												<strong><?php echo esc_html( $review['author_name'] ?? 'Anonymous' ); ?></strong>
+												<div class="bd-review-date">
+													<?php 
+													$created = strtotime( $review['created_at'] ?? '' );
+													if ( $created ) {
+														echo esc_html( human_time_diff( $created, current_time( 'timestamp' ) ) . ' ago' );
+													}
+													?>
+												</div>
+											</div>
+										</div>
+										<span class="bd-stars"><?php echo esc_html( str_repeat( '★', $review_rating ) . str_repeat( '☆', 5 - $review_rating ) ); ?></span>
+									</div>
+									
+									<?php if ( ! empty( $review['title'] ) ) : ?>
+										<h4 class="bd-review-title"><?php echo esc_html( $review['title'] ); ?></h4>
+									<?php endif; ?>
+									
+									<p class="bd-review-content"><?php echo esc_html( $review['content'] ?? '' ); ?></p>
+									
+									<?php if ( ! empty( $review['photo_ids'] ) ) : ?>
+										<div class="bd-review-photos">
+											<?php
+											$photo_ids = array_filter( array_map( 'absint', explode( ',', $review['photo_ids'] ) ) );
+											foreach ( $photo_ids as $photo_id ) {
+												echo wp_get_attachment_image( $photo_id, 'thumbnail' );
+											}
+											?>
+										</div>
+									<?php endif; ?>
+									
+									<div class="bd-review-actions">
+										<button class="bd-helpful-btn" 
+												data-review-id="<?php echo esc_attr( $review['id'] ); ?>"
+												data-review-author-id="<?php echo esc_attr( $review['user_id'] ?? 0 ); ?>">
+											<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+												<path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path>
+											</svg>
+											<span class="bd-helpful-text"><?php esc_html_e( 'Helpful', 'business-directory' ); ?></span>
+											<span class="bd-helpful-count"><?php echo esc_html( $review['helpful_count'] ?? 0 ); ?></span>
+										</button>
+									</div>
+								</div>
+							<?php endforeach; ?>
+						<?php else : ?>
+							<p class="bd-no-reviews"><?php esc_html_e( 'Be the first to review!', 'business-directory' ); ?></p>
+						<?php endif; ?>
+					</div>
+					
+					<h3 class="bd-write-review-title"><?php esc_html_e( 'Write a Review', 'business-directory' ); ?></h3>
+					
+					<?php
+					// Get current user info for logged-in detection
+					$current_user_id = get_current_user_id();
+					$is_logged_in    = $current_user_id > 0;
+					$display_name    = '';
+					$needs_nickname  = false;
+					
+					if ( $is_logged_in ) {
+						$current_user = get_userdata( $current_user_id );
+						if ( $current_user ) {
+							// Get display name: BD nickname → WP display_name → user_login
+							$bd_nickname  = get_user_meta( $current_user_id, 'bd_display_name', true );
+							$display_name = ! empty( $bd_nickname ) ? $bd_nickname : ( $current_user->display_name ?: $current_user->user_login );
+							
+							// Check if name looks "ugly" (email-like or matches username)
+							$needs_nickname = (
+								empty( $bd_nickname ) && (
+									strpos( $display_name, '@' ) !== false ||
+									$display_name === $current_user->user_login ||
+									empty( $current_user->display_name ) ||
+									$current_user->display_name === $current_user->user_login
+								)
+							);
+						} else {
+							$is_logged_in = false;
+						}
+					}
+					?>
+					
+					<form id="bd-submit-review-form" class="bd-form" enctype="multipart/form-data" novalidate>
+						<input type="hidden" name="business_id" value="<?php echo esc_attr( $business_id ); ?>" />
+						
+						<div class="bd-form-row">
+							<label><?php esc_html_e( 'Rating', 'business-directory' ); ?> <span class="required">*</span></label>
+							<div class="bd-star-rating">
+								<?php for ( $i = 5; $i >= 1; $i-- ) : ?>
+									<input type="radio" id="star-<?php echo esc_attr( $i ); ?>" name="rating" value="<?php echo esc_attr( $i ); ?>" required />
+									<label for="star-<?php echo esc_attr( $i ); ?>">★</label>
+								<?php endfor; ?>
+							</div>
+						</div>
+						
+						<?php if ( $is_logged_in ) : ?>
+							<!-- Logged-in user: Show display name with option to change -->
+							<div class="bd-form-row bd-posting-as">
+								<label><?php esc_html_e( 'Posting as', 'business-directory' ); ?></label>
+								<div class="bd-user-identity">
+									<?php echo get_avatar( $current_user_id, 32 ); ?>
+									<span class="bd-user-display-name"><?php echo esc_html( $display_name ); ?></span>
+									<button type="button" class="bd-change-nickname-btn" id="bd-change-nickname-btn">
+										<?php echo $needs_nickname ? esc_html__( 'Set display name', 'business-directory' ) : esc_html__( 'Change', 'business-directory' ); ?>
+									</button>
+								</div>
+							</div>
+							
+							<!-- Nickname editor (auto-expanded if name is ugly) -->
+							<div class="bd-form-row bd-nickname-editor" id="bd-nickname-editor" style="<?php echo $needs_nickname ? '' : 'display: none;'; ?>">
+								<label for="bd_display_name"><?php esc_html_e( 'Display Name', 'business-directory' ); ?></label>
+								<input type="text" 
+									   id="bd_display_name" 
+									   name="bd_display_name" 
+									   value="<?php echo $needs_nickname ? '' : esc_attr( $display_name ); ?>" 
+									   maxlength="100"
+									   placeholder="<?php esc_attr_e( 'Enter a friendly name for your reviews', 'business-directory' ); ?>" />
+								<p class="description"><?php esc_html_e( 'This name will be shown publicly with your reviews.', 'business-directory' ); ?></p>
+							</div>
+						<?php else : ?>
+							<!-- Anonymous user: Require name and email -->
+							<div class="bd-form-row">
+								<label for="author_name"><?php esc_html_e( 'Your Name', 'business-directory' ); ?> <span class="required">*</span></label>
+								<input type="text" id="author_name" name="author_name" required maxlength="100" />
+							</div>
+							
+							<div class="bd-form-row">
+								<label for="author_email"><?php esc_html_e( 'Email (not published)', 'business-directory' ); ?> <span class="required">*</span></label>
+								<input type="email" id="author_email" name="author_email" required />
+							</div>
+							
+							<p class="bd-login-prompt">
+								<?php
+								printf(
+									/* translators: %s: login link */
+									esc_html__( 'Already have an account? %s to earn points for your review!', 'business-directory' ),
+									'<a href="' . esc_url( wp_login_url( get_permalink() ) ) . '">' . esc_html__( 'Log in', 'business-directory' ) . '</a>'
+								);
+								?>
+							</p>
+						<?php endif; ?>
+						
+						<div class="bd-form-row">
+							<label for="title"><?php esc_html_e( 'Review Title', 'business-directory' ); ?></label>
+							<input type="text" id="title" name="title" maxlength="200" />
+						</div>
+						
+						<div class="bd-form-row">
+							<label for="content"><?php esc_html_e( 'Your Review', 'business-directory' ); ?> <span class="required">*</span></label>
+							<textarea id="content" name="content" rows="6" required minlength="10" maxlength="5000"></textarea>
+							<p class="description"><?php esc_html_e( 'Minimum 10 characters', 'business-directory' ); ?></p>
+						</div>
+						
+						<div class="bd-form-row">
+							<label for="photos"><?php esc_html_e( 'Add Photos', 'business-directory' ); ?></label>
+							<input type="file" id="photos" name="photos[]" accept="image/jpeg,image/png,image/gif,image/webp" multiple />
+							<p class="description"><?php esc_html_e( 'Up to 3 photos, 5MB each (JPEG, PNG, GIF, WebP)', 'business-directory' ); ?></p>
+						</div>
+						
+						<?php if ( ! empty( $turnstile_site_key ) ) : ?>
+						<div class="bd-form-row">
+							<div class="cf-turnstile" data-sitekey="<?php echo esc_attr( $turnstile_site_key ); ?>"></div>
+						</div>
+						<?php endif; ?>
+						
+						<div class="bd-form-row">
+							<button type="submit" class="bd-btn bd-btn-primary"><?php esc_html_e( 'Submit Review', 'business-directory' ); ?></button>
+						</div>
+						
+						<div id="bd-review-message"></div>
+					</form>
+				</div>
+
+				<!-- Share Buttons -->
+				<div class="bd-share-wrapper">
+					<?php 
+					if ( shortcode_exists( 'bd_share_buttons' ) ) {
+						echo do_shortcode( '[bd_share_buttons]' );
+					}
+					?>
 				</div>
 				
 				<!-- Amenities/Features -->
@@ -225,8 +671,19 @@ while ( have_posts() ) :
 
 				<!-- Save to List Button -->
 				<div class="bd-info-card bd-save-card">
-					<?php echo do_shortcode( '[bd_save_button style="button"]' ); ?>
+					<?php 
+					if ( shortcode_exists( 'bd_save_button' ) ) {
+						echo do_shortcode( '[bd_save_button style="button"]' );
+					}
+					?>
 				</div>
+
+				<?php
+				// Activities, Plan Your Visit - render directly after Save button
+				if ( class_exists( 'BDOutdoor\Frontend\TrailDisplay' ) ) {
+					\BDOutdoor\Frontend\TrailDisplay::render_sidebar_content( $business_id );
+				}
+				?>
 
 				<!-- FEATURED IN LISTS SECTION -->
 				<?php

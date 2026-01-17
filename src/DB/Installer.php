@@ -19,7 +19,7 @@ class Installer {
 	/**
 	 * Database version - bump this when schema changes.
 	 */
-	const DB_VERSION = '2.5.0';
+	const DB_VERSION = '2.6.0';
 
 	/**
 	 * Initialize - hook into plugins_loaded for upgrade checks.
@@ -152,10 +152,12 @@ class Installer {
 			content text DEFAULT NULL,
 			photo_ids text DEFAULT NULL,
 			status varchar(20) NOT NULL DEFAULT 'pending',
+			helpful_count int(11) UNSIGNED NOT NULL DEFAULT 0,
 			ip_address varchar(45) DEFAULT NULL,
 			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			PRIMARY KEY (id),
 			KEY idx_business (business_id),
+			KEY idx_user (user_id),
 			KEY idx_status (status),
 			KEY idx_created (created_at)
 		) $charset_collate;";
@@ -438,6 +440,21 @@ class Installer {
 			KEY idx_status (status)
 		) $charset_collate;";
 
+		// =====================================================================
+		// REVIEW HELPFUL VOTES TABLE
+		// =====================================================================
+		$review_helpful_table = $wpdb->prefix . 'bd_review_helpful';
+		$review_helpful_sql   = "CREATE TABLE IF NOT EXISTS $review_helpful_table (
+			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+			review_id bigint(20) UNSIGNED NOT NULL,
+			user_id bigint(20) UNSIGNED NOT NULL,
+			created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			PRIMARY KEY (id),
+			UNIQUE KEY idx_review_user (review_id, user_id),
+			KEY idx_review (review_id),
+			KEY idx_user (user_id)
+		) $charset_collate;";
+
 		// Execute table creation
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
@@ -457,6 +474,7 @@ class Installer {
 		dbDelta( $qr_scans_sql );
 		dbDelta( $widget_clicks_sql );
 		dbDelta( $widget_domains_sql );
+		dbDelta( $review_helpful_sql );
 	}
 
 	/**
@@ -613,6 +631,51 @@ class Installer {
 			// Populate cache for existing lists.
 			// Schedule for 'init' hook to ensure all classes are loaded.
 			update_option( 'bd_lists_needs_cache_refresh', true );
+		}
+
+		// =====================================================================
+		// Upgrade to 2.6.0: Add helpful_count to reviews, create review_helpful table.
+		// =====================================================================
+		if ( version_compare( $from_version, '2.6.0', '<' ) ) {
+			// Add helpful_count column to reviews table if missing.
+			$reviews_table = $wpdb->prefix . 'bd_reviews';
+			$table_exists  = $wpdb->get_var(
+				$wpdb->prepare( 'SHOW TABLES LIKE %s', $reviews_table )
+			);
+
+			if ( $table_exists ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$columns      = $wpdb->get_results( "SHOW COLUMNS FROM {$reviews_table}" );
+				$column_names = array_column( $columns, 'Field' );
+
+				if ( ! in_array( 'helpful_count', $column_names, true ) ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
+					$wpdb->query( "ALTER TABLE {$reviews_table} ADD COLUMN helpful_count int(11) UNSIGNED NOT NULL DEFAULT 0 AFTER status" );
+				}
+
+				// Add user_id index if missing (for user reviews lookup).
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$indexes = $wpdb->get_results( "SHOW INDEX FROM {$reviews_table} WHERE Key_name = 'idx_user'" );
+				if ( empty( $indexes ) ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
+					$wpdb->query( "ALTER TABLE {$reviews_table} ADD KEY idx_user (user_id)" );
+				}
+			}
+
+			// Ensure review_helpful table has unique index (for INSERT IGNORE).
+			$review_helpful_table = $wpdb->prefix . 'bd_review_helpful';
+			$table_exists         = $wpdb->get_var(
+				$wpdb->prepare( 'SHOW TABLES LIKE %s', $review_helpful_table )
+			);
+
+			if ( $table_exists ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$indexes = $wpdb->get_results( "SHOW INDEX FROM {$review_helpful_table} WHERE Key_name = 'idx_review_user'" );
+				if ( empty( $indexes ) ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
+					$wpdb->query( "ALTER TABLE {$review_helpful_table} ADD UNIQUE KEY idx_review_user (review_id, user_id)" );
+				}
+			}
 		}
 
 		// =====================================================================
