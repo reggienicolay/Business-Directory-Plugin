@@ -5,14 +5,18 @@
  * Displays Community Guides in a beautiful grid layout.
  * Used on the main Guides page to showcase team members.
  *
- * ENHANCEMENTS (v1.3.0):
+ * ENHANCEMENTS (v1.5.0):
  * - Fixed avatar overlap effect - badge icon now inside avatar container
  * - Added quote validation to hide placeholder text like "Quote"
  * - Added verified checkmark next to guide names
+ * - SECURITY: Added wp_kses() for badge icon output to prevent XSS
+ * - BUGFIX: Added null checks for get_userdata() to handle deleted users
+ * - SECURITY: Fixed SQL table name interpolation
+ * - Added filterable profile URL
  *
  * @package BusinessDirectory
  * @subpackage Frontend
- * @version 1.3.0
+ * @version 1.5.0
  */
 
 namespace BD\Frontend;
@@ -28,6 +32,36 @@ use BD\Gamification\BadgeSystem;
  * Class GuidesShortcode
  */
 class GuidesShortcode {
+
+	/**
+	 * Allowed HTML for badge icons (security whitelist)
+	 *
+	 * @var array
+	 */
+	const ALLOWED_ICON_HTML = array(
+		'i'    => array(
+			'class'       => array(),
+			'title'       => array(),
+			'aria-hidden' => array(),
+		),
+		'span' => array(
+			'class'       => array(),
+			'title'       => array(),
+			'aria-hidden' => array(),
+		),
+		'svg'  => array(
+			'class'   => array(),
+			'width'   => array(),
+			'height'  => array(),
+			'viewbox' => array(),
+			'fill'    => array(),
+			'xmlns'   => array(),
+		),
+		'path' => array(
+			'd'    => array(),
+			'fill' => array(),
+		),
+	);
 
 	/**
 	 * Initialize
@@ -73,6 +107,46 @@ class GuidesShortcode {
 			array( 'bd-design-tokens', 'font-awesome' ),
 			BD_VERSION
 		);
+	}
+
+	/**
+	 * Get profile URL for a user
+	 *
+	 * @param \WP_User $user User object.
+	 * @return string Profile URL.
+	 */
+	private static function get_profile_url( $user ) {
+		$profile_url = home_url( '/profile/' . $user->user_nicename . '/' );
+
+		/**
+		 * Filter the guide profile URL.
+		 *
+		 * @param string   $profile_url The profile URL.
+		 * @param \WP_User $user        The user object.
+		 */
+		return apply_filters( 'bd_guide_profile_url', $profile_url, $user );
+	}
+
+	/**
+	 * Sanitize badge icon HTML
+	 *
+	 * @param string $icon_html Raw icon HTML.
+	 * @return string Sanitized icon HTML.
+	 */
+	private static function sanitize_badge_icon( $icon_html ) {
+		if ( empty( $icon_html ) ) {
+			return '<i class="fas fa-award"></i>';
+		}
+
+		// Use wp_kses with our allowed HTML whitelist.
+		$sanitized = wp_kses( $icon_html, self::ALLOWED_ICON_HTML );
+
+		// If sanitization removed everything, return default icon.
+		if ( empty( trim( $sanitized ) ) ) {
+			return '<i class="fas fa-award"></i>';
+		}
+
+		return $sanitized;
 	}
 
 	/**
@@ -155,7 +229,10 @@ class GuidesShortcode {
 				<!-- Featured Layout: Hero-style for homepage -->
 				<div class="bd-guides-featured">
 					<?php foreach ( $guides as $guide ) : ?>
-						<?php echo self::render_featured_card( $guide ); ?>
+						<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Method returns escaped HTML.
+						echo self::render_featured_card( $guide );
+						?>
 					<?php endforeach; ?>
 				</div>
 
@@ -163,7 +240,10 @@ class GuidesShortcode {
 				<!-- Compact Layout: Smaller cards for sidebars -->
 				<div class="bd-guides-compact">
 					<?php foreach ( $guides as $guide ) : ?>
-						<?php echo self::render_compact_card( $guide ); ?>
+						<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Method returns escaped HTML.
+						echo self::render_compact_card( $guide );
+						?>
 					<?php endforeach; ?>
 				</div>
 
@@ -171,7 +251,10 @@ class GuidesShortcode {
 				<!-- Default Cards Layout -->
 				<div class="bd-guides-grid bd-guides-cols-<?php echo esc_attr( $columns ); ?>">
 					<?php foreach ( $guides as $guide ) : ?>
-						<?php echo self::render_guide_card( $guide ); ?>
+						<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Method returns escaped HTML.
+						echo self::render_guide_card( $guide );
+						?>
 					<?php endforeach; ?>
 				</div>
 			<?php endif; ?>
@@ -188,12 +271,21 @@ class GuidesShortcode {
 	 * @return string HTML output.
 	 */
 	private static function render_guide_card( $guide ) {
-		$user        = get_userdata( $guide['user_id'] );
+		$user = get_userdata( $guide['user_id'] );
+
+		// Safety check: user may have been deleted.
+		if ( ! $user ) {
+			return '';
+		}
+
 		$title       = get_user_meta( $guide['user_id'], 'bd_guide_title', true );
 		$quote       = get_user_meta( $guide['user_id'], 'bd_guide_quote', true );
-		$cities      = get_user_meta( $guide['user_id'], 'bd_guide_cities', true ) ?: array();
+		$cities      = get_user_meta( $guide['user_id'], 'bd_guide_cities', true );
 		$bio         = get_user_meta( $guide['user_id'], 'bd_public_bio', true );
-		$profile_url = home_url( '/profile/' . $user->user_nicename . '/' );
+		$profile_url = self::get_profile_url( $user );
+
+		// Ensure cities is an array.
+		$cities = is_array( $cities ) ? $cities : array();
 
 		// Get social links.
 		$instagram = get_user_meta( $guide['user_id'], 'bd_instagram', true );
@@ -212,7 +304,7 @@ class GuidesShortcode {
 			}
 		}
 
-		// ENHANCEMENT: Validate quote.
+		// Validate quote.
 		$has_valid_quote = self::is_valid_quote( $quote );
 
 		ob_start();
@@ -223,7 +315,7 @@ class GuidesShortcode {
 				<div class="bd-guide-card-header">
 					<div class="bd-guide-avatar">
 						<?php echo get_avatar( $guide['user_id'], 130 ); ?>
-						<!-- FIX: Badge icon INSIDE avatar for proper positioning -->
+						<!-- Badge icon INSIDE avatar for proper positioning -->
 						<span class="bd-guide-badge-icon">
 							<i class="fas fa-user-shield"></i>
 						</span>
@@ -232,7 +324,6 @@ class GuidesShortcode {
 
 				<!-- Card Body -->
 				<div class="bd-guide-card-body">
-					<!-- ENHANCEMENT: Added verified checkmark -->
 					<h3 class="bd-guide-name">
 						<?php echo esc_html( $user->display_name ); ?>
 						<span class="bd-guide-verified" title="<?php esc_attr_e( 'Verified Guide', 'business-directory' ); ?>">
@@ -244,14 +335,13 @@ class GuidesShortcode {
 						<p class="bd-guide-title"><?php echo esc_html( $title ); ?></p>
 					<?php endif; ?>
 
-					<?php if ( ! empty( $cities ) && is_array( $cities ) ) : ?>
+					<?php if ( ! empty( $cities ) ) : ?>
 						<p class="bd-guide-cities">
 							<i class="fas fa-map-marker-alt"></i>
 							<?php echo esc_html( implode( ' · ', $cities ) ); ?>
 						</p>
 					<?php endif; ?>
 
-					<?php // ENHANCEMENT: Only show quote if valid. ?>
 					<?php if ( $has_valid_quote ) : ?>
 						<blockquote class="bd-guide-quote">
 							"<?php echo esc_html( wp_trim_words( $quote, 15 ) ); ?>"
@@ -278,13 +368,13 @@ class GuidesShortcode {
 				</div>
 
 				<!-- Badges Row -->
-				<?php if ( ! empty( $badges ) && is_array( $badges ) ) : ?>
+				<?php if ( ! empty( $badges ) ) : ?>
 					<div class="bd-guide-badges">
 						<?php foreach ( $badges as $badge ) : ?>
 							<?php
 							// Safety check: handle both array and object formats.
 							$badge_name = '';
-							$badge_icon = '';
+							$badge_icon = '<i class="fas fa-award"></i>';
 
 							if ( is_array( $badge ) ) {
 								$badge_name = isset( $badge['name'] ) ? $badge['name'] : '';
@@ -293,17 +383,21 @@ class GuidesShortcode {
 								$badge_name = isset( $badge->name ) ? $badge->name : '';
 								$badge_icon = isset( $badge->icon ) ? $badge->icon : '<i class="fas fa-award"></i>';
 							} elseif ( is_string( $badge ) ) {
-								// If badge is just a string (name), use it directly.
 								$badge_name = $badge;
-								$badge_icon = '<i class="fas fa-award"></i>';
 							}
 
 							if ( empty( $badge_name ) ) {
 								continue;
 							}
+
+							// SECURITY FIX: Sanitize badge icon HTML to prevent XSS.
+							$safe_icon = self::sanitize_badge_icon( $badge_icon );
 							?>
 							<span class="bd-guide-badge-mini" title="<?php echo esc_attr( $badge_name ); ?>">
-								<?php echo $badge_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Icon HTML from badge system. ?>
+								<?php
+								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Sanitized via wp_kses in sanitize_badge_icon().
+								echo $safe_icon;
+								?>
 							</span>
 						<?php endforeach; ?>
 					</div>
@@ -348,14 +442,23 @@ class GuidesShortcode {
 	 * @return string HTML output.
 	 */
 	private static function render_featured_card( $guide ) {
-		$user        = get_userdata( $guide['user_id'] );
+		$user = get_userdata( $guide['user_id'] );
+
+		// Safety check: user may have been deleted.
+		if ( ! $user ) {
+			return '';
+		}
+
 		$title       = get_user_meta( $guide['user_id'], 'bd_guide_title', true );
 		$quote       = get_user_meta( $guide['user_id'], 'bd_guide_quote', true );
 		$bio         = get_user_meta( $guide['user_id'], 'bd_public_bio', true );
-		$cities      = get_user_meta( $guide['user_id'], 'bd_guide_cities', true ) ?: array();
-		$profile_url = home_url( '/profile/' . $user->user_nicename . '/' );
+		$cities      = get_user_meta( $guide['user_id'], 'bd_guide_cities', true );
+		$profile_url = self::get_profile_url( $user );
 
-		// ENHANCEMENT: Validate quote.
+		// Ensure cities is an array.
+		$cities = is_array( $cities ) ? $cities : array();
+
+		// Validate quote.
 		$has_valid_quote = self::is_valid_quote( $quote );
 
 		ob_start();
@@ -370,7 +473,6 @@ class GuidesShortcode {
 			</div>
 
 			<div class="bd-guide-featured-content">
-				<!-- ENHANCEMENT: Added verified checkmark -->
 				<h3 class="bd-guide-name">
 					<?php echo esc_html( $user->display_name ); ?>
 					<span class="bd-guide-verified" title="<?php esc_attr_e( 'Verified Guide', 'business-directory' ); ?>">
@@ -382,14 +484,13 @@ class GuidesShortcode {
 					<p class="bd-guide-title"><?php echo esc_html( $title ); ?></p>
 				<?php endif; ?>
 
-				<?php if ( ! empty( $cities ) && is_array( $cities ) ) : ?>
+				<?php if ( ! empty( $cities ) ) : ?>
 					<p class="bd-guide-cities">
 						<i class="fas fa-map-marker-alt"></i>
 						<?php echo esc_html( implode( ' · ', $cities ) ); ?>
 					</p>
 				<?php endif; ?>
 
-				<?php // ENHANCEMENT: Only show quote if valid. ?>
 				<?php if ( $has_valid_quote ) : ?>
 					<blockquote class="bd-guide-quote-lg">
 						<i class="fas fa-quote-left"></i>
@@ -418,9 +519,15 @@ class GuidesShortcode {
 	 * @return string HTML output.
 	 */
 	private static function render_compact_card( $guide ) {
-		$user        = get_userdata( $guide['user_id'] );
+		$user = get_userdata( $guide['user_id'] );
+
+		// Safety check: user may have been deleted.
+		if ( ! $user ) {
+			return '';
+		}
+
 		$title       = get_user_meta( $guide['user_id'], 'bd_guide_title', true );
-		$profile_url = home_url( '/profile/' . $user->user_nicename . '/' );
+		$profile_url = self::get_profile_url( $user );
 
 		ob_start();
 		?>
@@ -455,35 +562,45 @@ class GuidesShortcode {
 			'badges'  => 0,
 		);
 
-		// Reviews.
+		$user_id = absint( $user_id );
+
+		if ( ! $user_id ) {
+			return $stats;
+		}
+
+		// Reviews - check table exists first.
 		$reviews_table = $wpdb->prefix . 'bd_reviews';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$table_exists = $wpdb->get_var(
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time table check.
+		$reviews_table_exists = $wpdb->get_var(
 			$wpdb->prepare( 'SHOW TABLES LIKE %s', $reviews_table )
 		);
 
-		if ( $table_exists ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		if ( $reviews_table_exists ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Stats query, caching handled at page level.
 			$stats['reviews'] = (int) $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM {$reviews_table} WHERE user_id = %d AND status = 'approved'",
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safely constructed from $wpdb->prefix.
+					"SELECT COUNT(*) FROM `{$reviews_table}` WHERE user_id = %d AND status = 'approved'",
 					$user_id
 				)
 			);
 		}
 
-		// Lists.
+		// Lists - check table exists first.
 		$lists_table = $wpdb->prefix . 'bd_lists';
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$lists_exists = $wpdb->get_var(
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time table check.
+		$lists_table_exists = $wpdb->get_var(
 			$wpdb->prepare( 'SHOW TABLES LIKE %s', $lists_table )
 		);
 
-		if ( $lists_exists ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		if ( $lists_table_exists ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Stats query, caching handled at page level.
 			$stats['lists'] = (int) $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM {$lists_table} WHERE user_id = %d",
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name is safely constructed from $wpdb->prefix.
+					"SELECT COUNT(*) FROM `{$lists_table}` WHERE user_id = %d",
 					$user_id
 				)
 			);

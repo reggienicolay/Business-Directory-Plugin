@@ -7,9 +7,10 @@
  *
  * @package BusinessDirectory
  * @subpackage Search
+ * @version 1.2.0
  */
 
-namespace BusinessDirectory\Search;
+namespace BD\Search;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -61,8 +62,8 @@ class QueryBuilder {
 		$this->base_args = array(
 			'post_type'      => 'bd_business',
 			'post_status'    => 'publish',
-			'posts_per_page' => $filters['per_page'] ?? 20,
-			'paged'          => $filters['page'] ?? 1,
+			'posts_per_page' => isset( $filters['per_page'] ) ? absint( $filters['per_page'] ) : 20,
+			'paged'          => isset( $filters['page'] ) ? absint( $filters['page'] ) : 1,
 			'orderby'        => 'date',
 			'order'          => 'DESC',
 		);
@@ -94,7 +95,7 @@ class QueryBuilder {
 		}
 
 		// Sorting (non-distance sorts).
-		$sort = $this->filters['sort'] ?? 'distance';
+		$sort = isset( $this->filters['sort'] ) ? $this->filters['sort'] : 'distance';
 
 		if ( 'rating' === $sort ) {
 			$args['meta_key'] = 'bd_avg_rating';
@@ -124,7 +125,7 @@ class QueryBuilder {
 			$tax_query[] = array(
 				'taxonomy' => 'bd_category',
 				'field'    => 'term_id',
-				'terms'    => $this->filters['categories'],
+				'terms'    => array_map( 'absint', (array) $this->filters['categories'] ),
 				'operator' => 'IN',
 			);
 		}
@@ -134,7 +135,7 @@ class QueryBuilder {
 			$tax_query[] = array(
 				'taxonomy' => 'bd_area',
 				'field'    => 'term_id',
-				'terms'    => $this->filters['areas'],
+				'terms'    => array_map( 'absint', (array) $this->filters['areas'] ),
 				'operator' => 'IN',
 			);
 		}
@@ -144,7 +145,7 @@ class QueryBuilder {
 			$tax_query[] = array(
 				'taxonomy' => 'bd_tag',
 				'field'    => 'term_id',
-				'terms'    => $this->filters['tags'],
+				'terms'    => array_map( 'absint', (array) $this->filters['tags'] ),
 				'operator' => 'IN',
 			);
 		}
@@ -164,7 +165,7 @@ class QueryBuilder {
 		if ( ! empty( $this->filters['price_level'] ) ) {
 			$meta_query[] = array(
 				'key'     => 'bd_price_level',
-				'value'   => $this->filters['price_level'],
+				'value'   => array_map( 'sanitize_text_field', (array) $this->filters['price_level'] ),
 				'compare' => 'IN',
 			);
 		}
@@ -173,7 +174,7 @@ class QueryBuilder {
 		if ( ! empty( $this->filters['min_rating'] ) ) {
 			$meta_query[] = array(
 				'key'     => 'bd_avg_rating',
-				'value'   => $this->filters['min_rating'],
+				'value'   => floatval( $this->filters['min_rating'] ),
 				'type'    => 'NUMERIC',
 				'compare' => '>=',
 			);
@@ -197,6 +198,14 @@ class QueryBuilder {
 	 * }
 	 */
 	public function get_businesses_with_location() {
+		$empty_result = array(
+			'businesses' => array(),
+			'total'      => 0,
+			'pages'      => 1,
+			'locations'  => array(),
+			'hours'      => array(),
+		);
+
 		// First, get businesses matching other filters.
 		$args                   = $this->build();
 		$args['posts_per_page'] = -1; // Get all for distance filtering.
@@ -205,20 +214,13 @@ class QueryBuilder {
 		$business_ids = get_posts( $args );
 
 		// Safety cap to prevent memory exhaustion with very large datasets.
-		// Can be filtered: add_filter( 'bd_max_location_results', function() { return 10000; } );
 		$max_results = apply_filters( 'bd_max_location_results', 5000 );
 		if ( count( $business_ids ) > $max_results ) {
 			$business_ids = array_slice( $business_ids, 0, $max_results );
 		}
 
 		if ( empty( $business_ids ) ) {
-			return array(
-				'businesses' => array(),
-				'total'      => 0,
-				'pages'      => 1,
-				'locations'  => array(),
-				'hours'      => array(),
-			);
+			return $empty_result;
 		}
 
 		// Batch load all location data.
@@ -233,13 +235,7 @@ class QueryBuilder {
 		$business_ids_with_location = array_keys( $this->location_cache );
 
 		if ( empty( $business_ids_with_location ) ) {
-			return array(
-				'businesses' => array(),
-				'total'      => 0,
-				'pages'      => 1,
-				'locations'  => array(),
-				'hours'      => array(),
-			);
+			return $empty_result;
 		}
 
 		// If no user location provided, return businesses without distance data.
@@ -251,14 +247,7 @@ class QueryBuilder {
 
 			// Apply "open now" filter even without location data.
 			if ( ! empty( $this->filters['open_now'] ) ) {
-				$hours_cache = $this->hours_cache;
-				$businesses  = array_filter(
-					$businesses,
-					function ( $b ) use ( $hours_cache ) {
-						return $this->is_open_now_from_cache( $b['id'], $hours_cache );
-					}
-				);
-				$businesses  = array_values( $businesses ); // Re-index array.
+				$businesses = $this->filter_open_now( $businesses );
 			}
 
 			$result              = $this->paginate_array( $businesses );
@@ -273,17 +262,18 @@ class QueryBuilder {
 
 		// Filter by radius if specified.
 		if ( ! empty( $this->filters['radius_km'] ) ) {
-			$radius_km                = $this->filters['radius_km'];
+			$radius_km                = floatval( $this->filters['radius_km'] );
 			$businesses_with_distance = array_filter(
 				$businesses_with_distance,
 				function ( $b ) use ( $radius_km ) {
 					return $b['distance_km'] <= $radius_km;
 				}
 			);
+			$businesses_with_distance = array_values( $businesses_with_distance );
 		}
 
 		// Sort by distance if requested.
-		$sort = $this->filters['sort'] ?? 'distance';
+		$sort = isset( $this->filters['sort'] ) ? $this->filters['sort'] : 'distance';
 		if ( 'distance' === $sort ) {
 			usort(
 				$businesses_with_distance,
@@ -295,20 +285,92 @@ class QueryBuilder {
 
 		// Apply "open now" filter using cached hours data.
 		if ( ! empty( $this->filters['open_now'] ) ) {
-			$hours_cache              = $this->hours_cache;
-			$businesses_with_distance = array_filter(
-				$businesses_with_distance,
-				function ( $b ) use ( $hours_cache ) {
-					return $this->is_open_now_from_cache( $b['id'], $hours_cache );
-				}
-			);
+			$businesses_with_distance = $this->filter_open_now( $businesses_with_distance );
 		}
 
-		$result              = $this->paginate_array( array_values( $businesses_with_distance ) );
+		$result              = $this->paginate_array( $businesses_with_distance );
 		$result['locations'] = $this->location_cache;
 		$result['hours']     = $this->hours_cache;
 
 		return $result;
+	}
+
+	/**
+	 * Filter businesses to only those currently open.
+	 *
+	 * @param array $businesses Array of business data.
+	 * @return array Filtered array of businesses.
+	 */
+	private function filter_open_now( $businesses ) {
+		$hours_cache = $this->hours_cache;
+		$filtered    = array_filter(
+			$businesses,
+			function ( $b ) use ( $hours_cache ) {
+				return $this->is_open_now_from_cache( $b['id'], $hours_cache );
+			}
+		);
+
+		return array_values( $filtered );
+	}
+
+	/**
+	 * Sanitize and validate an array of IDs for SQL queries.
+	 *
+	 * @param array $ids Raw array of IDs.
+	 * @return array Sanitized, validated, re-indexed array of positive integers.
+	 */
+	private function sanitize_ids_for_query( $ids ) {
+		if ( empty( $ids ) || ! is_array( $ids ) ) {
+			return array();
+		}
+
+		// Convert to integers, remove non-positive values, re-index.
+		$sanitized = array_map( 'absint', $ids );
+		$sanitized = array_filter(
+			$sanitized,
+			function ( $id ) {
+				return $id > 0;
+			}
+		);
+
+		return array_values( $sanitized );
+	}
+
+	/**
+	 * Build a safe IN clause with prepared placeholders.
+	 *
+	 * @param array  $ids    Array of integer IDs (must be non-empty).
+	 * @param string $format Placeholder format ('%d' for integers, '%s' for strings).
+	 * @return string Comma-separated placeholders string.
+	 */
+	private function build_in_placeholders( $ids, $format = '%d' ) {
+		$count = count( $ids );
+		if ( $count === 0 ) {
+			return '';
+		}
+
+		return implode( ',', array_fill( 0, $count, $format ) );
+	}
+
+	/**
+	 * Check if custom locations table exists.
+	 *
+	 * @return bool True if table exists.
+	 */
+	private function locations_table_exists() {
+		global $wpdb;
+
+		static $exists = null;
+
+		if ( null === $exists ) {
+			$table_name = $wpdb->prefix . 'bd_locations';
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- One-time check.
+			$exists = $wpdb->get_var(
+				$wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name )
+			) === $table_name;
+		}
+
+		return $exists;
 	}
 
 	/**
@@ -325,56 +387,62 @@ class QueryBuilder {
 
 		$this->location_cache = array();
 
-		if ( empty( $business_ids ) ) {
+		$ids_array = $this->sanitize_ids_for_query( $business_ids );
+		if ( empty( $ids_array ) ) {
 			return;
 		}
 
-		// Sanitize IDs for SQL.
-		$ids_array  = array_map( 'intval', $business_ids );
-		$ids_string = implode( ',', $ids_array );
+		// 1. Get locations from custom table (if it exists).
+		if ( $this->locations_table_exists() ) {
+			$table_name   = $wpdb->prefix . 'bd_locations';
+			$placeholders = $this->build_in_placeholders( $ids_array );
 
-		// 1. Get locations from custom table (for migrated businesses).
-		$table_name = $wpdb->prefix . 'bd_locations';
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Batch loading for performance.
+			$table_locations = $wpdb->get_results(
+				$wpdb->prepare(
+					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name from $wpdb->prefix, placeholders generated safely.
+					"SELECT business_id, lat, lng, address, city, state, postal_code 
+					FROM `{$table_name}` 
+					WHERE business_id IN ({$placeholders})",
+					...$ids_array
+				),
+				ARRAY_A
+			);
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Batch loading, IDs are sanitized via intval.
-		$table_locations = $wpdb->get_results(
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $ids_string is sanitized above with intval.
-			"SELECT business_id, lat, lng, address, city, state, postal_code 
-			FROM {$table_name} 
-			WHERE business_id IN ({$ids_string})",
-			ARRAY_A
-		);
-
-		if ( $table_locations ) {
-			foreach ( $table_locations as $loc ) {
-				$this->location_cache[ (int) $loc['business_id'] ] = array(
-					'lat'     => floatval( $loc['lat'] ),
-					'lng'     => floatval( $loc['lng'] ),
-					'address' => $loc['address'] ?? '',
-					'city'    => $loc['city'] ?? '',
-					'state'   => $loc['state'] ?? '',
-					'zip'     => $loc['postal_code'] ?? '',
-				);
+			if ( $table_locations ) {
+				foreach ( $table_locations as $loc ) {
+					$this->location_cache[ absint( $loc['business_id'] ) ] = array(
+						'lat'     => floatval( $loc['lat'] ),
+						'lng'     => floatval( $loc['lng'] ),
+						'address' => isset( $loc['address'] ) ? $loc['address'] : '',
+						'city'    => isset( $loc['city'] ) ? $loc['city'] : '',
+						'state'   => isset( $loc['state'] ) ? $loc['state'] : '',
+						'zip'     => isset( $loc['postal_code'] ) ? $loc['postal_code'] : '',
+					);
+				}
 			}
 		}
 
 		// 2. Find IDs not in custom table (need meta fallback).
 		$ids_needing_meta = array_diff( $ids_array, array_keys( $this->location_cache ) );
+		$ids_needing_meta = $this->sanitize_ids_for_query( $ids_needing_meta );
 
 		if ( empty( $ids_needing_meta ) ) {
 			return;
 		}
 
-		// Batch fetch bd_location meta for remaining IDs.
-		$meta_ids_string = implode( ',', $ids_needing_meta );
+		$meta_placeholders = $this->build_in_placeholders( $ids_needing_meta );
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Batch loading, IDs are sanitized via intval.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Batch loading for performance.
 		$meta_locations = $wpdb->get_results(
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $meta_ids_string is sanitized above with intval.
-			"SELECT post_id, meta_value 
-			FROM {$wpdb->postmeta} 
-			WHERE post_id IN ({$meta_ids_string}) 
-			AND meta_key = 'bd_location'",
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders generated safely.
+				"SELECT post_id, meta_value 
+				FROM {$wpdb->postmeta} 
+				WHERE post_id IN ({$meta_placeholders}) 
+				AND meta_key = 'bd_location'",
+				...$ids_needing_meta
+			),
 			ARRAY_A
 		);
 
@@ -382,14 +450,14 @@ class QueryBuilder {
 			foreach ( $meta_locations as $row ) {
 				$location_meta = maybe_unserialize( $row['meta_value'] );
 
-				if ( $location_meta && is_array( $location_meta ) && ! empty( $location_meta['lat'] ) && ! empty( $location_meta['lng'] ) ) {
-					$this->location_cache[ (int) $row['post_id'] ] = array(
+				if ( is_array( $location_meta ) && ! empty( $location_meta['lat'] ) && ! empty( $location_meta['lng'] ) ) {
+					$this->location_cache[ absint( $row['post_id'] ) ] = array(
 						'lat'     => floatval( $location_meta['lat'] ),
 						'lng'     => floatval( $location_meta['lng'] ),
-						'address' => $location_meta['address'] ?? '',
-						'city'    => $location_meta['city'] ?? '',
-						'state'   => $location_meta['state'] ?? '',
-						'zip'     => $location_meta['zip'] ?? '',
+						'address' => isset( $location_meta['address'] ) ? $location_meta['address'] : '',
+						'city'    => isset( $location_meta['city'] ) ? $location_meta['city'] : '',
+						'state'   => isset( $location_meta['state'] ) ? $location_meta['state'] : '',
+						'zip'     => isset( $location_meta['zip'] ) ? $location_meta['zip'] : '',
 					);
 				}
 			}
@@ -406,28 +474,31 @@ class QueryBuilder {
 
 		$this->hours_cache = array();
 
-		if ( empty( $business_ids ) ) {
+		$ids_array = $this->sanitize_ids_for_query( $business_ids );
+		if ( empty( $ids_array ) ) {
 			return;
 		}
 
-		$ids_array  = array_map( 'intval', $business_ids );
-		$ids_string = implode( ',', $ids_array );
+		$placeholders = $this->build_in_placeholders( $ids_array );
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Batch loading, IDs are sanitized via intval.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Batch loading for performance.
 		$hours_data = $wpdb->get_results(
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $ids_string is sanitized above with intval.
-			"SELECT post_id, meta_value 
-			FROM {$wpdb->postmeta} 
-			WHERE post_id IN ({$ids_string}) 
-			AND meta_key = 'bd_hours'",
+			$wpdb->prepare(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholders generated safely.
+				"SELECT post_id, meta_value 
+				FROM {$wpdb->postmeta} 
+				WHERE post_id IN ({$placeholders}) 
+				AND meta_key = 'bd_hours'",
+				...$ids_array
+			),
 			ARRAY_A
 		);
 
 		if ( $hours_data ) {
 			foreach ( $hours_data as $row ) {
 				$hours = maybe_unserialize( $row['meta_value'] );
-				if ( $hours && is_array( $hours ) ) {
-					$this->hours_cache[ (int) $row['post_id'] ] = $hours;
+				if ( is_array( $hours ) ) {
+					$this->hours_cache[ absint( $row['post_id'] ) ] = $hours;
 				}
 			}
 		}
@@ -455,7 +526,7 @@ class QueryBuilder {
 		$current_day  = strtolower( wp_date( 'l' ) );
 		$current_time = wp_date( 'H:i' );
 
-		if ( ! isset( $hours[ $current_day ] ) ) {
+		if ( ! isset( $hours[ $current_day ] ) || ! is_array( $hours[ $current_day ] ) ) {
 			return false;
 		}
 
@@ -475,8 +546,8 @@ class QueryBuilder {
 	 * @return array Array of businesses with distance info.
 	 */
 	private function calculate_distances_from_cache() {
-		$user_lat = $this->filters['lat'];
-		$user_lng = $this->filters['lng'];
+		$user_lat = floatval( $this->filters['lat'] );
+		$user_lng = floatval( $this->filters['lng'] );
 
 		$businesses = array();
 
@@ -530,8 +601,12 @@ class QueryBuilder {
 	 */
 	private function paginate_array( $businesses ) {
 		$total    = count( $businesses );
-		$per_page = $this->filters['per_page'] ?? 20;
-		$page     = $this->filters['page'] ?? 1;
+		$per_page = isset( $this->filters['per_page'] ) ? absint( $this->filters['per_page'] ) : 20;
+		$page     = isset( $this->filters['page'] ) ? absint( $this->filters['page'] ) : 1;
+
+		// Ensure valid values.
+		$per_page = max( 1, $per_page );
+		$page     = max( 1, $page );
 
 		$offset    = ( $page - 1 ) * $per_page;
 		$paginated = array_slice( $businesses, $offset, $per_page );

@@ -8,6 +8,7 @@
  *
  * @package BusinessDirectory
  * @subpackage API
+ * @version 1.1.0
  */
 
 namespace BusinessDirectory\API;
@@ -26,7 +27,6 @@ use BusinessDirectory\Utils\Cache;
  * REST API endpoint for business search and filtering.
  */
 class BusinessEndpoint {
-
 
 	/**
 	 * Pre-loaded location data from QueryBuilder.
@@ -117,8 +117,8 @@ class BusinessEndpoint {
 		$result        = $query_builder->get_businesses_with_location();
 
 		// Store location/hours caches for use in format_business().
-		self::$location_cache = $result['locations'] ?? array();
-		self::$hours_cache    = $result['hours'] ?? array();
+		self::$location_cache = isset( $result['locations'] ) ? $result['locations'] : array();
+		self::$hours_cache    = isset( $result['hours'] ) ? $result['hours'] : array();
 
 		// Extract business IDs for batch cache priming.
 		$business_ids = array_column( $result['businesses'], 'id' );
@@ -152,7 +152,7 @@ class BusinessEndpoint {
 		$response = array(
 			'businesses'      => $businesses,
 			'total'           => $result['total'],
-			'pages'           => $result['pages'] ?? 1,
+			'pages'           => isset( $result['pages'] ) ? $result['pages'] : 1,
 			'page'            => $filters['page'],
 			'per_page'        => $filters['per_page'],
 			'bounds'          => $bounds,
@@ -182,20 +182,21 @@ class BusinessEndpoint {
 			return;
 		}
 
-		// These are core WordPress functions - use function_exists as safety check.
-		// The backslash calls from global namespace since we're in a namespace.
-
 		// Prime the post cache (1 query for all posts).
+		// _prime_post_caches is available since WP 3.0.
 		if ( function_exists( '_prime_post_caches' ) ) {
 			\_prime_post_caches( $business_ids, true, true );
 		}
 
 		// Prime the post meta cache (1 query for ALL meta for ALL posts).
-		if ( function_exists( 'update_post_meta_cache' ) ) {
-			\update_post_meta_cache( $business_ids );
+		// FIX: Correct function is update_meta_cache(), not update_post_meta_cache().
+		// update_meta_cache() has been available since WP 2.9.
+		if ( function_exists( 'update_meta_cache' ) ) {
+			\update_meta_cache( 'post', $business_ids );
 		}
 
 		// Prime the term cache for all relevant taxonomies (1 query per taxonomy).
+		// update_object_term_cache() available since WP 2.3.
 		if ( function_exists( 'update_object_term_cache' ) ) {
 			\update_object_term_cache( $business_ids, 'bd_business' );
 		}
@@ -218,12 +219,12 @@ class BusinessEndpoint {
 		if ( isset( self::$location_cache[ $business_id ] ) ) {
 			$loc      = self::$location_cache[ $business_id ];
 			$location = array(
-				'lat'     => floatval( $loc['lat'] ?? 0 ),
-				'lng'     => floatval( $loc['lng'] ?? 0 ),
-				'address' => $loc['address'] ?? '',
-				'city'    => $loc['city'] ?? '',
-				'state'   => $loc['state'] ?? '',
-				'zip'     => $loc['zip'] ?? '',
+				'lat'     => floatval( isset( $loc['lat'] ) ? $loc['lat'] : 0 ),
+				'lng'     => floatval( isset( $loc['lng'] ) ? $loc['lng'] : 0 ),
+				'address' => isset( $loc['address'] ) ? $loc['address'] : '',
+				'city'    => isset( $loc['city'] ) ? $loc['city'] : '',
+				'state'   => isset( $loc['state'] ) ? $loc['state'] : '',
+				'zip'     => isset( $loc['zip'] ) ? $loc['zip'] : '',
 			);
 		} else {
 			// Fallback to meta (hits primed cache).
@@ -231,12 +232,12 @@ class BusinessEndpoint {
 
 			if ( $location_meta && is_array( $location_meta ) ) {
 				$location = array(
-					'lat'     => floatval( $location_meta['lat'] ?? 0 ),
-					'lng'     => floatval( $location_meta['lng'] ?? 0 ),
-					'address' => $location_meta['address'] ?? '',
-					'city'    => $location_meta['city'] ?? '',
-					'state'   => $location_meta['state'] ?? '',
-					'zip'     => $location_meta['zip'] ?? '',
+					'lat'     => floatval( isset( $location_meta['lat'] ) ? $location_meta['lat'] : 0 ),
+					'lng'     => floatval( isset( $location_meta['lng'] ) ? $location_meta['lng'] : 0 ),
+					'address' => isset( $location_meta['address'] ) ? $location_meta['address'] : '',
+					'city'    => isset( $location_meta['city'] ) ? $location_meta['city'] : '',
+					'state'   => isset( $location_meta['state'] ) ? $location_meta['state'] : '',
+					'zip'     => isset( $location_meta['zip'] ) ? $location_meta['zip'] : '',
 				);
 			}
 		}
@@ -275,7 +276,7 @@ class BusinessEndpoint {
 		}
 
 		// Determine if open now using pre-loaded hours data.
-		$hours   = self::$hours_cache[ $business_id ] ?? null;
+		$hours   = isset( self::$hours_cache[ $business_id ] ) ? self::$hours_cache[ $business_id ] : null;
 		$is_open = FilterHandler::is_open_now( $business_id, $hours );
 
 		return array(
@@ -292,7 +293,7 @@ class BusinessEndpoint {
 			'areas'          => $areas,
 			'tags'           => $tags,
 			'location'       => $location,
-			'phone'          => $contact['phone'] ?? '',
+			'phone'          => isset( $contact['phone'] ) ? $contact['phone'] : '',
 			'is_open_now'    => $is_open,
 		);
 	}
