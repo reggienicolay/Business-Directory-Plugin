@@ -172,6 +172,12 @@ if ( file_exists( BD_PLUGIN_DIR . 'includes/social-sharing-loader.php' ) ) {
 	require_once BD_PLUGIN_DIR . 'includes/social-sharing-loader.php';
 }
 
+// Load Cover Media System.
+if ( file_exists( BD_PLUGIN_DIR . 'cover-media-loader.php' ) ) {
+	require_once BD_PLUGIN_DIR . 'cover-media-loader.php';
+}
+
+
 // Load Business Owner Tools.
 if ( file_exists( BD_PLUGIN_DIR . 'includes/business-tools-loader.php' ) ) {
 	require_once BD_PLUGIN_DIR . 'includes/business-tools-loader.php';

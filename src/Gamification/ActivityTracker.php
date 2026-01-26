@@ -22,16 +22,18 @@ class ActivityTracker {
 	 * Points awarded for each activity type
 	 */
 	const ACTIVITY_POINTS = array(
-		'review_created'        => 10,
-		'review_with_photo'     => 5,
-		'review_detailed'       => 5,
-		'helpful_vote_received' => 2,
-		'list_created'          => 5,
-		'list_made_public'      => 10,
-		'business_claimed'      => 25,
-		'profile_completed'     => 15,
-		'first_review_day'      => 20,
-		'first_login'           => 5,
+		'review_created'         => 10,
+		'review_with_photo'      => 5,
+		'review_detailed'        => 5,
+		'helpful_vote_received'  => 2,
+		'list_created'           => 5,
+		'list_made_public'       => 10,
+		'list_cover_added'       => 5,  // Photo cover added to list
+		'list_video_cover_added' => 10, // Video cover added to list (higher value)
+		'business_claimed'       => 25,
+		'profile_completed'      => 15,
+		'first_review_day'       => 20,
+		'first_login'            => 5,
 	);
 
 	/**

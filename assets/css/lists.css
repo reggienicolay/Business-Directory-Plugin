@@ -617,11 +617,12 @@ body.bd-modal-open::before {
 	bottom: 0;
 	background-size: cover;
 	background-position: center;
-	opacity: 0.3;
+	opacity: 0.45;
 }
 
 .bd-list-hero-content {
 	position: relative;
+	z-index: 1;
 	padding: 40px;
 	color: #fff;
 }
@@ -987,10 +988,10 @@ bd-btn-secondary:hover {
 	position: relative;
 	z-index: 2 !important;
 	width: 100%;
-	max-width: 480px;
+	max-width: 440px;
 	background: #fff;
-	border-radius: 16px;
-	box-shadow: 0 20px 60px rgba(26, 58, 74, 0.3);
+	border-radius: 12px;
+	box-shadow: 0 20px 60px rgba(26, 58, 74, 0.25);
 	animation: modalSlideIn 0.3s ease;
 }
 
@@ -1010,34 +1011,35 @@ bd-btn-secondary:hover {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding: 20px 24px;
-	border-bottom: 1px solid var(--bd-border);
+	padding: 1rem 1.25rem;
+	border-bottom: 1px solid var(--bd-border, #e8e8e8);
 }
 
 .bd-modal-header h3 {
 	margin: 0;
-	font-size: 20px;
+	font-size: 1.125rem;
+	font-weight: 600;
 	color: var(--bd-navy);
 }
 
 .bd-modal-header h3 i {
-	margin-right: 10px;
+	margin-right: 0.5rem;
 	color: var(--bd-steel);
 }
 
 .bd-modal-body {
-	padding: 24px;
+	padding: 1.25rem;
 }
 
 /* Form Elements */
 .bd-form-group {
-	margin-bottom: 20px;
+	margin-bottom: 1.25rem;
 }
 
 .bd-form-group label {
 	display: block;
-	margin-bottom: 8px;
-	font-size: 14px;
+	margin-bottom: 0.5rem;
+	font-size: 0.875rem;
 	font-weight: 600;
 	color: var(--bd-navy);
 }
@@ -1046,27 +1048,33 @@ bd-btn-secondary:hover {
 .bd-form-group textarea,
 .bd-form-group select {
 	width: 100%;
-	padding: 12px 16px;
-	border: 1px solid var(--bd-border);
-	border-radius: 8px;
-	font-size: 15px;
-	transition: border-color 0.2s ease;
+	padding: 0.625rem 0.875rem;
+	border: 1px solid var(--bd-border, #ddd);
+	border-radius: 6px;
+	font-size: 0.9375rem;
+	transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .bd-form-group input:focus,
 .bd-form-group textarea:focus,
 .bd-form-group select:focus {
 	outline: none;
-	border-color: var(--bd-steel);
+	border-color: var(--bd-teal, #2cb1bc);
+	box-shadow: 0 0 0 3px rgba(44, 177, 188, 0.1);
+}
+
+.bd-form-group textarea {
+	min-height: 80px;
+	resize: vertical;
 }
 
 .bd-form-actions {
 	display: flex;
 	justify-content: flex-end;
-	gap: 12px;
-	margin-top: 24px;
-	padding-top: 20px;
-	border-top: 1px solid var(--bd-border);
+	gap: 0.75rem;
+	margin-top: 1.5rem;
+	padding-top: 1.25rem;
+	border-top: 1px solid var(--bd-border, #e8e8e8);
 }
 
 /* ==========================================================================
@@ -1128,12 +1136,12 @@ bd-btn-secondary:hover {
 
 /* Selected state */
 .bd-visibility-option input[type="radio"]:checked + .bd-visibility-card {
-	border-color: var(--bd-primary, #1a3a4a);
-	background: var(--bd-cream, #f8f6f3);
+	border-color: var(--bd-teal, #2cb1bc);
+	background: rgba(44, 177, 188, 0.04);
 }
 
 .bd-visibility-option input[type="radio"]:checked + .bd-visibility-card i {
-	color: var(--bd-primary, #1a3a4a);
+	color: var(--bd-teal, #2cb1bc);
 }
 
 /* ==========================================================================
@@ -2957,3 +2965,315 @@ bd-btn-secondary:hover {
 		padding: 2px 6px;
 	}
 }
+
+/* ========================================================================
+   COVER PREVIEW IN EDIT MODAL
+   Added for Cover Media Feature v1.2.0
+   ======================================================================== */
+
+/* Cover Section in Edit Modal */
+.bd-cover-section {
+	padding-bottom: 1.25rem;
+	border-bottom: 1px solid var(--bd-border, #e8e8e8);
+	margin-bottom: 1.25rem;
+}
+
+.bd-cover-section .bd-form-label {
+	display: block;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: var(--bd-navy, #1a3a4a);
+	margin-bottom: 0.75rem;
+}
+
+.bd-cover-preview-edit {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.bd-cover-thumb {
+	width: 140px;
+	height: 79px; /* 16:9 ratio */
+	border-radius: 6px;
+	overflow: hidden;
+	position: relative;
+	flex-shrink: 0;
+	background: var(--bd-cream, #f5f5f5);
+	border: 1px solid var(--bd-border, #e0e0e0);
+}
+
+.bd-cover-thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.bd-cover-thumb.bd-cover-placeholder {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	color: var(--bd-text-muted, #999);
+	gap: 0.25rem;
+	border: 1px dashed var(--bd-border, #ccc);
+	background: #fafafa;
+}
+
+.bd-cover-thumb.bd-cover-placeholder i {
+	font-size: 1.25rem;
+	opacity: 0.6;
+}
+
+.bd-cover-thumb.bd-cover-placeholder span {
+	font-size: 0.7rem;
+	opacity: 0.7;
+}
+
+.bd-cover-badge {
+	position: absolute;
+	bottom: 0.35rem;
+	right: 0.35rem;
+	width: 22px;
+	height: 22px;
+	background: rgba(0, 0, 0, 0.75);
+	color: #fff;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 0.6rem;
+}
+
+.bd-form-hint {
+	font-size: 0.8rem;
+	color: var(--bd-text-muted, #888);
+	margin-top: 0.6rem;
+	line-height: 1.4;
+}
+
+/* Button sizing */
+.bd-btn-sm {
+	padding: 0.45rem 0.9rem;
+	font-size: 0.8rem;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+	.bd-cover-preview-edit {
+		flex-direction: column;
+		align-items: stretch;
+	}
+	
+	.bd-cover-thumb {
+		width: 100%;
+		height: 120px;
+	}
+}
+
+/* ==========================================================================
+   VIDEO COVER STYLES
+   ========================================================================== */
+
+/* Video cover - keep below hero content (z-index: 1) */
+.bd-list-cover.bd-list-cover-video {
+	cursor: pointer;
+}
+
+/* Play button styling - large clickable area */
+.bd-list-cover-video-play {
+	z-index: 5;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 80px;
+	height: 80px;
+	background: rgba(0, 0, 0, 0.6);
+	border: 3px solid rgba(255, 255, 255, 0.9);
+	border-radius: 50%;
+	color: #fff;
+	font-size: 1.75rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.3s ease;
+	pointer-events: auto;
+}
+
+/* Larger clickable area around play button */
+.bd-list-cover-video-play::before {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 250px;
+	height: 250px;
+	cursor: pointer;
+}
+
+.bd-list-cover-video-play i {
+	margin-left: 4px; /* Optical centering for play icon */
+}
+
+.bd-list-cover-video-play:hover {
+	background: var(--bd-teal, #2cb1bc);
+	border-color: var(--bd-teal, #2cb1bc);
+	transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Video badge styling */
+.bd-list-cover-video-badge {
+	position: absolute;
+	top: 1rem;
+	left: 1rem;
+	z-index: 5;
+	padding: 0.35rem 0.75rem;
+	background: rgba(0, 0, 0, 0.7);
+	color: #fff;
+	border-radius: 4px;
+	font-size: 0.75rem;
+	font-weight: 500;
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+}
+
+/* Hero content - allow clicks through to video play button */
+.bd-list-hero-content {
+	pointer-events: none;
+}
+
+/* Re-enable pointer events for interactive elements */
+.bd-list-hero-content a,
+.bd-list-hero-content button,
+.bd-list-hero-content .bd-btn,
+.bd-list-hero-content .bd-list-actions,
+.bd-list-hero-content .bd-featured-badge,
+.bd-list-hero-content h1,
+.bd-list-hero-content p,
+.bd-list-hero-content .bd-list-meta,
+.bd-list-hero-content .bd-list-description {
+	pointer-events: auto;
+}
+
+/* ==========================================================================
+   VIDEO LIGHTBOX STYLES (Override theme conflicts)
+   ========================================================================== */
+
+/* Lightbox overlay */
+#bd-video-lightbox.bd-video-lightbox {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 999999;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+#bd-video-lightbox .bd-video-lightbox-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.92);
+	cursor: pointer;
+}
+
+#bd-video-lightbox .bd-video-lightbox-container {
+	position: relative;
+	width: 90%;
+	max-width: 1100px;
+	z-index: 1;
+}
+
+/* Close button - fixed styling to override theme */
+#bd-video-lightbox .bd-video-lightbox-close {
+	position: absolute;
+	top: -50px;
+	right: 0;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	margin: 0;
+	background: transparent !important;
+	border: 2px solid rgba(255, 255, 255, 0.6) !important;
+	border-radius: 50% !important;
+	color: #fff !important;
+	font-size: 20px;
+	line-height: 1;
+	cursor: pointer;
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+	box-shadow: none !important;
+}
+
+#bd-video-lightbox .bd-video-lightbox-close:hover,
+#bd-video-lightbox .bd-video-lightbox-close:focus {
+	background: rgba(255, 255, 255, 0.15) !important;
+	border-color: #fff !important;
+	transform: scale(1.1);
+	outline: none;
+}
+
+#bd-video-lightbox .bd-video-lightbox-close i {
+	font-size: 18px;
+	line-height: 1;
+}
+
+/* Video player container */
+#bd-video-lightbox .bd-video-lightbox-content {
+	background: #000;
+	border-radius: 8px;
+	overflow: hidden;
+	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+#bd-video-lightbox .bd-video-lightbox-player {
+	position: relative;
+	padding-bottom: 56.25%; /* 16:9 */
+	height: 0;
+}
+
+#bd-video-lightbox .bd-video-lightbox-player iframe {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border: none;
+}
+
+/* Body class when lightbox open */
+body.bd-lightbox-open {
+	overflow: hidden;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.bd-list-cover-video-play {
+		width: 60px;
+		height: 60px;
+		font-size: 1.25rem;
+	}
+	
+	#bd-video-lightbox .bd-video-lightbox-container {
+		width: 95%;
+	}
+	
+	#bd-video-lightbox .bd-video-lightbox-close {
+		top: -45px;
+		width: 40px;
+		height: 40px;
+		font-size: 16px;
+	}
+}
+

@@ -5,7 +5,7 @@
  * Displays all available shortcodes with their configurations.
  *
  * @package BusinessDirectory
- * @version 1.2.0
+ * @version 1.3.0
  */
 
 
@@ -56,14 +56,14 @@ class ShortcodesAdmin {
 			'bd-shortcodes-admin',
 			plugins_url( 'assets/css/admin-shortcodes.css', dirname( __DIR__ ) ),
 			array(),
-			'1.2.0'
+			defined( 'BD_VERSION' ) ? BD_VERSION : '1.3.0'
 		);
 
 		wp_enqueue_script(
 			'bd-shortcodes-admin',
 			plugins_url( 'assets/js/admin-shortcodes.js', dirname( __DIR__ ) ),
 			array( 'jquery' ),
-			'1.2.0',
+			defined( 'BD_VERSION' ) ? BD_VERSION : '1.3.0',
 			true
 		);
 	}
@@ -74,7 +74,13 @@ class ShortcodesAdmin {
 	 * @return array Shortcodes data.
 	 */
 	public static function get_shortcodes() {
-		return array(
+		static $shortcodes = null;
+
+		if ( null !== $shortcodes ) {
+			return $shortcodes;
+		}
+
+		$shortcodes = array(
 			// =============================================
 			// CORE DIRECTORY
 			// =============================================
@@ -776,7 +782,210 @@ class ShortcodesAdmin {
 					'[bd_edit_listing]',
 				),
 			),
+
+			// =============================================
+			// AUTHENTICATION
+			// =============================================
+			'login'               => array(
+				'name'        => 'Login Form',
+				'shortcode'   => 'bd_login',
+				'description' => 'Displays login, registration, and password reset forms with tabbed interface.',
+				'attributes'  => array(
+					array(
+						'name'        => 'tab',
+						'type'        => 'string',
+						'default'     => 'login',
+						'description' => 'Default tab: login, register, reset',
+					),
+					array(
+						'name'        => 'redirect_to',
+						'type'        => 'string',
+						'default'     => '',
+						'description' => 'URL to redirect after login/register',
+					),
+					array(
+						'name'        => 'show_title',
+						'type'        => 'yes/no',
+						'default'     => 'yes',
+						'description' => 'Show/hide the site logo/title',
+					),
+				),
+				'examples'    => array(
+					'[bd_login]',
+					'[bd_login tab="register"]',
+					'[bd_login redirect_to="/my-profile/"]',
+				),
+			),
+			'auth_buttons'        => array(
+				'name'        => 'Auth Buttons',
+				'shortcode'   => 'bd_auth_buttons',
+				'description' => 'Login/Register buttons for headers. Shows user dropdown when logged in.',
+				'attributes'  => array(
+					array(
+						'name'        => 'style',
+						'type'        => 'string',
+						'default'     => 'default',
+						'description' => 'Style: default, compact, icon-only',
+					),
+					array(
+						'name'        => 'show_avatar',
+						'type'        => 'yes/no',
+						'default'     => 'yes',
+						'description' => 'Show user avatar when logged in',
+					),
+					array(
+						'name'        => 'login_text',
+						'type'        => 'string',
+						'default'     => 'Login',
+						'description' => 'Custom login button text',
+					),
+					array(
+						'name'        => 'register_text',
+						'type'        => 'string',
+						'default'     => 'Register',
+						'description' => 'Custom register button text',
+					),
+				),
+				'examples'    => array(
+					'[bd_auth_buttons]',
+					'[bd_auth_buttons style="compact"]',
+					'[bd_auth_buttons login_text="Sign In" register_text="Join"]',
+				),
+			),
+
+			// =============================================
+			// COMMUNITY
+			// =============================================
+			'guides'              => array(
+				'name'        => 'Community Guides',
+				'shortcode'   => 'bd_guides',
+				'description' => 'Displays community guides in a grid layout.',
+				'attributes'  => array(
+					array(
+						'name'        => 'limit',
+						'type'        => 'integer',
+						'default'     => '-1 (all)',
+						'description' => 'Maximum number of guides to display',
+					),
+					array(
+						'name'        => 'city',
+						'type'        => 'string',
+						'default'     => '',
+						'description' => 'Filter by city (e.g., "Livermore")',
+					),
+					array(
+						'name'        => 'columns',
+						'type'        => 'integer',
+						'default'     => '3',
+						'description' => 'Number of columns (2, 3, or 4)',
+					),
+					array(
+						'name'        => 'layout',
+						'type'        => 'string',
+						'default'     => 'cards',
+						'description' => 'Layout style: cards, featured, compact',
+					),
+				),
+				'examples'    => array(
+					'[bd_guides]',
+					'[bd_guides limit="3" columns="3"]',
+					'[bd_guides city="Livermore" layout="featured"]',
+				),
+			),
+			'public_profile'      => array(
+				'name'        => 'Public Profile',
+				'shortcode'   => 'bd_public_profile',
+				'description' => 'Displays a user\'s public profile with badges, guides, and activity.',
+				'attributes'  => array(
+					array(
+						'name'        => 'user',
+						'type'        => 'string',
+						'default'     => '',
+						'description' => 'Username or user slug',
+					),
+					array(
+						'name'        => 'user_id',
+						'type'        => 'integer',
+						'default'     => '',
+						'description' => 'User ID (alternative to username)',
+					),
+				),
+				'examples'    => array(
+					'[bd_public_profile]',
+					'[bd_public_profile user="nicole"]',
+					'[bd_public_profile user_id="1"]',
+				),
+			),
+
+			// =============================================
+			// EMBED & FEATURE
+			// =============================================
+			'feature_embed'       => array(
+				'name'        => 'Feature Embed',
+				'shortcode'   => 'bd_feature',
+				'description' => 'Embed business cards in posts/pages. Supports multiple layouts and remote fetching from main site.',
+				'attributes'  => array(
+					array(
+						'name'        => 'id',
+						'type'        => 'integer',
+						'default'     => '',
+						'description' => 'Single business post ID',
+					),
+					array(
+						'name'        => 'ids',
+						'type'        => 'string',
+						'default'     => '',
+						'description' => 'Comma-separated list of business IDs',
+					),
+					array(
+						'name'        => 'layout',
+						'type'        => 'string',
+						'default'     => 'card',
+						'description' => 'Layout: card, list, inline, mini',
+					),
+					array(
+						'name'        => 'columns',
+						'type'        => 'integer',
+						'default'     => '3',
+						'description' => 'Number of columns for card layout',
+					),
+					array(
+						'name'        => 'show',
+						'type'        => 'string',
+						'default'     => 'image,title,rating,excerpt,category,cta',
+						'description' => 'Comma-separated list of elements to show',
+					),
+					array(
+						'name'        => 'cta_text',
+						'type'        => 'string',
+						'default'     => 'View Details',
+						'description' => 'Call-to-action button text',
+					),
+					array(
+						'name'        => 'source',
+						'type'        => 'string',
+						'default'     => '',
+						'description' => 'Source site for remote fetch (e.g., lovetrivalley.com)',
+					),
+				),
+				'examples'    => array(
+					'[bd_feature id="123"]',
+					'[bd_feature ids="45,23,89" layout="card" columns="3"]',
+					'[bd_feature id="123" source="lovetrivalley.com" layout="mini"]',
+				),
+			),
 		);
+
+		/**
+		 * Filter shortcode documentation
+		 *
+		 * Allows other loaders (guides, outdoor activities, etc.) to add their shortcodes.
+		 *
+		 * @param array $shortcodes Shortcode documentation array.
+		 */
+		$shortcodes = apply_filters( 'bd_shortcode_documentation', $shortcodes );
+
+		return $shortcodes;
 	}
 
 	/**
@@ -812,8 +1021,8 @@ class ShortcodesAdmin {
 			'business'     => array(
 				'name'  => 'Business Features',
 				'icon'  => 'dashicons-store',
-				'desc'  => 'Individual business display and information shortcodes.',
-				'codes' => array( 'business_embed', 'business_hours', 'social_share', 'qr_code' ),
+				'desc'  => 'Individual business display, embeds, and information shortcodes.',
+				'codes' => array( 'business_embed', 'feature_embed', 'business_hours', 'social_share', 'qr_code' ),
 			),
 			'reviews'      => array(
 				'name'  => 'Reviews & Ratings',
@@ -827,6 +1036,18 @@ class ShortcodesAdmin {
 				'desc'  => 'User submission, claim forms, and business owner tools.',
 				'codes' => array( 'submit_business', 'claim_business', 'business_tools', 'edit_listing' ),
 			),
+			'auth'         => array(
+				'name'  => 'Authentication',
+				'icon'  => 'dashicons-admin-users',
+				'desc'  => 'User login, registration, and authentication shortcodes.',
+				'codes' => array( 'login', 'auth_buttons' ),
+			),
+			'community'    => array(
+				'name'  => 'Community',
+				'icon'  => 'dashicons-groups',
+				'desc'  => 'Community guides and public user profiles.',
+				'codes' => array( 'guides', 'public_profile' ),
+			),
 		);
 		?>
 		<div class="wrap bd-shortcodes-admin">
@@ -838,6 +1059,15 @@ class ShortcodesAdmin {
 				<?php esc_html_e( 'Copy and paste these shortcodes into any page or post to display directory features.', 'business-directory' ); ?>
 			</p>
 			<hr class="wp-header-end">
+
+			<!-- Search Box -->
+			<div class="bd-shortcode-search">
+				<input type="text" 
+					   id="bd-shortcode-filter" 
+					   placeholder="<?php esc_attr_e( 'Search shortcodes...', 'business-directory' ); ?>"
+					   class="regular-text">
+				<span class="bd-search-icon dashicons dashicons-search"></span>
+			</div>
 
 			<!-- Quick Navigation -->
 			<div class="bd-shortcode-nav">
@@ -869,6 +1099,11 @@ class ShortcodesAdmin {
 							<td>Main directory with map and filters</td>
 						</tr>
 						<tr>
+							<td><strong>Login</strong></td>
+							<td><code>[bd_login]</code></td>
+							<td>User login, registration, and password reset</td>
+						</tr>
+						<tr>
 							<td><strong>My Lists</strong></td>
 							<td><code>[bd_my_lists]</code></td>
 							<td>User's saved business lists (requires login)</td>
@@ -882,6 +1117,11 @@ class ShortcodesAdmin {
 							<td><strong>View List</strong></td>
 							<td><code>[bd_list]</code></td>
 							<td>Single list detail page (auto-detects from URL)</td>
+						</tr>
+						<tr>
+							<td><strong>Community Guides</strong></td>
+							<td><code>[bd_guides]</code></td>
+							<td>Showcase community-created guides</td>
 						</tr>
 						<tr>
 							<td><strong>City Events</strong></td>
@@ -1027,6 +1267,18 @@ class ShortcodesAdmin {
 					<div class="bd-tip-card">
 						<h4>Dynamic List Pages</h4>
 						<p>The <code>[bd_list]</code> shortcode automatically reads the <code>?list=</code> URL parameter to display the correct list.</p>
+					</div>
+					<div class="bd-tip-card">
+						<h4>Header Auth Buttons</h4>
+						<p>Add <code>[bd_auth_buttons]</code> to your header template or menu to show login/register links that become a user dropdown when logged in.</p>
+					</div>
+					<div class="bd-tip-card">
+						<h4>Embedding Businesses in Posts</h4>
+						<p>Use <code>[bd_feature id="123"]</code> to embed a business card in any post or page. Supports multiple layouts and remote fetching.</p>
+					</div>
+					<div class="bd-tip-card">
+						<h4>Public Profiles</h4>
+						<p>User profiles are automatically available at <code>/profile/username/</code>. Use <code>[bd_public_profile]</code> for custom profile pages.</p>
 					</div>
 				</div>
 			</div>

@@ -1,0 +1,189 @@
+/**
+ * Cover Moderation Admin Styles
+ *
+ * @package BusinessDirectory
+ * @since 1.2.0
+ */
+
+.bd-cover-moderation h1 {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+
+.bd-cover-moderation h1 .dashicons {
+	font-size: 1.5rem;
+	width: 1.5rem;
+	height: 1.5rem;
+}
+
+/* Covers Grid */
+.bd-covers-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+/* Cover Card */
+.bd-cover-card {
+	background: #fff;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	overflow: hidden;
+	transition: box-shadow 0.2s ease;
+}
+
+.bd-cover-card:hover {
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.bd-cover-card-image {
+	position: relative;
+	height: 160px;
+	background: #f0f0f0;
+	overflow: hidden;
+}
+
+.bd-cover-card-image img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.bd-cover-placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	color: #999;
+}
+
+.bd-cover-placeholder .dashicons {
+	font-size: 3rem;
+	width: 3rem;
+	height: 3rem;
+}
+
+.bd-cover-type-badge {
+	position: absolute;
+	top: 0.5rem;
+	left: 0.5rem;
+	padding: 0.25rem 0.5rem;
+	background: rgba(0, 0, 0, 0.7);
+	color: #fff;
+	border-radius: 4px;
+	font-size: 11px;
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.bd-cover-type-badge .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+}
+
+/* Card Info */
+.bd-cover-card-info {
+	padding: 1rem;
+	border-bottom: 1px solid #eee;
+}
+
+.bd-cover-card-info h4 {
+	margin: 0 0 0.5rem;
+	font-size: 14px;
+	line-height: 1.3;
+}
+
+.bd-cover-card-info h4 a {
+	color: #1d2327;
+	text-decoration: none;
+}
+
+.bd-cover-card-info h4 a:hover {
+	color: #2271b1;
+}
+
+.bd-cover-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	font-size: 12px;
+	color: #666;
+}
+
+.bd-cover-meta span {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+}
+
+.bd-cover-meta .dashicons {
+	font-size: 14px;
+	width: 14px;
+	height: 14px;
+	color: #999;
+}
+
+/* Card Actions */
+.bd-cover-card-actions {
+	padding: 0.75rem 1rem;
+	display: flex;
+	gap: 0.5rem;
+	background: #f9f9f9;
+}
+
+.bd-cover-card-actions .button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	width: 32px;
+	height: 32px;
+}
+
+.bd-cover-card-actions .button .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+}
+
+.bd-cover-card-actions .bd-remove-cover:hover {
+	background: #dc3232;
+	border-color: #dc3232;
+	color: #fff;
+}
+
+/* No Covers */
+.bd-no-covers {
+	padding: 3rem;
+	text-align: center;
+	background: #f9f9f9;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	margin-top: 1.5rem;
+}
+
+.bd-no-covers p {
+	margin: 0;
+	color: #666;
+}
+
+/* Processing State */
+.bd-cover-card.processing {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.bd-cover-card.removed {
+	display: none;
+}
+
+/* Responsive */
+@media (max-width: 782px) {
+	.bd-covers-grid {
+		grid-template-columns: 1fr;
+	}
+}

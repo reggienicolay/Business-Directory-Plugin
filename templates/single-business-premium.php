@@ -806,7 +806,15 @@ while ( have_posts() ) :
 									<span class="bd-day"><?php echo $label; ?></span>
 									<span class="bd-time">
 										<?php
-										if ( empty( $day_hours ) || ! empty( $day_hours['closed'] ) ) {
+										// Check if day is closed or has no valid hours set
+										$is_closed = empty( $day_hours )
+											|| ! empty( $day_hours['closed'] )
+											|| empty( $day_hours['open'] )
+											|| empty( $day_hours['close'] )
+											|| strtotime( $day_hours['open'] ) === false
+											|| strtotime( $day_hours['close'] ) === false;
+										
+										if ( $is_closed ) {
 											echo 'Closed';
 										} else {
 											$open_formatted  = date( 'g:i A', strtotime( $day_hours['open'] ) );

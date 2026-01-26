@@ -1,0 +1,301 @@
+/**
+ * Network Lists Shortcode Styles
+ *
+ * Styles for [bd_network_lists] shortcode used on subsites.
+ *
+ * @package BusinessDirectory
+ * @since 1.2.0
+ */
+
+/* Container */
+.bd-network-lists {
+	--bd-nl-gap: 1.5rem;
+	--bd-nl-radius: 12px;
+	--bd-nl-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	--bd-nl-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
+	--bd-nl-transition: all 0.3s ease;
+	
+	margin: 2rem 0;
+}
+
+/* Header */
+.bd-nl-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 1.5rem;
+}
+
+.bd-nl-title {
+	font-size: 1.5rem;
+	font-weight: 600;
+	margin: 0;
+	color: var(--bd-navy, #1a3a4a);
+}
+
+.bd-nl-view-all {
+	color: var(--bd-teal, #2cb1bc);
+	text-decoration: none;
+	font-weight: 500;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	transition: var(--bd-nl-transition);
+}
+
+.bd-nl-view-all:hover {
+	color: var(--bd-navy, #1a3a4a);
+}
+
+/* Grid Layout */
+.bd-nl-grid {
+	display: grid;
+	gap: var(--bd-nl-gap);
+}
+
+.bd-nl-cols-2 .bd-nl-grid {
+	grid-template-columns: repeat(2, 1fr);
+}
+
+.bd-nl-cols-3 .bd-nl-grid {
+	grid-template-columns: repeat(3, 1fr);
+}
+
+.bd-nl-cols-4 .bd-nl-grid {
+	grid-template-columns: repeat(4, 1fr);
+}
+
+/* List Layout */
+.bd-nl-layout-list .bd-nl-grid {
+	grid-template-columns: 1fr;
+}
+
+.bd-nl-layout-list .bd-nl-card {
+	display: flex;
+	flex-direction: row;
+}
+
+.bd-nl-layout-list .bd-nl-card-cover {
+	width: 200px;
+	flex-shrink: 0;
+}
+
+.bd-nl-layout-list .bd-nl-card-body {
+	flex: 1;
+	padding: 1rem 1.5rem;
+}
+
+/* Compact Layout */
+.bd-nl-layout-compact .bd-nl-card-cover {
+	padding-bottom: 50%;
+}
+
+.bd-nl-layout-compact .bd-nl-card-title {
+	font-size: 0.95rem;
+}
+
+/* Card */
+.bd-nl-card {
+	background: #fff;
+	border-radius: var(--bd-nl-radius);
+	box-shadow: var(--bd-nl-shadow);
+	overflow: hidden;
+	transition: var(--bd-nl-transition);
+}
+
+.bd-nl-card:hover {
+	box-shadow: var(--bd-nl-shadow-hover);
+	transform: translateY(-4px);
+}
+
+.bd-nl-card-link {
+	display: block;
+	text-decoration: none;
+	color: inherit;
+}
+
+/* Card Cover */
+.bd-nl-card-cover {
+	position: relative;
+	padding-bottom: 56.25%; /* 16:9 */
+	background: var(--bd-cream, #f8f4e9);
+	overflow: hidden;
+}
+
+.bd-nl-card-cover img {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	transition: transform 0.5s ease;
+}
+
+.bd-nl-card:hover .bd-nl-card-cover img {
+	transform: scale(1.05);
+}
+
+.bd-nl-card-placeholder {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--bd-steel, #6b7c85);
+	font-size: 2rem;
+}
+
+/* Video Play Overlay */
+.bd-nl-play-overlay {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 60px;
+	height: 60px;
+	background: rgba(0, 0, 0, 0.6);
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+	font-size: 1.5rem;
+	transition: var(--bd-nl-transition);
+}
+
+.bd-nl-card:hover .bd-nl-play-overlay {
+	background: var(--bd-teal, #2cb1bc);
+	transform: translate(-50%, -50%) scale(1.1);
+}
+
+/* Card Body */
+.bd-nl-card-body {
+	padding: 1rem;
+}
+
+.bd-nl-card-title {
+	font-size: 1.1rem;
+	font-weight: 600;
+	margin: 0 0 0.5rem;
+	color: var(--bd-navy, #1a3a4a);
+	line-height: 1.3;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+/* Card Meta */
+.bd-nl-card-meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	font-size: 0.85rem;
+	color: var(--bd-steel, #6b7c85);
+}
+
+.bd-nl-card-meta span {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+}
+
+.bd-nl-card-meta i {
+	font-size: 0.8em;
+	color: var(--bd-teal, #2cb1bc);
+}
+
+.bd-nl-city {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	margin-top: 0.5rem;
+	padding: 0.25rem 0.5rem;
+	background: var(--bd-cream, #f8f4e9);
+	border-radius: 4px;
+	font-size: 0.8rem;
+	color: var(--bd-steel, #6b7c85);
+}
+
+.bd-nl-city i {
+	color: var(--bd-terracotta, #c17f59);
+}
+
+/* Footer */
+.bd-nl-footer {
+	text-align: center;
+	margin-top: 1.5rem;
+}
+
+/* Empty State */
+.bd-nl-empty {
+	text-align: center;
+	padding: 3rem 1rem;
+	background: var(--bd-cream, #f8f4e9);
+	border-radius: var(--bd-nl-radius);
+}
+
+.bd-nl-empty-content i {
+	font-size: 2.5rem;
+	color: var(--bd-steel, #6b7c85);
+	margin-bottom: 1rem;
+}
+
+.bd-nl-empty-content p {
+	margin: 0;
+	color: var(--bd-steel, #6b7c85);
+}
+
+/* Error State (admin only) */
+.bd-nl-error {
+	padding: 1rem;
+	background: #fff3cd;
+	border: 1px solid #ffc107;
+	border-radius: var(--bd-nl-radius);
+	color: #856404;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+	.bd-nl-cols-4 .bd-nl-grid {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+@media (max-width: 768px) {
+	.bd-nl-cols-3 .bd-nl-grid,
+	.bd-nl-cols-4 .bd-nl-grid {
+		grid-template-columns: repeat(2, 1fr);
+	}
+	
+	.bd-nl-header {
+		flex-direction: column;
+		align-items: flex-start;
+		gap: 0.5rem;
+	}
+	
+	.bd-nl-layout-list .bd-nl-card {
+		flex-direction: column;
+	}
+	
+	.bd-nl-layout-list .bd-nl-card-cover {
+		width: 100%;
+	}
+}
+
+@media (max-width: 480px) {
+	.bd-nl-cols-2 .bd-nl-grid,
+	.bd-nl-cols-3 .bd-nl-grid,
+	.bd-nl-cols-4 .bd-nl-grid {
+		grid-template-columns: 1fr;
+	}
+	
+	.bd-nl-card-meta {
+		flex-direction: column;
+		gap: 0.35rem;
+	}
+}

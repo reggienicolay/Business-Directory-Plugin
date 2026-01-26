@@ -388,6 +388,17 @@ class BadgeSystem {
 			'points'      => 75,
 			'rarity'      => 'rare',
 		),
+		'visual_storyteller'      => array(
+			'name'        => 'Visual Storyteller',
+			'icon'        => '<i class="fa-solid fa-clapperboard"></i>',
+			'color'       => '#ec4899',
+			'description' => 'Your covers bring lists to life and inspire exploration',
+			'requirement' => 'Add custom covers to 5 public lists',
+			'check'       => 'public_lists_with_covers',
+			'threshold'   => 5,
+			'points'      => 50,
+			'rarity'      => 'rare',
+		),
 
 		// =====================================================================
 		// SOCIAL ENGAGEMENT BADGES
@@ -529,7 +540,7 @@ class BadgeSystem {
 			'name'   => 'Curator',
 			'icon'   => '<i class="fa-solid fa-layer-group"></i>',
 			'desc'   => 'Create and share collections of your favorites',
-			'badges' => array( 'curator', 'list_master', 'tastemaker', 'team_player', 'list_leader' ),
+			'badges' => array( 'curator', 'list_master', 'tastemaker', 'team_player', 'list_leader', 'visual_storyteller' ),
 		),
 		'social'    => array(
 			'name'   => 'Social',
@@ -745,6 +756,21 @@ class BadgeSystem {
 							AND r2.status = 'approved'
 							AND r2.created_at < r.created_at
 						)",
+						$user_id
+					)
+				);
+				return $count >= $threshold;
+
+			case 'public_lists_with_covers':
+				// Count public lists with custom covers (image or video).
+				$lists_table = $wpdb->prefix . 'bd_lists';
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+				$count = (int) $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT COUNT(*) FROM $lists_table
+						WHERE user_id = %d
+						AND visibility = 'public'
+						AND cover_type IN ('image', 'youtube', 'vimeo')",
 						$user_id
 					)
 				);

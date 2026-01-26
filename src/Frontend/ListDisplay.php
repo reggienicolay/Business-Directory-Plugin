@@ -22,7 +22,53 @@ use BD\Gamification\ActivityTracker;
 
 class ListDisplay {
 
+	/**
+	 * Get cover image URL for a list, handling all cover types
+	 *
+	 * @param array  $list List data array.
+	 * @param string $size Image size (thumbnail, medium, large).
+	 * @return string|null Cover image URL or null.
+	 */
+	private static function get_list_cover_url( $list, $size = 'medium' ) {
+		// Check if precomputed cover_image exists and is not empty
+		if ( ! empty( $list['cover_image'] ) ) {
+			return $list['cover_image'];
+		}
 
+		$cover_type = $list['cover_type'] ?? 'auto';
+
+		// Image cover
+		if ( 'image' === $cover_type && ! empty( $list['cover_image_id'] ) ) {
+			return wp_get_attachment_image_url( $list['cover_image_id'], $size );
+		}
+
+		// Video cover (YouTube/Vimeo)
+		if ( in_array( $cover_type, array( 'youtube', 'vimeo' ), true ) ) {
+			// First try local thumbnail
+			if ( ! empty( $list['cover_video_thumb_id'] ) ) {
+				return wp_get_attachment_image_url( $list['cover_video_thumb_id'], $size );
+			}
+			// Fallback to fetching from video platform
+			if ( ! empty( $list['cover_video_id'] ) && class_exists( 'BD\\Lists\\CoverManager' ) ) {
+				return \BD\Lists\CoverManager::get_video_thumbnail_url( $cover_type, $list['cover_video_id'] );
+			}
+		}
+
+		// Legacy: cover_image_id without cover_type
+		if ( ! empty( $list['cover_image_id'] ) ) {
+			return wp_get_attachment_image_url( $list['cover_image_id'], $size );
+		}
+
+		// Auto: use first business image
+		if ( 'auto' === $cover_type || empty( $cover_type ) ) {
+			$items = ListManager::get_list_items( $list['id'], 1 );
+			if ( ! empty( $items[0]['business']['featured_image'] ) ) {
+				return $items[0]['business']['featured_image'];
+			}
+		}
+
+		return null;
+	}
 
 
 	/**
@@ -146,6 +192,32 @@ class ListDisplay {
 				),
 			)
 		);
+
+		// Enqueue video lightbox for video covers
+		// Register if not already registered (cover-media-loader may not have run yet)
+		if ( ! wp_script_is( 'bd-video-lightbox', 'registered' ) ) {
+			$version = defined( 'BD_VERSION' ) ? BD_VERSION : '1.2.0';
+			wp_register_style(
+				'bd-video-lightbox',
+				plugins_url( 'assets/css/video-lightbox.css', dirname( __DIR__ ) ),
+				array(),
+				$version
+			);
+			wp_register_script(
+				'bd-video-lightbox',
+				plugins_url( 'assets/js/video-lightbox.js', dirname( __DIR__ ) ),
+				array( 'jquery' ),
+				$version,
+				true
+			);
+		}
+		wp_enqueue_style( 'bd-video-lightbox' );
+		wp_enqueue_script( 'bd-video-lightbox' );
+
+		// Enqueue cover editor assets for logged-in users on list pages.
+		if ( is_user_logged_in() && class_exists( 'BD\\Frontend\\CoverEditorAssets' ) ) {
+			\BD\Frontend\CoverEditorAssets::enqueue();
+		}
 	}
 
 	/**
@@ -742,15 +814,47 @@ class ListDisplay {
 			<!-- List Header -->
 			<div class="bd-list-hero">
 				<?php
-				$cover_image = null;
-				if ( ! empty( $list['cover_image_id'] ) ) {
+				$cover_image    = null;
+				$cover_type     = $list['cover_type'] ?? 'auto';
+				$is_video_cover = in_array( $cover_type, array( 'youtube', 'vimeo' ), true );
+				$video_embed    = '';
+
+				// Get cover image based on type
+				if ( 'image' === $cover_type && ! empty( $list['cover_image_id'] ) ) {
+					$cover_image = wp_get_attachment_image_url( $list['cover_image_id'], 'large' );
+				} elseif ( $is_video_cover ) {
+					// Video cover - get thumbnail
+					if ( ! empty( $list['cover_video_thumb_id'] ) ) {
+						$cover_image = wp_get_attachment_image_url( $list['cover_video_thumb_id'], 'large' );
+					} elseif ( ! empty( $list['cover_video_id'] ) && class_exists( 'BD\\Lists\\CoverManager' ) ) {
+						$cover_image = \BD\Lists\CoverManager::get_video_thumbnail_url( $cover_type, $list['cover_video_id'] );
+					}
+					// Get embed URL for lightbox
+					if ( ! empty( $list['cover_video_id'] ) && class_exists( 'BD\\Lists\\CoverManager' ) ) {
+						$video_embed = \BD\Lists\CoverManager::get_video_embed_url( $cover_type, $list['cover_video_id'] );
+					}
+				} elseif ( ! empty( $list['cover_image_id'] ) ) {
+					// Legacy check for cover_image_id without cover_type
 					$cover_image = wp_get_attachment_image_url( $list['cover_image_id'], 'large' );
 				} elseif ( ! empty( $items ) && ! empty( $items[0]['business']['featured_image'] ) ) {
+					// Fallback to first business image
 					$cover_image = $items[0]['business']['featured_image'];
 				}
 				?>
 				<?php if ( $cover_image ) : ?>
-					<div class="bd-list-cover" style="background-image: url('<?php echo esc_url( $cover_image ); ?>');">
+					<div class="bd-list-cover<?php echo $is_video_cover ? ' bd-list-cover-video' : ''; ?>" 
+						 style="background-image: url('<?php echo esc_url( $cover_image ); ?>');"
+						 <?php if ( $is_video_cover && $video_embed ) : ?>
+						 data-video-embed="<?php echo esc_url( $video_embed ); ?>"
+						 <?php endif; ?>>
+						<?php if ( $is_video_cover && $video_embed ) : ?>
+							<button type="button" class="bd-list-cover-video-play" aria-label="Play video">
+								<i class="fas fa-play"></i>
+							</button>
+							<span class="bd-list-cover-video-badge">
+								<i class="fas fa-video"></i> <?php echo 'youtube' === $cover_type ? 'YouTube' : 'Vimeo'; ?>
+							</span>
+						<?php endif; ?>
 					</div>
 				<?php endif; ?>
 
@@ -971,7 +1075,7 @@ class ListDisplay {
 	 * Render list card
 	 */
 	private static function render_list_card( $list, $show_actions = false, $is_featured = false ) {
-		$cover_image = $list['cover_image'] ?? null;
+		$cover_image = self::get_list_cover_url( $list, 'medium' );
 		$url         = $list['url'] ?? ListManager::get_list_url( $list );
 		$categories  = $list['categories'] ?? ListManager::get_list_display_categories( $list );
 		$city        = $list['cached_city'] ?? null;
@@ -1057,7 +1161,7 @@ class ListDisplay {
 	 * Render list row (for list view)
 	 */
 	private static function render_list_row( $list ) {
-		$cover_image = $list['cover_image'] ?? null;
+		$cover_image = self::get_list_cover_url( $list, 'thumbnail' );
 		$url         = $list['url'] ?? ListManager::get_list_url( $list );
 		$categories  = $list['categories'] ?? ListManager::get_list_display_categories( $list );
 		$city        = $list['cached_city'] ?? null;
@@ -1127,10 +1231,7 @@ class ListDisplay {
 	 * Render collaborative list card (shows owner info and role)
 	 */
 	private static function render_collab_list_card( $list ) {
-		$cover_image = $list['cover_image'] ?? null;
-		if ( ! $cover_image ) {
-			$cover_image = ListManager::get_list_cover_image( $list );
-		}
+		$cover_image = self::get_list_cover_url( $list, 'medium' );
 		$url = $list['url'] ?? ListManager::get_list_url( $list );
 
 		ob_start();
@@ -1256,6 +1357,48 @@ class ListDisplay {
 				</div>
 				<div class="bd-modal-body">
 					<form class="bd-edit-list-form" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
+						
+						<!-- Cover Preview Section -->
+						<div class="bd-cover-section">
+							<label class="bd-form-label">Cover Image</label>
+							<div class="bd-cover-preview-edit">
+								<?php
+								$cover_type = $list['cover_type'] ?? 'auto';
+								$has_cover  = in_array( $cover_type, array( 'image', 'youtube', 'vimeo' ), true );
+								$cover_url  = '';
+								
+								if ( 'image' === $cover_type && ! empty( $list['cover_image_id'] ) ) {
+									$cover_url = wp_get_attachment_image_url( $list['cover_image_id'], 'medium' );
+								} elseif ( in_array( $cover_type, array( 'youtube', 'vimeo' ), true ) ) {
+									if ( ! empty( $list['cover_video_thumb_id'] ) ) {
+										$cover_url = wp_get_attachment_image_url( $list['cover_video_thumb_id'], 'medium' );
+									} elseif ( ! empty( $list['cover_video_id'] ) && class_exists( 'BD\Lists\CoverManager' ) ) {
+										$cover_url = \BD\Lists\CoverManager::get_video_thumbnail_url( $cover_type, $list['cover_video_id'] );
+									}
+								}
+								?>
+								
+								<?php if ( $has_cover && $cover_url ) : ?>
+									<div class="bd-cover-thumb" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
+										<img src="<?php echo esc_url( $cover_url ); ?>" alt="Cover">
+										<?php if ( in_array( $cover_type, array( 'youtube', 'vimeo' ), true ) ) : ?>
+											<span class="bd-cover-badge"><i class="fas fa-play"></i></span>
+										<?php endif; ?>
+									</div>
+								<?php else : ?>
+									<div class="bd-cover-thumb bd-cover-placeholder" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
+										<i class="fas fa-image"></i>
+										<span>No cover</span>
+									</div>
+								<?php endif; ?>
+								
+								<button type="button" class="bd-btn bd-btn-secondary bd-btn-sm bd-open-cover-editor" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
+									<i class="fas fa-camera"></i> <?php echo $has_cover ? 'Change Cover' : 'Add Cover'; ?>
+								</button>
+							</div>
+							<p class="bd-form-hint">Add a custom photo or video cover to make your list stand out</p>
+						</div>
+
 						<div class="bd-form-group">
 							<label for="bd-edit-title">List Name *</label>
 							<input type="text" id="bd-edit-title" name="title" required
