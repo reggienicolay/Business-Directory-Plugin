@@ -25,11 +25,11 @@ class ListSocialMeta {
 	 */
 	public static function init() {
 		add_action( 'wp_head', array( __CLASS__, 'output_meta_tags' ), 5 );
-		
+
 		// Filter for Yoast SEO compatibility
 		add_filter( 'wpseo_opengraph_image', array( __CLASS__, 'filter_yoast_og_image' ), 10, 1 );
 		add_filter( 'wpseo_twitter_image', array( __CLASS__, 'filter_yoast_og_image' ), 10, 1 );
-		
+
 		// Filter for Rank Math compatibility
 		add_filter( 'rank_math/opengraph/facebook/image', array( __CLASS__, 'filter_yoast_og_image' ) );
 		add_filter( 'rank_math/opengraph/twitter/image', array( __CLASS__, 'filter_yoast_og_image' ) );
@@ -145,8 +145,8 @@ class ListSocialMeta {
 		}
 
 		// Build description
-		$description = ! empty( $list['description'] ) 
-			? $list['description'] 
+		$description = ! empty( $list['description'] )
+			? $list['description']
 			: sprintf( 'A curated list of %d places in the Tri-Valley', $list['item_count'] ?? 0 );
 
 		// Truncate description for social

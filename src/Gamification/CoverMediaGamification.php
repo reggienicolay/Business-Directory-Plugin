@@ -26,17 +26,17 @@ File: src/Gamification/ActivityTracker.php
 Find this block:
 ```php
 const ACTIVITY_POINTS = array(
-    'review_created'        => 10,
-    'review_with_photo'     => 5,
-    ...
-    'first_login'           => 5,
+	'review_created'        => 10,
+	'review_with_photo'     => 5,
+	...
+	'first_login'           => 5,
 );
 ```
 
 Add these lines before the closing );
 ```php
-    'list_cover_added'       => 5,   // Photo cover added to list
-    'list_video_cover_added' => 10,  // Video cover added to list
+	'list_cover_added'       => 5,   // Photo cover added to list
+	'list_video_cover_added' => 10,  // Video cover added to list
 ```
 
 ================================================================================
@@ -50,15 +50,15 @@ Find the BADGES constant and add this badge in the Curator section
 
 ```php
 'visual_storyteller'      => array(
-    'name'        => 'Visual Storyteller',
-    'icon'        => '<i class="fa-solid fa-camera-retro"></i>',
-    'color'       => '#ec4899',
-    'description' => 'Your covers bring lists to life and inspire exploration',
-    'requirement' => 'Add custom covers to 5 public lists',
-    'check'       => 'public_lists_with_covers',
-    'threshold'   => 5,
-    'points'      => 50,
-    'rarity'      => 'rare',
+	'name'        => 'Visual Storyteller',
+	'icon'        => '<i class="fa-solid fa-camera-retro"></i>',
+	'color'       => '#ec4899',
+	'description' => 'Your covers bring lists to life and inspire exploration',
+	'requirement' => 'Add custom covers to 5 public lists',
+	'check'       => 'public_lists_with_covers',
+	'threshold'   => 5,
+	'points'      => 50,
+	'rarity'      => 'rare',
 ),
 ```
 
@@ -72,18 +72,18 @@ In the check_badge_requirement() method, add this case:
 
 ```php
 case 'public_lists_with_covers':
-    global $wpdb;
-    $lists_table = $wpdb->prefix . 'bd_lists';
-    $count = (int) $wpdb->get_var(
-        $wpdb->prepare(
-            "SELECT COUNT(*) FROM $lists_table 
-             WHERE user_id = %d 
-             AND visibility = 'public' 
-             AND cover_type IN ('image', 'youtube', 'vimeo')",
-            $user_id
-        )
-    );
-    return $count >= $threshold;
+	global $wpdb;
+	$lists_table = $wpdb->prefix . 'bd_lists';
+	$count = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COUNT(*) FROM $lists_table
+			WHERE user_id = %d
+			AND visibility = 'public'
+			AND cover_type IN ('image', 'youtube', 'vimeo')",
+			$user_id
+		)
+	);
+	return $count >= $threshold;
 ```
 
 ================================================================================
@@ -110,10 +110,10 @@ In the BADGE_CATEGORIES constant, find the 'curator' category and add
 
 ```php
 'curator'   => array(
-    'name'   => 'Curator',
-    'icon'   => '<i class="fa-solid fa-layer-group"></i>',
-    'desc'   => 'Create and share collections of your favorites',
-    'badges' => array( 'curator', 'list_master', 'tastemaker', 'team_player', 'list_leader', 'visual_storyteller' ),
+	'name'   => 'Curator',
+	'icon'   => '<i class="fa-solid fa-layer-group"></i>',
+	'desc'   => 'Create and share collections of your favorites',
+	'badges' => array( 'curator', 'list_master', 'tastemaker', 'team_player', 'list_leader', 'visual_storyteller' ),
 ),
 ```
 
@@ -135,7 +135,7 @@ class CoverMediaGamificationCheck {
 
 		// Check ActivityTracker points
 		if ( class_exists( 'BD\Gamification\ActivityTracker' ) ) {
-			$points = \BD\Gamification\ActivityTracker::ACTIVITY_POINTS;
+			$points                    = \BD\Gamification\ActivityTracker::ACTIVITY_POINTS;
 			$status['activity_points'] = array(
 				'list_cover_added'       => isset( $points['list_cover_added'] ),
 				'list_video_cover_added' => isset( $points['list_video_cover_added'] ),
@@ -146,7 +146,7 @@ class CoverMediaGamificationCheck {
 
 		// Check BadgeSystem badges
 		if ( class_exists( 'BD\Gamification\BadgeSystem' ) ) {
-			$badges = \BD\Gamification\BadgeSystem::BADGES;
+			$badges           = \BD\Gamification\BadgeSystem::BADGES;
 			$status['badges'] = array(
 				'visual_storyteller' => isset( $badges['visual_storyteller'] ),
 			);
@@ -193,4 +193,3 @@ class CoverMediaGamificationCheck {
 		echo '</div>';
 	}
 }
-

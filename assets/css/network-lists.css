@@ -14,7 +14,7 @@
 	--bd-nl-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 	--bd-nl-shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.12);
 	--bd-nl-transition: all 0.3s ease;
-	
+
 	margin: 2rem 0;
 }
 
@@ -271,17 +271,17 @@
 	.bd-nl-cols-4 .bd-nl-grid {
 		grid-template-columns: repeat(2, 1fr);
 	}
-	
+
 	.bd-nl-header {
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 0.5rem;
 	}
-	
+
 	.bd-nl-layout-list .bd-nl-card {
 		flex-direction: column;
 	}
-	
+
 	.bd-nl-layout-list .bd-nl-card-cover {
 		width: 100%;
 	}
@@ -293,7 +293,7 @@
 	.bd-nl-cols-4 .bd-nl-grid {
 		grid-template-columns: 1fr;
 	}
-	
+
 	.bd-nl-card-meta {
 		flex-direction: column;
 		gap: 0.35rem;

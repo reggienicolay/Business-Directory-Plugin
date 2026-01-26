@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Initialize cover media feature
  */
 function init() {
-	$base_path = dirname( __FILE__ );
+	$base_path = __DIR__;
 
 	// Load components FIRST (before trying to use them)
 	require_once $base_path . '/includes/class-cover-media-migration.php';
@@ -93,12 +93,15 @@ function add_csp_headers() {
 	}
 
 	// Allow video embeds from YouTube and Vimeo only
-	$frame_src = implode( ' ', array(
-		"'self'",
-		'https://www.youtube-nocookie.com',
-		'https://www.youtube.com',
-		'https://player.vimeo.com',
-	) );
+	$frame_src = implode(
+		' ',
+		array(
+			"'self'",
+			'https://www.youtube-nocookie.com',
+			'https://www.youtube.com',
+			'https://player.vimeo.com',
+		)
+	);
 
 	header( "Content-Security-Policy: frame-src {$frame_src};" );
 }
@@ -110,7 +113,7 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\init', 5 );
  * Activation hook - run migration
  */
 function activate() {
-	require_once dirname( __FILE__ ) . '/includes/class-cover-media-migration.php';
+	require_once __DIR__ . '/includes/class-cover-media-migration.php';
 	\BD\Includes\CoverMediaMigration::migrate();
 }
 
@@ -120,7 +123,7 @@ function activate() {
  * @return array Feature status.
  */
 function get_status() {
-	require_once dirname( __FILE__ ) . '/includes/class-cover-media-migration.php';
+	require_once __DIR__ . '/includes/class-cover-media-migration.php';
 
 	return array(
 		'migration' => \BD\Includes\CoverMediaMigration::get_status(),

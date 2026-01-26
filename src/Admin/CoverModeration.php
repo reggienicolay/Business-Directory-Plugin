@@ -121,25 +121,25 @@ class CoverModeration {
 			<ul class="subsubsub">
 				<li>
 					<a href="<?php echo esc_url( add_query_arg( 'filter', 'all' ) ); ?>" 
-					   class="<?php echo 'all' === $filter ? 'current' : ''; ?>">
+						class="<?php echo 'all' === $filter ? 'current' : ''; ?>">
 						All <span class="count">(<?php echo esc_html( self::get_covers_count( 'all' ) ); ?>)</span>
 					</a> |
 				</li>
 				<li>
 					<a href="<?php echo esc_url( add_query_arg( 'filter', 'recent' ) ); ?>"
-					   class="<?php echo 'recent' === $filter ? 'current' : ''; ?>">
+						class="<?php echo 'recent' === $filter ? 'current' : ''; ?>">
 						Recent (7 days) <span class="count">(<?php echo esc_html( self::get_covers_count( 'recent' ) ); ?>)</span>
 					</a> |
 				</li>
 				<li>
 					<a href="<?php echo esc_url( add_query_arg( 'filter', 'image' ) ); ?>"
-					   class="<?php echo 'image' === $filter ? 'current' : ''; ?>">
+						class="<?php echo 'image' === $filter ? 'current' : ''; ?>">
 						Photos <span class="count">(<?php echo esc_html( self::get_covers_count( 'image' ) ); ?>)</span>
 					</a> |
 				</li>
 				<li>
 					<a href="<?php echo esc_url( add_query_arg( 'filter', 'video' ) ); ?>"
-					   class="<?php echo 'video' === $filter ? 'current' : ''; ?>">
+						class="<?php echo 'video' === $filter ? 'current' : ''; ?>">
 						Videos <span class="count">(<?php echo esc_html( self::get_covers_count( 'video' ) ); ?>)</span>
 					</a>
 				</li>
@@ -254,8 +254,8 @@ class CoverModeration {
 			<div class="bd-cover-card-actions">
 				<?php if ( ! empty( $cover['cover_image_id'] ) ) : ?>
 					<a href="<?php echo esc_url( admin_url( 'post.php?post=' . $cover['cover_image_id'] . '&action=edit' ) ); ?>" 
-					   class="button button-small" target="_blank" 
-					   title="View in Media Library">
+						class="button button-small" target="_blank" 
+						title="View in Media Library">
 						<i class="dashicons dashicons-admin-media"></i>
 					</a>
 				<?php endif; ?>

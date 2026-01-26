@@ -284,10 +284,10 @@ class CoverEndpoint {
 
 		// Get video_url from params (handles both JSON body and form data)
 		$video_url = $request->get_param( 'video_url' );
-		
+
 		// If not found in params, try JSON body directly
 		if ( empty( $video_url ) ) {
-			$json = $request->get_json_params();
+			$json      = $request->get_json_params();
 			$video_url = isset( $json['video_url'] ) ? $json['video_url'] : '';
 		}
 

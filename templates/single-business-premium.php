@@ -813,7 +813,7 @@ while ( have_posts() ) :
 											|| empty( $day_hours['close'] )
 											|| strtotime( $day_hours['open'] ) === false
 											|| strtotime( $day_hours['close'] ) === false;
-										
+
 										if ( $is_closed ) {
 											echo 'Closed';
 										} else {

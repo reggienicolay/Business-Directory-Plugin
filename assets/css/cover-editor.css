@@ -452,41 +452,41 @@
 	.bd-cover-tabs {
 		padding: 0 1rem;
 	}
-	
+
 	.bd-cover-tab {
 		padding: 0.75rem 1rem;
 		font-size: 0.9rem;
 	}
-	
+
 	.bd-cover-panel {
 		padding: 1rem;
 	}
-	
+
 	.bd-cover-dropzone {
 		padding: 2rem 1rem;
 	}
-	
+
 	.bd-cover-dropzone i {
 		font-size: 2rem;
 	}
-	
+
 	.bd-cover-preview-container {
 		height: 280px;
 	}
-	
+
 	.bd-cover-controls {
 		flex-direction: column;
 		align-items: stretch;
 	}
-	
+
 	.bd-cover-control-group {
 		width: 100%;
 	}
-	
+
 	.bd-cover-zoom-slider {
 		max-width: none;
 	}
-	
+
 	.bd-cover-control-buttons {
 		justify-content: center;
 	}
@@ -511,8 +511,8 @@
 }
 
 /* ==========================================================================
-   Custom Video Thumbnail Styles
-   ========================================================================== */
+	Custom Video Thumbnail Styles
+	========================================================================== */
 
 .bd-cover-custom-thumb-option {
 	margin-top: 1rem;
@@ -612,4 +612,3 @@
 	background: var(--bd-border, #e2e8f0) !important;
 	color: var(--bd-primary, #1a3a4a) !important;
 }
-

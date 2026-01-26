@@ -67,7 +67,7 @@ class CoverMediaMigration {
 		// Check if table exists
 		$table_exists = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = %s AND table_name = %s",
+				'SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = %s AND table_name = %s',
 				DB_NAME,
 				$table
 			)
@@ -148,8 +148,8 @@ class CoverMediaMigration {
 			// Check if index exists
 			$index_exists = $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM information_schema.statistics 
-					 WHERE table_schema = %s AND table_name = %s AND index_name = %s",
+					'SELECT COUNT(*) FROM information_schema.statistics 
+					 WHERE table_schema = %s AND table_name = %s AND index_name = %s',
 					DB_NAME,
 					$table,
 					$index_name
@@ -191,7 +191,7 @@ class CoverMediaMigration {
 		// Check if table exists
 		$table_exists = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = %s AND table_name = %s",
+				'SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = %s AND table_name = %s',
 				DB_NAME,
 				$table
 			)
@@ -225,10 +225,10 @@ class CoverMediaMigration {
 		// Check indexes
 		$indexes = array( 'idx_cover_type', 'idx_cover_video_id' );
 		foreach ( $indexes as $index ) {
-			$exists = $wpdb->get_var(
+			$exists                      = $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM information_schema.statistics 
-					 WHERE table_schema = %s AND table_name = %s AND index_name = %s",
+					'SELECT COUNT(*) FROM information_schema.statistics 
+					 WHERE table_schema = %s AND table_name = %s AND index_name = %s',
 					DB_NAME,
 					$table,
 					$index
@@ -237,7 +237,7 @@ class CoverMediaMigration {
 			$status['indexes'][ $index ] = (bool) $exists;
 		}
 
-		$status['complete'] = ! in_array( false, $status['columns'], true ) 
+		$status['complete'] = ! in_array( false, $status['columns'], true )
 			&& ! in_array( false, $status['indexes'], true );
 
 		return $status;

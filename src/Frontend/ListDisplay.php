@@ -843,10 +843,10 @@ class ListDisplay {
 				?>
 				<?php if ( $cover_image ) : ?>
 					<div class="bd-list-cover<?php echo $is_video_cover ? ' bd-list-cover-video' : ''; ?>" 
-						 style="background-image: url('<?php echo esc_url( $cover_image ); ?>');"
-						 <?php if ( $is_video_cover && $video_embed ) : ?>
-						 data-video-embed="<?php echo esc_url( $video_embed ); ?>"
-						 <?php endif; ?>>
+						style="background-image: url('<?php echo esc_url( $cover_image ); ?>');"
+						<?php if ( $is_video_cover && $video_embed ) : ?>
+						data-video-embed="<?php echo esc_url( $video_embed ); ?>"
+						<?php endif; ?>>
 						<?php if ( $is_video_cover && $video_embed ) : ?>
 							<button type="button" class="bd-list-cover-video-play" aria-label="Play video">
 								<i class="fas fa-play"></i>
@@ -1232,7 +1232,7 @@ class ListDisplay {
 	 */
 	private static function render_collab_list_card( $list ) {
 		$cover_image = self::get_list_cover_url( $list, 'medium' );
-		$url = $list['url'] ?? ListManager::get_list_url( $list );
+		$url         = $list['url'] ?? ListManager::get_list_url( $list );
 
 		ob_start();
 		?>
@@ -1366,7 +1366,7 @@ class ListDisplay {
 								$cover_type = $list['cover_type'] ?? 'auto';
 								$has_cover  = in_array( $cover_type, array( 'image', 'youtube', 'vimeo' ), true );
 								$cover_url  = '';
-								
+
 								if ( 'image' === $cover_type && ! empty( $list['cover_image_id'] ) ) {
 									$cover_url = wp_get_attachment_image_url( $list['cover_image_id'], 'medium' );
 								} elseif ( in_array( $cover_type, array( 'youtube', 'vimeo' ), true ) ) {

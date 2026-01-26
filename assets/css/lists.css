@@ -2967,9 +2967,9 @@ bd-btn-secondary:hover {
 }
 
 /* ========================================================================
-   COVER PREVIEW IN EDIT MODAL
-   Added for Cover Media Feature v1.2.0
-   ======================================================================== */
+	COVER PREVIEW IN EDIT MODAL
+	Added for Cover Media Feature v1.2.0
+	======================================================================== */
 
 /* Cover Section in Edit Modal */
 .bd-cover-section {
@@ -3064,7 +3064,7 @@ bd-btn-secondary:hover {
 		flex-direction: column;
 		align-items: stretch;
 	}
-	
+
 	.bd-cover-thumb {
 		width: 100%;
 		height: 120px;
@@ -3072,8 +3072,8 @@ bd-btn-secondary:hover {
 }
 
 /* ==========================================================================
-   VIDEO COVER STYLES
-   ========================================================================== */
+	VIDEO COVER STYLES
+	========================================================================== */
 
 /* Video cover - keep below hero content (z-index: 1) */
 .bd-list-cover.bd-list-cover-video {
@@ -3160,8 +3160,8 @@ bd-btn-secondary:hover {
 }
 
 /* ==========================================================================
-   VIDEO LIGHTBOX STYLES (Override theme conflicts)
-   ========================================================================== */
+	VIDEO LIGHTBOX STYLES (Override theme conflicts)
+	========================================================================== */
 
 /* Lightbox overlay */
 #bd-video-lightbox.bd-video-lightbox {
@@ -3264,11 +3264,11 @@ body.bd-lightbox-open {
 		height: 60px;
 		font-size: 1.25rem;
 	}
-	
+
 	#bd-video-lightbox .bd-video-lightbox-container {
 		width: 95%;
 	}
-	
+
 	#bd-video-lightbox .bd-video-lightbox-close {
 		top: -45px;
 		width: 40px;
@@ -3276,4 +3276,3 @@ body.bd-lightbox-open {
 		font-size: 16px;
 	}
 }
-

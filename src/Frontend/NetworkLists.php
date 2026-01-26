@@ -53,21 +53,21 @@ class NetworkLists {
 	public static function render_shortcode( $atts ) {
 		$atts = shortcode_atts(
 			array(
-				'city'          => '',           // Required: City to filter by
-				'source'        => '',           // Source site domain (e.g., lovetrivalley.com)
-				'limit'         => 6,            // Number of lists to show
-				'columns'       => 3,            // Grid columns
-				'layout'        => 'grid',       // grid, list, compact
-				'show_covers'   => 'yes',        // Show cover images
-				'show_author'   => 'yes',        // Show author name
-				'show_count'    => 'yes',        // Show item count
-				'has_cover'     => '',           // Filter: only with covers (yes/no)
-				'min_items'     => 3,            // Minimum items in list
-				'orderby'       => 'updated_at', // Sort order
-				'cache'         => 60,           // Cache duration in minutes
-				'title'         => '',           // Section title
-				'view_all_url'  => '',           // URL for "View All" link
-				'class'         => '',           // Additional CSS class
+				'city'         => '',           // Required: City to filter by
+				'source'       => '',           // Source site domain (e.g., lovetrivalley.com)
+				'limit'        => 6,            // Number of lists to show
+				'columns'      => 3,            // Grid columns
+				'layout'       => 'grid',       // grid, list, compact
+				'show_covers'  => 'yes',        // Show cover images
+				'show_author'  => 'yes',        // Show author name
+				'show_count'   => 'yes',        // Show item count
+				'has_cover'    => '',           // Filter: only with covers (yes/no)
+				'min_items'    => 3,            // Minimum items in list
+				'orderby'      => 'updated_at', // Sort order
+				'cache'        => 60,           // Cache duration in minutes
+				'title'        => '',           // Section title
+				'view_all_url' => '',           // URL for "View All" link
+				'class'        => '',           // Additional CSS class
 			),
 			$atts,
 			'bd_network_lists'
@@ -284,8 +284,8 @@ class NetworkLists {
 					<div class="bd-nl-card-cover">
 						<?php if ( $cover_image ) : ?>
 							<img src="<?php echo esc_url( $cover_image ); ?>" 
-								 alt="<?php echo esc_attr( $list['title'] ); ?>"
-								 loading="lazy">
+								alt="<?php echo esc_attr( $list['title'] ); ?>"
+								loading="lazy">
 						<?php else : ?>
 							<div class="bd-nl-card-placeholder">
 								<i class="fas fa-list"></i>

@@ -576,7 +576,6 @@ class CoverManager {
 		// Validate MIME type server-side using finfo
 		$finfo     = finfo_open( FILEINFO_MIME_TYPE );
 		$mime_type = finfo_file( $finfo, $file['tmp_name'] );
-		finfo_close( $finfo );
 
 		if ( ! in_array( $mime_type, self::ALLOWED_MIME_TYPES, true ) ) {
 			return new \WP_Error( 'invalid_type', 'Please upload a JPEG, PNG, or WebP image', array( 'status' => 400 ) );
@@ -723,7 +722,6 @@ class CoverManager {
 				if ( imagewebp( $image, $webp_file, 80 ) ) {
 					update_post_meta( $attachment_id, '_bd_webp_file', $webp_file );
 				}
-				imagedestroy( $image );
 			}
 		}
 
@@ -739,12 +737,12 @@ class CoverManager {
 	private static function prepare_crop_data( $crop_data ) {
 		// Validate and clamp values to safe ranges
 		$normalized = array(
-			'version' => 1,
-			'source'  => array(
+			'version'  => 1,
+			'source'   => array(
 				'width'  => absint( $crop_data['source_width'] ?? 0 ),
 				'height' => absint( $crop_data['source_height'] ?? 0 ),
 			),
-			'crop'    => array(
+			'crop'     => array(
 				// Clamp percentages to 0-1 range
 				'x'      => max( 0, min( 1, floatval( $crop_data['x'] ?? 0 ) ) ),
 				'y'      => max( 0, min( 1, floatval( $crop_data['y'] ?? 0 ) ) ),
@@ -921,9 +919,9 @@ class CoverManager {
 				$data = json_decode( wp_remote_retrieve_body( $response ), true );
 				if ( ! empty( $data['thumbnail_url'] ) ) {
 					// Get larger thumbnail and validate domain
-					$thumb_url   = preg_replace( '/_\d+x\d+/', '_640', $data['thumbnail_url'] );
-					$parsed      = wp_parse_url( $thumb_url );
-					$thumb_host  = $parsed['host'] ?? '';
+					$thumb_url  = preg_replace( '/_\d+x\d+/', '_640', $data['thumbnail_url'] );
+					$parsed     = wp_parse_url( $thumb_url );
+					$thumb_host = $parsed['host'] ?? '';
 
 					if ( in_array( $thumb_host, self::ALLOWED_THUMBNAIL_DOMAINS, true ) ) {
 						$url = $thumb_url;
@@ -1062,7 +1060,7 @@ class CoverManager {
 		);
 
 		if ( 'image' === $cover_type && ! empty( $list['cover_image_id'] ) ) {
-			$data['image'] = array(
+			$data['image']      = array(
 				'id'        => (int) $list['cover_image_id'],
 				'thumbnail' => wp_get_attachment_image_url( $list['cover_image_id'], 'thumbnail' ),
 				'medium'    => wp_get_attachment_image_url( $list['cover_image_id'], 'medium' ),
