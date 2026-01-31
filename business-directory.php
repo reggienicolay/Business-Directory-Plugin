@@ -70,6 +70,15 @@ require_once BD_PLUGIN_DIR . 'src/API/SubmissionEndpoint.php';
 // Load Admin classes.
 require_once BD_PLUGIN_DIR . 'src/Admin/ListsAdmin.php';
 require_once BD_PLUGIN_DIR . 'src/Admin/FeaturedAdmin.php';
+require_once BD_PLUGIN_DIR . 'src/Admin/DuplicatesAdmin.php';
+require_once BD_PLUGIN_DIR . 'src/Admin/ExporterPage.php';
+
+// Load DB classes for duplicate management.
+require_once BD_PLUGIN_DIR . 'src/DB/DuplicateFinder.php';
+require_once BD_PLUGIN_DIR . 'src/DB/DuplicateMerger.php';
+
+// Load Exporter classes.
+require_once BD_PLUGIN_DIR . 'src/Exporter/CSV.php';
 
 // Load Frontend classes.
 require_once BD_PLUGIN_DIR . 'src/Frontend/ListDisplay.php';
@@ -107,6 +116,12 @@ add_action(
 
 			// Admin change requests queue.
 			new \BD\Admin\ChangeRequestsQueue();
+
+			// Initialize Duplicates Admin.
+			new \BD\Admin\DuplicatesAdmin();
+
+			// Initialize Export Admin.
+			new \BD\Admin\ExporterPage();
 
 			// Initialize components (preserve original order - ListDisplay must come AFTER ListsAdmin).
 			\BD\Frontend\BadgeDisplay::init();
