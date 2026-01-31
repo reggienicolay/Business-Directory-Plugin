@@ -143,7 +143,8 @@ class CSV {
 		$offset = 0;
 
 		do {
-			$businesses = self::get_businesses( $args, $offset, self::BATCH_SIZE );
+			$businesses      = self::get_businesses( $args, $offset, self::BATCH_SIZE );
+			$businesses_count = count( $businesses );
 
 			// Batch load review stats if needed (prevents N+1 queries).
 			if ( $args['include_reviews'] && ! empty( $businesses ) ) {
@@ -167,7 +168,7 @@ class CSV {
 			}
 			flush();
 
-		} while ( count( $businesses ) === self::BATCH_SIZE );
+		} while ( $businesses_count === self::BATCH_SIZE );
 
 		fclose( $output );
 	}

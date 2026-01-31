@@ -554,12 +554,14 @@ class DuplicatesAdmin {
 		}
 
 		// Remove primary from duplicate list.
-		$duplicate_ids = array_values( array_filter(
-			$business_ids,
-			function ( $id ) use ( $primary_id ) {
-				return absint( $id ) !== absint( $primary_id );
-			}
-		) );
+		$duplicate_ids = array_values(
+			array_filter(
+				$business_ids,
+				function ( $id ) use ( $primary_id ) {
+					return absint( $id ) !== absint( $primary_id );
+				}
+			)
+		);
 
 		$options = array(
 			'merge_reviews' => ! empty( $_POST['merge_reviews'] ),

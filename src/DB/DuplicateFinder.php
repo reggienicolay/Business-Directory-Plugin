@@ -556,9 +556,11 @@ class DuplicateFinder {
 
 			if ( null !== $found_group ) {
 				$existing                 = &$merged_groups[ $found_group ];
-				$existing['business_ids'] = array_values( array_unique(
-					array_merge( $existing['business_ids'], $group['business_ids'] )
-				) );
+				$existing['business_ids'] = array_values(
+					array_unique(
+						array_merge( $existing['business_ids'], $group['business_ids'] )
+					)
+				);
 				$existing['count']   = count( $existing['business_ids'] );
 				$existing['methods'] = array_unique(
 					array_merge(
@@ -696,7 +698,10 @@ class DuplicateFinder {
 			// Use get_the_terms() to leverage the primed object cache.
 			$cat_terms    = get_the_terms( $id, 'bd_category' );
 			$categories   = ( $cat_terms && ! is_wp_error( $cat_terms ) ) ? wp_list_pluck( $cat_terms, 'name' ) : array();
-			$review_stats = $reviews_cache[ $id ] ?? array( 'count' => 0, 'avg_rating' => 0 );
+			$review_stats = $reviews_cache[ $id ] ?? array(
+				'count'      => 0,
+				'avg_rating' => 0,
+			);
 			$claimed_by   = get_post_meta( $id, 'bd_claimed_by', true );
 
 			$details[] = array(
