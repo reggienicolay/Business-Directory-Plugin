@@ -71,7 +71,7 @@
 	position: relative;
 }
 
-.bd-claim-icon {
+.bd-claim-modal .bd-claim-icon {
 	width: 64px;
 	height: 64px;
 	margin: 0 auto 16px;
@@ -83,7 +83,7 @@
 	backdrop-filter: blur(10px);
 }
 
-.bd-claim-icon svg {
+.bd-claim-modal .bd-claim-icon svg {
 	color: #2CB1BC;
 }
 

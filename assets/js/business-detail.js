@@ -1,7 +1,7 @@
 /**
  * Business Detail Page - Interactive Features
  * Handles: Photo Lightbox, Social Sharing, Map
- * Updated with blue/teal color scheme
+ * Updated with blue/teal color scheme and heart marker
  */
 
 (function() {
@@ -144,7 +144,8 @@
         map: null,
         
         init: function() {
-            const mapEl = document.getElementById('bd-location-map');
+            // Support both old and new map element IDs
+            const mapEl = document.getElementById('bd-sidebar-map') || document.getElementById('bd-location-map');
             if (!mapEl || typeof L === 'undefined') return;
             
             const lat = parseFloat(mapEl.dataset.lat);
@@ -152,8 +153,8 @@
             
             if (!lat || !lng) return;
             
-            // Initialize map
-            this.map = L.map('bd-location-map', {
+            // Initialize map using the element's actual ID
+            this.map = L.map(mapEl.id, {
                 center: [lat, lng],
                 zoom: 15,
                 scrollWheelZoom: false,
@@ -166,30 +167,32 @@
                 maxZoom: 19
             }).addTo(this.map);
             
-            // Add custom marker - UPDATED COLORS: Navy/Teal
+            // Add custom marker - Heart icon matching site branding
+            // Inline styles ensure it works even if map-markers.css isn't loaded
             const customIcon = L.divIcon({
-                className: 'bd-custom-marker',
-                html: `
-                    <div style="
-                        width: 40px;
-                        height: 40px;
-                        background: linear-gradient(135deg, #0F2A43 0%, #133453 100%);
-                        border: 3px solid #2CB1BC;
-                        border-radius: 50% 50% 50% 0;
-                        transform: rotate(-45deg);
-                        box-shadow: 0 4px 12px rgba(15, 42, 67, 0.4);
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    ">
-                        <svg width="20" height="20" viewBox="0 0 20 20" fill="#2CB1BC" style="transform: rotate(45deg);">
-                            <path d="M10 0C6.5 0 3.75 2.75 3.75 6.25c0 4.375 6.25 13.75 6.25 13.75s6.25-9.375 6.25-13.75C16.25 2.75 13.5 0 10 0zm0 9.375c-1.75 0-3.125-1.375-3.125-3.125S8.25 3.125 10 3.125s3.125 1.375 3.125 3.125S11.75 9.375 10 9.375z"/>
-                        </svg>
-                    </div>
-                `,
-                iconSize: [40, 40],
-                iconAnchor: [20, 40]
+                className: 'bd-detail-heart-icon',
+                html: `<div style="
+                    width: 32px;
+                    height: 32px;
+                    color: #0F2A43;
+                    filter: drop-shadow(0 2px 4px rgba(15, 42, 67, 0.3));
+                    cursor: pointer;
+                ">
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width: 100%; height: 100%;">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                </div>`,
+                iconSize: [32, 32],
+                iconAnchor: [16, 32]
             });
+            
+            // Add inline styles to prevent Leaflet default marker backgrounds
+            if (!document.getElementById('bd-heart-icon-styles')) {
+                const style = document.createElement('style');
+                style.id = 'bd-heart-icon-styles';
+                style.textContent = '.bd-detail-heart-icon { background: transparent !important; border: none !important; }';
+                document.head.appendChild(style);
+            }
             
             L.marker([lat, lng], { icon: customIcon }).addTo(this.map);
         }

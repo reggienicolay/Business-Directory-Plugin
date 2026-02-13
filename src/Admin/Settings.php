@@ -1,13 +1,25 @@
 <?php
-
+/**
+ * Settings Admin Page
+ *
+ * Handles Business Directory settings including:
+ * - Page settings (Business Tools, Edit Listing)
+ * - Directory layout selection (Classic/Quick Filter)
+ * - Detail page layout selection (Classic/Immersive) [NEW]
+ * - Turnstile spam protection
+ * - Notification emails
+ * - Cache management
+ *
+ * @package BusinessDirectory
+ */
 
 namespace BD\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; }
+	exit;
+}
 
 class Settings {
-
 
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
@@ -40,7 +52,7 @@ class Settings {
 			'edit.php?post_type=bd_business',
 			__( 'Pending Submissions', 'business-directory' ),
 			sprintf(
-			// translators: Placeholder for dynamic value.
+				// translators: Placeholder for dynamic value.
 				__( 'Pending Submissions %s', 'business-directory' ),
 				$pending_count > 0 ? '<span class="awaiting-mod count-' . $pending_count . '"><span class="pending-count">' . number_format_i18n( $pending_count ) . '</span></span>' : ''
 			),
@@ -56,7 +68,8 @@ class Settings {
 		$pending_count = wp_count_posts( 'bd_business' )->pending;
 
 		if ( $pending_count > 0 ) {
-			$class            = ( isset( $_GET['post_status'] ) && $_GET['post_status'] === 'pending' ) ? 'current' : '';
+			$post_status      = isset( $_GET['post_status'] ) ? sanitize_key( $_GET['post_status'] ) : '';
+			$class            = ( $post_status === 'pending' ) ? 'current' : '';
 			$views['pending'] = sprintf(
 				'<a href="%s" class="%s">%s <span class="count">(%d)</span></a>',
 				admin_url( 'edit.php?post_type=bd_business&post_status=pending' ),
@@ -94,7 +107,9 @@ class Settings {
 	public function inject_approve_buttons() {
 		$screen = get_current_screen();
 
-		if ( $screen && $screen->id === 'edit-bd_business' && isset( $_GET['post_status'] ) && $_GET['post_status'] === 'pending' ) {
+		if ( $screen && $screen->id === 'edit-bd_business' ) {
+			$post_status = isset( $_GET['post_status'] ) ? sanitize_key( $_GET['post_status'] ) : '';
+			if ( $post_status === 'pending' ) {
 			?>
 			<script>
 				jQuery(document).ready(function ($) {
@@ -108,6 +123,7 @@ class Settings {
 				});
 			</script>
 			<?php
+			}
 		}
 	}
 
@@ -116,20 +132,21 @@ class Settings {
 	 */
 	public function handle_approve() {
 		if ( ! isset( $_GET['business_id'] ) || ! isset( $_GET['_wpnonce'] ) ) {
-			wp_die( 'Invalid request' );
+			wp_die( esc_html__( 'Invalid request', 'business-directory' ) );
 		}
 
-		$business_id = intval( $_GET['business_id'] );
+		$business_id = absint( $_GET['business_id'] );
+		$nonce       = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) );
 
-		if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'bd_approve_' . $business_id ) ) {
-			wp_die( 'Security check failed' );
+		if ( ! wp_verify_nonce( $nonce, 'bd_approve_' . $business_id ) ) {
+			wp_die( esc_html__( 'Security check failed', 'business-directory' ) );
 		}
 
 		if ( ! current_user_can( 'edit_post', $business_id ) ) {
-			wp_die( 'You do not have permission to approve this business' );
+			wp_die( esc_html__( 'You do not have permission to approve this business', 'business-directory' ) );
 		}
 
-		// Update post status to publish
+		// Update post status to publish.
 		wp_update_post(
 			array(
 				'ID'          => $business_id,
@@ -137,7 +154,7 @@ class Settings {
 			)
 		);
 
-		// Redirect back to pending list
+		// Redirect back to pending list.
 		wp_redirect( admin_url( 'edit.php?post_type=bd_business&post_status=pending&approved=1' ) );
 		exit;
 	}
@@ -152,8 +169,9 @@ class Settings {
 		register_setting( 'bd_settings', 'bd_business_tools_page' );
 		register_setting( 'bd_settings', 'bd_edit_listing_page' );
 
-		// Directory layout setting.
+		// Layout settings.
 		register_setting( 'bd_settings', 'bd_directory_layout' );
+		register_setting( 'bd_settings', 'bd_detail_layout' );
 	}
 
 	/**
@@ -163,6 +181,15 @@ class Settings {
 	 */
 	public static function get_directory_layout() {
 		return get_option( 'bd_directory_layout', 'classic' );
+	}
+
+	/**
+	 * Get the current detail page layout setting.
+	 *
+	 * @return string 'classic' or 'immersive'
+	 */
+	public static function get_detail_layout() {
+		return get_option( 'bd_detail_layout', 'immersive' );
 	}
 
 	/**
@@ -200,14 +227,49 @@ class Settings {
 		<?php
 	}
 
+	/**
+	 * Render detail page layout setting field.
+	 */
+	public function render_detail_layout_field() {
+		$value = get_option( 'bd_detail_layout', 'immersive' );
+		?>
+		<tr>
+			<th scope="row">
+				<label><?php esc_html_e( 'Business Detail Page', 'business-directory' ); ?></label>
+			</th>
+			<td>
+				<fieldset>
+					<label style="display: block; margin-bottom: 12px;">
+						<input type="radio" name="bd_detail_layout" value="classic" 
+							<?php checked( $value, 'classic' ); ?>>
+						<strong><?php esc_html_e( 'Classic Layout', 'business-directory' ); ?></strong>
+						<p class="description" style="margin: 4px 0 0 24px;">
+							<?php esc_html_e( 'Gradient hero with traditional card layout', 'business-directory' ); ?>
+						</p>
+					</label>
+					<label style="display: block;">
+						<input type="radio" name="bd_detail_layout" value="immersive" 
+							<?php checked( $value, 'immersive' ); ?>>
+						<strong><?php esc_html_e( 'Immersive Layout', 'business-directory' ); ?></strong>
+						<span style="background: #2CB1BC; color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 3px; margin-left: 6px;">NEW</span>
+						<p class="description" style="margin: 4px 0 0 24px;">
+							<?php esc_html_e( 'Photo hero with parallax, sticky navigation, and modern card design', 'business-directory' ); ?>
+						</p>
+					</label>
+				</fieldset>
+			</td>
+		</tr>
+		<?php
+	}
+
 	public function render_page() {
-		// Handle cache clear action
+		// Handle cache clear action.
 		if ( isset( $_POST['clear_cache'] ) && check_admin_referer( 'bd_clear_cache' ) ) {
 			$this->clear_all_caches();
 			echo '<div class="notice notice-success is-dismissible"><p><strong>✅ Cache cleared successfully!</strong></p></div>';
 		}
 
-		// Handle page creation
+		// Handle page creation.
 		if ( isset( $_POST['create_tools_page'] ) && check_admin_referer( 'bd_create_page' ) ) {
 			$page_id = $this->create_business_tools_page();
 			if ( $page_id ) {
@@ -225,19 +287,19 @@ class Settings {
 		}
 		?>
 		<div class="wrap">
-			<h1><?php _e( 'Business Directory Settings', 'business-directory' ); ?></h1>
+			<h1><?php esc_html_e( 'Business Directory Settings', 'business-directory' ); ?></h1>
 
 			<!-- SINGLE FORM FOR ALL SETTINGS -->
 			<form method="post" action="options.php">
 				<?php settings_fields( 'bd_settings' ); ?>
 
 				<!-- Page Settings Section -->
-				<h2><?php _e( 'Page Settings', 'business-directory' ); ?></h2>
-				<p class="description"><?php _e( 'Select pages for business owner features. Create pages automatically or select existing ones.', 'business-directory' ); ?></p>
+				<h2><?php esc_html_e( 'Page Settings', 'business-directory' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Select pages for business owner features. Create pages automatically or select existing ones.', 'business-directory' ); ?></p>
 
 				<table class="form-table">
 					<tr>
-						<th><label for="bd_business_tools_page"><?php _e( 'Business Tools Page', 'business-directory' ); ?></label></th>
+						<th><label for="bd_business_tools_page"><?php esc_html_e( 'Business Tools Page', 'business-directory' ); ?></label></th>
 						<td>
 							<?php
 							$tools_page = get_option( 'bd_business_tools_page' );
@@ -252,15 +314,15 @@ class Settings {
 							);
 							?>
 							<p class="description">
-								<?php _e( 'Page with [bd_business_tools] shortcode. Business owners access their dashboard here.', 'business-directory' ); ?>
+								<?php esc_html_e( 'Page with [bd_business_tools] shortcode. Business owners access their dashboard here.', 'business-directory' ); ?>
 								<?php if ( $tools_page ) : ?>
-									<br><a href="<?php echo get_permalink( $tools_page ); ?>" target="_blank"><?php _e( 'View page →', 'business-directory' ); ?></a>
+									<br><a href="<?php echo esc_url( get_permalink( $tools_page ) ); ?>" target="_blank"><?php esc_html_e( 'View page →', 'business-directory' ); ?></a>
 								<?php endif; ?>
 							</p>
 						</td>
 					</tr>
 					<tr>
-						<th><label for="bd_edit_listing_page"><?php _e( 'Edit Listing Page', 'business-directory' ); ?></label></th>
+						<th><label for="bd_edit_listing_page"><?php esc_html_e( 'Edit Listing Page', 'business-directory' ); ?></label></th>
 						<td>
 							<?php
 							$edit_page = get_option( 'bd_edit_listing_page' );
@@ -275,30 +337,40 @@ class Settings {
 							);
 							?>
 							<p class="description">
-								<?php _e( 'Page with [bd_edit_listing] shortcode. Business owners edit their listing here.', 'business-directory' ); ?>
+								<?php esc_html_e( 'Page with [bd_edit_listing] shortcode. Business owners edit their listing here.', 'business-directory' ); ?>
 								<?php if ( $edit_page ) : ?>
-									<br><a href="<?php echo get_permalink( $edit_page ); ?>" target="_blank"><?php _e( 'View page →', 'business-directory' ); ?></a>
+									<br><a href="<?php echo esc_url( get_permalink( $edit_page ) ); ?>" target="_blank"><?php esc_html_e( 'View page →', 'business-directory' ); ?></a>
 								<?php endif; ?>
 							</p>
 						</td>
 					</tr>
-					<?php $this->render_layout_field(); ?>
 				</table>
 
 				<hr style="margin: 40px 0;">
 
-				<h2><?php _e( 'Cloudflare Turnstile', 'business-directory' ); ?></h2>
-				<p><?php _e( 'Get free keys at: <a href="https://dash.cloudflare.com/sign-up/turnstile" target="_blank">Cloudflare Turnstile</a>', 'business-directory' ); ?></p>
+				<!-- Layout Settings Section -->
+				<h2><?php esc_html_e( 'Layout Settings', 'business-directory' ); ?></h2>
+				<p class="description"><?php esc_html_e( 'Choose how your directory and business detail pages are displayed.', 'business-directory' ); ?></p>
+
+				<table class="form-table">
+					<?php $this->render_layout_field(); ?>
+					<?php $this->render_detail_layout_field(); ?>
+				</table>
+
+				<hr style="margin: 40px 0;">
+
+				<h2><?php esc_html_e( 'Cloudflare Turnstile', 'business-directory' ); ?></h2>
+				<p><?php echo wp_kses_post( __( 'Get free keys at: <a href="https://dash.cloudflare.com/sign-up/turnstile" target="_blank">Cloudflare Turnstile</a>', 'business-directory' ) ); ?></p>
 
 				<table class="form-table">
 					<tr>
-						<th><label for="bd_turnstile_site_key"><?php _e( 'Site Key', 'business-directory' ); ?></label></th>
+						<th><label for="bd_turnstile_site_key"><?php esc_html_e( 'Site Key', 'business-directory' ); ?></label></th>
 						<td>
 							<input type="text" id="bd_turnstile_site_key" name="bd_turnstile_site_key" value="<?php echo esc_attr( get_option( 'bd_turnstile_site_key' ) ); ?>" class="regular-text" />
 						</td>
 					</tr>
 					<tr>
-						<th><label for="bd_turnstile_secret_key"><?php _e( 'Secret Key', 'business-directory' ); ?></label></th>
+						<th><label for="bd_turnstile_secret_key"><?php esc_html_e( 'Secret Key', 'business-directory' ); ?></label></th>
 						<td>
 							<input type="text" id="bd_turnstile_secret_key" name="bd_turnstile_secret_key" value="<?php echo esc_attr( get_option( 'bd_turnstile_secret_key' ) ); ?>" class="regular-text" />
 						</td>
@@ -307,20 +379,20 @@ class Settings {
 
 				<hr style="margin: 40px 0;">
 
-				<h2><?php _e( 'Notifications', 'business-directory' ); ?></h2>
+				<h2><?php esc_html_e( 'Notifications', 'business-directory' ); ?></h2>
 
 				<table class="form-table">
 					<tr>
-						<th><label for="bd_notification_emails"><?php _e( 'Email Addresses', 'business-directory' ); ?></label></th>
+						<th><label for="bd_notification_emails"><?php esc_html_e( 'Email Addresses', 'business-directory' ); ?></label></th>
 						<td>
 							<input type="text" id="bd_notification_emails" name="bd_notification_emails" value="<?php echo esc_attr( get_option( 'bd_notification_emails', get_option( 'admin_email' ) ) ); ?>" class="regular-text" />
-							<p class="description"><?php _e( 'Comma-separated list of emails to receive notifications', 'business-directory' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Comma-separated list of emails to receive notifications', 'business-directory' ); ?></p>
 						</td>
 					</tr>
 				</table>
 
 				<?php
-				// Hook for integrations and other settings - INSIDE THE FORM
+				// Hook for integrations and other settings - INSIDE THE FORM.
 				do_action( 'bd_settings_after_pages' );
 				?>
 
@@ -330,8 +402,8 @@ class Settings {
 			<!-- Quick Page Creation (separate forms, not options.php) -->
 			<hr style="margin: 40px 0;">
 
-			<h2><?php _e( 'Quick Page Setup', 'business-directory' ); ?></h2>
-			<p><?php _e( 'Automatically create pages with the correct shortcodes.', 'business-directory' ); ?></p>
+			<h2><?php esc_html_e( 'Quick Page Setup', 'business-directory' ); ?></h2>
+			<p><?php esc_html_e( 'Automatically create pages with the correct shortcodes.', 'business-directory' ); ?></p>
 
 			<form method="post" action="" style="display: inline-block; margin-right: 10px;">
 				<?php wp_nonce_field( 'bd_create_page' ); ?>
@@ -364,8 +436,8 @@ class Settings {
 			<!-- Cache Management Section -->
 			<hr style="margin: 40px 0;">
 
-			<h2><?php _e( 'Cache Management', 'business-directory' ); ?></h2>
-			<p><?php _e( 'Clear cached filter data, search results, and metadata. Use this after importing businesses or updating categories.', 'business-directory' ); ?></p>
+			<h2><?php esc_html_e( 'Cache Management', 'business-directory' ); ?></h2>
+			<p><?php esc_html_e( 'Clear cached filter data, search results, and metadata. Use this after importing businesses or updating categories.', 'business-directory' ); ?></p>
 
 			<form method="post" action="">
 				<?php wp_nonce_field( 'bd_clear_cache' ); ?>
@@ -442,16 +514,14 @@ class Settings {
 	private function clear_all_caches() {
 		global $wpdb;
 
-		// Clear all bd_ transients
+		// Clear all bd_ transients.
 		$wpdb->query(
-			"
-        DELETE FROM {$wpdb->options} 
-        WHERE option_name LIKE '_transient_bd_%' 
-        OR option_name LIKE '_transient_timeout_bd_%'
-    "
+			"DELETE FROM {$wpdb->options} 
+			WHERE option_name LIKE '_transient_bd_%' 
+			OR option_name LIKE '_transient_timeout_bd_%'"
 		);
 
-		// Clear object cache if available
+		// Clear object cache if available.
 		if ( function_exists( 'wp_cache_flush' ) ) {
 			wp_cache_flush();
 		}

@@ -3,8 +3,10 @@
  * Directory Assets Loader
  *
  * Loads search infrastructure, filters, and directory page assets.
+ * Now includes layout-aware business detail page asset loading.
  *
  * @package BusinessDirectory
+ * @since 0.1.7 - Added detail layout support
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -27,6 +29,8 @@ require_once plugin_dir_path( __FILE__ ) . '../src/Utils/Cache.php';
 
 // Load and initialize API.
 require_once plugin_dir_path( __FILE__ ) . '../src/API/BusinessEndpoint.php';
+
+require_once plugin_dir_path( __FILE__ ) . 'placeholder-image-helper.php';
 
 // Load and initialize Frontend Filters.
 require_once plugin_dir_path( __FILE__ ) . '../src/Frontend/Filters.php';
@@ -159,8 +163,13 @@ add_action(
 			);
 		}
 
-		// Load business detail page assets.
+		// =====================================================================
+		// BUSINESS DETAIL PAGE ASSETS - Layout Aware
+		// =====================================================================
 		if ( $is_business_page ) {
+			// Get the active detail layout.
+			$detail_layout = \BD\Admin\Settings::get_detail_layout();
+
 			// Font Awesome (if not already loaded).
 			if ( ! wp_style_is( 'font-awesome', 'enqueued' ) ) {
 				wp_enqueue_style(
@@ -171,12 +180,12 @@ add_action(
 				);
 			}
 
-			// Business detail premium CSS.
+			// Design tokens (shared by all layouts).
 			wp_enqueue_style(
-				'bd-business-detail',
-				$plugin_url . 'assets/css/business-detail-premium.css',
-				array( 'font-awesome' ),
-				'1.0.3'
+				'bd-design-tokens',
+				$plugin_url . 'assets/css/design-tokens.css',
+				array(),
+				BD_VERSION
 			);
 
 			// Enqueue Leaflet for the map (if not already loaded).
@@ -197,13 +206,79 @@ add_action(
 				);
 			}
 
-			// Enqueue business detail JS.
-			wp_enqueue_script(
+			// =====================================================================
+			// LAYOUT-SPECIFIC ASSETS
+			// =====================================================================
+			if ( 'immersive' === $detail_layout ) {
+				// Immersive Layout (V2) - Photo hero with parallax.
+				wp_enqueue_style(
+					'bd-business-detail',
+					$plugin_url . 'assets/css/business-detail-immersive.css',
+					array( 'font-awesome', 'bd-design-tokens' ),
+					BD_VERSION
+				);
+
+				// Shared business detail JS (lightbox, reviews, map).
+				wp_enqueue_script(
+					'bd-business-detail',
+					$plugin_url . 'assets/js/business-detail.js',
+					array( 'jquery', 'leaflet' ),
+					BD_VERSION,
+					true
+				);
+
+				// Immersive-specific JS (parallax, save toggle, star rating).
+				wp_enqueue_script(
+					'bd-business-detail-immersive',
+					$plugin_url . 'assets/js/business-detail-immersive.js',
+					array( 'jquery', 'bd-business-detail' ),
+					BD_VERSION,
+					true
+				);
+
+				// Localize immersive script.
+				wp_localize_script(
+					'bd-business-detail-immersive',
+					'bdImmersiveVars',
+					array(
+						'restUrl' => rest_url( 'bd/v1/' ),
+						'nonce'   => wp_create_nonce( 'wp_rest' ),
+						'strings' => array(
+							'save'   => __( 'Save', 'business-directory' ),
+							'saved'  => __( 'Saved', 'business-directory' ),
+							'copied' => __( 'Link copied!', 'business-directory' ),
+						),
+					)
+				);
+
+			} else {
+				// Classic Layout - Gradient hero with traditional cards.
+				wp_enqueue_style(
+					'bd-business-detail',
+					$plugin_url . 'assets/css/business-detail-classic.css',
+					array( 'font-awesome', 'bd-design-tokens' ),
+					BD_VERSION
+				);
+
+				// Classic JS.
+				wp_enqueue_script(
+					'bd-business-detail',
+					$plugin_url . 'assets/js/business-detail.js',
+					array( 'jquery', 'leaflet' ),
+					BD_VERSION,
+					true
+				);
+			}
+
+			// Localize shared business detail script.
+			wp_localize_script(
 				'bd-business-detail',
-				$plugin_url . 'assets/js/business-detail.js',
-				array( 'jquery', 'leaflet' ),
-				'1.0.1',
-				true
+				'bdDetailVars',
+				array(
+					'restUrl'    => rest_url( 'bd/v1/' ),
+					'nonce'      => wp_create_nonce( 'wp_rest' ),
+					'businessId' => get_the_ID(),
+				)
 			);
 		}
 	},

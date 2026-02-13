@@ -1,0 +1,326 @@
+/**
+ * Business Directory - Batch CSV Importer Styles
+ *
+ * @package BusinessDirectory
+ * @since 1.4.0
+ */
+
+/* ==========================================================================
+   Progress Section
+   ========================================================================== */
+
+.bd-import-progress {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 20px;
+	margin: 20px 0;
+}
+
+.bd-import-progress.bd-hidden {
+	display: none;
+}
+
+.bd-import-progress h3 {
+	margin: 0 0 15px;
+	padding: 0;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+/* Progress Bar */
+.bd-progress-wrapper {
+	background: #f0f0f1;
+	border-radius: 4px;
+	height: 24px;
+	overflow: hidden;
+	position: relative;
+	margin-bottom: 10px;
+}
+
+.bd-progress-bar {
+	background: linear-gradient(90deg, #2271b1 0%, #135e96 100%);
+	height: 100%;
+	width: 0;
+	transition: width 0.3s ease;
+	border-radius: 4px;
+}
+
+.bd-progress-bar.bd-complete {
+	background: linear-gradient(90deg, #00a32a 0%, #008a20 100%);
+}
+
+.bd-progress-text {
+	font-size: 13px;
+	color: #50575e;
+	margin-bottom: 15px;
+}
+
+/* Control Buttons */
+.bd-import-controls {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 15px;
+}
+
+.bd-import-controls .button {
+	min-width: 100px;
+}
+
+.bd-import-controls .button.bd-hidden {
+	display: none;
+}
+
+/* ==========================================================================
+   Status Log
+   ========================================================================== */
+
+.bd-status-log {
+	background: #1d2327;
+	color: #f0f0f1;
+	font-family: Consolas, Monaco, 'Andale Mono', monospace;
+	font-size: 12px;
+	line-height: 1.6;
+	padding: 15px;
+	border-radius: 4px;
+	max-height: 200px;
+	overflow-y: auto;
+	margin-bottom: 15px;
+}
+
+.bd-log-entry {
+	padding: 2px 0;
+	border-bottom: 1px solid #32373c;
+}
+
+.bd-log-entry:last-child {
+	border-bottom: none;
+}
+
+.bd-log-time {
+	color: #72aee6;
+}
+
+.bd-log-info {
+	color: #f0f0f1;
+}
+
+.bd-log-success {
+	color: #68de7c;
+}
+
+.bd-log-warning {
+	color: #f0c33c;
+}
+
+.bd-log-error {
+	color: #f86368;
+}
+
+/* ==========================================================================
+   Results Section
+   ========================================================================== */
+
+#bd-import-results {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 20px;
+	margin-top: 20px;
+}
+
+#bd-import-results.bd-hidden {
+	display: none;
+}
+
+#bd-import-results h3 {
+	margin: 0 0 15px;
+	padding: 0 0 10px;
+	border-bottom: 1px solid #eee;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+/* Stats Grid */
+.bd-import-stats {
+	display: flex;
+	gap: 20px;
+	flex-wrap: wrap;
+	margin: 15px 0;
+}
+
+.bd-stat {
+	padding: 15px 25px;
+	background: #f6f7f7;
+	border-radius: 4px;
+	text-align: center;
+	min-width: 100px;
+}
+
+.bd-stat-number {
+	font-size: 28px;
+	font-weight: 700;
+	display: block;
+	line-height: 1.2;
+}
+
+.bd-stat-label {
+	font-size: 12px;
+	color: #646970;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.bd-stat-imported .bd-stat-number {
+	color: #00a32a;
+}
+
+.bd-stat-updated .bd-stat-number {
+	color: #2271b1;
+}
+
+.bd-stat-skipped .bd-stat-number {
+	color: #646970;
+}
+
+/* Preview/Dry Run Results */
+#bd-import-results.bd-preview-results {
+	background: #fcf9e8;
+	border-color: #dba617;
+}
+
+#bd-import-results.bd-preview-results .bd-stat {
+	background: #fff8e5;
+}
+
+#bd-import-results.bd-preview-results .bd-stat-number {
+	color: #996800 !important;
+}
+
+/* Errors List */
+.bd-errors-list {
+	background: #fcf0f1;
+	border: 1px solid #d63638;
+	border-radius: 4px;
+	padding: 15px;
+	max-height: 200px;
+	overflow-y: auto;
+	margin-top: 15px;
+}
+
+.bd-errors-list.bd-hidden {
+	display: none;
+}
+
+.bd-errors-list ul {
+	margin: 0;
+	padding: 0 0 0 20px;
+}
+
+.bd-errors-list li {
+	margin: 5px 0;
+	font-size: 13px;
+	color: #8a2424;
+}
+
+.bd-errors-list em {
+	color: #646970;
+}
+
+/* ==========================================================================
+   Form States
+   ========================================================================== */
+
+.bd-import-options.bd-disabled {
+	opacity: 0.6;
+	pointer-events: none;
+}
+
+.bd-import-option {
+	padding: 15px;
+	background: #f9f9f9;
+	border-radius: 4px;
+	border: 1px solid #e5e5e5;
+}
+
+.bd-import-option label {
+	font-weight: 600;
+	display: block;
+	margin-bottom: 8px;
+}
+
+.bd-import-option p.description {
+	margin: 8px 0 0;
+	font-size: 12px;
+	color: #646970;
+}
+
+/* ==========================================================================
+   Batch Mode Toggle
+   ========================================================================== */
+
+.bd-import-mode-toggle {
+	background: #f0f6fc;
+	border: 1px solid #c3d9ed;
+	border-radius: 4px;
+	padding: 15px;
+	margin-bottom: 20px;
+}
+
+.bd-import-mode-toggle label {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.bd-import-mode-toggle p.description {
+	margin: 8px 0 0 28px;
+	font-size: 12px;
+	color: #646970;
+}
+
+.bd-import-mode-toggle input[type="checkbox"] {
+	width: 18px;
+	height: 18px;
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+
+@keyframes bd-pulse {
+	0%, 100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.6;
+	}
+}
+
+.bd-progress-bar.bd-processing {
+	animation: bd-pulse 1.5s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media screen and (max-width: 782px) {
+	.bd-import-stats {
+		flex-direction: column;
+	}
+
+	.bd-stat {
+		width: 100%;
+	}
+
+	.bd-import-controls {
+		flex-direction: column;
+	}
+
+	.bd-import-controls .button {
+		width: 100%;
+	}
+}

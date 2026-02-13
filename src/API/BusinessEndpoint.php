@@ -209,6 +209,13 @@ class BusinessEndpoint {
 	private static function format_business( $business_id ) {
 		$post = get_post( $business_id );
 
+		// Get featured image, with placeholder fallback.
+		$featured_image = get_the_post_thumbnail_url( $business_id, 'medium' );
+		if ( empty( $featured_image ) && function_exists( 'bd_get_business_image' ) ) {
+			$image_data     = bd_get_business_image( $business_id, 'medium' );
+			$featured_image = $image_data['url'];
+		}
+
 		// Use pre-loaded location data if available.
 		$location = null;
 		if ( isset( self::$location_cache[ $business_id ] ) ) {
@@ -280,7 +287,7 @@ class BusinessEndpoint {
 			'slug'           => $post ? $post->post_name : '',
 			'excerpt'        => get_the_excerpt( $business_id ),
 			'permalink'      => get_permalink( $business_id ),
-			'featured_image' => get_the_post_thumbnail_url( $business_id, 'medium' ),
+			'featured_image' => $featured_image,
 			'rating'         => floatval( get_post_meta( $business_id, 'bd_avg_rating', true ) ),
 			'review_count'   => intval( get_post_meta( $business_id, 'bd_review_count', true ) ),
 			'price_level'    => get_post_meta( $business_id, 'bd_price_level', true ),

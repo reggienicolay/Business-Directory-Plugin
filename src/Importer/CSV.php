@@ -9,15 +9,17 @@
  * - Social media fields
  * - Featured image from URL
  * - Dry-run preview
+ * - Batch processing support (process_single_row method)
  *
  * @package BusinessDirectory
+ * @since 1.4.0 Added batch processing support
  */
-
 
 namespace BD\Importer;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; }
+	exit;
+}
 
 class CSV {
 
@@ -50,7 +52,7 @@ class CSV {
 	private static $last_geocode_time = 0;
 
 	/**
-	 * Import businesses from CSV file
+	 * Import businesses from CSV file (synchronous - entire file at once)
 	 *
 	 * @param string $file_path Path to CSV file.
 	 * @param array  $options   Import options.
@@ -197,6 +199,97 @@ class CSV {
 		fclose( $handle );
 
 		return $results;
+	}
+
+	/**
+	 * Process a single row for batch import
+	 *
+	 * This method handles one row at a time, making it suitable for
+	 * AJAX-based batch processing where each request processes N rows.
+	 *
+	 * @since 1.4.0
+	 *
+	 * @param array $row     Associative array of row data (already combined with headers).
+	 * @param array $options Import options.
+	 * @return array|\WP_Error Result array with 'action' and 'post_id' keys, or WP_Error.
+	 */
+	public static function process_single_row( $row, $options = array() ) {
+		$defaults = array(
+			'create_terms'    => true,
+			'dry_run'         => false,
+			'import_mode'     => self::MODE_SKIP,
+			'match_by'        => self::MATCH_TITLE,
+			'download_images' => false,
+			'geocode'         => false,
+		);
+
+		$options = wp_parse_args( $options, $defaults );
+
+		// Validate required fields.
+		if ( empty( $row['title'] ) ) {
+			return new \WP_Error( 'missing_title', __( 'Missing required field (title)', 'business-directory' ) );
+		}
+
+		// Check for duplicates.
+		$existing_id = self::find_existing_business( $row, $options['match_by'] );
+
+		// Determine action based on mode.
+		$action = 'create';
+		if ( $existing_id ) {
+			switch ( $options['import_mode'] ) {
+				case self::MODE_SKIP:
+					$action = 'skip';
+					break;
+				case self::MODE_UPDATE:
+					$action = 'update';
+					break;
+				case self::MODE_CREATE:
+					$action = 'create';
+					break;
+			}
+		}
+
+		// Dry run - just return what would happen.
+		if ( $options['dry_run'] ) {
+			return array(
+				'action'      => 'skip' === $action ? 'skipped' : ( 'update' === $action ? 'updated' : 'imported' ),
+				'post_id'     => $existing_id ? $existing_id : null,
+				'existing_id' => $existing_id,
+				'dry_run'     => true,
+			);
+		}
+
+		// Execute the action.
+		switch ( $action ) {
+			case 'skip':
+				return array(
+					'action'      => 'skipped',
+					'post_id'     => $existing_id,
+					'existing_id' => $existing_id,
+				);
+
+			case 'update':
+				$result = self::update_business( $existing_id, $row, $options );
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+				return array(
+					'action'      => 'updated',
+					'post_id'     => $result,
+					'existing_id' => $existing_id,
+				);
+
+			case 'create':
+			default:
+				$result = self::create_business( $row, $options );
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+				return array(
+					'action'  => 'imported',
+					'post_id' => $result,
+				);
+		}
 	}
 
 	/**
