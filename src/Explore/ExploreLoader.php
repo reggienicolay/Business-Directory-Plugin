@@ -63,9 +63,9 @@ class ExploreLoader {
 	 * unnecessary DB writes on every admin page load.
 	 */
 	public static function maybe_flush_rewrite_rules() {
-		$version_key   = 'bd_explore_rewrite_version';
-		$stored        = get_option( $version_key, '' );
-		$current       = defined( 'BD_VERSION' ) ? BD_VERSION : '2.2.0';
+		$version_key = 'bd_explore_rewrite_version';
+		$stored      = get_option( $version_key, '' );
+		$current     = defined( 'BD_VERSION' ) ? BD_VERSION : '2.2.0';
 
 		if ( $stored !== $current ) {
 			flush_rewrite_rules();

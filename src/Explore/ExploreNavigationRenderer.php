@@ -339,7 +339,10 @@ class ExploreNavigationRenderer {
 		<div class="bd-explore-discovery" role="search" aria-label="<?php esc_attr_e( 'Search businesses', 'business-directory' ); ?>">
 			<form class="bd-explore-discovery-form"
 				data-action="<?php echo esc_url( $directory_url ); ?>"
-				<?php if ( $tag_slug ) : ?>data-tags="<?php echo esc_attr( $tag_slug ); ?>"<?php endif; ?>>
+				<?php
+				if ( $tag_slug ) :
+					?>
+					data-tags="<?php echo esc_attr( $tag_slug ); ?>"<?php endif; ?>>
 				<div class="bd-explore-discovery-input-wrap">
 					<i class="fas fa-search" aria-hidden="true"></i>
 					<input type="text"

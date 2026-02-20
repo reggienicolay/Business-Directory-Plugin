@@ -91,17 +91,17 @@ function init_seo_components(): void {
 
 	// AutoLinker: Auto-link city/category mentions in descriptions.
 	// if ( class_exists( __NAMESPACE__ . '\\AutoLinker' ) ) {
-	// 	AutoLinker::init();
+	//  AutoLinker::init();
 	// }
 
 	// RelatedBusinesses: "Also in [City]" cross-links.
 	// if ( class_exists( __NAMESPACE__ . '\\RelatedBusinesses' ) ) {
-	// 	RelatedBusinesses::init();
+	//  RelatedBusinesses::init();
 	// }
 
 	// MultisiteCanonical: REST API canonical URLs for subsites.
 	// if ( is_multisite() && class_exists( __NAMESPACE__ . '\\MultisiteCanonical' ) ) {
-	// 	MultisiteCanonical::init();
+	//  MultisiteCanonical::init();
 	// }
 }
 

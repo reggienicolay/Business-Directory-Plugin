@@ -64,7 +64,7 @@ $visually_hidden_style = 'position:absolute;width:1px;height:1px;padding:0;margi
 								continue;
 							}
 
-							$review_index++;
+							++$review_index;
 
 							// =================================================================
 							// DATA EXTRACTION WITH STRICT TYPE SAFETY
@@ -180,13 +180,13 @@ $visually_hidden_style = 'position:absolute;width:1px;height:1px;padding:0;margi
 
 							<!-- Review Card with Schema.org microdata -->
 							<div class="bd-review-card"
-								 id="<?php echo esc_attr( $element_id ); ?>"
-								 itemscope
-								 itemtype="https://schema.org/Review">
+								id="<?php echo esc_attr( $element_id ); ?>"
+								itemscope
+								itemtype="https://schema.org/Review">
 
 								<?php // Hidden Schema Elements (visually hidden, accessible to crawlers). ?>
 								<span itemprop="itemReviewed" itemscope itemtype="https://schema.org/LocalBusiness"
-									  style="<?php echo esc_attr( $visually_hidden_style ); ?>">
+										style="<?php echo esc_attr( $visually_hidden_style ); ?>">
 									<meta itemprop="name" content="<?php echo $business_name_attr; ?>">
 									<?php if ( ! empty( $business_url_esc ) ) : ?>
 										<link itemprop="url" href="<?php echo $business_url_esc; ?>">
@@ -202,15 +202,15 @@ $visually_hidden_style = 'position:absolute;width:1px;height:1px;padding:0;margi
 									<div class="bd-reviewer" itemprop="author" itemscope itemtype="https://schema.org/Person">
 										<?php if ( ! empty( $avatar_url ) ) : ?>
 											<img src="<?php echo esc_url( $avatar_url ); ?>"
-												 alt="<?php echo esc_attr( sprintf( __( '%s profile photo', 'business-directory' ), $reviewer_name ) ); ?>"
-												 class="bd-reviewer-avatar"
-												 width="44"
-												 height="44"
-												 loading="lazy">
+												alt="<?php echo esc_attr( sprintf( __( '%s profile photo', 'business-directory' ), $reviewer_name ) ); ?>"
+												class="bd-reviewer-avatar"
+												width="44"
+												height="44"
+												loading="lazy">
 										<?php else : ?>
 											<div class="bd-reviewer-avatar"
-												 role="img"
-												 aria-label="<?php echo esc_attr( $reviewer_name ); ?>">
+												role="img"
+												aria-label="<?php echo esc_attr( $reviewer_name ); ?>">
 												<?php echo esc_html( $initials ); ?>
 											</div>
 										<?php endif; ?>
@@ -221,7 +221,7 @@ $visually_hidden_style = 'position:absolute;width:1px;height:1px;padding:0;margi
 											</span>
 											<?php if ( ! empty( $review_date_display ) ) : ?>
 												<time class="bd-reviewer-date"
-													  datetime="<?php echo esc_attr( $review_date_iso ); ?>">
+														datetime="<?php echo esc_attr( $review_date_iso ); ?>">
 													<?php echo esc_html( $review_date_display ); ?>
 												</time>
 											<?php endif; ?>
@@ -231,9 +231,9 @@ $visually_hidden_style = 'position:absolute;width:1px;height:1px;padding:0;margi
 									<!-- Rating -->
 									<?php if ( $has_rating ) : ?>
 										<span class="bd-review-stars"
-											  itemprop="reviewRating"
-											  itemscope
-											  itemtype="https://schema.org/Rating">
+												itemprop="reviewRating"
+												itemscope
+												itemtype="https://schema.org/Rating">
 											<meta itemprop="worstRating" content="1">
 											<meta itemprop="bestRating" content="5">
 											<meta itemprop="ratingValue" content="<?php echo esc_attr( $rating ); ?>">
@@ -246,7 +246,7 @@ $visually_hidden_style = 'position:absolute;width:1px;height:1px;padding:0;margi
 										</span>
 									<?php else : ?>
 										<span class="bd-review-stars bd-review-stars--no-rating"
-											  aria-label="<?php esc_attr_e( 'No rating provided', 'business-directory' ); ?>">
+												aria-label="<?php esc_attr_e( 'No rating provided', 'business-directory' ); ?>">
 											<?php
 											// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Unicode literals, no user input.
 											echo '<span aria-hidden="true">' . $empty_stars . '</span>';
@@ -318,13 +318,13 @@ $visually_hidden_style = 'position:absolute;width:1px;height:1px;padding:0;margi
 											}
 
 											// Increment only for valid, displayed photos.
-											$displayed_photo_count++;
+											++$displayed_photo_count;
 											?>
 											<img src="<?php echo esc_url( $photo_url ); ?>"
-												 alt="<?php echo esc_attr( sprintf( __( 'Photo %1$d from %2$s review of %3$s', 'business-directory' ), $displayed_photo_count, $reviewer_name, $business_name ) ); ?>"
-												 class="bd-review-photo"
-												 itemprop="image"
-												 loading="lazy">
+												alt="<?php echo esc_attr( sprintf( __( 'Photo %1$d from %2$s review of %3$s', 'business-directory' ), $displayed_photo_count, $reviewer_name, $business_name ) ); ?>"
+												class="bd-review-photo"
+												itemprop="image"
+												loading="lazy">
 										<?php endforeach; ?>
 									</div>
 								<?php endif; ?>

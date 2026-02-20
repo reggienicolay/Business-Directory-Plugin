@@ -214,10 +214,10 @@ if ( file_exists( BD_PLUGIN_DIR . 'includes/guides-loader.php' ) ) {
 }
 
 if ( file_exists( BD_PLUGIN_DIR . 'includes/explore-loader.php' ) ) {
-    require_once BD_PLUGIN_DIR . 'includes/explore-loader.php';
+	require_once BD_PLUGIN_DIR . 'includes/explore-loader.php';
 }
 
 // Load SEO Components.
 if ( file_exists( BD_PLUGIN_DIR . 'includes/seo-loader.php' ) ) {
-    require_once BD_PLUGIN_DIR . 'includes/seo-loader.php';
+	require_once BD_PLUGIN_DIR . 'includes/seo-loader.php';
 }

@@ -263,14 +263,14 @@ class SlugMigration {
 					$i        += 2;
 				} else {
 					$feed_type = 'feed';
-					$i++;
+					++$i;
 				}
 				continue;
 			}
 
 			// Otherwise, it's part of the term path.
 			$term_segments[] = $segment;
-			$i++;
+			++$i;
 		}
 
 		// Must have at least one term segment.

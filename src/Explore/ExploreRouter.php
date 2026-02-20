@@ -234,8 +234,8 @@ class ExploreRouter {
 		if ( isset( self::$term_cache[ $cache_key ] ) ) {
 			return self::$term_cache[ $cache_key ];
 		}
-		$term = get_term_by( 'slug', $slug, 'bd_area' );
-		$result = ( $term && ! is_wp_error( $term ) ) ? $term : false;
+		$term                           = get_term_by( 'slug', $slug, 'bd_area' );
+		$result                         = ( $term && ! is_wp_error( $term ) ) ? $term : false;
 		self::$term_cache[ $cache_key ] = $result;
 		return $result;
 	}
@@ -251,8 +251,8 @@ class ExploreRouter {
 		if ( isset( self::$term_cache[ $cache_key ] ) ) {
 			return self::$term_cache[ $cache_key ];
 		}
-		$term = get_term_by( 'slug', $slug, 'bd_tag' );
-		$result = ( $term && ! is_wp_error( $term ) ) ? $term : false;
+		$term                           = get_term_by( 'slug', $slug, 'bd_tag' );
+		$result                         = ( $term && ! is_wp_error( $term ) ) ? $term : false;
 		self::$term_cache[ $cache_key ] = $result;
 		return $result;
 	}

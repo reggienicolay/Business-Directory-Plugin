@@ -44,19 +44,19 @@ class ExploreAssets {
 	 * @var array
 	 */
 	private static $cdn = array(
-		'leaflet-css' => array(
+		'leaflet-css'                       => array(
 			'handle'    => 'leaflet',
 			'src'       => 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
 			'version'   => '1.9.4',
 			'integrity' => 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=',
 		),
-		'leaflet-js' => array(
+		'leaflet-js'                        => array(
 			'handle'    => 'leaflet',
 			'src'       => 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
 			'version'   => '1.9.4',
 			'integrity' => 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=',
 		),
-		'leaflet-markercluster-css' => array(
+		'leaflet-markercluster-css'         => array(
 			'handle'    => 'leaflet-markercluster',
 			'src'       => 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css',
 			'version'   => '1.5.3',
@@ -68,13 +68,13 @@ class ExploreAssets {
 			'version'   => '1.5.3',
 			'integrity' => '', // Generate: curl -sL <src> | openssl dgst -sha256 -binary | openssl base64
 		),
-		'leaflet-markercluster-js' => array(
+		'leaflet-markercluster-js'          => array(
 			'handle'    => 'leaflet-markercluster',
 			'src'       => 'https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js',
 			'version'   => '1.5.3',
 			'integrity' => '', // Generate: curl -sL <src> | openssl dgst -sha256 -binary | openssl base64
 		),
-		'font-awesome-css' => array(
+		'font-awesome-css'                  => array(
 			'handle'    => 'font-awesome',
 			'src'       => 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css',
 			'version'   => '5.15.4',

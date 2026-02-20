@@ -246,8 +246,8 @@ class ExploreCardRenderer {
 	 * @return string Placeholder HTML.
 	 */
 	public static function render_placeholder_svg( $location = array() ) {
-		$lat = floatval( $location['lat'] ?? 0 );
-		$lng = floatval( $location['lng'] ?? 0 );
+		$lat        = floatval( $location['lat'] ?? 0 );
+		$lng        = floatval( $location['lng'] ?? 0 );
 		$has_coords = ( 0.0 !== $lat || 0.0 !== $lng );
 		$coord_text = $has_coords
 			? sprintf( '%.2fN %.2fW', abs( $lat ), abs( $lng ) )

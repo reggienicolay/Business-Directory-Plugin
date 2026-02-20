@@ -131,13 +131,13 @@ class ExploreQuery {
 			default:
 				return array(
 					'meta_query' => array(
-						'relation'       => 'OR',
-						'rating_clause'  => array(
+						'relation'      => 'OR',
+						'rating_clause' => array(
 							'key'     => 'bd_avg_rating',
 							'compare' => 'EXISTS',
 							'type'    => 'NUMERIC',
 						),
-						'no_rating'      => array(
+						'no_rating'     => array(
 							'key'     => 'bd_avg_rating',
 							'compare' => 'NOT EXISTS',
 						),
@@ -409,10 +409,10 @@ class ExploreQuery {
 		$hub_data = array();
 		foreach ( $areas as $area ) {
 			$hub_data[] = array(
-				'term'       => $area,
-				'count'      => $area->count,
-				'url'        => ExploreRouter::get_explore_url( $area->slug ),
-				'top_tags'   => self::get_tags_for_area( $area->slug, 8 ),
+				'term'     => $area,
+				'count'    => $area->count,
+				'url'      => ExploreRouter::get_explore_url( $area->slug ),
+				'top_tags' => self::get_tags_for_area( $area->slug, 8 ),
 			);
 		}
 
