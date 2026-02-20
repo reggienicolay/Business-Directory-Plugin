@@ -69,7 +69,9 @@ class ImporterPage {
 				'i18n'    => array(
 					'uploading'     => __( 'Uploading and parsing CSV...', 'business-directory' ),
 					'uploadError'   => __( 'Upload failed', 'business-directory' ),
+					/* translators: %1$d is processed count, %2$d is total rows, %3$d is percentage */
 					'processing'    => __( 'Processing %1$d of %2$d rows (%3$d%)', 'business-directory' ),
+					/* translators: %d is the row number */
 					'batchComplete' => __( 'Processed through row %d', 'business-directory' ),
 					'imported'      => __( 'imported', 'business-directory' ),
 					'updated'       => __( 'updated', 'business-directory' ),
@@ -86,6 +88,7 @@ class ImporterPage {
 					'resume'        => __( 'Resume', 'business-directory' ),
 					'confirmCancel' => __( 'Are you sure you want to cancel? Progress will be lost.', 'business-directory' ),
 					'leaveWarning'  => __( 'Import is in progress. Are you sure you want to leave?', 'business-directory' ),
+					/* translators: %d is the number of additional errors */
 					'moreErrors'    => __( '... and %d more errors.', 'business-directory' ),
 					'previewNote'   => __( 'Preview Mode - No changes were made', 'business-directory' ),
 					'wouldImport'   => __( 'Would Import', 'business-directory' ),
@@ -267,13 +270,40 @@ class ImporterPage {
 					<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 5px; font-family: monospace; font-size: 12px;">
 						<?php
 						$columns = array(
-							'external_id', 'description', 'excerpt', 'category', 'area', 'tags',
-							'address', 'city', 'state', 'zip', 'country', 'lat', 'lng',
-							'phone', 'email', 'website', 'facebook', 'instagram', 'twitter',
-							'linkedin', 'youtube', 'tiktok', 'yelp', 'price_level',
-							'hours_monday', 'hours_tuesday', 'hours_wednesday', 'hours_thursday',
-							'hours_friday', 'hours_saturday', 'hours_sunday',
-							'image_url', 'year_established', 'owner_name',
+							'external_id',
+							'description',
+							'excerpt',
+							'category',
+							'area',
+							'tags',
+							'address',
+							'city',
+							'state',
+							'zip',
+							'country',
+							'lat',
+							'lng',
+							'phone',
+							'email',
+							'website',
+							'facebook',
+							'instagram',
+							'twitter',
+							'linkedin',
+							'youtube',
+							'tiktok',
+							'yelp',
+							'price_level',
+							'hours_monday',
+							'hours_tuesday',
+							'hours_wednesday',
+							'hours_thursday',
+							'hours_friday',
+							'hours_saturday',
+							'hours_sunday',
+							'image_url',
+							'year_established',
+							'owner_name',
 						);
 						foreach ( $columns as $col ) :
 							?>
@@ -331,22 +361,63 @@ class ImporterPage {
 
 		$output = fopen( 'php://output', 'w' );
 
-		fputcsv( $output, array(
-			'title', 'description', 'category', 'area', 'tags', 'address', 'city', 'state', 'zip',
-			'phone', 'email', 'website', 'facebook', 'instagram', 'price_level',
-			'hours_monday', 'hours_tuesday', 'hours_wednesday', 'hours_thursday', 'hours_friday',
-			'hours_saturday', 'hours_sunday', 'external_id',
-		) );
+		fputcsv(
+			$output,
+			array(
+				'title',
+				'description',
+				'category',
+				'area',
+				'tags',
+				'address',
+				'city',
+				'state',
+				'zip',
+				'phone',
+				'email',
+				'website',
+				'facebook',
+				'instagram',
+				'price_level',
+				'hours_monday',
+				'hours_tuesday',
+				'hours_wednesday',
+				'hours_thursday',
+				'hours_friday',
+				'hours_saturday',
+				'hours_sunday',
+				'external_id',
+			)
+		);
 
-		fputcsv( $output, array(
-			'Sample Coffee Shop', 'A cozy neighborhood coffee shop with locally roasted beans.',
-			'Restaurants', 'Downtown', 'coffee, wifi, outdoor seating',
-			'123 Main Street', 'Livermore', 'CA', '94550',
-			'(925) 555-0100', 'hello@samplecoffee.com', 'https://samplecoffee.com',
-			'https://facebook.com/samplecoffee', '@samplecoffee', '$$',
-			'7:00-18:00', '7:00-18:00', '7:00-18:00', '7:00-18:00', '7:00-20:00',
-			'8:00-20:00', '8:00-16:00', 'sample-001',
-		) );
+		fputcsv(
+			$output,
+			array(
+				'Sample Coffee Shop',
+				'A cozy neighborhood coffee shop with locally roasted beans.',
+				'Restaurants',
+				'Downtown',
+				'coffee, wifi, outdoor seating',
+				'123 Main Street',
+				'Livermore',
+				'CA',
+				'94550',
+				'(925) 555-0100',
+				'hello@samplecoffee.com',
+				'https://samplecoffee.com',
+				'https://facebook.com/samplecoffee',
+				'@samplecoffee',
+				'$$',
+				'7:00-18:00',
+				'7:00-18:00',
+				'7:00-18:00',
+				'7:00-18:00',
+				'7:00-20:00',
+				'8:00-20:00',
+				'8:00-16:00',
+				'sample-001',
+			)
+		);
 
 		fclose( $output );
 		exit;

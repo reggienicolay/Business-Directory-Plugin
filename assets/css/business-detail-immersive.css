@@ -1,6 +1,6 @@
 /**
  * Business Detail - Immersive Layout (V2) - Optimized
- * 
+ *
  * Clean, performant CSS for the immersive business detail template.
  * Uses design tokens from design-tokens.css
  *
@@ -9,8 +9,8 @@
  */
 
 /* ==========================================================================
-   1. THEME RESET - WordPress/Kadence overrides (requires !important)
-   ========================================================================== */
+	1. THEME RESET - WordPress/Kadence overrides (requires !important)
+	========================================================================== */
 
 body.bd-detail-layout-immersive {
 	background: var(--bd-neutral-100) !important;
@@ -40,8 +40,8 @@ body.bd-detail-layout-immersive .entry-title:not(.bd-hero-title-row h1) {
 }
 
 /* ==========================================================================
-   2. HERO SECTION
-   ========================================================================== */
+	2. HERO SECTION
+	========================================================================== */
 
 .bd-immersive-hero {
 	position: relative;
@@ -433,8 +433,8 @@ body.bd-detail-layout-immersive .entry-title:not(.bd-hero-title-row h1) {
 }
 
 /* ==========================================================================
-   EVENT TEASER BANNER - Below hero
-   ========================================================================== */
+	EVENT TEASER BANNER - Below hero
+	========================================================================== */
 
 .bd-event-teaser {
 	background: linear-gradient(90deg, var(--bd-primary-700) 0%, var(--bd-primary-600) 100%);
@@ -518,8 +518,8 @@ body.bd-detail-layout-immersive .entry-title:not(.bd-hero-title-row h1) {
 }
 
 /* ==========================================================================
-   3. QUICK BAR - Sticky Navigation
-   ========================================================================== */
+	3. QUICK BAR - Sticky Navigation
+	========================================================================== */
 
 .bd-quick-bar {
 	background: #fff;
@@ -628,8 +628,8 @@ body.bd-detail-layout-immersive .entry-title:not(.bd-hero-title-row h1) {
 }
 
 /* ==========================================================================
-   4. ENGAGEMENT STRIP - "Been here?"
-   ========================================================================== */
+	4. ENGAGEMENT STRIP - "Been here?"
+	========================================================================== */
 
 .bd-engagement-strip {
 	background: var(--bd-neutral-50);
@@ -690,8 +690,8 @@ body.bd-detail-layout-immersive .entry-title:not(.bd-hero-title-row h1) {
 }
 
 /* ==========================================================================
-   5. CONTENT LAYOUT - Two Column Flexbox
-   ========================================================================== */
+	5. CONTENT LAYOUT - Two Column Flexbox
+	========================================================================== */
 
 .bd-content-wrapper {
 	max-width: 1600px;
@@ -719,8 +719,8 @@ body.bd-detail-layout-immersive .entry-title:not(.bd-hero-title-row h1) {
 }
 
 /* ==========================================================================
-   6. CARDS - Base Styling
-   ========================================================================== */
+	6. CARDS - Base Styling
+	========================================================================== */
 
 .bd-card {
 	background: #fff;
@@ -769,8 +769,8 @@ body.bd-detail-layout-immersive .entry-title:not(.bd-hero-title-row h1) {
 }
 
 /* ==========================================================================
-   7. ABOUT SECTION
-   ========================================================================== */
+	7. ABOUT SECTION
+	========================================================================== */
 
 .bd-about-text {
 	font-size: var(--bd-text-base);
@@ -819,8 +819,8 @@ body.bd-detail-layout-immersive .entry-title:not(.bd-hero-title-row h1) {
 }
 
 /* ==========================================================================
-   8. REVIEWS SECTION
-   ========================================================================== */
+	8. REVIEWS SECTION
+	========================================================================== */
 
 .bd-reviews-header {
 	display: flex;
@@ -1146,8 +1146,8 @@ body.bd-detail-layout-immersive .entry-title:not(.bd-hero-title-row h1) {
 }
 
 /* ==========================================================================
-   9. SIDEBAR COMPONENTS
-   ========================================================================== */
+	9. SIDEBAR COMPONENTS
+	========================================================================== */
 
 /* Hours Card */
 .bd-hours-header {
@@ -1476,8 +1476,8 @@ body.bd-detail-layout-immersive .entry-title:not(.bd-hero-title-row h1) {
 }
 
 /* ==========================================================================
-   10. SIMILAR BUSINESSES
-   ========================================================================== */
+	10. SIMILAR BUSINESSES
+	========================================================================== */
 
 .bd-similar-section {
 	max-width: 1600px;
@@ -1570,8 +1570,8 @@ body.bd-detail-layout-immersive .entry-title:not(.bd-hero-title-row h1) {
 }
 
 /* ==========================================================================
-   BD OUTDOOR ACTIVITIES - Integration styles
-   ========================================================================== */
+	BD OUTDOOR ACTIVITIES - Integration styles
+	========================================================================== */
 
 /* Main content section (after About) */
 .bdoutdoor-main-section {
@@ -1662,8 +1662,8 @@ body.bd-detail-layout-immersive .entry-title:not(.bd-hero-title-row h1) {
 }
 
 /* ==========================================================================
-   11. LIGHTBOX MODAL - FIXED VERSION
-   ========================================================================== */
+	11. LIGHTBOX MODAL - FIXED VERSION
+	========================================================================== */
 
 /* Hide page content when lightbox is open */
 body.bd-lightbox-open {
@@ -1849,7 +1849,7 @@ body.bd-lightbox-open .bd-lightbox {
 	.bd-lightbox-content {
 		padding: 50px 15px !important;
 	}
-	
+
 	.bd-lightbox-close {
 		top: 12px !important;
 		right: 12px !important;
@@ -1857,33 +1857,33 @@ body.bd-lightbox-open .bd-lightbox {
 		height: 40px !important;
 		font-size: 24px !important;
 	}
-	
+
 	.bd-lightbox-prev,
 	.bd-lightbox-next {
 		width: 40px !important;
 		height: 40px !important;
 	}
-	
+
 	.bd-lightbox-prev {
 		left: 8px !important;
 	}
-	
+
 	.bd-lightbox-next {
 		right: 8px !important;
 	}
-	
+
 	.bd-lightbox-prev svg,
 	.bd-lightbox-next svg {
 		width: 20px;
 		height: 20px;
 	}
-	
+
 	.bd-lightbox-content img,
 	#bd-lightbox-image {
 		max-width: 100%;
 		max-height: calc(100vh - 120px);
 	}
-	
+
 	.bd-lightbox-caption {
 		bottom: 15px !important;
 		padding: 6px 16px !important;
@@ -1891,49 +1891,49 @@ body.bd-lightbox-open .bd-lightbox {
 	}
 }
 /* ==========================================================================
-   12. RESPONSIVE
-   ========================================================================== */
+	12. RESPONSIVE
+	========================================================================== */
 
 @media (max-width: 1024px) {
 	.bd-hero-content {
 		padding: 40px var(--bd-space-4) 24px;
 	}
-	
+
 	.bd-hero-top-row {
 		flex-direction: column;
 		gap: 20px;
 	}
-	
+
 	.bd-hero-actions {
 		flex-direction: row;
 		width: 100%;
 		min-width: 0;
 	}
-	
+
 	.bd-hero-actions .bd-btn {
 		flex: 1;
 		min-width: 140px;
 	}
-	
+
 	.bd-content-wrapper {
 		flex-direction: column !important;
 		padding: 24px var(--bd-space-4) 48px !important;
 	}
-	
+
 	.bd-sidebar {
 		width: 100% !important;
 		position: static !important;
 	}
-	
+
 	.bd-similar-grid {
 		grid-template-columns: repeat(2, 1fr);
 	}
-	
+
 	.bd-quick-left {
 		flex-wrap: wrap;
 		gap: var(--bd-space-2);
 	}
-	
+
 	.bd-event-teaser-inner {
 		flex-wrap: wrap;
 	}
@@ -1943,53 +1943,53 @@ body.bd-lightbox-open .bd-lightbox {
 	.bd-hero-title-row h1 {
 		font-size: 1.75rem;
 	}
-	
+
 	.bd-hero-meta {
 		flex-direction: column;
 		align-items: flex-start;
 		gap: 8px;
 	}
-	
+
 	.bd-hero-thumbs {
 		display: none;
 	}
-	
+
 	.bd-hero-actions {
 		flex-direction: column;
 	}
-	
+
 	.bd-hero-event-chip {
 		flex-wrap: wrap;
 	}
-	
+
 	.bd-card-padded {
 		padding: 24px;
 	}
-	
+
 	.bd-reviews-header {
 		flex-direction: column;
 		align-items: flex-start;
 	}
-	
+
 	.bd-similar-grid {
 		grid-template-columns: 1fr;
 	}
-	
+
 	.bd-quick-bar-inner {
 		flex-wrap: wrap;
 		gap: 12px;
 	}
-	
+
 	.bd-quick-right {
 		width: 100%;
 		justify-content: center;
 	}
-	
+
 	.bd-engagement-strip-inner {
 		flex-wrap: wrap;
 		justify-content: center;
 	}
-	
+
 	.bd-event-teaser-inner {
 		flex-direction: column;
 		align-items: flex-start;
@@ -1998,8 +1998,8 @@ body.bd-lightbox-open .bd-lightbox {
 }
 
 /* ==========================================================================
-   13. THEME COMPATIBILITY - Final overrides (Kadence/Avada)
-   ========================================================================== */
+	13. THEME COMPATIBILITY - Final overrides (Kadence/Avada)
+	========================================================================== */
 
 /* Content wrapper - ALL layout properties must be !important for theme override */
 body.bd-detail-layout-immersive .bd-content-wrapper {
@@ -2054,8 +2054,8 @@ body.bd-detail-layout-immersive .bd-engagement-strip {
 }
 
 /* ==========================================================================
-   14. MOBILE RESPONSIVE OVERRIDES - Must come AFTER theme compatibility
-   ========================================================================== */
+	14. MOBILE RESPONSIVE OVERRIDES - Must come AFTER theme compatibility
+	========================================================================== */
 
 @media (max-width: 1024px) {
 	/* Stack content and sidebar vertically on tablets */
@@ -2064,20 +2064,20 @@ body.bd-detail-layout-immersive .bd-engagement-strip {
 		padding: 24px 16px 48px !important;
 		gap: 24px !important;
 	}
-	
+
 	/* Main content full width */
 	body.bd-detail-layout-immersive .bd-main-content {
 		width: 100% !important;
 		flex: none !important;
 	}
-	
+
 	/* Sidebar full width, not sticky */
 	body.bd-detail-layout-immersive .bd-sidebar {
 		width: 100% !important;
 		position: static !important;
 		top: auto !important;
 	}
-	
+
 	/* Hero parallax disabled on tablet/mobile for performance */
 	.bd-hero-bg,
 	.bd-hero-bg--photo {
@@ -2090,36 +2090,36 @@ body.bd-detail-layout-immersive .bd-engagement-strip {
 	.bd-immersive-hero {
 		min-height: 280px;
 	}
-	
+
 	.bd-hero-content {
 		padding: 24px 16px 20px !important;
 	}
-	
+
 	/* Hero title smaller on mobile */
 	.bd-hero-title-row h1 {
 		font-size: 1.5rem !important;
 	}
-	
+
 	/* Hero actions stack vertically */
 	.bd-hero-actions {
 		flex-direction: column !important;
 		width: 100% !important;
 	}
-	
+
 	.bd-hero-actions .bd-btn {
 		width: 100% !important;
 		min-width: 0 !important;
 	}
-	
+
 	/* Cards less padding on mobile */
 	body.bd-detail-layout-immersive .bd-card.bd-card-padded {
 		padding: 20px !important;
 	}
-	
+
 	body.bd-detail-layout-immersive .bd-sidebar .bd-card.bd-card-padded {
 		padding: 20px !important;
 	}
-	
+
 	/* Photo count badge repositioned */
 	.bd-photo-count-badge {
 		bottom: 16px;
@@ -2127,17 +2127,17 @@ body.bd-detail-layout-immersive .bd-engagement-strip {
 		padding: 8px 12px;
 		font-size: 13px;
 	}
-	
+
 	/* Similar businesses single column */
 	.bd-similar-grid {
 		grid-template-columns: 1fr !important;
 	}
-	
+
 	/* Outdoor features single column */
 	.bdoutdoor-feature-icons {
 		grid-template-columns: 1fr !important;
 	}
-	
+
 	/* Lightbox mobile adjustments */
 	.bd-lightbox-close {
 		top: 12px !important;
@@ -2146,27 +2146,27 @@ body.bd-detail-layout-immersive .bd-engagement-strip {
 		height: 40px;
 		font-size: 24px;
 	}
-	
+
 	.bd-lightbox-prev,
 	.bd-lightbox-next {
 		width: 44px;
 		height: 44px;
 	}
-	
+
 	.bd-lightbox-prev {
 		left: 10px !important;
 	}
-	
+
 	.bd-lightbox-next {
 		right: 10px !important;
 	}
-	
+
 	.bd-lightbox-prev svg,
 	.bd-lightbox-next svg {
 		width: 22px;
 		height: 22px;
 	}
-	
+
 	.bd-lightbox-content img,
 	#bd-lightbox-image {
 		max-width: 95vw;
@@ -2179,33 +2179,33 @@ body.bd-detail-layout-immersive .bd-engagement-strip {
 	.bd-hero-content {
 		padding: 20px 12px 16px !important;
 	}
-	
+
 	.bd-hero-title-row h1 {
 		font-size: 1.35rem !important;
 	}
-	
+
 	.bd-hero-meta {
 		gap: 6px !important;
 	}
-	
+
 	.bd-badge {
 		padding: 5px 10px;
 		font-size: 13px;
 	}
-	
+
 	body.bd-detail-layout-immersive .bd-content-wrapper {
 		padding: 16px 12px 40px !important;
 	}
-	
+
 	body.bd-detail-layout-immersive .bd-card.bd-card-padded {
 		padding: 16px !important;
 	}
-	
+
 	/* Engagement strip wraps nicely */
 	.bd-engagement-strip-inner {
 		gap: 8px !important;
 	}
-	
+
 	.bd-engage-btn {
 		padding: 10px 14px !important;
 		font-size: 13px !important;

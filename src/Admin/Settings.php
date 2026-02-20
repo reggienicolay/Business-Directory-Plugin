@@ -110,7 +110,7 @@ class Settings {
 		if ( $screen && $screen->id === 'edit-bd_business' ) {
 			$post_status = isset( $_GET['post_status'] ) ? sanitize_key( $_GET['post_status'] ) : '';
 			if ( $post_status === 'pending' ) {
-			?>
+				?>
 			<script>
 				jQuery(document).ready(function ($) {
 					$('.row-actions .approve a').css({
@@ -122,7 +122,7 @@ class Settings {
 					});
 				});
 			</script>
-			<?php
+				<?php
 			}
 		}
 	}

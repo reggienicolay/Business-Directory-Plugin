@@ -37,6 +37,9 @@
 		// Debounce timer
 		searchTimer: null,
 
+		// Track active AJAX request for tag filtering
+		tagFilterRequest: null,
+
 		// Map instance
 		map: null,
 		markers: [],
@@ -195,9 +198,9 @@
 			// Read URL parameters and apply to state
 			this.readUrlParams();
 
-			// If category was set from URL, reorder tags
+			// If category was set from URL, filter tags for that category
 			if (this.state.category) {
-				this.reorderTagsForCategory(this.state.category);
+				this.filterTagsForCategory(this.state.category);
 			}
 
 			this.bindEvents();
@@ -212,19 +215,22 @@
 		bindEvents: function () {
 			const self = this;
 
-			// Experience buttons
+			// Experience buttons (Categories)
 			$(document).on('click', '.bd-qf-experience-btn', function () {
 				const $btn = $(this);
 				const categoryId = $btn.data('category-id');
 
 				if ($btn.hasClass('active')) {
+					// Deselecting category - show ALL tags again
 					$btn.removeClass('active');
 					self.state.category = null;
+					self.showAllTags();
 				} else {
+					// Selecting a new category
 					$('.bd-qf-experience-btn').removeClass('active');
 					$btn.addClass('active');
 					self.state.category = categoryId;
-					self.reorderTagsForCategory(categoryId);
+					self.filterTagsForCategory(categoryId);
 				}
 
 				self.state.page = 1;
@@ -268,10 +274,11 @@
 				// Update the "more" button text
 				const $moreBtn = $('#bd-qf-tags-more');
 				if ($row.hasClass('expanded')) {
-					$moreBtn.html('Show Less');
+					$moreBtn.text('Show Less');
 				} else {
-					const hiddenCount = $('.bd-qf-tag-btn.bd-qf-tag-hidden').length;
-					$moreBtn.html('+' + hiddenCount + ' more');
+					// Count only tags hidden by limit, not by category
+					const hiddenCount = $('.bd-qf-tag-btn.bd-qf-tag-hidden:not(.bd-qf-tag-category-hidden)').length;
+					$moreBtn.text('+' + hiddenCount + ' more');
 				}
 			});
 
@@ -281,10 +288,11 @@
 				$row.toggleClass('expanded');
 				
 				if ($row.hasClass('expanded')) {
-					$(this).html('Show Less');
+					$(this).text('Show Less');
 				} else {
-					const hiddenCount = $('.bd-qf-tag-btn.bd-qf-tag-hidden').length;
-					$(this).html('+' + hiddenCount + ' more');
+					// Count only tags hidden by limit, not by category
+					const hiddenCount = $('.bd-qf-tag-btn.bd-qf-tag-hidden:not(.bd-qf-tag-category-hidden)').length;
+					$(this).text('+' + hiddenCount + ' more');
 				}
 			});
 
@@ -1358,6 +1366,7 @@
 				case 'category':
 					this.state.category = null;
 					$('.bd-qf-experience-btn').removeClass('active');
+					this.showAllTags(); // Reset tag visibility
 					break;
 
 				case 'area':
@@ -1423,19 +1432,34 @@
 			$('#bd-qf-open-now').prop('checked', false);
 			$('#bd-qf-more-filters').removeClass('has-filters');
 
+			// Show all tags again (reset category filtering)
+			this.showAllTags();
+
 			this.loadBusinesses();
 			this.updateActiveFilters();
 		},
 
 		/**
-		 * Reorder tags based on selected category
+		 * Filter and reorder tags based on selected category
+		 * Hides tags that aren't associated with businesses in the category
+		 *
+		 * @param {number} categoryId - Category ID to filter by
 		 */
-		reorderTagsForCategory: function (categoryId) {
+		filterTagsForCategory: function (categoryId) {
 			const self = this;
 			const $tagsList = $('#bd-qf-tags-list');
+			const $tagsRow = $('.bd-qf-tags-row');
+
+			// Abort any pending request to prevent race conditions
+			if (this.tagFilterRequest && this.tagFilterRequest.readyState !== 4) {
+				this.tagFilterRequest.abort();
+			}
+
+			// Add loading state
+			$tagsRow.addClass('bd-qf-tags-loading');
 
 			// Get tags for this category via AJAX
-			$.ajax({
+			this.tagFilterRequest = $.ajax({
 				url: bdQuickFilters.ajaxUrl,
 				method: 'POST',
 				data: {
@@ -1444,39 +1468,174 @@
 					nonce: bdQuickFilters.nonce
 				},
 				success: function (response) {
+					$tagsRow.removeClass('bd-qf-tags-loading');
+
 					if (response.success && response.data.tags) {
-						// Get current tag buttons
-						const $buttons = $tagsList.find('.bd-qf-tag-btn');
+						// Build Set of tag IDs for O(1) lookup
 						const categoryTagIds = response.data.tags.map(function (t) {
 							return t.id;
 						});
+						const categoryTagSet = new Set(categoryTagIds);
 
-						// Sort: category tags first, then others
-						const sorted = $buttons.toArray().sort(function (a, b) {
-							const aId = parseInt($(a).data('tag-id'), 10);
-							const bId = parseInt($(b).data('tag-id'), 10);
-							const aInCategory = categoryTagIds.indexOf(aId) !== -1;
-							const bInCategory = categoryTagIds.indexOf(bId) !== -1;
+						const $buttons = $tagsList.find('.bd-qf-tag-btn');
+						let visibleCount = 0;
+						const tagsToDeselect = [];
 
-							if (aInCategory && !bInCategory) return -1;
-							if (!aInCategory && bInCategory) return 1;
+						// First pass: collect data without DOM manipulation
+						const buttonData = $buttons.map(function () {
+							const $btn = $(this);
+							const tagId = parseInt($btn.data('tag-id'), 10);
+							const isInCategory = categoryTagSet.has(tagId);
+							const isActive = $btn.hasClass('active');
 
-							// If both in category, sort by their order in category tags
-							if (aInCategory && bInCategory) {
-								return categoryTagIds.indexOf(aId) - categoryTagIds.indexOf(bId);
+							if (!isInCategory && isActive) {
+								tagsToDeselect.push(tagId);
+							}
+							if (isInCategory) {
+								visibleCount++;
 							}
 
-							return 0;
+							return {
+								element: this,
+								$btn: $btn,
+								tagId: tagId,
+								isInCategory: isInCategory,
+								sortIndex: isInCategory ? categoryTagIds.indexOf(tagId) : 999999
+							};
+						}).get();
+
+						// Batch DOM updates: update classes
+						buttonData.forEach(function (item) {
+							if (item.isInCategory) {
+								item.$btn.removeClass('bd-qf-tag-category-hidden');
+							} else {
+								item.$btn.addClass('bd-qf-tag-category-hidden').removeClass('active');
+							}
 						});
 
-						// Re-append in new order
-						$tagsList.empty();
-						sorted.forEach(function (btn) {
-							$tagsList.append(btn);
+						// Update state for deselected tags
+						if (tagsToDeselect.length > 0) {
+							self.state.tags = self.state.tags.filter(function (t) {
+								return tagsToDeselect.indexOf(t) === -1;
+							});
+						}
+
+						// Sort visible tags by category relevance
+						const sorted = buttonData
+							.filter(function (item) { return item.isInCategory; })
+							.sort(function (a, b) { return a.sortIndex - b.sortIndex; });
+
+						// Batch DOM reorder using document fragment
+						const fragment = document.createDocumentFragment();
+						sorted.forEach(function (item) {
+							fragment.appendChild(item.element);
 						});
+						$tagsList[0].appendChild(fragment);
+
+						// Update the "+X more" button count
+						self.updateTagsMoreButton();
+
+						// Show message if no tags match this category
+						self.updateNoTagsMessage(visibleCount === 0);
+					}
+				},
+				error: function (xhr, status) {
+					// Don't show error for aborted requests
+					if (status !== 'abort') {
+						$tagsRow.removeClass('bd-qf-tags-loading');
+						console.error('Failed to fetch category tags');
 					}
 				}
 			});
+		},
+
+		/**
+		 * Show all tags (reset category filtering)
+		 * Called when user deselects a category
+		 */
+		showAllTags: function () {
+			const $tagsList = $('#bd-qf-tags-list');
+
+			// Abort any pending category filter request
+			if (this.tagFilterRequest && this.tagFilterRequest.readyState !== 4) {
+				this.tagFilterRequest.abort();
+			}
+
+			// Remove loading state if present
+			$('.bd-qf-tags-row').removeClass('bd-qf-tags-loading');
+
+			// Remove category-hidden class from all tags
+			$tagsList.find('.bd-qf-tag-btn').removeClass('bd-qf-tag-category-hidden');
+
+			// Remove "no tags" message if present
+			this.updateNoTagsMessage(false);
+
+			// Recalculate the "+X more" button
+			this.updateTagsMoreButton();
+		},
+
+		/**
+		 * Update the "+X more" button based on visible (non-category-hidden) tags
+		 */
+		updateTagsMoreButton: function () {
+			const $tagsList = $('#bd-qf-tags-list');
+			const $moreBtn = $('#bd-qf-tags-more');
+			const $tagsRow = $('.bd-qf-tags-row');
+
+			// Get only tags that aren't hidden by category filter
+			const $visibleTags = $tagsList.find('.bd-qf-tag-btn').not('.bd-qf-tag-category-hidden');
+			const maxVisible = 8; // Number of tags to show before collapsing
+
+			let hiddenByLimit = 0;
+
+			// Apply the 8-tag visibility limit
+			$visibleTags.each(function (index) {
+				const $btn = $(this);
+				if (index >= maxVisible) {
+					// Hide due to limit (but keep in DOM)
+					$btn.addClass('bd-qf-tag-hidden');
+					hiddenByLimit++;
+				} else {
+					// Show (within limit)
+					$btn.removeClass('bd-qf-tag-hidden');
+				}
+			});
+
+			// Update or hide the "more" button
+			if (hiddenByLimit > 0) {
+				$moreBtn.show().text('+' + hiddenByLimit + ' more');
+			} else {
+				$moreBtn.hide();
+			}
+
+			// If tags are expanded, make sure to show all visible tags
+			if ($tagsRow.hasClass('expanded')) {
+				$visibleTags.removeClass('bd-qf-tag-hidden');
+				$moreBtn.text('Show Less');
+			}
+		},
+
+		/**
+		 * Show/hide the "no tags available" message
+		 *
+		 * @param {boolean} show - Whether to show the message
+		 */
+		updateNoTagsMessage: function (show) {
+			const $tagsList = $('#bd-qf-tags-list');
+			const $existingMsg = $tagsList.find('.bd-qf-no-tags-message');
+
+			if (show) {
+				if (!$existingMsg.length) {
+					$tagsList.append(
+						'<span class="bd-qf-no-tags-message">' +
+						'<i class="fas fa-info-circle"></i> ' +
+						'No tags for this category' +
+						'</span>'
+					);
+				}
+			} else {
+				$existingMsg.remove();
+			}
 		},
 
 		/**

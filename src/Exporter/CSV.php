@@ -82,16 +82,16 @@ class CSV {
 	 */
 	public static function export( $args = array() ) {
 		$defaults = array(
-			'status'           => 'publish',          // publish, draft, pending, any
-			'category'         => '',                 // Category slug or ID
-			'area'             => '',                 // Area slug or ID
-			'city'             => '',                 // Filter by city
-			'format'           => self::FORMAT_STANDARD,
-			'include_reviews'  => false,              // Include review stats
-			'include_claimed'  => true,               // Include claim info
-			'include_id'       => true,               // Include post ID
-			'filename'         => '',                 // Custom filename
-			'business_ids'     => array(),            // Specific IDs to export
+			'status'          => 'publish',          // publish, draft, pending, any
+			'category'        => '',                 // Category slug or ID
+			'area'            => '',                 // Area slug or ID
+			'city'            => '',                 // Filter by city
+			'format'          => self::FORMAT_STANDARD,
+			'include_reviews' => false,              // Include review stats
+			'include_claimed' => true,               // Include claim info
+			'include_id'      => true,               // Include post ID
+			'filename'        => '',                 // Custom filename
+			'business_ids'    => array(),            // Specific IDs to export
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -143,7 +143,7 @@ class CSV {
 		$offset = 0;
 
 		do {
-			$businesses      = self::get_businesses( $args, $offset, self::BATCH_SIZE );
+			$businesses       = self::get_businesses( $args, $offset, self::BATCH_SIZE );
 			$businesses_count = count( $businesses );
 
 			// Batch load review stats if needed (prevents N+1 queries).
@@ -180,7 +180,7 @@ class CSV {
 	 * @return int Number of businesses matching criteria.
 	 */
 	public static function get_export_count( $args = array() ) {
-		$query_args = self::build_query_args( $args );
+		$query_args                   = self::build_query_args( $args );
 		$query_args['fields']         = 'ids';
 		$query_args['posts_per_page'] = -1;
 

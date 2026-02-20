@@ -22,12 +22,12 @@ class DuplicateFinder {
 	/**
 	 * Detection method constants.
 	 */
-	const METHOD_EXACT_TITLE       = 'exact_title';
-	const METHOD_NORMALIZED_TITLE  = 'normalized_title';
-	const METHOD_TITLE_CITY        = 'title_city';
-	const METHOD_TITLE_ADDRESS     = 'title_address';
-	const METHOD_PHONE             = 'phone';
-	const METHOD_WEBSITE           = 'website';
+	const METHOD_EXACT_TITLE      = 'exact_title';
+	const METHOD_NORMALIZED_TITLE = 'normalized_title';
+	const METHOD_TITLE_CITY       = 'title_city';
+	const METHOD_TITLE_ADDRESS    = 'title_address';
+	const METHOD_PHONE            = 'phone';
+	const METHOD_WEBSITE          = 'website';
 
 	/**
 	 * Confidence levels.
@@ -561,8 +561,8 @@ class DuplicateFinder {
 						array_merge( $existing['business_ids'], $group['business_ids'] )
 					)
 				);
-				$existing['count']   = count( $existing['business_ids'] );
-				$existing['methods'] = array_unique(
+				$existing['count']        = count( $existing['business_ids'] );
+				$existing['methods']      = array_unique(
 					array_merge(
 						$existing['methods'] ?? array( $existing['method'] ),
 						array( $group['method'] )
@@ -691,10 +691,10 @@ class DuplicateFinder {
 				continue;
 			}
 
-			$location     = $locations_cache[ $id ] ?? null;
-			$phone        = get_post_meta( $id, 'bd_phone', true );
-			$website      = get_post_meta( $id, 'bd_website', true );
-			$email        = get_post_meta( $id, 'bd_email', true );
+			$location = $locations_cache[ $id ] ?? null;
+			$phone    = get_post_meta( $id, 'bd_phone', true );
+			$website  = get_post_meta( $id, 'bd_website', true );
+			$email    = get_post_meta( $id, 'bd_email', true );
 			// Use get_the_terms() to leverage the primed object cache.
 			$cat_terms    = get_the_terms( $id, 'bd_category' );
 			$categories   = ( $cat_terms && ! is_wp_error( $cat_terms ) ) ? wp_list_pluck( $cat_terms, 'name' ) : array();

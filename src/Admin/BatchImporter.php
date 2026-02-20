@@ -212,7 +212,7 @@ class BatchImporter {
 			$batch_results['errors']
 		);
 		if ( count( $import_data['results']['errors'] ) > self::MAX_STORED_ERRORS ) {
-			$import_data['results']['errors'] = array_slice( $import_data['results']['errors'], 0, self::MAX_STORED_ERRORS );
+			$import_data['results']['errors']           = array_slice( $import_data['results']['errors'], 0, self::MAX_STORED_ERRORS );
 			$import_data['results']['errors_truncated'] = true;
 		}
 

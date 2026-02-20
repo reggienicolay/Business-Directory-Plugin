@@ -95,8 +95,8 @@ class DuplicateMerger {
 
 			// Merge photos/gallery.
 			if ( $options['merge_photos'] ) {
-				$photos_merged  = self::merge_photos( $primary_id, $valid_duplicates );
-				$log['photos']  = $photos_merged;
+				$photos_merged = self::merge_photos( $primary_id, $valid_duplicates );
+				$log['photos'] = $photos_merged;
 			}
 
 			// Merge meta data (phone, website, etc.).
@@ -571,7 +571,7 @@ class DuplicateMerger {
 			foreach ( $duplicate_ids as $dup_id ) {
 				$dup_claimed = get_post_meta( $dup_id, 'bd_claimed_by', true );
 				if ( ! empty( $dup_claimed ) ) {
-					$user = get_user_by( 'id', $dup_claimed );
+					$user                 = get_user_by( 'id', $dup_claimed );
 					$preview['changes'][] = sprintf(
 						/* translators: %s: username */
 						__( 'Claim ownership will be transferred from %s', 'business-directory' ),

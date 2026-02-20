@@ -442,6 +442,58 @@
 	display: inline-flex;
 }
 
+/* Tags hidden by category filtering - always hide (even when expanded) */
+.bd-qf-tag-btn.bd-qf-tag-category-hidden {
+	display: none !important;
+}
+
+/* Loading state for tag filtering */
+.bd-qf-tags-row.bd-qf-tags-loading {
+	position: relative;
+}
+
+.bd-qf-tags-row.bd-qf-tags-loading .bd-qf-tags-list {
+	opacity: 0.5;
+	pointer-events: none;
+	transition: opacity 0.15s ease;
+}
+
+.bd-qf-tags-row.bd-qf-tags-loading::before {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 20px;
+	height: 20px;
+	margin: -10px 0 0 -10px;
+	border: 2px solid var(--qf-teal);
+	border-top-color: transparent;
+	border-radius: 50%;
+	animation: bd-qf-spin 0.8s linear infinite;
+	z-index: 10;
+}
+
+@keyframes bd-qf-spin {
+	to { transform: rotate(360deg); }
+}
+
+/* Empty state message when no tags match category */
+.bd-qf-no-tags-message {
+	color: var(--qf-gray-500);
+	font-size: 13px;
+	font-style: italic;
+	padding: 10px 16px;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	white-space: nowrap;
+}
+
+.bd-qf-no-tags-message i {
+	color: var(--qf-gray-400);
+	font-size: 14px;
+}
+
 .bd-qf-tags-more {
 	padding: 10px 18px;
 	border: 2px dashed var(--qf-gray-300);
