@@ -22,11 +22,11 @@ use BusinessDirectory\Explore\ExploreQuery;
 use BusinessDirectory\Explore\ExploreRenderer;
 
 // Get current area + tag from query vars.
-$area  = ExploreRouter::get_current_area();
-$tag   = ExploreRouter::get_current_tag();
-$paged = ExploreRouter::get_current_page();
+$area         = ExploreRouter::get_current_area();
+$current_tag  = ExploreRouter::get_current_tag();
+$current_page = ExploreRouter::get_current_page();
 
-if ( ! $area || ! $tag ) {
+if ( ! $area || ! $current_tag ) {
 	// Safety fallback — router should have caught this.
 	wp_safe_redirect( home_url( '/explore/' ) );
 	exit;
@@ -37,10 +37,10 @@ if ( ! $area || ! $tag ) {
 $sort = ExploreQuery::validate_sort( isset( $_GET['sort'] ) ? sanitize_key( wp_unslash( $_GET['sort'] ) ) : 'rating' );
 
 // Fetch data.
-$result     = ExploreQuery::get_intersection( $area->slug, $tag->slug, $paged, $sort );
-$businesses = $result['businesses'];
-$total      = $result['total'];
-$pages      = $result['pages'];
+$result      = ExploreQuery::get_intersection( $area->slug, $tag->slug, $current_page, $sort );
+$businesses  = $result['businesses'];
+$total       = $result['total'];
+$total_pages = $result['pages'];
 
 // 404 if page number exceeds actual pages.
 if ( $paged > 1 && $paged > $pages ) {
@@ -123,7 +123,7 @@ get_header();
 		<?php echo ExploreRenderer::render_grid( $businesses ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 
 		<?php // Pagination. ?>
-		<?php echo ExploreRenderer::render_pagination( $pages, $paged, $base_url, $sort ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		<?php echo ExploreRenderer::render_pagination( $pages, $current_page, $base_url, $sort ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 
 		<?php // "Also Explore" cross-linking. ?>
 		<?php echo ExploreRenderer::render_cross_links( $area->slug, $tag->slug, $area->name, $tag->name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>

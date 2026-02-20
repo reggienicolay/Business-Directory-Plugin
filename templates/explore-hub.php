@@ -80,10 +80,10 @@ get_header();
 
 						<?php if ( ! empty( $city_data['top_tags'] ) ) : ?>
 							<div class="bd-explore-hub-tags">
-								<?php foreach ( $city_data['top_tags'] as $tag ) : ?>
-									<a href="<?php echo esc_url( $tag['url'] ); ?>" class="bd-explore-hub-tag">
-										<?php echo esc_html( $tag['name'] ); ?>
-										<span class="bd-explore-hub-tag-count"><?php echo intval( $tag['count'] ); ?></span>
+								<?php foreach ( $city_data['top_tags'] as $tag_item ) : ?>
+									<a href="<?php echo esc_url( $tag_item['url'] ); ?>" class="bd-explore-hub-tag">
+										<?php echo esc_html( $tag_item['name'] ); ?>
+										<span class="bd-explore-hub-tag-count"><?php echo intval( $tag_item['count'] ); ?></span>
 									</a>
 								<?php endforeach; ?>
 							</div>

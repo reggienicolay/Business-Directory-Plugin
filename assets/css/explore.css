@@ -12,11 +12,11 @@
  */
 
 /* ==========================================================================
-   CSS VARIABLE BRIDGE
-   Quick-filters.css declares variables inside .bd-qf-wrapper.
-   Explore pages don't have that wrapper, so we redeclare them here
-   scoped to .bd-explore-page so all bd-qf-card styles resolve.
-   ========================================================================== */
+	CSS VARIABLE BRIDGE
+	Quick-filters.css declares variables inside .bd-qf-wrapper.
+	Explore pages don't have that wrapper, so we redeclare them here
+	scoped to .bd-explore-page so all bd-qf-card styles resolve.
+	========================================================================== */
 
 .bd-explore-page {
 	--qf-navy: #1a3a4a;
@@ -69,8 +69,8 @@
 }
 
 /* ==========================================================================
-   PAGE CONTAINER
-   ========================================================================== */
+	PAGE CONTAINER
+	========================================================================== */
 
 .bd-explore-page {
 	max-width: var(--explore-max-width);
@@ -84,8 +84,8 @@
 }
 
 /* ==========================================================================
-   HEADER
-   ========================================================================== */
+	HEADER
+	========================================================================== */
 
 .bd-explore-header {
 	margin-bottom: 32px;
@@ -108,8 +108,8 @@
 }
 
 /* ==========================================================================
-   RESULTS META BAR
-   ========================================================================== */
+	RESULTS META BAR
+	========================================================================== */
 
 .bd-explore-results-meta {
 	display: flex;
@@ -180,10 +180,10 @@
 }
 
 /* ==========================================================================
-   CARD GRID OVERRIDES FOR EXPLORE CONTEXT
-   Explore pages always show grid view (no split/list toggle).
-   These ensure the grid renders identically to Quick Filter grid view.
-   ========================================================================== */
+	CARD GRID OVERRIDES FOR EXPLORE CONTEXT
+	Explore pages always show grid view (no split/list toggle).
+	These ensure the grid renders identically to Quick Filter grid view.
+	========================================================================== */
 
 .bd-explore-page .bd-qf-businesses.bd-qf-view-grid {
 	display: grid;
@@ -213,11 +213,11 @@
 }
 
 /* ==========================================================================
-   TOPOGRAPHIC PLACEHOLDER
-   Branded contour-line image shown when a business has no featured image.
-   Matches the Quick Filters directory card placeholder design:
-   concentric gold rings, centered pin icon, coordinate text.
-   ========================================================================== */
+	TOPOGRAPHIC PLACEHOLDER
+	Branded contour-line image shown when a business has no featured image.
+	Matches the Quick Filters directory card placeholder design:
+	concentric gold rings, centered pin icon, coordinate text.
+	========================================================================== */
 
 .bd-qf-card-placeholder {
 	position: absolute;
@@ -234,10 +234,10 @@
 }
 
 /* ==========================================================================
-   DISCOVERY BAR
-   Lightweight search bridge to the full interactive directory.
-   Not a duplicate of Quick Filters — just builds a URL with params.
-   ========================================================================== */
+	DISCOVERY BAR
+	Lightweight search bridge to the full interactive directory.
+	Not a duplicate of Quick Filters — just builds a URL with params.
+	========================================================================== */
 
 .bd-explore-discovery {
 	margin-bottom: 32px;
@@ -345,8 +345,8 @@
 }
 
 /* ==========================================================================
-   MAP
-   ========================================================================== */
+	MAP
+	========================================================================== */
 
 .bd-explore-map-wrap {
 	margin-bottom: 32px;
@@ -438,8 +438,8 @@
 }
 
 /* ==========================================================================
-   PAGINATION
-   ========================================================================== */
+	PAGINATION
+	========================================================================== */
 
 .bd-explore-pagination {
 	margin: 48px 0 32px;
@@ -505,8 +505,8 @@
 }
 
 /* ==========================================================================
-   CROSS-LINKS ("Also Explore")
-   ========================================================================== */
+	CROSS-LINKS ("Also Explore")
+	========================================================================== */
 
 .bd-explore-also {
 	margin-top: 48px;
@@ -568,8 +568,8 @@
 }
 
 /* ==========================================================================
-   TAG CLOUD (City Landing Pages)
-   ========================================================================== */
+	TAG CLOUD (City Landing Pages)
+	========================================================================== */
 
 .bd-explore-tag-cloud {
 	margin-bottom: 40px;
@@ -641,8 +641,8 @@
 }
 
 /* ==========================================================================
-   CITY STATS
-   ========================================================================== */
+	CITY STATS
+	========================================================================== */
 
 .bd-explore-city-stats {
 	display: flex;
@@ -671,8 +671,8 @@
 }
 
 /* ==========================================================================
-   OTHER CITIES (City Landing Footer)
-   ========================================================================== */
+	OTHER CITIES (City Landing Footer)
+	========================================================================== */
 
 .bd-explore-other-cities {
 	margin-top: 48px;
@@ -721,8 +721,8 @@
 }
 
 /* ==========================================================================
-   HUB PAGE
-   ========================================================================== */
+	HUB PAGE
+	========================================================================== */
 
 .bd-explore-hub-cities {
 	display: grid;
@@ -829,8 +829,8 @@
 }
 
 /* ==========================================================================
-   RESPONSIVE
-   ========================================================================== */
+	RESPONSIVE
+	========================================================================== */
 
 @media (max-width: 768px) {
 	.bd-explore-container {

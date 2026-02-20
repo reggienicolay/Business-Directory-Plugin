@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Explore Pages Sitemap Integration
  *
@@ -21,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Class ExploreSitemap
  */
 class ExploreSitemap {
+
 
 	/**
 	 * Initialize hooks.
@@ -119,7 +121,7 @@ class ExploreSitemap {
 
 		do {
 			// Paginate to avoid memory exhaustion with large datasets.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			$businesses = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT p.ID, p.post_modified_gmt, pm.meta_value AS location
@@ -182,7 +184,8 @@ class ExploreSitemap {
 
 			$offset += $batch_size;
 
-		} while ( count( $businesses ) === $batch_size );
+			$businesses_count = count( $businesses );
+		} while ( $businesses_count === $batch_size );
 
 		$xml .= "</urlset>\n";
 
@@ -216,7 +219,7 @@ class ExploreSitemap {
 		global $wpdb;
 
 		// Get all valid area × tag combinations with 2+ businesses.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		$results = $wpdb->get_results(
 			"SELECT
 				t_area.slug AS area_slug,

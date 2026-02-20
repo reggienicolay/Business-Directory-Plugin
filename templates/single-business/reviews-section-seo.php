@@ -201,8 +201,12 @@ $visually_hidden_style = 'position:absolute;width:1px;height:1px;padding:0;margi
 									<!-- Author with Person schema -->
 									<div class="bd-reviewer" itemprop="author" itemscope itemtype="https://schema.org/Person">
 										<?php if ( ! empty( $avatar_url ) ) : ?>
+											<?php
+											// translators: %s is the reviewer name.
+											$profile_photo_alt = sprintf( __( '%s profile photo', 'business-directory' ), $reviewer_name );
+											?>
 											<img src="<?php echo esc_url( $avatar_url ); ?>"
-												alt="<?php echo esc_attr( sprintf( __( '%s profile photo', 'business-directory' ), $reviewer_name ) ); ?>"
+												alt="<?php echo esc_attr( $profile_photo_alt ); ?>"
 												class="bd-reviewer-avatar"
 												width="44"
 												height="44"
@@ -237,6 +241,7 @@ $visually_hidden_style = 'position:absolute;width:1px;height:1px;padding:0;margi
 											<meta itemprop="worstRating" content="1">
 											<meta itemprop="bestRating" content="5">
 											<meta itemprop="ratingValue" content="<?php echo esc_attr( $rating ); ?>">
+											<?php // translators: %d is the star rating number (1-5). ?>
 											<span aria-label="<?php echo esc_attr( sprintf( __( '%d out of 5 stars', 'business-directory' ), $rating ) ); ?>">
 												<?php
 												// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Unicode literals, no user input.
@@ -320,8 +325,12 @@ $visually_hidden_style = 'position:absolute;width:1px;height:1px;padding:0;margi
 											// Increment only for valid, displayed photos.
 											++$displayed_photo_count;
 											?>
+											<?php
+											// translators: %1$d is photo number, %2$s is reviewer name, %3$s is business name.
+											$review_photo_alt = sprintf( __( 'Photo %1$d from %2$s review of %3$s', 'business-directory' ), $displayed_photo_count, $reviewer_name, $business_name );
+											?>
 											<img src="<?php echo esc_url( $photo_url ); ?>"
-												alt="<?php echo esc_attr( sprintf( __( 'Photo %1$d from %2$s review of %3$s', 'business-directory' ), $displayed_photo_count, $reviewer_name, $business_name ) ); ?>"
+												alt="<?php echo esc_attr( $review_photo_alt ); ?>"
 												class="bd-review-photo"
 												itemprop="image"
 												loading="lazy">

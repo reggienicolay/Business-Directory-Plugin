@@ -23,8 +23,8 @@ use BusinessDirectory\Explore\ExploreQuery;
 use BusinessDirectory\Explore\ExploreRenderer;
 
 // Get current area from query vars.
-$area  = ExploreRouter::get_current_area();
-$paged = ExploreRouter::get_current_page();
+$area         = ExploreRouter::get_current_area();
+$current_page = ExploreRouter::get_current_page();
 
 if ( ! $area ) {
 	wp_safe_redirect( home_url( '/explore/' ) );
@@ -36,11 +36,11 @@ if ( ! $area ) {
 $sort = ExploreQuery::validate_sort( isset( $_GET['sort'] ) ? sanitize_key( wp_unslash( $_GET['sort'] ) ) : 'rating' );
 
 // Fetch data.
-$result     = ExploreQuery::get_city( $area->slug, $paged, $sort );
-$businesses = $result['businesses'];
-$total      = $result['total'];
-$pages      = $result['pages'];
-$base_url   = ExploreRouter::get_explore_url( $area->slug );
+$result      = ExploreQuery::get_city( $area->slug, $current_page, $sort );
+$businesses  = $result['businesses'];
+$total       = $result['total'];
+$total_pages = $result['pages'];
+$base_url    = ExploreRouter::get_explore_url( $area->slug );
 
 // 404 if page number exceeds actual pages.
 if ( $paged > 1 && $paged > $pages ) {
@@ -126,7 +126,7 @@ get_header();
 		<?php echo ExploreRenderer::render_grid( $businesses ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 
 		<?php // Pagination. ?>
-		<?php echo ExploreRenderer::render_pagination( $pages, $paged, $base_url, $sort ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		<?php echo ExploreRenderer::render_pagination( $pages, $current_page, $base_url, $sort ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 
 		<?php // Links to other cities. ?>
 		<?php echo ExploreRenderer::render_other_cities( $area->slug ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
