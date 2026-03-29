@@ -68,9 +68,16 @@ class ClaimController {
 			return $rate_check;
 		}
 
-		// Verify Turnstile if enabled
-		$turnstile_token = $request->get_param( 'turnstile_token' );
-		if ( ! empty( get_option( 'bd_turnstile_site_key' ) ) && ! empty( $turnstile_token ) ) {
+		// Verify Turnstile CAPTCHA if configured.
+		if ( ! empty( get_option( 'bd_turnstile_site_key' ) ) ) {
+			$turnstile_token = $request->get_param( 'turnstile_token' );
+			if ( empty( $turnstile_token ) ) {
+				return new \WP_Error(
+					'captcha_required',
+					__( 'Please complete the CAPTCHA verification.', 'business-directory' ),
+					array( 'status' => 400 )
+				);
+			}
 			$captcha_check = \BD\Security\Captcha::verify_turnstile( $turnstile_token );
 			if ( is_wp_error( $captcha_check ) ) {
 				return $captcha_check;
@@ -256,6 +263,9 @@ class ClaimController {
 		update_post_meta( $claim['business_id'], 'bd_claimed_by', $user_id );
 		update_post_meta( $claim['business_id'], 'bd_claim_status', 'claimed' );
 		update_post_meta( $claim['business_id'], 'bd_claimed_date', current_time( 'mysql' ) );
+
+		// Allow companion plugins to react to claim approval.
+		do_action( 'bd_claim_approved', $claim_id, $claim['business_id'], $user_id );
 
 		return rest_ensure_response(
 			array(

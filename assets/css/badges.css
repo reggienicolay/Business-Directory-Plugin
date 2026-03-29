@@ -966,6 +966,264 @@
 	to { transform: rotate(360deg); }
 }
 
+/* =====================================================================
+   METALLIC SVG BADGE STYLES (v10)
+   ===================================================================== */
+
+/* Badge SVG element */
+.bd-badge-svg,
+.bd-badge-svg-inline {
+	display: inline-block;
+	vertical-align: middle;
+	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bd-badge-svg--earned:hover {
+	transform: scale(1.05);
+}
+
+/* SVG badge wrapper in cards */
+.bd-badge-card-svg {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 12px 0 8px;
+}
+
+/* Inline badge wrapper (review cards) */
+.bd-badge-inline-wrap {
+	display: inline-flex;
+	align-items: center;
+	cursor: pointer;
+	position: relative;
+}
+
+.bd-badge-inline-wrap[data-tooltip]:hover::after {
+	content: attr(data-tooltip);
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	transform: translateX(-50%);
+	background: rgba(15, 23, 42, 0.95);
+	color: #f0f7fa;
+	padding: 6px 12px;
+	border-radius: 8px;
+	font-size: 11px;
+	font-weight: 600;
+	white-space: nowrap;
+	z-index: 100;
+	pointer-events: none;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Material Tier Legend */
+.bd-material-legend {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+	padding: 16px 20px;
+	margin: 0 auto 28px;
+	max-width: 700px;
+	flex-wrap: wrap;
+}
+
+.bd-material-label {
+	font-size: 12px;
+	font-weight: 700;
+	color: var(--bd-slate-500, #64748b);
+	letter-spacing: 0.5px;
+}
+
+.bd-material-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 5px 14px;
+	border-radius: 24px;
+	font-size: 11px;
+	font-weight: 600;
+	background: rgba(255, 255, 255, 0.6);
+	border: 1px solid rgba(0, 0, 0, 0.06);
+	color: var(--bd-slate-600, #475569);
+}
+
+.bd-material-swatch {
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	border: 1.5px solid rgba(255, 255, 255, 0.4);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+	flex-shrink: 0;
+}
+
+.bd-material-rarity {
+	font-size: 9px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+	opacity: 0.5;
+	margin-left: 2px;
+}
+
+/* Share trigger button on badge cards */
+.bd-badge-share-trigger {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 16px;
+	margin-top: 8px;
+	border-radius: 20px;
+	border: 1px solid rgba(201, 162, 39, 0.2);
+	background: rgba(201, 162, 39, 0.06);
+	color: #C9A227;
+	font-size: 11px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	font-family: inherit;
+}
+
+.bd-badge-share-trigger:hover {
+	background: rgba(201, 162, 39, 0.15);
+	border-color: rgba(201, 162, 39, 0.35);
+	transform: translateY(-1px);
+	box-shadow: 0 2px 8px rgba(201, 162, 39, 0.2);
+}
+
+.bd-badge-share-trigger:focus {
+	outline: 2px solid #C9A227;
+	outline-offset: 2px;
+}
+
+.bd-badge-share-trigger i {
+	font-size: 12px;
+}
+
+/* Badge card updates for SVG badges — override old icon circle backgrounds */
+.bd-badge-card .bd-badge-card-svg + .bd-badge-card-name {
+	margin-top: 4px;
+}
+
+/* Shimmer animation keyframes (for SVG badges) */
+@keyframes bd-badge-shimmer {
+	0% { transform: translateX(-120%) rotate(25deg); }
+	100% { transform: translateX(120%) rotate(25deg); }
+}
+
+@keyframes bd-badge-earned-pulse {
+	0% { transform: scale(1); filter: brightness(1); }
+	30% { transform: scale(1.08); filter: brightness(1.3); }
+	60% { transform: scale(0.97); filter: brightness(1.1); }
+	100% { transform: scale(1); filter: brightness(1); }
+}
+
+/* Badge card — hide old icon/check/lock when SVG badge is present.
+   Uses sibling combinator instead of :has() for broader browser support. */
+.bd-badge-card-svg ~ .bd-badge-card-icon {
+	display: none;
+}
+
+.bd-badge-card-svg ~ .bd-badge-check,
+.bd-badge-card-svg ~ .bd-badge-lock {
+	display: none;
+}
+
+/* Share modal overlay */
+.bd-share-modal-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: rgba(10, 26, 34, 0.85);
+	backdrop-filter: blur(8px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 99999;
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.bd-share-modal-overlay.bd-active {
+	opacity: 1;
+	visibility: visible;
+}
+
+.bd-share-modal {
+	max-width: 440px;
+	width: 90%;
+	max-height: 90vh;
+	overflow-y: auto;
+	border-radius: 28px;
+	transform: scale(0.9) translateY(20px);
+	transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bd-share-modal-overlay.bd-active .bd-share-modal {
+	transform: scale(1) translateY(0);
+}
+
+.bd-share-modal-close {
+	position: absolute;
+	top: 16px;
+	right: 16px;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	background: rgba(255, 255, 255, 0.05);
+	color: #7a9eb8;
+	font-size: 18px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+	z-index: 2;
+}
+
+.bd-share-modal-close:hover {
+	background: rgba(255, 255, 255, 0.1);
+	color: #f0f7fa;
+}
+
+/* Responsive adjustments for SVG badges */
+@media (max-width: 768px) {
+	.bd-badge-card-svg .bd-badge-svg {
+		width: 100px !important;
+		height: auto !important;
+	}
+
+	.bd-material-legend {
+		gap: 6px;
+		padding: 12px 16px;
+	}
+
+	.bd-material-pill {
+		padding: 4px 10px;
+		font-size: 10px;
+	}
+}
+
+@media (max-width: 480px) {
+	.bd-badge-card-svg .bd-badge-svg {
+		width: 80px !important;
+		height: auto !important;
+	}
+
+	.bd-material-rarity {
+		display: none;
+	}
+
+	.bd-badge-share-trigger {
+		font-size: 10px;
+		padding: 5px 12px;
+	}
+}
+
 /* ============================================
 	RESPONSIVE ADJUSTMENTS
 	============================================ */

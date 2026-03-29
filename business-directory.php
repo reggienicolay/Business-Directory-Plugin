@@ -3,7 +3,7 @@
  * Plugin Name: Business Directory Pro
  * Plugin URI: https://github.com/reggienicolay/Business-Directory-Plugin
  * Description: Modern, map-first local business directory with geolocation, reviews, and multi-city support.
- * Version: 0.1.6
+ * Version: 0.1.7
  * Author: Reggie Nicolay
  * Author URI: https://narrpr.com
  * Text Domain: business-directory
@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define plugin constants.
-define( 'BD_VERSION', '0.1.6' );
+define( 'BD_VERSION', '0.1.7' );
 define( 'BD_PLUGIN_FILE', __FILE__ );
 define( 'BD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'BD_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -47,7 +47,7 @@ spl_autoload_register(
 		$file           = $base_dir . str_replace( '\\', '/', $relative_class ) . '.php';
 
 		if ( file_exists( $file ) ) {
-			require $file;
+			require_once $file;
 		}
 	}
 );
@@ -65,7 +65,7 @@ require_once BD_PLUGIN_DIR . 'src/Lists/ListCollaborators.php';
 require_once BD_PLUGIN_DIR . 'src/API/ListsEndpoint.php';
 require_once BD_PLUGIN_DIR . 'src/API/CollaboratorsEndpoint.php';
 require_once BD_PLUGIN_DIR . 'src/API/BadgeEndpoint.php';
-require_once BD_PLUGIN_DIR . 'src/API/SubmissionEndpoint.php';
+// SubmissionEndpoint.php removed (security audit 2026-03-28) — use src/REST/SubmitBusinessController.php instead.
 
 // Load Admin classes.
 require_once BD_PLUGIN_DIR . 'src/Admin/ListsAdmin.php';
@@ -203,6 +203,11 @@ if ( file_exists( BD_PLUGIN_DIR . 'includes/integrations-loader.php' ) ) {
 	require_once BD_PLUGIN_DIR . 'includes/integrations-loader.php';
 }
 
+// Load Explore Pages.
+if ( file_exists( BD_PLUGIN_DIR . 'includes/explore-loader.php' ) ) {
+	require_once BD_PLUGIN_DIR . 'includes/explore-loader.php';
+}
+
 // Load Auth System.
 if ( file_exists( BD_PLUGIN_DIR . 'includes/auth-loader.php' ) ) {
 	require_once BD_PLUGIN_DIR . 'includes/auth-loader.php';
@@ -213,11 +218,7 @@ if ( file_exists( BD_PLUGIN_DIR . 'includes/guides-loader.php' ) ) {
 	require_once BD_PLUGIN_DIR . 'includes/guides-loader.php';
 }
 
-if ( file_exists( BD_PLUGIN_DIR . 'includes/explore-loader.php' ) ) {
-	require_once BD_PLUGIN_DIR . 'includes/explore-loader.php';
-}
-
 // Load SEO Components.
 if ( file_exists( BD_PLUGIN_DIR . 'includes/seo-loader.php' ) ) {
-	require_once BD_PLUGIN_DIR . 'includes/seo-loader.php';
+    require_once BD_PLUGIN_DIR . 'includes/seo-loader.php';
 }

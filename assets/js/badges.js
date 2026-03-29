@@ -10,6 +10,7 @@
 			this.initHelpfulVotes();
 			this.initTooltips();
 			this.initBadgeAnimations();
+			this.initShareModal();
 		},
 
 		/**
@@ -143,6 +144,101 @@
 					$( this ).css( 'transform', 'translateY(0)' );
 				}
 			);
+		},
+
+		/**
+		 * Badge Share Modal
+		 */
+		initShareModal: function() {
+			// Create modal overlay if it doesn't exist
+			if (!document.getElementById('bd-badge-share-overlay')) {
+				var overlay = document.createElement('div');
+				overlay.id = 'bd-badge-share-overlay';
+				overlay.className = 'bd-share-modal-overlay';
+				overlay.innerHTML = '<div class="bd-share-modal-content"></div>';
+				document.body.appendChild(overlay);
+
+				// Close on overlay click
+				overlay.addEventListener('click', function(e) {
+					if (e.target === overlay) {
+						overlay.classList.remove('bd-active');
+					}
+				});
+
+				// Close on Escape
+				document.addEventListener('keydown', function(e) {
+					if (e.key === 'Escape') {
+						overlay.classList.remove('bd-active');
+					}
+				});
+			}
+
+			// Share trigger buttons
+			document.querySelectorAll('.bd-badge-share-trigger').forEach(function(btn) {
+				btn.addEventListener('click', function(e) {
+					e.preventDefault();
+					e.stopPropagation();
+					var badgeKey = this.dataset.badgeKey;
+					var overlay = document.getElementById('bd-badge-share-overlay');
+					var content = overlay.querySelector('.bd-share-modal-content');
+
+					if ( !content ) { return; }
+
+					// Fetch modal content via AJAX
+					jQuery.ajax({
+						url: bdBadges.ajaxUrl,
+						type: 'POST',
+						data: {
+							action: 'bd_badge_share_modal',
+							badge_key: badgeKey,
+							nonce: bdBadges.nonce
+						},
+						success: function(response) {
+							if (response.success && response.data && response.data.html) {
+								content.innerHTML = response.data.html;
+								overlay.classList.add('bd-active');
+
+								// Wire up close button
+								var closeBtn = content.querySelector('.bd-share-modal-close');
+								if (closeBtn) {
+									closeBtn.addEventListener('click', function() {
+										overlay.classList.remove('bd-active');
+									});
+								}
+
+								// Wire up copy link
+								var copyBtn = content.querySelector('.bd-copy-link-btn');
+								if (copyBtn) {
+									copyBtn.addEventListener('click', function() {
+										var url = this.dataset.url;
+										navigator.clipboard.writeText(url).then(function() {
+											copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+											setTimeout(function() {
+												copyBtn.innerHTML = '<i class="fas fa-link"></i> Copy Link';
+											}, 2000);
+										});
+									});
+								}
+
+								// Track share clicks
+								content.querySelectorAll('.bd-share-card-btn[href]').forEach(function(shareBtn) {
+									shareBtn.addEventListener('click', function() {
+										jQuery.post(bdBadges.ajaxUrl, {
+											action: 'bd_track_badge_share',
+											badge_key: badgeKey,
+											platform: this.textContent.trim().toLowerCase(),
+											nonce: bdBadges.nonce
+										});
+									});
+								});
+							}
+						}
+						},
+						error: function() {
+							BadgeSystem.showMessage('Unable to load share card. Please try again.', 'error');
+						}
+						});
+			});
 		},
 
 		/**

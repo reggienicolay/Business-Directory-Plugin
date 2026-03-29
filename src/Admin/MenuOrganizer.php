@@ -93,6 +93,7 @@ class MenuOrganizer {
 			'tools'      => array(
 				'bd-business-tools',                        // Business Tools.
 				'bd-feature-settings',                      // Feature Embed.
+				'bd-city-settings',                         // City Site Settings.
 				'bd-shortcodes',                            // Shortcodes Reference.
 			),
 
@@ -203,6 +204,10 @@ class MenuOrganizer {
 			'bd-feature-settings'                => array(
 				'label' => __( 'Feature Embed', 'business-directory' ),
 				'icon'  => 'dashicons-embed-generic',
+			),
+			'bd-city-settings'                   => array(
+				'label' => __( 'City Site Settings', 'business-directory' ),
+				'icon'  => 'dashicons-location',
 			),
 			'bd-shortcodes'                      => array(
 				'label' => __( 'Shortcodes', 'business-directory' ),

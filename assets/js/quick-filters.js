@@ -92,11 +92,11 @@
 				const tagValues = params.get('tags').split(',');
 				const self = this;
 				tagValues.forEach(function(value) {
-					// Try slug first
+					// Try DOM button by slug first
 					let $tagBtn = $('.bd-qf-tag-btn').filter(function() {
 						return $(this).data('tag-slug') === value;
 					});
-					// Fall back to ID
+					// Fall back to DOM button by ID
 					if (!$tagBtn.length) {
 						$tagBtn = $('.bd-qf-tag-btn').filter(function() {
 							return String($(this).data('tag-id')) === value;
@@ -106,6 +106,21 @@
 						const tagId = $tagBtn.data('tag-id');
 						self.state.tags.push(tagId);
 						$tagBtn.addClass('active');
+					} else if (self.data && self.data.tags) {
+						// Fallback: tag slug from URL didn't match any DOM button.
+						// Look it up in the full tag data from PHP (covers slug
+						// mismatches and hidden tags beyond the "more" cutoff).
+						const match = self.data.tags.find(function(t) {
+							return t.slug === value || String(t.id) === value;
+						});
+						if (match) {
+							self.state.tags.push(match.id);
+							// Try to activate the button if it exists but was hidden
+							var $hidden = $('.bd-qf-tag-btn[data-tag-id="' + match.id + '"]');
+							if ($hidden.length) {
+								$hidden.addClass('active');
+							}
+						}
 					}
 				});
 			}
@@ -1137,7 +1152,8 @@
 				html += '>';
 				html += '<img src="' + this.escapeHtml(business.featured_image) + '" alt="' + this.escapeHtml(this.decodeHtml(business.title)) + '" loading="lazy">';
 			} else {
-				html += ' style="background: linear-gradient(135deg, #1a3a4a 0%, #0f2a3a 100%);">';
+				html += ' style="background: linear-gradient(135deg, #0f2a43 0%, #0a1f33 100%);">';
+				html += this.renderPlaceholderSVG(business);
 			}
 
 			// Distance badge
@@ -1234,6 +1250,47 @@
 			html += '</div>';
 
 			return html;
+		},
+
+		/**
+		 * Render topographic contour placeholder for cards without images.
+		 * Concentric gold rings, pin icon, and coordinate text — matches
+		 * the branded wine-country aesthetic used on explore pages.
+		 */
+		renderPlaceholderSVG: function (business) {
+			var loc = business.location || {};
+			var lat = parseFloat(loc.lat) || 0;
+			var lng = parseFloat(loc.lng) || 0;
+			var coordText = '';
+			if (lat !== 0 || lng !== 0) {
+				coordText = Math.abs(lat).toFixed(2) + 'N ' + Math.abs(lng).toFixed(2) + 'W';
+			}
+
+			var svg = '<div class="bd-qf-card-placeholder" aria-hidden="true">';
+			svg += '<svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">';
+			// Concentric contour ellipses — gold accent rings
+			svg += '<ellipse cx="200" cy="100" rx="180" ry="90" fill="none" stroke="rgba(201,162,39,0.08)" stroke-width="1"/>';
+			svg += '<ellipse cx="200" cy="100" rx="150" ry="75" fill="none" stroke="rgba(201,162,39,0.10)" stroke-width="1"/>';
+			svg += '<ellipse cx="200" cy="100" rx="120" ry="60" fill="none" stroke="rgba(201,162,39,0.13)" stroke-width="1"/>';
+			svg += '<ellipse cx="200" cy="100" rx="90" ry="45" fill="none" stroke="rgba(201,162,39,0.16)" stroke-width="1"/>';
+			svg += '<ellipse cx="200" cy="100" rx="65" ry="33" fill="none" stroke="rgba(201,162,39,0.20)" stroke-width="1.5"/>';
+			svg += '<ellipse cx="200" cy="100" rx="40" ry="20" fill="none" stroke="rgba(201,162,39,0.25)" stroke-width="1.5"/>';
+			// Lighter offset contour lines
+			svg += '<ellipse cx="195" cy="105" rx="160" ry="80" fill="none" stroke="rgba(168,196,212,0.06)" stroke-width="0.8"/>';
+			svg += '<ellipse cx="205" cy="95" rx="130" ry="65" fill="none" stroke="rgba(168,196,212,0.08)" stroke-width="0.8"/>';
+			svg += '<ellipse cx="198" cy="102" rx="100" ry="50" fill="none" stroke="rgba(168,196,212,0.10)" stroke-width="0.8"/>';
+			// Center pin circle + icon
+			svg += '<circle cx="200" cy="90" r="22" fill="rgba(44,177,188,0.12)"/>';
+			svg += '<g transform="translate(188,74)" fill="rgba(255,255,255,0.7)">';
+			svg += '<path d="M12 0C8.13 0 5 3.13 5 7c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>';
+			svg += '</g>';
+			// Coordinate text
+			if (coordText) {
+				svg += '<text x="200" y="185" text-anchor="middle" fill="rgba(168,196,212,0.35)" font-family="Inter,system-ui,sans-serif" font-size="11" letter-spacing="1.5">' + this.escapeHtml(coordText) + '</text>';
+			}
+			svg += '</svg></div>';
+
+			return svg;
 		},
 
 		/**

@@ -11,14 +11,11 @@
 namespace BD\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit; }
+	exit;
+}
 
 use BD\Admin\FeaturedAdmin;
 use BD\Admin\Settings;
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
 
 class QuickFilterDisplay {
 
@@ -34,6 +31,8 @@ class QuickFilterDisplay {
 		'brewery'         => 'fa-beer',
 		'coffee'          => 'fa-coffee',
 		'cafe'            => 'fa-coffee',
+		'food-trucks'     => 'fa-truck',
+		'food-truck'      => 'fa-truck',
 		'restaurant'      => 'fa-utensils',
 		'fine-dining'     => 'fa-utensils',
 		'casual-dining'   => 'fa-utensils',
@@ -266,7 +265,7 @@ class QuickFilterDisplay {
 
 			<!-- Add Business CTA -->
 			<div class="bd-qf-add-business">
-				<a href="<?php echo esc_url( home_url( '/add-your-business/' ) ); ?>" class="bd-qf-add-business-btn">
+				<a href="<?php echo esc_url( esc_url( get_option( 'bd_add_business_url', home_url( '/add-your-business/' ) ) ) ); ?>" class="bd-qf-add-business-btn">
 					<i class="fas fa-plus"></i>
 					Add Your Business
 				</a>

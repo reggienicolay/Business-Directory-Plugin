@@ -438,9 +438,29 @@ class CityEventsShortcode {
 				position: relative;
 				height: 200px;
 				overflow: hidden;
-				background: linear-gradient(135deg, var(--bd-bg), #e8e4e0);
+				background: linear-gradient(135deg, var(--bd-bg, #f5f0eb), #e8e4e0);
 			}
-			
+
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-placeholder {
+				width: 100%;
+				height: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background: linear-gradient(145deg, var(--bd-primary, #1a5c6b) 0%, color-mix(in srgb, var(--bd-primary, #1a5c6b) 70%, #000) 100%);
+				color: #fff;
+			}
+
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-placeholder svg {
+				width: 100%;
+				height: 100%;
+				opacity: 0.9;
+			}
+
+			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-card:hover .bd-grid-placeholder {
+				background: linear-gradient(145deg, color-mix(in srgb, var(--bd-primary, #1a5c6b) 90%, #fff) 0%, var(--bd-primary, #1a5c6b) 100%);
+			}
+
 			#<?php echo esc_attr( $instance_id ); ?> .bd-grid-image img {
 				width: 100%;
 				height: 100%;
@@ -984,13 +1004,27 @@ class CityEventsShortcode {
 				<article class="bd-grid-card">
 					<?php if ( $show_image ) : ?>
 						<div class="bd-grid-image">
-							<?php if ( ! empty( $event['thumbnail'] ) ) : ?>
-								<a href="<?php echo esc_url( $event['url'] ); ?>">
-									<img src="<?php echo esc_url( $event['thumbnail'] ); ?>" 
-										alt="<?php echo esc_attr( $event['title'] ); ?>" 
+							<a href="<?php echo esc_url( $event['url'] ); ?>">
+								<?php if ( ! empty( $event['thumbnail'] ) ) : ?>
+									<img src="<?php echo esc_url( $event['thumbnail'] ); ?>"
+										alt="<?php echo esc_attr( $event['title'] ); ?>"
 										loading="lazy">
-								</a>
-							<?php endif; ?>
+								<?php else : ?>
+									<div class="bd-grid-placeholder">
+										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" width="400" height="200">
+											<rect width="400" height="200" fill="none"/>
+											<circle cx="320" cy="50" r="30" fill="currentColor" opacity="0.08"/>
+											<rect x="40" y="140" width="60" height="60" rx="4" fill="currentColor" opacity="0.06" transform="rotate(-8 70 170)"/>
+											<rect x="120" y="130" width="50" height="70" rx="4" fill="currentColor" opacity="0.08"/>
+											<rect x="190" y="120" width="55" height="80" rx="4" fill="currentColor" opacity="0.05" transform="rotate(3 217 160)"/>
+											<polygon points="200,60 210,80 230,83 215,97 218,118 200,108 182,118 185,97 170,83 190,80" fill="currentColor" opacity="0.07"/>
+											<line x1="280" y1="90" x2="280" y2="160" stroke="currentColor" stroke-width="2" opacity="0.06"/>
+											<circle cx="280" cy="80" r="8" fill="currentColor" opacity="0.06"/>
+											<path d="M260,160 Q280,140 300,160" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.06"/>
+										</svg>
+									</div>
+								<?php endif; ?>
+							</a>
 							<span class="bd-grid-date-badge">
 								<?php echo esc_html( gmdate( 'M j', strtotime( $event['start_date'] ) ) ); ?>
 							</span>
@@ -1063,12 +1097,28 @@ class CityEventsShortcode {
 						<span class="bd-day"><?php echo esc_html( gmdate( 'j', strtotime( $event['start_date'] ) ) ); ?></span>
 					</div>
 					
-					<?php if ( $show_image && ! empty( $event['thumbnail'] ) ) : ?>
+					<?php if ( $show_image ) : ?>
 						<div class="bd-list-image">
 							<a href="<?php echo esc_url( $event['url'] ); ?>">
-								<img src="<?php echo esc_url( $event['thumbnail'] ); ?>" 
-									alt="<?php echo esc_attr( $event['title'] ); ?>" 
-									loading="lazy">
+								<?php if ( ! empty( $event['thumbnail'] ) ) : ?>
+									<img src="<?php echo esc_url( $event['thumbnail'] ); ?>"
+										alt="<?php echo esc_attr( $event['title'] ); ?>"
+										loading="lazy">
+								<?php else : ?>
+									<div class="bd-grid-placeholder">
+										<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200" width="400" height="200">
+											<rect width="400" height="200" fill="none"/>
+											<circle cx="320" cy="50" r="30" fill="currentColor" opacity="0.08"/>
+											<rect x="40" y="140" width="60" height="60" rx="4" fill="currentColor" opacity="0.06" transform="rotate(-8 70 170)"/>
+											<rect x="120" y="130" width="50" height="70" rx="4" fill="currentColor" opacity="0.08"/>
+											<rect x="190" y="120" width="55" height="80" rx="4" fill="currentColor" opacity="0.05" transform="rotate(3 217 160)"/>
+											<polygon points="200,60 210,80 230,83 215,97 218,118 200,108 182,118 185,97 170,83 190,80" fill="currentColor" opacity="0.07"/>
+											<line x1="280" y1="90" x2="280" y2="160" stroke="currentColor" stroke-width="2" opacity="0.06"/>
+											<circle cx="280" cy="80" r="8" fill="currentColor" opacity="0.06"/>
+											<path d="M260,160 Q280,140 300,160" stroke="currentColor" stroke-width="1.5" fill="none" opacity="0.06"/>
+										</svg>
+									</div>
+								<?php endif; ?>
 							</a>
 						</div>
 					<?php endif; ?>

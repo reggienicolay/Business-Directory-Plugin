@@ -74,6 +74,14 @@ class BusinessesController {
 
 		$query = new \WP_Query( $args );
 
+		// Batch-prime caches to avoid N+1 queries (140 → ~5 queries).
+		$post_ids = wp_list_pluck( $query->posts, 'ID' );
+		if ( ! empty( $post_ids ) ) {
+			update_meta_cache( 'post', $post_ids );
+			update_object_term_cache( $post_ids, 'bd_business' );
+			\BD\DB\LocationsTable::batch_load( $post_ids );
+		}
+
 		$businesses = array();
 		foreach ( $query->posts as $post ) {
 			$location = \BD\DB\LocationsTable::get( $post->ID );

@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use BD\Gamification\BadgeSystem;
 use BD\Gamification\ActivityTracker;
+use BD\Gamification\BadgeSVG;
 
 class BadgeDisplay {
 
@@ -69,13 +70,11 @@ class BadgeDisplay {
 					continue;
 				}
 				?>
-				<span class="bd-badge bd-badge-<?php echo esc_attr( $badge['rarity'] ?? 'common' ); ?>" 
-						style="background: <?php echo esc_attr( $badge['color'] ); ?>; color: white;"
-						<?php if ( $show_tooltip ) : ?>
-						data-tooltip="<?php echo esc_attr( $badge['name'] . ' - ' . $badge['requirement'] ); ?>"
-						<?php endif; ?>>
-					<span class="bd-badge-icon"><?php echo $badge['icon']; ?></span>
-					<span class="bd-badge-name"><?php echo esc_html( $badge['name'] ); ?></span>
+				<span class="bd-badge-inline-wrap"
+					<?php if ( $show_tooltip ) : ?>
+					data-tooltip="<?php echo esc_attr( $badge['name'] . ' - ' . $badge['requirement'] ); ?>"
+					<?php endif; ?>>
+					<?php echo BadgeSVG::render_inline( $badge_key, 32 ); ?>
 				</span>
 			<?php endforeach; ?>
 			
@@ -133,45 +132,11 @@ class BadgeDisplay {
 		$user_badges  = $user_id ? BadgeSystem::get_user_badges( $user_id ) : array();
 		$is_logged_in = is_user_logged_in();
 
+		// Cache user stats once (avoid N+1 queries in badge loop).
+		$user_stats = ( $is_logged_in && $user_id ) ? ActivityTracker::get_user_stats( $user_id ) : array();
+
 		// Badge categories
-		$categories = array(
-			'community'  => array(
-				'name'   => 'Community Status',
-				'icon'   => '<i class="fas fa-users"></i>',
-				'desc'   => 'Special recognition for community members',
-				'badges' => array( 'love_livermore_verified', 'founding_member' ),
-			),
-			'reviews'    => array(
-				'name'   => 'Review Milestones',
-				'icon'   => '<i class="fas fa-pen"></i>',
-				'desc'   => 'Earn these by writing reviews',
-				'badges' => array( 'first_review', 'reviewer', 'super_reviewer', 'elite_reviewer', 'legend' ),
-			),
-			'quality'    => array(
-				'name'   => 'Quality & Engagement',
-				'icon'   => '<i class="fas fa-star"></i>',
-				'desc'   => 'Recognition for helpful and quality contributions',
-				'badges' => array( 'helpful_reviewer', 'super_helpful', 'photo_lover', 'photographer' ),
-			),
-			'discovery'  => array(
-				'name'   => 'Discovery',
-				'icon'   => '<i class="fas fa-compass"></i>',
-				'desc'   => 'For exploring and discovering local gems',
-				'badges' => array( 'explorer', 'local_expert', 'hidden_gem_hunter', 'first_reviewer' ),
-			),
-			'engagement' => array(
-				'name'   => 'Engagement',
-				'icon'   => '<i class="fas fa-calendar-check"></i>',
-				'desc'   => 'For consistent community engagement',
-				'badges' => array( 'curator', 'list_master', 'early_bird', 'night_owl', 'weekend_warrior' ),
-			),
-			'special'    => array(
-				'name'   => 'Special Recognition',
-				'icon'   => '<i class="fas fa-gem"></i>',
-				'desc'   => 'Exclusive badges awarded by our team',
-				'badges' => array( 'nicoles_pick', 'community_champion' ),
-			),
-		);
+		$categories = BadgeSystem::BADGE_CATEGORIES;
 
 		// Rarity info - TriValley Vine colors
 		$rarity_info = array(
@@ -267,13 +232,14 @@ class BadgeDisplay {
 				</div>
 			<?php endif; ?>
 
-			<!-- Rarity Legend -->
-			<div class="bd-rarity-legend">
-				<span class="bd-rarity-label"><i class="fas fa-info-circle"></i> Rarity:</span>
-				<?php foreach ( $rarity_info as $key => $info ) : ?>
-					<span class="bd-rarity-item bd-rarity-<?php echo esc_attr( $key ); ?>">
-						<span class="bd-rarity-dot" style="background: <?php echo esc_attr( $info['color'] ); ?>;"></span>
-						<?php echo esc_html( $info['label'] ); ?>
+			<!-- Material Tier Legend -->
+			<div class="bd-material-legend">
+				<span class="bd-material-label">Materials:</span>
+				<?php foreach ( BadgeSVG::MATERIALS as $key => $mat ) : ?>
+					<span class="bd-material-pill">
+						<span class="bd-material-swatch" style="background: <?php echo esc_attr( $mat['swatch'] ); ?>;"></span>
+						<?php echo esc_html( $mat['label'] ); ?>
+						<span class="bd-material-rarity"><?php echo esc_html( $mat['rarity'] ); ?></span>
 					</span>
 				<?php endforeach; ?>
 			</div>
@@ -301,20 +267,21 @@ class BadgeDisplay {
 							// Use existing badges.css classes
 							$card_class = $has_badge ? 'bd-badge-card bd-badge-card-earned' : 'bd-badge-card bd-badge-card-locked';
 							?>
-							<div class="<?php echo esc_attr( $card_class ); ?>" data-rarity="<?php echo esc_attr( $rarity ); ?>" style="border-color: <?php echo $has_badge ? esc_attr( $badge['color'] ) : '#d1d5db'; ?>;">
-
-								<?php if ( $has_badge ) : ?>
-									<div class="bd-badge-check"><i class="fas fa-check-circle"></i></div>
-								<?php else : ?>
-									<div class="bd-badge-lock"><i class="fas fa-lock"></i></div>
-								<?php endif; ?>
-
-								<div class="bd-badge-rarity bd-rarity-<?php echo esc_attr( $rarity ); ?>">
-									<?php echo esc_html( ucfirst( $rarity ) ); ?>
-								</div>
-
-								<div class="bd-badge-card-icon" style="color: <?php echo $has_badge ? esc_attr( $badge['color'] ) : '#9ca3af'; ?>;">
-									<?php echo $badge['icon']; ?>
+							<div class="<?php echo esc_attr( $card_class ); ?>" data-rarity="<?php echo esc_attr( $rarity ); ?>">
+								<div class="bd-badge-card-svg">
+									<?php
+									$badge_options = array(
+										'size'     => 120,
+										'earned'   => $has_badge,
+										'animate'  => $has_badge,
+									);
+									// Add progress for auto-badges with thresholds (uses cached $user_stats).
+									if ( ! $has_badge && ! empty( $badge['check'] ) && ! empty( $badge['threshold'] ) && $is_logged_in ) {
+										$badge_options['goal'] = (int) $badge['threshold'];
+										$badge_options['progress'] = (int) ( $user_stats[ $badge['check'] ] ?? 0 );
+									}
+									echo BadgeSVG::render( $badge_key, $badge_options );
+									?>
 								</div>
 
 								<div class="bd-badge-card-name"><?php echo esc_html( $badge['name'] ); ?></div>
@@ -323,12 +290,18 @@ class BadgeDisplay {
 									<?php echo esc_html( $has_badge ? $badge['description'] : $badge['requirement'] ); ?>
 								</div>
 
-								<?php if ( ! empty( $badge['points'] ) && ! $has_badge ) : ?>
+								<?php if ( ! empty( $badge['points'] ) ) : ?>
 									<div class="bd-badge-card-points">+<?php echo (int) $badge['points']; ?> pts</div>
 								<?php endif; ?>
 
 								<?php if ( $is_manual ) : ?>
 									<div class="bd-badge-manual"><i class="fas fa-hand-holding-heart"></i> Team awarded</div>
+								<?php endif; ?>
+
+								<?php if ( $has_badge && $is_logged_in ) : ?>
+									<button class="bd-badge-share-trigger" data-badge-key="<?php echo esc_attr( $badge_key ); ?>" data-badge-name="<?php echo esc_attr( $badge['name'] ); ?>">
+										<i class="fas fa-share-nodes"></i> Share
+									</button>
 								<?php endif; ?>
 							</div>
 						<?php endforeach; ?>
@@ -432,15 +405,15 @@ class BadgeDisplay {
 								continue;
 							}
 							?>
-							<div class="bd-badge-card bd-badge-card-earned" style="border-color: <?php echo esc_attr( $badge['color'] ); ?>;">
-								<div class="bd-badge-rarity bd-rarity-<?php echo esc_attr( $badge['rarity'] ?? 'common' ); ?>">
-									<?php echo ucfirst( $badge['rarity'] ?? 'common' ); ?>
-								</div>
-								<div class="bd-badge-card-icon" style="color: <?php echo esc_attr( $badge['color'] ); ?>;">
-									<?php echo $badge['icon']; ?>
+							<div class="bd-badge-card bd-badge-card-earned">
+								<div class="bd-badge-card-svg">
+									<?php echo BadgeSVG::render( $badge_key, array( 'size' => 100, 'earned' => true ) ); ?>
 								</div>
 								<div class="bd-badge-card-name"><?php echo esc_html( $badge['name'] ); ?></div>
 								<div class="bd-badge-card-desc"><?php echo esc_html( $badge['description'] ); ?></div>
+								<button class="bd-badge-share-trigger" data-badge-key="<?php echo esc_attr( $badge_key ); ?>" data-badge-name="<?php echo esc_attr( $badge['name'] ); ?>">
+									<i class="fas fa-share-nodes"></i> Share
+								</button>
 							</div>
 						<?php endforeach; ?>
 					</div>
@@ -464,9 +437,15 @@ class BadgeDisplay {
 					<div class="bd-badge-grid">
 						<?php foreach ( $available_badges as $badge_key => $badge ) : ?>
 							<div class="bd-badge-card bd-badge-card-locked">
-								<div class="bd-badge-lock">🔒</div>
-								<div class="bd-badge-card-icon" style="color: #9ca3af;">
-									<?php echo $badge['icon']; ?>
+								<div class="bd-badge-card-svg">
+									<?php
+									$lock_options = array( 'size' => 100, 'earned' => false );
+									if ( ! empty( $badge['threshold'] ) ) {
+										$lock_options['goal'] = (int) $badge['threshold'];
+										$lock_options['progress'] = (int) ( $stats[ $badge['check'] ?? '' ] ?? 0 );
+									}
+									echo BadgeSVG::render( $badge_key, $lock_options );
+									?>
 								</div>
 								<div class="bd-badge-card-name"><?php echo esc_html( $badge['name'] ); ?></div>
 								<div class="bd-badge-card-desc"><?php echo esc_html( $badge['requirement'] ); ?></div>

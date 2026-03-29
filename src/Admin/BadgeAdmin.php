@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; }
 
 use BD\Gamification\BadgeSystem;
+use BD\Gamification\BadgeSVG;
 use BD\Gamification\ActivityTracker;
 
 /**
@@ -282,9 +283,7 @@ class BadgeAdmin {
 								?>
 								<tr>
 									<td style="text-align: center;">
-										<span style="font-size: 24px; color: <?php echo esc_attr( $badge['color'] ); ?>;">
-											<?php echo wp_kses( $badge['icon'], $allowed_html ); ?>
-										</span>
+										<?php echo BadgeSVG::render( $badge_key, array( 'size' => 80, 'earned' => true, 'animate' => false ) ); ?>
 									</td>
 									<td>
 										<strong style="color: #1f2937;"><?php echo esc_html( $badge['name'] ); ?></strong>

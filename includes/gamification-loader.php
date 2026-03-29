@@ -23,6 +23,9 @@ define( 'BD_GAMIFICATION_LOADED', true );
 require_once plugin_dir_path( __FILE__ ) . '../src/Gamification/BadgeSystem.php';
 require_once plugin_dir_path( __FILE__ ) . '../src/Gamification/ActivityTracker.php';
 require_once plugin_dir_path( __FILE__ ) . '../src/Gamification/GamificationHooks.php';
+require_once plugin_dir_path( __FILE__ ) . '../src/Gamification/BadgeSVG.php';
+require_once plugin_dir_path( __FILE__ ) . '../src/Gamification/BadgeIcons.php';
+require_once plugin_dir_path( __FILE__ ) . '../src/Social/BadgeShareCard.php';
 
 // Load Frontend display classes.
 require_once plugin_dir_path( __FILE__ ) . '../src/Frontend/BadgeDisplay.php';
@@ -43,6 +46,26 @@ BD\Frontend\Profile::init();
 
 new BD\Frontend\RegistrationShortcode();
 new BD\Frontend\RegistrationHandler();
+
+// Badge share modal AJAX handler.
+add_action( 'wp_ajax_bd_badge_share_modal', function() {
+	check_ajax_referer( 'bd_badges_nonce', 'nonce' );
+
+	$badge_key = sanitize_text_field( $_POST['badge_key'] ?? '' );
+	$user_id   = get_current_user_id();
+
+	if ( ! $badge_key || ! $user_id ) {
+		wp_send_json_error( array( 'message' => 'Missing badge key or not logged in.' ) );
+	}
+
+	// Validate badge_key exists.
+	if ( ! isset( \BD\Gamification\BadgeSystem::BADGES[ $badge_key ] ) ) {
+		wp_send_json_error( array( 'message' => 'Invalid badge key.' ) );
+	}
+
+	$html = \BD\Social\BadgeShareCard::render_modal( $badge_key, $user_id );
+	wp_send_json_success( array( 'html' => $html ) );
+});
 
 /**
  * Enqueue Badge Styles - ADMIN
@@ -137,6 +160,25 @@ function bd_gamification_enqueue_badge_styles() {
 			$plugin_url . 'assets/css/badges.css',
 			array( 'bd-design-tokens' ),
 			BD_VERSION
+		);
+	}
+
+	// Badges JS (share modal, animations, helpful votes).
+	if ( ! wp_script_is( 'bd-badges', 'enqueued' ) ) {
+		wp_enqueue_script(
+			'bd-badges',
+			$plugin_url . 'assets/js/badges.js',
+			array( 'jquery' ),
+			BD_VERSION,
+			true
+		);
+		wp_localize_script(
+			'bd-badges',
+			'bdBadges',
+			array(
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( 'bd_badges_nonce' ),
+			)
 		);
 	}
 }

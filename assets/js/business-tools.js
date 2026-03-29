@@ -111,8 +111,10 @@
 		bindEvents: function () {
 			const self = this;
 
-			// Style change
+			// Style change + breakdown visibility toggle
 			$('#bd-widget-modal input[name="widget_style"]').off('change').on('change', function () {
+				const isListStyle = $(this).val() === 'list';
+				$('.bd-tools-breakdown-field').toggle(isListStyle);
 				self.generateCode();
 			});
 
@@ -314,6 +316,13 @@
 		bindEvents: function () {
 			const self = this;
 
+			// Theme change
+			$('#bd-badge-modal input[name="badge_theme"]').off('change').on('change', function () {
+				$('.bd-tools-theme-card').removeClass('bd-tools-theme-card--active');
+				$(this).closest('.bd-tools-theme-card').addClass('bd-tools-theme-card--active');
+				self.generateCode();
+			});
+
 			// Style change
 			$('#bd-badge-modal input[name="badge_style"]').off('change').on('change', function () {
 				self.generateCode();
@@ -332,8 +341,9 @@
 		},
 
 		generateCode: function () {
-			const style = $('input[name="badge_style"]:checked').val() || 'rating';
+			const style = $('input[name="badge_style"]:checked').val() || 'featured';
 			const size = $('#badge-size').val() || 'medium';
+			const theme = $('input[name="badge_theme"]:checked').val() || 'minimal';
 
 			$.ajax({
 				url: bdTools.ajaxUrl,
@@ -343,22 +353,34 @@
 					nonce: bdTools.nonce,
 					business_id: this.businessId,
 					style: style,
-					size: size
+					size: size,
+					theme: theme
 				},
 				success: function (response) {
 					if (response.success) {
 						$('#badge-code').val(response.data.code);
+
+						// Update live preview.
+						if (response.data.preview_url) {
+							var previewEl = document.getElementById('badge-live-preview');
+							if (previewEl) {
+								var isDark = (theme === 'dark' || theme === 'premium');
+								previewEl.style.background = isDark ? '#1a1a1a' : (theme === 'glass' ? 'repeating-conic-gradient(#e5e7eb 0% 25%, transparent 0% 50%) 0 0/16px 16px' : '#f8fafc');
+								previewEl.innerHTML = '<img src="' + response.data.preview_url + '&t=' + Date.now() + '" alt="Badge preview" style="max-width:100%;height:auto" />';
+							}
+						}
 					}
 				}
 			});
 		},
 
 		download: function (format) {
-			const style = $('input[name="badge_style"]:checked').val() || 'rating';
+			const style = $('input[name="badge_style"]:checked').val() || 'featured';
 			const size = $('#badge-size').val() || 'medium';
+			const theme = $('input[name="badge_theme"]:checked').val() || 'minimal';
 
 			// Construct badge URL using REST API
-			const badgeUrl = bdTools.restUrl + 'badge/' + this.businessId + '?style=' + style + '&format=' + format + '&size=' + size;
+			const badgeUrl = bdTools.restUrl + 'badge/' + this.businessId + '?style=' + style + '&format=' + format + '&size=' + size + '&theme=' + theme;
 
 			window.open(badgeUrl, '_blank');
 			Toast.show(bdTools.i18n.downloadReady || 'Badge ready!', 'success');

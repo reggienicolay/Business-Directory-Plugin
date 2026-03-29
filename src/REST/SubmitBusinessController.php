@@ -27,8 +27,16 @@ class SubmitBusinessController {
 			return $rate_check;
 		}
 
-		$turnstile_token = $request->get_param( 'turnstile_token' );
-		if ( ! empty( get_option( 'bd_turnstile_site_key' ) ) && ! empty( $turnstile_token ) ) {
+		// Verify Turnstile CAPTCHA if configured.
+		if ( ! empty( get_option( 'bd_turnstile_site_key' ) ) ) {
+			$turnstile_token = $request->get_param( 'turnstile_token' );
+			if ( empty( $turnstile_token ) ) {
+				return new \WP_Error(
+					'captcha_required',
+					__( 'Please complete the CAPTCHA verification.', 'business-directory' ),
+					array( 'status' => 400 )
+				);
+			}
 			$captcha_check = \BD\Security\Captcha::verify_turnstile( $turnstile_token );
 			if ( is_wp_error( $captcha_check ) ) {
 				return $captcha_check;

@@ -50,7 +50,7 @@ class ListManager {
 			$table,
 			array(
 				'user_id'     => $user_id,
-				'title'       => sanitize_text_field( $title ),
+				'name'        => sanitize_text_field( $title ), // DB column is 'name', not 'title'.
 				'slug'        => $slug,
 				'description' => sanitize_textarea_field( $description ),
 				'visibility'  => in_array( $visibility, array( 'public', 'private', 'unlisted' ), true ) ? $visibility : 'private',
@@ -99,8 +99,8 @@ class ListManager {
 		$formats     = array( '%s' );
 
 		if ( isset( $data['title'] ) ) {
-			$update_data['title'] = sanitize_text_field( $data['title'] );
-			$formats[]            = '%s';
+			$update_data['name'] = sanitize_text_field( $data['title'] ); // DB column is 'name'.
+			$formats[]           = '%s';
 		}
 
 		if ( isset( $data['description'] ) ) {
@@ -292,7 +292,7 @@ class ListManager {
 		}
 
 		// Validate orderby.
-		$allowed_orderby = array( 'updated_at', 'created_at', 'view_count', 'title', 'follower_count' );
+		$allowed_orderby = array( 'updated_at', 'created_at', 'view_count', 'name', 'follower_count' );
 		$orderby         = in_array( $args['orderby'], $allowed_orderby, true ) ? $args['orderby'] : 'updated_at';
 		$order           = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
 

@@ -227,12 +227,14 @@ class WidgetGenerator {
 		return array_map(
 			function ( $review ) {
 				return array(
-					'id'       => $review['id'],
-					'rating'   => (int) $review['rating'],
-					'content'  => wp_trim_words( $review['content'], 30 ),
-					'author'   => $review['author_name'] ?: __( 'Anonymous', 'business-directory' ),
-					'date'     => human_time_diff( strtotime( $review['created_at'] ) ) . ' ' . __( 'ago', 'business-directory' ),
-					'date_iso' => gmdate( 'c', strtotime( $review['created_at'] ) ),
+					'id'          => $review['id'],
+					'rating'      => (int) $review['rating'],
+					'content'     => esc_html( wp_trim_words( $review['content'], 30 ) ),
+					'author'      => esc_html( $review['author_name'] ?: __( 'Anonymous', 'business-directory' ) ),
+					'date'        => human_time_diff( strtotime( $review['created_at'] ) ) . ' ' . __( 'ago', 'business-directory' ),
+					'date_iso'    => gmdate( 'c', strtotime( $review['created_at'] ) ),
+					'initial'     => strtoupper( mb_substr( $review['author_name'] ?: 'A', 0, 1 ) ),
+					'color_index' => abs( crc32( $review['author_name'] ?: 'Anonymous' ) ) % 8,
 				);
 			},
 			$reviews ?: array()
@@ -254,34 +256,49 @@ class WidgetGenerator {
 
 		// Get rating info.
 		global $wpdb;
-		$table = $wpdb->prefix . 'bd_reviews';
+		$reviews_table = $wpdb->prefix . 'bd_reviews';
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$stats = $wpdb->get_row(
 			$wpdb->prepare(
-				"SELECT COUNT(*) as count, AVG(rating) as avg 
-				FROM {$table} 
+				"SELECT COUNT(*) as count, AVG(rating) as avg
+				FROM {$reviews_table}
 				WHERE business_id = %d AND status = 'approved'",
 				$business_id
 			),
 			ARRAY_A
 		);
 
-		return array(
-			'business'   => array(
-				'id'   => $business_id,
-				'name' => $business->post_title,
-				'slug' => $business->post_name,
-				'url'  => get_permalink( $business_id ),
+		// Rating distribution for breakdown chart.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$dist_results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT rating, COUNT(*) as cnt FROM {$reviews_table} WHERE business_id = %d AND status = 'approved' GROUP BY rating ORDER BY rating DESC",
+				$business_id
 			),
-			'rating'     => array(
+			ARRAY_A
+		);
+		$distribution = array( '5' => 0, '4' => 0, '3' => 0, '2' => 0, '1' => 0 );
+		foreach ( $dist_results as $row ) {
+			$distribution[ (string) $row['rating'] ] = (int) $row['cnt'];
+		}
+
+		return array(
+			'business'     => array(
+				'id'   => $business_id,
+				'name' => esc_html( $business->post_title ),
+				'slug' => $business->post_name,
+				'url'  => esc_url( get_permalink( $business_id ) ),
+			),
+			'rating'       => array(
 				'average' => $stats['avg'] ? round( (float) $stats['avg'], 1 ) : 0,
 				'count'   => (int) $stats['count'],
 			),
-			'reviews'    => self::get_widget_reviews( $business_id, $review_count ),
-			'review_url' => get_permalink( $business_id ) . '#write-review',
-			'site_name'  => get_bloginfo( 'name' ),
-			'site_url'   => home_url(),
+			'distribution' => $distribution,
+			'reviews'      => self::get_widget_reviews( $business_id, $review_count ),
+			'review_url'   => esc_url( get_permalink( $business_id ) . '#write-review' ),
+			'site_name'    => esc_html( get_bloginfo( 'name' ) ),
+			'site_url'     => esc_url( home_url() ),
 		);
 	}
 

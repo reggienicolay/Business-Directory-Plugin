@@ -68,8 +68,7 @@ class Settings {
 		$pending_count = wp_count_posts( 'bd_business' )->pending;
 
 		if ( $pending_count > 0 ) {
-			$post_status      = isset( $_GET['post_status'] ) ? sanitize_key( $_GET['post_status'] ) : '';
-			$class            = ( $post_status === 'pending' ) ? 'current' : '';
+			$class            = ( isset( $_GET['post_status'] ) && $_GET['post_status'] === 'pending' ) ? 'current' : '';
 			$views['pending'] = sprintf(
 				'<a href="%s" class="%s">%s <span class="count">(%d)</span></a>',
 				admin_url( 'edit.php?post_type=bd_business&post_status=pending' ),
@@ -107,10 +106,8 @@ class Settings {
 	public function inject_approve_buttons() {
 		$screen = get_current_screen();
 
-		if ( $screen && $screen->id === 'edit-bd_business' ) {
-			$post_status = isset( $_GET['post_status'] ) ? sanitize_key( $_GET['post_status'] ) : '';
-			if ( $post_status === 'pending' ) {
-				?>
+		if ( $screen && $screen->id === 'edit-bd_business' && isset( $_GET['post_status'] ) && $_GET['post_status'] === 'pending' ) {
+			?>
 			<script>
 				jQuery(document).ready(function ($) {
 					$('.row-actions .approve a').css({
@@ -122,8 +119,7 @@ class Settings {
 					});
 				});
 			</script>
-				<?php
-			}
+			<?php
 		}
 	}
 
@@ -132,18 +128,17 @@ class Settings {
 	 */
 	public function handle_approve() {
 		if ( ! isset( $_GET['business_id'] ) || ! isset( $_GET['_wpnonce'] ) ) {
-			wp_die( esc_html__( 'Invalid request', 'business-directory' ) );
+			wp_die( 'Invalid request' );
 		}
 
-		$business_id = absint( $_GET['business_id'] );
-		$nonce       = sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) );
+		$business_id = intval( $_GET['business_id'] );
 
-		if ( ! wp_verify_nonce( $nonce, 'bd_approve_' . $business_id ) ) {
-			wp_die( esc_html__( 'Security check failed', 'business-directory' ) );
+		if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'bd_approve_' . $business_id ) ) {
+			wp_die( 'Security check failed' );
 		}
 
 		if ( ! current_user_can( 'edit_post', $business_id ) ) {
-			wp_die( esc_html__( 'You do not have permission to approve this business', 'business-directory' ) );
+			wp_die( 'You do not have permission to approve this business' );
 		}
 
 		// Update post status to publish.

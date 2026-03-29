@@ -147,15 +147,20 @@ class BadgeGenerator {
 	 * @param string $size        Badge size.
 	 * @return string Embed code.
 	 */
-	public static function generate_embed_code( $business_id, $style = 'rating', $size = 'medium' ) {
+	public static function generate_embed_code( $business_id, $style = 'rating', $size = 'medium', $theme = 'minimal' ) {
 		$business = get_post( $business_id );
 		if ( ! $business ) {
 			return '';
 		}
 
-		$badge_url    = home_url( '/badge/' . $business->post_name . '.svg?style=' . $style );
+		// Map old 'simple' style to 'featured' for backward compatibility.
+		if ( 'simple' === $style ) {
+			$style = 'featured';
+		}
+
+		$badge_url    = home_url( '/badge/' . $business->post_name . '.svg?style=' . $style . '&theme=' . $theme );
 		$business_url = get_permalink( $business_id );
-		$width        = self::SIZES[ $size ] ?? 200;
+		$width        = self::SIZES[ $size ] ?? 240;
 
 		// Get rating for alt text.
 		$rating = get_post_meta( $business_id, 'bd_rating_avg', true );
@@ -163,7 +168,7 @@ class BadgeGenerator {
 
 		$alt_text = $rating
 			? sprintf( '%s stars on %s', $rating, get_bloginfo( 'name' ) )
-			: sprintf( 'Featured on %s', get_bloginfo( 'name' ) );
+			: sprintf( 'Verified on %s', get_bloginfo( 'name' ) );
 
 		$code = sprintf(
 			'<a href="%s" target="_blank" rel="noopener">

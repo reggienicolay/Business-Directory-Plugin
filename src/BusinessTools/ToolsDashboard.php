@@ -398,6 +398,18 @@ class ToolsDashboard {
 							</button>
 						</div>
 					</div>
+
+					<?php
+					/**
+					 * Fires after the Business Tools card grid.
+					 * Add-on plugins can render additional dashboard sections here.
+					 *
+					 * @since 0.1.7
+					 * @param int     $business_id The current business post ID.
+					 * @param WP_Post $business    The business post object.
+					 */
+					do_action( 'bd_business_tools_after_cards', $business->ID, $business );
+					?>
 				</div>
 			<?php endforeach; ?>
 
@@ -481,6 +493,13 @@ class ToolsDashboard {
 						<option value="5" selected>5</option>
 						<option value="10">10</option>
 					</select>
+
+					<div class="bd-tools-field bd-tools-breakdown-field" style="display:none">
+						<label>
+							<input type="checkbox" name="widget_breakdown" value="1">
+							<?php esc_html_e( 'Show rating breakdown chart', 'business-directory' ); ?>
+						</label>
+					</div>
 
 					<label>
 						<i class="fa-solid fa-globe"></i>
@@ -583,12 +602,50 @@ class ToolsDashboard {
 				</div>
 
 				<div class="bd-tools-badge-options">
-					<label><?php esc_html_e( 'Badge Style:', 'business-directory' ); ?></label>
+					<div class="bd-tools-field">
+						<label><?php esc_html_e( 'Theme', 'business-directory' ); ?></label>
+						<div class="bd-tools-theme-options">
+							<label class="bd-tools-theme-card bd-tools-theme-card--active" data-theme="minimal">
+								<input type="radio" name="badge_theme" value="minimal" checked>
+								<div class="bd-tools-theme-preview" style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:8px">
+									<div style="font-size:9px;font-weight:600;color:#1a3a4a">&#9733;&#9733;&#9733;&#9733;&#9733; 4.8</div>
+									<div style="font-size:7px;color:#7a9eb8;margin-top:2px">Rated on LoveTriValley</div>
+								</div>
+								<span class="bd-tools-theme-label"><?php esc_html_e( 'Minimal', 'business-directory' ); ?></span>
+							</label>
+							<label class="bd-tools-theme-card" data-theme="dark">
+								<input type="radio" name="badge_theme" value="dark">
+								<div class="bd-tools-theme-preview" style="background:linear-gradient(135deg,#1a3a4a,#0f2635);border-radius:8px;padding:8px;border-top:2px solid #f59e0b">
+									<div style="font-size:9px;font-weight:600;color:#fff">&#9733;&#9733;&#9733;&#9733;&#9733; 4.8</div>
+									<div style="font-size:7px;color:#7a9eb8;margin-top:2px">Rated on LoveTriValley</div>
+								</div>
+								<span class="bd-tools-theme-label"><?php esc_html_e( 'Dark', 'business-directory' ); ?></span>
+							</label>
+							<label class="bd-tools-theme-card" data-theme="glass">
+								<input type="radio" name="badge_theme" value="glass">
+								<div class="bd-tools-theme-preview" style="background:rgba(255,255,255,0.75);border:1px solid rgba(255,255,255,0.4);border-radius:8px;padding:8px;backdrop-filter:blur(4px)">
+									<div style="font-size:9px;font-weight:600;color:#1a3a4a">&#9733;&#9733;&#9733;&#9733;&#9733; 4.8</div>
+									<div style="font-size:7px;color:#7a9eb8;margin-top:2px">Rated on LoveTriValley</div>
+								</div>
+								<span class="bd-tools-theme-label"><?php esc_html_e( 'Glass', 'business-directory' ); ?></span>
+							</label>
+							<label class="bd-tools-theme-card" data-theme="premium">
+								<input type="radio" name="badge_theme" value="premium">
+								<div class="bd-tools-theme-preview" style="background:linear-gradient(135deg,#0a1a22,#133453,#0f2530);border-radius:8px;padding:8px;border-top:2px solid #C9A227;border-bottom:1px solid rgba(201,162,39,0.3)">
+									<div style="font-size:9px;font-weight:600;color:#C9A227">&#9733;&#9733;&#9733;&#9733;&#9733; 4.8</div>
+									<div style="font-size:7px;color:#7a9eb8;margin-top:2px">Rated on LoveTriValley</div>
+								</div>
+								<span class="bd-tools-theme-label"><?php esc_html_e( 'Premium', 'business-directory' ); ?></span>
+							</label>
+						</div>
+					</div>
+
+					<label><?php esc_html_e( 'Layout', 'business-directory' ); ?></label>
 					<div class="bd-tools-badge-styles">
 						<label class="bd-tools-badge-style">
-							<input type="radio" name="badge_style" value="simple" checked>
+							<input type="radio" name="badge_style" value="featured" checked>
 							<span class="bd-tools-badge-preview bd-badge-simple">
-								<i class="fa-solid fa-location-dot"></i> Featured on LoveTriValley
+								<i class="fa-solid fa-location-dot"></i> <?php esc_html_e( 'Verified Badge', 'business-directory' ); ?>
 							</span>
 						</label>
 						<label class="bd-tools-badge-style">
@@ -614,6 +671,13 @@ class ToolsDashboard {
 						<option value="medium" selected><?php esc_html_e( 'Medium (200px)', 'business-directory' ); ?></option>
 						<option value="large"><?php esc_html_e( 'Large (300px)', 'business-directory' ); ?></option>
 					</select>
+				</div>
+
+				<div class="bd-tools-badge-preview-live">
+					<label><?php esc_html_e( 'Preview:', 'business-directory' ); ?></label>
+					<div id="badge-live-preview" style="display:flex;justify-content:center;padding:20px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;min-height:100px;align-items:center;margin-top:8px;transition:background 0.3s">
+						<span style="color:#94a3b8;font-size:13px">Select options above to preview</span>
+					</div>
 				</div>
 
 				<div class="bd-tools-code-section">
@@ -790,6 +854,10 @@ class ToolsDashboard {
 			wp_send_json_error( array( 'message' => __( 'Invalid business ID.', 'business-directory' ) ) );
 		}
 
+		if ( ! $this->user_owns_business( get_current_user_id(), $business_id ) ) {
+			wp_send_json_error( array( 'message' => 'Not authorized for this business.' ) );
+		}
+
 		$code = WidgetGenerator::generate_embed_code( $business_id, $style, $theme, $reviews );
 
 		wp_send_json_success( array( 'code' => $code ) );
@@ -836,6 +904,10 @@ class ToolsDashboard {
 			wp_send_json_error( array( 'message' => __( 'Invalid business ID.', 'business-directory' ) ) );
 		}
 
+		if ( ! $this->user_owns_business( get_current_user_id(), $business_id ) ) {
+			wp_send_json_error( array( 'message' => 'Not authorized for this business.' ) );
+		}
+
 		$result = QRGenerator::generate( $business_id, $type, $format );
 
 		if ( $result ) {
@@ -852,16 +924,32 @@ class ToolsDashboard {
 		check_ajax_referer( 'bd_tools_nonce', 'nonce' );
 
 		$business_id = isset( $_POST['business_id'] ) ? absint( $_POST['business_id'] ) : 0;
-		$style       = isset( $_POST['style'] ) ? sanitize_text_field( wp_unslash( $_POST['style'] ) ) : 'simple';
+		$style       = isset( $_POST['style'] ) ? sanitize_text_field( wp_unslash( $_POST['style'] ) ) : 'featured';
 		$size        = isset( $_POST['size'] ) ? sanitize_text_field( wp_unslash( $_POST['size'] ) ) : 'medium';
+		$theme       = isset( $_POST['theme'] ) ? sanitize_text_field( wp_unslash( $_POST['theme'] ) ) : 'minimal';
 
 		if ( ! $business_id ) {
 			wp_send_json_error( array( 'message' => __( 'Invalid business ID.', 'business-directory' ) ) );
 		}
 
-		$code = BadgeGenerator::generate_embed_code( $business_id, $style, $size );
+		if ( ! $this->user_owns_business( get_current_user_id(), $business_id ) ) {
+			wp_send_json_error( array( 'message' => 'Not authorized for this business.' ) );
+		}
 
-		wp_send_json_success( array( 'code' => $code ) );
+		$valid_themes = array( 'minimal', 'dark', 'glass', 'premium' );
+		if ( ! in_array( $theme, $valid_themes, true ) ) {
+			$theme = 'minimal';
+		}
+
+		$code = BadgeGenerator::generate_embed_code( $business_id, $style, $size, $theme );
+
+		// Build preview URL for live badge display.
+		$preview_url = rest_url( 'bd/v1/badge/' . $business_id ) . '?style=' . urlencode( $style ) . '&size=' . urlencode( $size ) . '&theme=' . urlencode( $theme );
+
+		wp_send_json_success( array(
+			'code'        => $code,
+			'preview_url' => $preview_url,
+		) );
 	}
 
 	/**

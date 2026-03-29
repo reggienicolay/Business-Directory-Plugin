@@ -902,6 +902,61 @@
 }
 
 /* ==========================================================================
+	BADGE THEME SELECTOR
+	========================================================================== */
+
+.bd-tools-theme-options {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 10px;
+	margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+	.bd-tools-theme-options {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+.bd-tools-theme-card {
+	cursor: pointer;
+	text-align: center;
+	padding: 10px 8px;
+	border-radius: 12px;
+	border: 2px solid transparent;
+	background: #f8fafc;
+	transition: all 0.2s ease;
+	min-width: 0;
+}
+
+.bd-tools-theme-card:hover {
+	border-color: #a8c4d4;
+}
+
+.bd-tools-theme-card--active {
+	border-color: #1a3a4a;
+	background: #f0f5f8;
+}
+
+.bd-tools-theme-card input[type="radio"] {
+	display: none;
+}
+
+.bd-tools-theme-preview {
+	min-height: 44px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	margin-bottom: 8px;
+}
+
+.bd-tools-theme-label {
+	font-size: 12px;
+	font-weight: 600;
+	color: #475569;
+}
+
+/* ==========================================================================
 	EMAIL PREFERENCES
 	========================================================================== */
 

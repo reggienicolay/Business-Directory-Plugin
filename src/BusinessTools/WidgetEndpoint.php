@@ -205,83 +205,97 @@ class WidgetEndpoint {
 			'light_bg'   => '#f0f5f8',
 		);
 
-		$js = <<<JAVASCRIPT
-/**
- * LoveTriValley Review Widget
- * Embeddable review widget for business owners
- */
-(function() {
-	'use strict';
+		// Build JS constants with PHP values, then use nowdoc for the rest (avoids PHP 8.2 ${} deprecation).
+		$js_header = "/**\n * LoveTriValley Review Widget\n * Embeddable review widget for business owners\n */\n(function() {\n\t'use strict';\n\n";
+		$js_header .= "\tvar API_URL = '" . esc_js( $api_url ) . "';\n";
+		$js_header .= "\tvar SITE_NAME = '" . esc_js( $site_name ) . "';\n";
+		$js_header .= "\tvar SITE_URL = '" . esc_js( $site_url ) . "';\n";
+		$js_header .= "\tvar COLORS = {\n";
+		$js_header .= "\t\tprimary: '" . esc_js( $colors['primary'] ) . "',\n";
+		$js_header .= "\t\tsecondary: '" . esc_js( $colors['secondary'] ) . "',\n";
+		$js_header .= "\t\taccent: '" . esc_js( $colors['accent'] ) . "',\n";
+		$js_header .= "\t\tlight: '" . esc_js( $colors['light'] ) . "',\n";
+		$js_header .= "\t\ttext: '" . esc_js( $colors['text'] ) . "',\n";
+		$js_header .= "\t\ttextLight: '" . esc_js( $colors['text_light'] ) . "',\n";
+		$js_header .= "\t\tstar: '" . esc_js( $colors['star'] ) . "',\n";
+		$js_header .= "\t\twhite: '" . esc_js( $colors['white'] ) . "',\n";
+		$js_header .= "\t\tlightBg: '" . esc_js( $colors['light_bg'] ) . "'\n";
+		$js_header .= "\t};\n";
+		$js_header .= "\tvar AVATAR_COLORS = ['#1a3a4a','#3b82f6','#8b5cf6','#f59e0b','#ef4444','#10b981','#ec4899','#06b6d4'];\n";
 
-	const API_URL = '{$api_url}';
-	const SITE_NAME = '{$site_name}';
-	const SITE_URL = '{$site_url}';
-	const COLORS = {
-		primary: '{$colors['primary']}',
-		secondary: '{$colors['secondary']}',
-		accent: '{$colors['accent']}',
-		light: '{$colors['light']}',
-		text: '{$colors['text']}',
-		textLight: '{$colors['text_light']}',
-		star: '{$colors['star']}',
-		white: '{$colors['white']}',
-		lightBg: '{$colors['light_bg']}'
-	};
+		$js_body = <<<'JAVASCRIPT'
 
-	// Find all widget scripts
-	const scripts = document.querySelectorAll('script[data-business]');
-	
+	var STAR_PATH = 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z';
+
+	function renderStars(rating, size) {
+		size = size || 16;
+		var html = '<span style="display:inline-flex;gap:2px;vertical-align:middle">';
+		for (var i = 1; i <= 5; i++) {
+			var fill;
+			if (i <= Math.floor(rating)) {
+				fill = COLORS.star;
+			} else if (i === Math.ceil(rating) && rating % 1 > 0) {
+				var pct = Math.round((rating % 1) * 100);
+				fill = 'url(#ltv-partial-' + i + ')';
+				html += '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24"><defs><linearGradient id="ltv-partial-' + i + '"><stop offset="' + pct + '%" stop-color="' + COLORS.star + '"/><stop offset="' + pct + '%" stop-color="#e2e8f0"/></linearGradient></defs><path d="' + STAR_PATH + '" fill="' + fill + '"/></svg>';
+				continue;
+			} else {
+				fill = '#e2e8f0';
+			}
+			html += '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24"><path d="' + STAR_PATH + '" fill="' + fill + '"/></svg>';
+		}
+		html += '</span>';
+		return html;
+	}
+
+	// Find all widget scripts on the page.
+	var scripts = document.querySelectorAll('script[data-business]');
+
 	scripts.forEach(function(script) {
-		const businessId = script.getAttribute('data-business');
-		const style = script.getAttribute('data-style') || 'compact';
-		const theme = script.getAttribute('data-theme') || 'light';
-		const reviewCount = parseInt(script.getAttribute('data-reviews') || '5');
-		
-		// Find container
-		const containerId = 'ltv-widget-' + businessId;
-		let container = document.getElementById(containerId);
-		
+		var businessId = script.getAttribute('data-business');
+		var style = script.getAttribute('data-style') || 'compact';
+		var theme = script.getAttribute('data-theme') || 'light';
+		var reviewCount = parseInt(script.getAttribute('data-reviews') || '5', 10);
+		var showBreakdown = script.getAttribute('data-breakdown') === '1';
+
+		// Find or create container.
+		var containerId = 'ltv-widget-' + businessId;
+		var container = document.getElementById(containerId);
+
 		if (!container) {
 			container = document.createElement('div');
 			container.id = containerId;
 			script.parentNode.insertBefore(container, script);
 		}
-		
-		// Load widget data
-		loadWidget(container, businessId, style, theme, reviewCount);
+
+		loadWidget(container, businessId, style, theme, reviewCount, showBreakdown);
 	});
 
-	function loadWidget(container, businessId, style, theme, reviewCount) {
-		// Show loading state
-		container.innerHTML = '<div class="ltv-loading">Loading reviews...</div>';
+	function loadWidget(container, businessId, style, theme, reviewCount, showBreakdown) {
+		container.innerHTML = '<div style="padding:24px;text-align:center;color:' + COLORS.textLight + ';font-family:\'Source Sans 3\',system-ui,-apple-system,sans-serif;font-size:14px">Loading reviews...</div>';
 		container.className = 'ltv-widget-container';
-		
-		// Fetch data
+
 		fetch(API_URL + 'data/' + businessId + '?reviews=' + reviewCount)
 			.then(function(response) {
 				if (!response.ok) {
-					return response.json().then(function(data) {
-						throw new Error(data.message || 'Failed to load widget');
+					return response.json().then(function(d) {
+						throw new Error(d.message || 'Failed to load widget');
 					});
 				}
 				return response.json();
 			})
 			.then(function(data) {
-				renderWidget(container, data, style, theme);
+				renderWidget(container, data, style, theme, showBreakdown);
 			})
 			.catch(function(error) {
-				container.innerHTML = '<div class="ltv-error">' + error.message + '</div>';
+				container.innerHTML = '<div style="padding:20px;text-align:center;font-size:14px;color:#d63638;font-family:system-ui,sans-serif">' + error.message + '</div>';
 			});
 	}
 
-	function renderWidget(container, data, style, theme) {
-		const isDark = theme === 'dark';
-		const bgColor = isDark ? COLORS.primary : COLORS.white;
-		const textColor = isDark ? COLORS.white : COLORS.text;
-		const borderColor = isDark ? COLORS.accent : COLORS.light;
-		
-		let html = '';
-		
+	function renderWidget(container, data, style, theme, showBreakdown) {
+		var isDark = theme === 'dark';
+		var html = '';
+
 		switch(style) {
 			case 'compact':
 				html = renderCompact(data, isDark);
@@ -290,158 +304,285 @@ class WidgetEndpoint {
 				html = renderCarousel(data, isDark);
 				break;
 			case 'list':
-				html = renderList(data, isDark);
+				html = renderList(data, isDark, showBreakdown);
 				break;
 			default:
 				html = renderCompact(data, isDark);
 		}
-		
+
 		container.innerHTML = html;
-		
-		// Inject styles
 		injectStyles();
-		
-		// Initialize carousel if needed
+
 		if (style === 'carousel') {
 			initCarousel(container);
 		}
-		
-		// Track clicks
+
+		// Track clicks.
 		container.querySelectorAll('a').forEach(function(link) {
 			link.addEventListener('click', function() {
 				trackClick(data.business.id, link.classList.contains('ltv-review-btn') ? 'review' : 'view');
 			});
 		});
+
+		// Responsive sizing via ResizeObserver.
+		if (typeof ResizeObserver !== 'undefined') {
+			var resizeObs = new ResizeObserver(function(entries) {
+				var w = entries[0].contentRect.width;
+				container.classList.toggle('ltv-narrow', w < 280);
+				container.classList.toggle('ltv-wide', w >= 400);
+			});
+			resizeObs.observe(container);
+			// Store for cleanup
+			container._ltvResizeObs = resizeObs;
+		}
 	}
 
 	function renderCompact(data, isDark) {
-		const stars = '★'.repeat(Math.round(data.rating.average)) + '☆'.repeat(5 - Math.round(data.rating.average));
-		const themeClass = isDark ? 'ltv-dark' : 'ltv-light';
-		
-		return '<div class="ltv-widget ltv-compact ' + themeClass + '">' +
-			'<div class="ltv-rating">' +
-				'<span class="ltv-stars">' + stars + '</span>' +
-				'<span class="ltv-rating-num">' + data.rating.average + '</span>' +
-				'<span class="ltv-rating-count">(' + data.rating.count + ' reviews)</span>' +
+		var bg = isDark ? COLORS.primary : COLORS.white;
+		var text = isDark ? COLORS.white : COLORS.text;
+		var border = isDark ? COLORS.accent : '#e2e8f0';
+		var mutedText = isDark ? COLORS.light : COLORS.textLight;
+		var btnBg = isDark ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'linear-gradient(135deg, #1a3a4a, #1e4258)';
+		var btnText = COLORS.white;
+
+		return '<div style="max-width:300px;border-radius:16px;background:' + bg + ';border:1px solid ' + border + ';box-shadow:0 4px 24px rgba(0,0,0,' + (isDark?'0.3':'0.08') + ');padding:24px;font-family:\'Source Sans 3\',system-ui,-apple-system,sans-serif">' +
+			'<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">' +
+				'<span style="font-size:32px;font-weight:800;color:' + text + ';line-height:1">' + (data.rating.average || '\u2014') + '</span>' +
+				'<div>' + renderStars(data.rating.average) +
+				'<div style="font-size:12px;color:' + mutedText + ';margin-top:2px">' + data.rating.count + ' reviews</div></div>' +
 			'</div>' +
-			'<a href="' + data.review_url + '" class="ltv-review-btn" target="_blank">Write a Review</a>' +
-			'<div class="ltv-branding">' +
-				'<a href="' + data.site_url + '" target="_blank">📍 ' + data.site_name + '</a>' +
-			'</div>' +
+			'<a href="' + data.review_url + '" target="_blank" rel="noopener" class="ltv-review-btn" style="display:block;text-align:center;padding:10px 24px;border-radius:24px;background:' + btnBg + ';color:' + btnText + ';text-decoration:none;font-size:14px;font-weight:600;transition:opacity 0.2s">Write a Review</a>' +
+			'<div style="text-align:center;margin-top:14px;opacity:0.4;transition:opacity 0.2s"><a href="' + data.site_url + '" target="_blank" rel="noopener" style="font-size:11px;color:' + mutedText + ';text-decoration:none;display:inline-flex;align-items:center;gap:4px">' +
+				'<svg width="10" height="10" viewBox="0 0 24 24" fill="' + mutedText + '"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>' +
+				data.site_name + '</a></div>' +
 		'</div>';
 	}
 
 	function renderCarousel(data, isDark) {
-		const themeClass = isDark ? 'ltv-dark' : 'ltv-light';
-		let slidesHtml = '';
-		
+		if (!data.reviews || data.reviews.length === 0) {
+			return renderCompact(data, isDark); // Fallback to compact
+		}
+		var bg = isDark ? COLORS.primary : COLORS.white;
+		var text = isDark ? COLORS.white : COLORS.text;
+		var border = isDark ? COLORS.accent : '#e2e8f0';
+		var mutedText = isDark ? COLORS.light : COLORS.textLight;
+		var cardBg = isDark ? COLORS.accent : COLORS.lightBg;
+		var btnBg = isDark ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'linear-gradient(135deg, #1a3a4a, #1e4258)';
+
+		var slidesHtml = '';
 		data.reviews.forEach(function(review, index) {
-			const stars = '★'.repeat(review.rating);
-			slidesHtml += '<div class="ltv-slide' + (index === 0 ? ' ltv-active' : '') + '">' +
-				'<div class="ltv-review-content">"' + review.content + '"</div>' +
-				'<div class="ltv-review-meta">' +
-					'<span class="ltv-stars">' + stars + '</span>' +
-					' — ' + review.author +
+			var avatarColor = AVATAR_COLORS[review.color_index || 0];
+			var isActive = index === 0;
+			var slideStyle = isActive
+				? 'opacity:1;transform:translateX(0);position:relative;transition:opacity 0.4s ease,transform 0.4s ease'
+				: 'opacity:0;transform:translateX(20px);position:absolute;top:0;left:0;right:0;pointer-events:none;transition:opacity 0.4s ease,transform 0.4s ease';
+
+			slidesHtml += '<div class="ltv-slide" data-index="' + index + '" style="' + slideStyle + ';padding:0">' +
+				'<div style="background:' + cardBg + ';border-radius:12px;border-left:4px solid #f59e0b;padding:20px">' +
+					'<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">' +
+						'<div style="width:36px;height:36px;border-radius:50%;background:' + avatarColor + ';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0">' + (review.initial || 'A') + '</div>' +
+						'<div><div style="font-weight:600;color:' + text + ';font-size:14px">' + review.author + '</div>' +
+						'<div style="font-size:11px;color:' + mutedText + '">' + review.date + '</div></div>' +
+					'</div>' +
+					'<div style="margin-bottom:8px">' + renderStars(review.rating) + '</div>' +
+					'<div style="font-size:14px;line-height:1.6;color:' + text + '">\u201c' + review.content + '\u201d</div>' +
 				'</div>' +
 			'</div>';
 		});
-		
-		let dotsHtml = '';
+
+		var dotsHtml = '';
 		data.reviews.forEach(function(_, index) {
-			dotsHtml += '<span class="ltv-dot' + (index === 0 ? ' ltv-active' : '') + '" data-index="' + index + '"></span>';
+			var dotStyle = index === 0
+				? 'width:10px;height:10px;border-radius:50%;background:' + COLORS.star + ';cursor:pointer;transition:all 0.3s'
+				: 'width:10px;height:10px;border-radius:50%;background:transparent;border:2px solid ' + (isDark ? COLORS.light : '#cbd5e1') + ';cursor:pointer;transition:all 0.3s;box-sizing:border-box';
+			dotsHtml += '<span class="ltv-dot" data-index="' + index + '" style="' + dotStyle + '"></span>';
 		});
-		
-		return '<div class="ltv-widget ltv-carousel ' + themeClass + '">' +
-			'<div class="ltv-slides">' + slidesHtml + '</div>' +
-			'<div class="ltv-carousel-nav">' +
-				'<button class="ltv-prev">‹</button>' +
-				'<div class="ltv-dots">' + dotsHtml + '</div>' +
-				'<button class="ltv-next">›</button>' +
+
+		return '<div style="max-width:420px;border-radius:16px;background:' + bg + ';border:1px solid ' + border + ';box-shadow:0 4px 24px rgba(0,0,0,' + (isDark?'0.3':'0.08') + ');padding:24px;font-family:\'Source Sans 3\',system-ui,-apple-system,sans-serif">' +
+			'<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">' +
+				'<span style="font-size:28px;font-weight:800;color:' + text + ';line-height:1">' + (data.rating.average || '\u2014') + '</span>' +
+				'<div>' + renderStars(data.rating.average) +
+				'<div style="font-size:12px;color:' + mutedText + ';margin-top:2px">' + data.rating.count + ' reviews</div></div>' +
 			'</div>' +
-			'<div class="ltv-carousel-footer">' +
-				'<a href="' + data.review_url + '" class="ltv-review-btn" target="_blank">Write a Review</a>' +
+			'<div class="ltv-slides" style="position:relative;min-height:140px;overflow:hidden">' + slidesHtml + '</div>' +
+			'<div style="display:flex;align-items:center;justify-content:center;gap:16px;margin:20px 0 16px">' +
+				'<button class="ltv-prev" style="background:none;border:none;font-size:20px;cursor:pointer;color:' + mutedText + ';padding:4px 8px;opacity:0.6;transition:opacity 0.2s">\u2039</button>' +
+				'<div class="ltv-dots" style="display:flex;gap:8px;align-items:center">' + dotsHtml + '</div>' +
+				'<button class="ltv-next" style="background:none;border:none;font-size:20px;cursor:pointer;color:' + mutedText + ';padding:4px 8px;opacity:0.6;transition:opacity 0.2s">\u203a</button>' +
 			'</div>' +
-			'<div class="ltv-branding">' +
-				'<a href="' + data.site_url + '" target="_blank">📍 ' + data.site_name + '</a>' +
-			'</div>' +
+			'<a href="' + data.review_url + '" target="_blank" rel="noopener" class="ltv-review-btn" style="display:block;text-align:center;padding:10px 24px;border-radius:24px;background:' + btnBg + ';color:#fff;text-decoration:none;font-size:14px;font-weight:600;transition:opacity 0.2s">Write a Review</a>' +
+			'<div style="text-align:center;margin-top:14px;opacity:0.4;transition:opacity 0.2s"><a href="' + data.site_url + '" target="_blank" rel="noopener" style="font-size:11px;color:' + mutedText + ';text-decoration:none;display:inline-flex;align-items:center;gap:4px">' +
+				'<svg width="10" height="10" viewBox="0 0 24 24" fill="' + mutedText + '"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>' +
+				data.site_name + '</a></div>' +
 		'</div>';
 	}
 
-	function renderList(data, isDark) {
-		const themeClass = isDark ? 'ltv-dark' : 'ltv-light';
-		const avgStars = '★'.repeat(Math.round(data.rating.average));
-		
-		let reviewsHtml = '';
+	function renderList(data, isDark, showBreakdown) {
+		if (!data.reviews || data.reviews.length === 0) {
+			return renderCompact(data, isDark); // Fallback to compact
+		}
+		var bg = isDark ? COLORS.primary : COLORS.white;
+		var text = isDark ? COLORS.white : COLORS.text;
+		var border = isDark ? COLORS.accent : '#e2e8f0';
+		var mutedText = isDark ? COLORS.light : COLORS.textLight;
+		var cardBg = isDark ? COLORS.accent : COLORS.lightBg;
+		var btnBg = isDark ? 'linear-gradient(135deg, #f59e0b, #d97706)' : 'linear-gradient(135deg, #1a3a4a, #1e4258)';
+
+		// Header with business name and rating.
+		var html = '<div style="max-width:520px;border-radius:16px;background:' + bg + ';border:1px solid ' + border + ';box-shadow:0 4px 24px rgba(0,0,0,' + (isDark?'0.3':'0.08') + ');padding:28px;font-family:\'Source Sans 3\',system-ui,-apple-system,sans-serif">';
+		html += '<div style="margin-bottom:20px">';
+		html += '<div style="font-weight:700;font-size:20px;color:' + text + ';margin-bottom:6px">' + data.business.name + '</div>';
+		html += '<div style="display:flex;align-items:center;gap:8px">' + renderStars(data.rating.average, 18) +
+			'<span style="font-weight:700;font-size:16px;color:' + text + '">' + (data.rating.average || '\u2014') + '</span>' +
+			'<span style="font-size:13px;color:' + mutedText + '">' + data.rating.count + ' reviews</span></div>';
+		html += '</div>';
+
+		// Optional rating breakdown.
+		if (showBreakdown && data.distribution) {
+			var maxCnt = Math.max(data.distribution['5'] || 0, data.distribution['4'] || 0, data.distribution['3'] || 0, data.distribution['2'] || 0, data.distribution['1'] || 0, 1);
+			html += '<div style="margin-bottom:20px;padding:16px;background:' + cardBg + ';border-radius:12px">';
+			for (var s = 5; s >= 1; s--) {
+				var cnt = data.distribution[String(s)] || 0;
+				var barPct = Math.round((cnt / maxCnt) * 100);
+				html += '<div style="display:flex;align-items:center;gap:8px;margin-bottom:' + (s > 1 ? '6' : '0') + 'px;font-size:13px">' +
+					'<span style="width:20px;text-align:right;color:' + mutedText + ';font-weight:600">' + s + '\u2605</span>' +
+					'<div style="flex:1;height:8px;background:' + (isDark ? 'rgba(255,255,255,0.1)' : '#e2e8f0') + ';border-radius:4px;overflow:hidden">' +
+						'<div style="height:100%;width:' + barPct + '%;background:' + COLORS.star + ';border-radius:4px;transition:width 0.6s ease"></div>' +
+					'</div>' +
+					'<span style="width:24px;text-align:right;color:' + mutedText + ';font-size:12px">' + cnt + '</span>' +
+				'</div>';
+			}
+			html += '</div>';
+		}
+
+		// Review cards.
+		html += '<div class="ltv-reviews-list" style="max-height:400px;overflow-y:auto">';
 		data.reviews.forEach(function(review) {
-			const stars = '★'.repeat(review.rating);
-			reviewsHtml += '<div class="ltv-review-item">' +
-				'<div class="ltv-review-header">' +
-					'<span class="ltv-stars">' + stars + '</span>' +
-					'<span class="ltv-review-date">' + review.date + '</span>' +
+			var avatarColor = AVATAR_COLORS[review.color_index || 0];
+			html += '<div class="ltv-review-card" style="background:' + cardBg + ';border-radius:12px;padding:16px;margin-bottom:12px;transition:transform 0.2s ease,box-shadow 0.2s ease">' +
+				'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">' +
+					'<div style="width:36px;height:36px;border-radius:50%;background:' + avatarColor + ';display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0">' + (review.initial || 'A') + '</div>' +
+					'<div style="flex:1"><div style="font-weight:600;color:' + text + ';font-size:14px">' + review.author + '</div>' +
+					'<div style="font-size:11px;color:' + mutedText + '">' + review.date + '</div></div>' +
+					renderStars(review.rating, 14) +
 				'</div>' +
-				'<div class="ltv-review-text">"' + review.content + '"</div>' +
-				'<div class="ltv-review-author">— ' + review.author + '</div>' +
+				'<div style="font-size:14px;line-height:1.6;color:' + text + '">\u201c' + review.content + '\u201d</div>' +
 			'</div>';
 		});
-		
-		return '<div class="ltv-widget ltv-list ' + themeClass + '">' +
-			'<div class="ltv-header">' +
-				'<div class="ltv-business-name">' + data.business.name + '</div>' +
-				'<div class="ltv-header-rating">' +
-					'<span class="ltv-stars">' + avgStars + '</span>' +
-					' ' + data.rating.average + ' · ' + data.rating.count + ' reviews' +
-				'</div>' +
-			'</div>' +
-			'<div class="ltv-reviews-list">' + reviewsHtml + '</div>' +
-			'<div class="ltv-footer">' +
-				'<a href="' + data.review_url + '" class="ltv-review-btn" target="_blank">Write a Review</a>' +
-				'<a href="' + data.business.url + '" class="ltv-view-all" target="_blank">See All Reviews →</a>' +
-			'</div>' +
-			'<div class="ltv-branding">' +
-				'<a href="' + data.site_url + '" target="_blank">📍 ' + data.site_name + '</a>' +
-			'</div>' +
+		html += '</div>';
+
+		// Footer with action buttons.
+		html += '<div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;padding-top:20px;border-top:1px solid ' + border + '">' +
+			'<a href="' + data.review_url + '" target="_blank" rel="noopener" class="ltv-review-btn" style="display:inline-block;padding:10px 24px;border-radius:24px;background:' + btnBg + ';color:#fff;text-decoration:none;font-size:14px;font-weight:600;transition:opacity 0.2s">Write a Review</a>' +
+			'<a href="' + data.business.url + '" target="_blank" rel="noopener" style="font-size:13px;color:' + (isDark ? COLORS.light : COLORS.secondary) + ';text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:opacity 0.2s">See all on ' + data.site_name + ' \u2192</a>' +
 		'</div>';
+
+		// Branding.
+		html += '<div style="text-align:center;margin-top:14px;opacity:0.4;transition:opacity 0.2s"><a href="' + data.site_url + '" target="_blank" rel="noopener" style="font-size:11px;color:' + mutedText + ';text-decoration:none;display:inline-flex;align-items:center;gap:4px">' +
+			'<svg width="10" height="10" viewBox="0 0 24 24" fill="' + mutedText + '"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>' +
+			data.site_name + '</a></div>';
+
+		html += '</div>';
+		return html;
 	}
 
 	function initCarousel(container) {
-		const slides = container.querySelectorAll('.ltv-slide');
-		const dots = container.querySelectorAll('.ltv-dot');
-		const prevBtn = container.querySelector('.ltv-prev');
-		const nextBtn = container.querySelector('.ltv-next');
-		let currentIndex = 0;
-		
-		function showSlide(index) {
+		var slides = container.querySelectorAll('.ltv-slide');
+		var dots = container.querySelectorAll('.ltv-dot');
+		var prevBtn = container.querySelector('.ltv-prev');
+		var nextBtn = container.querySelector('.ltv-next');
+		var currentIndex = 0;
+		var autoTimer = null;
+		var paused = false;
+
+		function transitionSlide(index) {
 			slides.forEach(function(slide, i) {
-				slide.classList.toggle('ltv-active', i === index);
+				if (i === index) {
+					slide.style.opacity = '1';
+					slide.style.transform = 'translateX(0)';
+					slide.style.position = 'relative';
+					slide.style.pointerEvents = 'auto';
+				} else {
+					slide.style.opacity = '0';
+					slide.style.transform = 'translateX(20px)';
+					slide.style.position = 'absolute';
+					slide.style.pointerEvents = 'none';
+				}
 			});
 			dots.forEach(function(dot, i) {
-				dot.classList.toggle('ltv-active', i === index);
+				if (i === index) {
+					dot.style.background = COLORS.star;
+					dot.style.border = 'none';
+				} else {
+					dot.style.background = 'transparent';
+					dot.style.border = '2px solid #cbd5e1';
+				}
 			});
 			currentIndex = index;
 		}
-		
+
+		function startAuto() {
+			stopAuto();
+			autoTimer = setInterval(function() {
+				if (!paused) {
+					transitionSlide((currentIndex + 1) % slides.length);
+				}
+			}, 5000);
+		}
+
+		function stopAuto() {
+			if (autoTimer) {
+				clearInterval(autoTimer);
+				autoTimer = null;
+			}
+		}
+
+		// Pause on hover, resume on leave.
+		var slidesContainer = container.querySelector('.ltv-slides');
+		if (slidesContainer) {
+			slidesContainer.addEventListener('mouseenter', function() { paused = true; });
+			slidesContainer.addEventListener('mouseleave', function() { paused = false; });
+		}
+
 		if (prevBtn) {
 			prevBtn.addEventListener('click', function() {
-				showSlide((currentIndex - 1 + slides.length) % slides.length);
+				transitionSlide((currentIndex - 1 + slides.length) % slides.length);
+				startAuto();
 			});
 		}
-		
+
 		if (nextBtn) {
 			nextBtn.addEventListener('click', function() {
-				showSlide((currentIndex + 1) % slides.length);
+				transitionSlide((currentIndex + 1) % slides.length);
+				startAuto();
 			});
 		}
-		
+
 		dots.forEach(function(dot, index) {
 			dot.addEventListener('click', function() {
-				showSlide(index);
+				transitionSlide(index);
+				startAuto();
 			});
 		});
-		
-		// Auto-rotate
-		setInterval(function() {
-			showSlide((currentIndex + 1) % slides.length);
-		}, 5000);
+
+		startAuto();
+
+		// Cleanup on container removal
+		if (typeof MutationObserver !== 'undefined') {
+			var cleanupObserver = new MutationObserver(function(mutations) {
+				mutations.forEach(function(m) {
+					m.removedNodes.forEach(function(node) {
+						if (node === container || node.contains && node.contains(container)) {
+							clearInterval(autoTimer);
+							cleanupObserver.disconnect();
+						}
+					});
+				});
+			});
+			if (container.parentNode) {
+				cleanupObserver.observe(container.parentNode, { childList: true });
+			}
+		}
 	}
 
 	function trackClick(businessId, action) {
@@ -454,68 +595,36 @@ class WidgetEndpoint {
 
 	function injectStyles() {
 		if (document.getElementById('ltv-widget-styles')) return;
-		
-		const css = \`
-			.ltv-widget-container { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-			.ltv-widget { border-radius: 12px; padding: 20px; box-sizing: border-box; }
-			.ltv-light { background: ${COLORS.white}; color: ${COLORS.text}; border: 1px solid ${COLORS.light}; }
-			.ltv-dark { background: ${COLORS.primary}; color: ${COLORS.white}; border: 1px solid ${COLORS.accent}; }
-			.ltv-stars { color: ${COLORS.star}; letter-spacing: 2px; }
-			.ltv-rating { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-			.ltv-rating-num { font-weight: 700; font-size: 18px; }
-			.ltv-rating-count { opacity: 0.7; font-size: 14px; }
-			.ltv-review-btn { display: inline-block; background: ${COLORS.primary}; color: ${COLORS.white}; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 14px; transition: background 0.2s; }
-			.ltv-review-btn:hover { background: ${COLORS.accent}; }
-			.ltv-dark .ltv-review-btn { background: ${COLORS.secondary}; color: ${COLORS.primary}; }
-			.ltv-dark .ltv-review-btn:hover { background: ${COLORS.light}; }
-			.ltv-branding { margin-top: 12px; font-size: 12px; opacity: 0.7; }
-			.ltv-branding a { color: inherit; text-decoration: none; }
-			.ltv-branding a:hover { text-decoration: underline; }
-			
-			/* Compact */
-			.ltv-compact { text-align: center; max-width: 280px; }
-			
-			/* Carousel */
-			.ltv-carousel { max-width: 400px; }
-			.ltv-slides { position: relative; min-height: 120px; }
-			.ltv-slide { display: none; }
-			.ltv-slide.ltv-active { display: block; }
-			.ltv-review-content { font-style: italic; margin-bottom: 8px; line-height: 1.5; }
-			.ltv-review-meta { font-size: 14px; opacity: 0.8; }
-			.ltv-carousel-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 16px 0; }
-			.ltv-prev, .ltv-next { background: none; border: none; font-size: 24px; cursor: pointer; padding: 4px 8px; opacity: 0.6; }
-			.ltv-prev:hover, .ltv-next:hover { opacity: 1; }
-			.ltv-dark .ltv-prev, .ltv-dark .ltv-next { color: ${COLORS.white}; }
-			.ltv-dots { display: flex; gap: 6px; }
-			.ltv-dot { width: 8px; height: 8px; border-radius: 50%; background: ${COLORS.light}; cursor: pointer; }
-			.ltv-dot.ltv-active { background: ${COLORS.secondary}; }
-			.ltv-carousel-footer { text-align: center; }
-			
-			/* List */
-			.ltv-list { max-width: 500px; }
-			.ltv-header { border-bottom: 1px solid ${COLORS.light}; padding-bottom: 12px; margin-bottom: 16px; }
-			.ltv-dark .ltv-header { border-color: ${COLORS.accent}; }
-			.ltv-business-name { font-weight: 700; font-size: 18px; margin-bottom: 4px; }
-			.ltv-header-rating { font-size: 14px; opacity: 0.8; }
-			.ltv-reviews-list { max-height: 300px; overflow-y: auto; }
-			.ltv-review-item { padding: 12px 0; border-bottom: 1px solid ${COLORS.lightBg}; }
-			.ltv-dark .ltv-review-item { border-color: ${COLORS.accent}; }
-			.ltv-review-item:last-child { border-bottom: none; }
-			.ltv-review-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
-			.ltv-review-date { font-size: 12px; opacity: 0.6; }
-			.ltv-review-text { font-style: italic; line-height: 1.5; margin-bottom: 8px; }
-			.ltv-review-author { font-size: 13px; opacity: 0.7; }
-			.ltv-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 16px; border-top: 1px solid ${COLORS.light}; }
-			.ltv-dark .ltv-footer { border-color: ${COLORS.accent}; }
-			.ltv-view-all { font-size: 14px; color: ${COLORS.secondary}; text-decoration: none; }
-			.ltv-view-all:hover { text-decoration: underline; }
-			
-			/* Loading/Error */
-			.ltv-loading, .ltv-error { padding: 20px; text-align: center; font-size: 14px; color: ${COLORS.textLight}; }
-			.ltv-error { color: #d63638; }
-		\`;
-		
-		const style = document.createElement('style');
+
+		// Load Source Sans 3 font.
+		if (!document.querySelector('link[href*="Source+Sans+3"]')) {
+			var fontLink = document.createElement('link');
+			fontLink.rel = 'stylesheet';
+			fontLink.href = 'https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap';
+			document.head.appendChild(fontLink);
+		}
+
+		var css = '' +
+			'.ltv-widget-container { font-family: "Source Sans 3", system-ui, -apple-system, sans-serif; line-height: 1.5; }' +
+			'.ltv-widget-container * { box-sizing: border-box; }' +
+			'.ltv-widget-container a { transition: opacity 0.2s ease; }' +
+			'.ltv-widget-container a:hover { opacity: 0.85; }' +
+			'.ltv-widget-container .ltv-review-btn:hover { opacity: 0.9; transform: translateY(-1px); }' +
+			'.ltv-widget-container .ltv-review-card:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,0,0,0.1); }' +
+			'.ltv-widget-container .ltv-prev:hover, .ltv-widget-container .ltv-next:hover { opacity: 1; }' +
+			/* Scrollbar styling */
+			'.ltv-reviews-list::-webkit-scrollbar { width: 6px; }' +
+			'.ltv-reviews-list::-webkit-scrollbar-track { background: transparent; }' +
+			'.ltv-reviews-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }' +
+			'.ltv-reviews-list::-webkit-scrollbar-thumb:hover { background: #94a3b8; }' +
+			/* Responsive narrow overrides */
+			'.ltv-narrow .ltv-review-card { padding: 12px; }' +
+			'.ltv-narrow .ltv-dots { gap: 6px; }' +
+			/* Responsive wide overrides */
+			'.ltv-wide .ltv-reviews-list { max-height: 500px; }' +
+			'';
+
+		var style = document.createElement('style');
 		style.id = 'ltv-widget-styles';
 		style.textContent = css;
 		document.head.appendChild(style);
@@ -523,6 +632,7 @@ class WidgetEndpoint {
 })();
 JAVASCRIPT;
 
+		$js = $js_header . $js_body;
 		return $js;
 	}
 
