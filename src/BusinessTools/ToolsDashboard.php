@@ -946,10 +946,12 @@ class ToolsDashboard {
 		// Build preview URL for live badge display.
 		$preview_url = rest_url( 'bd/v1/badge/' . $business_id ) . '?style=' . urlencode( $style ) . '&size=' . urlencode( $size ) . '&theme=' . urlencode( $theme );
 
-		wp_send_json_success( array(
-			'code'        => $code,
-			'preview_url' => $preview_url,
-		) );
+		wp_send_json_success(
+			array(
+				'code'        => $code,
+				'preview_url' => $preview_url,
+			)
+		);
 	}
 
 	/**

@@ -967,8 +967,8 @@
 }
 
 /* =====================================================================
-   METALLIC SVG BADGE STYLES (v10)
-   ===================================================================== */
+	METALLIC SVG BADGE STYLES (v10)
+	===================================================================== */
 
 /* Badge SVG element */
 .bd-badge-svg,
@@ -1119,7 +1119,7 @@
 }
 
 /* Badge card — hide old icon/check/lock when SVG badge is present.
-   Uses sibling combinator instead of :has() for broader browser support. */
+	Uses sibling combinator instead of :has() for broader browser support. */
 .bd-badge-card-svg ~ .bd-badge-card-icon {
 	display: none;
 }

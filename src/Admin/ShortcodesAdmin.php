@@ -1063,9 +1063,9 @@ class ShortcodesAdmin {
 			<!-- Search Box -->
 			<div class="bd-shortcode-search">
 				<input type="text" 
-					   id="bd-shortcode-filter" 
-					   placeholder="<?php esc_attr_e( 'Search shortcodes...', 'business-directory' ); ?>"
-					   class="regular-text">
+						id="bd-shortcode-filter" 
+						placeholder="<?php esc_attr_e( 'Search shortcodes...', 'business-directory' ); ?>"
+						class="regular-text">
 				<span class="bd-search-icon dashicons dashicons-search"></span>
 			</div>
 

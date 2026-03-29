@@ -278,7 +278,13 @@ class WidgetGenerator {
 			),
 			ARRAY_A
 		);
-		$distribution = array( '5' => 0, '4' => 0, '3' => 0, '2' => 0, '1' => 0 );
+		$distribution = array(
+			'5' => 0,
+			'4' => 0,
+			'3' => 0,
+			'2' => 0,
+			'1' => 0,
+		);
 		foreach ( $dist_results as $row ) {
 			$distribution[ (string) $row['rating'] ] = (int) $row['cnt'];
 		}

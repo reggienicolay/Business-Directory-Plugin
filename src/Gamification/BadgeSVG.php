@@ -25,104 +25,104 @@ class BadgeSVG {
 	 */
 	const MATERIALS = array(
 		'common'    => array(
-			'label'    => 'Silver',
-			'rarity'   => 'Common',
-			'base'     => '#c0cad4',
-			'light'    => '#e8edf2',
-			'mid'      => '#b0bcc8',
-			'dark'     => '#8896a6',
-			'shine'    => '#f4f7fa',
+			'label'     => 'Silver',
+			'rarity'    => 'Common',
+			'base'      => '#c0cad4',
+			'light'     => '#e8edf2',
+			'mid'       => '#b0bcc8',
+			'dark'      => '#8896a6',
+			'shine'     => '#f4f7fa',
 			'iconColor' => '#4a5668',
-			'iconGlow' => '#dce2e8',
-			'textFill' => '#3a4658',
-			'textHi'   => '#ffffff',
-			'glow'     => 'rgba(148,163,184,0.3)',
+			'iconGlow'  => '#dce2e8',
+			'textFill'  => '#3a4658',
+			'textHi'    => '#ffffff',
+			'glow'      => 'rgba(148,163,184,0.3)',
 			'textColor' => '#64748b',
-			'lockTint' => '#94a3b8',
-			'shimmer'  => '#e2e8f0',
-			'shadow'   => 'rgba(100,116,139,0.4)',
-			'desc'     => 'Brushed silver — the journey begins',
-			'swatch'   => 'radial-gradient(circle at 35% 35%, #e8edf2, #b0bcc8, #8896a6)',
+			'lockTint'  => '#94a3b8',
+			'shimmer'   => '#e2e8f0',
+			'shadow'    => 'rgba(100,116,139,0.4)',
+			'desc'      => 'Brushed silver — the journey begins',
+			'swatch'    => 'radial-gradient(circle at 35% 35%, #e8edf2, #b0bcc8, #8896a6)',
 		),
 		'rare'      => array(
-			'label'    => 'Copper',
-			'rarity'   => 'Rare',
-			'base'     => '#b87a5a',
-			'light'    => '#deb89a',
-			'mid'      => '#a87050',
-			'dark'     => '#7a4832',
-			'shine'    => '#f0d0b8',
+			'label'     => 'Copper',
+			'rarity'    => 'Rare',
+			'base'      => '#b87a5a',
+			'light'     => '#deb89a',
+			'mid'       => '#a87050',
+			'dark'      => '#7a4832',
+			'shine'     => '#f0d0b8',
 			'iconColor' => '#4a2818',
-			'iconGlow' => '#deb89a',
-			'textFill' => '#3a1e10',
-			'textHi'   => '#f0d0b8',
-			'glow'     => 'rgba(184,122,90,0.35)',
+			'iconGlow'  => '#deb89a',
+			'textFill'  => '#3a1e10',
+			'textHi'    => '#f0d0b8',
+			'glow'      => 'rgba(184,122,90,0.35)',
 			'textColor' => '#9a6244',
-			'lockTint' => '#b87a5a',
-			'shimmer'  => '#deb89a',
-			'shadow'   => 'rgba(122,72,50,0.4)',
-			'desc'     => 'Burnished copper — warming with distinction',
-			'swatch'   => 'radial-gradient(circle at 35% 35%, #deb89a, #b87a5a, #7a4832)',
+			'lockTint'  => '#b87a5a',
+			'shimmer'   => '#deb89a',
+			'shadow'    => 'rgba(122,72,50,0.4)',
+			'desc'      => 'Burnished copper — warming with distinction',
+			'swatch'    => 'radial-gradient(circle at 35% 35%, #deb89a, #b87a5a, #7a4832)',
 		),
 		'epic'      => array(
-			'label'    => 'Amethyst',
-			'rarity'   => 'Epic',
-			'base'     => '#8b7abf',
-			'light'    => '#c4b5fd',
-			'mid'      => '#7a6ab4',
-			'dark'     => '#5a4a8a',
-			'shine'    => '#e0d8f0',
+			'label'     => 'Amethyst',
+			'rarity'    => 'Epic',
+			'base'      => '#8b7abf',
+			'light'     => '#c4b5fd',
+			'mid'       => '#7a6ab4',
+			'dark'      => '#5a4a8a',
+			'shine'     => '#e0d8f0',
 			'iconColor' => '#3a2a62',
-			'iconGlow' => '#d0c8e8',
-			'textFill' => '#2e2054',
-			'textHi'   => '#e0d8f0',
-			'glow'     => 'rgba(139,92,246,0.35)',
+			'iconGlow'  => '#d0c8e8',
+			'textFill'  => '#2e2054',
+			'textHi'    => '#e0d8f0',
+			'glow'      => 'rgba(139,92,246,0.35)',
 			'textColor' => '#7c3aed',
-			'lockTint' => '#8b7abf',
-			'shimmer'  => '#c4b5fd',
-			'shadow'   => 'rgba(107,90,175,0.4)',
-			'desc'     => 'Amethyst steel — rare alloy, unmistakable',
-			'swatch'   => 'radial-gradient(circle at 35% 35%, #c4b5fd, #8b7abf, #5a4a8a)',
+			'lockTint'  => '#8b7abf',
+			'shimmer'   => '#c4b5fd',
+			'shadow'    => 'rgba(107,90,175,0.4)',
+			'desc'      => 'Amethyst steel — rare alloy, unmistakable',
+			'swatch'    => 'radial-gradient(circle at 35% 35%, #c4b5fd, #8b7abf, #5a4a8a)',
 		),
 		'legendary' => array(
-			'label'    => 'Gold',
-			'rarity'   => 'Legendary',
-			'base'     => '#d4a830',
-			'light'    => '#f8e88c',
-			'mid'      => '#c8a028',
-			'dark'     => '#9A7B1A',
-			'shine'    => '#f8e88c',
+			'label'     => 'Gold',
+			'rarity'    => 'Legendary',
+			'base'      => '#d4a830',
+			'light'     => '#f8e88c',
+			'mid'       => '#c8a028',
+			'dark'      => '#9A7B1A',
+			'shine'     => '#f8e88c',
 			'iconColor' => '#5a4008',
-			'iconGlow' => '#f8e17c',
-			'textFill' => '#4a3406',
-			'textHi'   => '#f8e88c',
-			'glow'     => 'rgba(245,197,34,0.4)',
+			'iconGlow'  => '#f8e17c',
+			'textFill'  => '#4a3406',
+			'textHi'    => '#f8e88c',
+			'glow'      => 'rgba(245,197,34,0.4)',
 			'textColor' => '#b89020',
-			'lockTint' => '#d4a830',
-			'shimmer'  => '#f8e17c',
-			'shadow'   => 'rgba(154,123,26,0.45)',
-			'desc'     => 'Struck gold — forged legacy',
-			'swatch'   => 'radial-gradient(circle at 35% 35%, #f8e88c, #d4a830, #9A7B1A)',
+			'lockTint'  => '#d4a830',
+			'shimmer'   => '#f8e17c',
+			'shadow'    => 'rgba(154,123,26,0.45)',
+			'desc'      => 'Struck gold — forged legacy',
+			'swatch'    => 'radial-gradient(circle at 35% 35%, #f8e88c, #d4a830, #9A7B1A)',
 		),
 		'special'   => array(
-			'label'    => 'Navy & Gold',
-			'rarity'   => 'Special',
-			'base'     => '#1a3a5a',
-			'light'    => '#2a5a80',
-			'mid'      => '#163d5c',
-			'dark'     => '#0c1e32',
-			'shine'    => '#3a6a92',
+			'label'     => 'Navy & Gold',
+			'rarity'    => 'Special',
+			'base'      => '#1a3a5a',
+			'light'     => '#2a5a80',
+			'mid'       => '#163d5c',
+			'dark'      => '#0c1e32',
+			'shine'     => '#3a6a92',
 			'iconColor' => '#C9A227',
-			'iconGlow' => '#f5c522',
-			'textFill' => '#C9A227',
-			'textHi'   => '#f8e17c',
-			'glow'     => 'rgba(201,162,39,0.4)',
+			'iconGlow'  => '#f5c522',
+			'textFill'  => '#C9A227',
+			'textHi'    => '#f8e17c',
+			'glow'      => 'rgba(201,162,39,0.4)',
 			'textColor' => '#C9A227',
-			'lockTint' => '#C9A227',
-			'shimmer'  => '#f5c522',
-			'shadow'   => 'rgba(201,162,39,0.3)',
-			'desc'     => 'Navy enamel with gold leaf — singular',
-			'swatch'   => 'radial-gradient(circle at 35% 35%, #2a5a80, #1a3a5a, #0c1e32)',
+			'lockTint'  => '#C9A227',
+			'shimmer'   => '#f5c522',
+			'shadow'    => 'rgba(201,162,39,0.3)',
+			'desc'      => 'Navy enamel with gold leaf — singular',
+			'swatch'    => 'radial-gradient(circle at 35% 35%, #2a5a80, #1a3a5a, #0c1e32)',
 		),
 	);
 
@@ -141,7 +141,16 @@ class BadgeSVG {
 	private static function circle_d( float $cx, float $cy, float $r ): string {
 		return sprintf(
 			'M%.1f,%.1fA%.1f,%.1f 0 1,1 %.1f,%.1fA%.1f,%.1f 0 1,1 %.1f,%.1fZ',
-			$cx - $r, $cy, $r, $r, $cx + $r, $cy, $r, $r, $cx - $r, $cy
+			$cx - $r,
+			$cy,
+			$r,
+			$r,
+			$cx + $r,
+			$cy,
+			$r,
+			$r,
+			$cx - $r,
+			$cy
 		);
 	}
 
@@ -158,12 +167,22 @@ class BadgeSVG {
 
 		return sprintf(
 			'M%.1f,%.1f L%.1f,%.1f L%.1f,%.1f Q%.1f,%.1f %.1f,%.1f Q%.1f,%.1f %.1f,%.1f L%.1f,%.1f Z',
-			$cx, $top,
-			$cx + $hw, $top + $h * 0.17,
-			$cx + $hw, $mid,
-			$cx + $hw, $bot - $h * 0.08, $cx, $bot,
-			$cx - $hw, $bot - $h * 0.08, $cx - $hw, $mid,
-			$cx - $hw, $top + $h * 0.17
+			$cx,
+			$top,
+			$cx + $hw,
+			$top + $h * 0.17,
+			$cx + $hw,
+			$mid,
+			$cx + $hw,
+			$bot - $h * 0.08,
+			$cx,
+			$bot,
+			$cx - $hw,
+			$bot - $h * 0.08,
+			$cx - $hw,
+			$mid,
+			$cx - $hw,
+			$top + $h * 0.17
 		);
 	}
 
@@ -183,24 +202,30 @@ class BadgeSVG {
 	/**
 	 * Scalloped SVG path (legendary badges).
 	 */
-	private static function scallop_d( float $cx, float $cy, float $R, int $n, float $bump ): string {
+	private static function scallop_d( float $cx, float $cy, float $radius, int $n, float $bump ): string {
 		$d = '';
 		for ( $i = 0; $i < $n; $i++ ) {
 			$a1 = ( $i / $n ) * M_PI * 2;
 			$a2 = ( ( $i + 1 ) / $n ) * M_PI * 2;
 			$am = ( $a1 + $a2 ) / 2;
 
-			$x1 = $cx + cos( $a1 ) * $R;
-			$y1 = $cy + sin( $a1 ) * $R;
-			$xm = $cx + cos( $am ) * ( $R + $bump );
-			$ym = $cy + sin( $am ) * ( $R + $bump );
-			$x2 = $cx + cos( $a2 ) * $R;
-			$y2 = $cy + sin( $a2 ) * $R;
+			$x1 = $cx + cos( $a1 ) * $radius;
+			$y1 = $cy + sin( $a1 ) * $radius;
+			$xm = $cx + cos( $am ) * ( $radius + $bump );
+			$ym = $cy + sin( $am ) * ( $radius + $bump );
+			$x2 = $cx + cos( $a2 ) * $radius;
+			$y2 = $cy + sin( $a2 ) * $radius;
 
 			$prefix = ( 0 === $i ) ? 'M' : '';
 			$d     .= sprintf(
 				'%s%.1f,%.1f Q%.1f,%.1f %.1f,%.1f ',
-				$prefix, $x1, $y1, $xm, $ym, $x2, $y2
+				$prefix,
+				$x1,
+				$y1,
+				$xm,
+				$ym,
+				$x2,
+				$y2
 			);
 		}
 		return $d . 'Z';
@@ -209,7 +234,7 @@ class BadgeSVG {
 	/**
 	 * Wax seal SVG path (special badges).
 	 */
-	private static function seal_d( float $cx, float $cy, float $R, int $n ): string {
+	private static function seal_d( float $cx, float $cy, float $radius, int $n ): string {
 		$w = self::SEAL_BUMPS;
 		$d = '';
 		for ( $i = 0; $i < $n; $i++ ) {
@@ -218,17 +243,23 @@ class BadgeSVG {
 			$am   = ( $a1 + $a2 ) / 2;
 			$bump = $w[ $i % count( $w ) ] * 0.7;
 
-			$x1 = $cx + cos( $a1 ) * $R;
-			$y1 = $cy + sin( $a1 ) * $R;
-			$xm = $cx + cos( $am ) * ( $R + $bump );
-			$ym = $cy + sin( $am ) * ( $R + $bump );
-			$x2 = $cx + cos( $a2 ) * $R;
-			$y2 = $cy + sin( $a2 ) * $R;
+			$x1 = $cx + cos( $a1 ) * $radius;
+			$y1 = $cy + sin( $a1 ) * $radius;
+			$xm = $cx + cos( $am ) * ( $radius + $bump );
+			$ym = $cy + sin( $am ) * ( $radius + $bump );
+			$x2 = $cx + cos( $a2 ) * $radius;
+			$y2 = $cy + sin( $a2 ) * $radius;
 
 			$prefix = ( 0 === $i ) ? 'M' : '';
 			$d     .= sprintf(
 				'%s%.1f,%.1f Q%.1f,%.1f %.1f,%.1f ',
-				$prefix, $x1, $y1, $xm, $ym, $x2, $y2
+				$prefix,
+				$x1,
+				$y1,
+				$xm,
+				$ym,
+				$x2,
+				$y2
 			);
 		}
 		return $d . 'Z';
@@ -260,7 +291,10 @@ class BadgeSVG {
 				. '<stop offset="40%%" stop-color="%s"/>'
 				. '<stop offset="70%%" stop-color="%s"/>'
 				. '<stop offset="100%%" stop-color="%s"/>',
-				$m['shine'], $m['light'], $m['base'], $m['dark']
+				$m['shine'],
+				$m['light'],
+				$m['base'],
+				$m['dark']
 			);
 		}
 
@@ -462,11 +496,15 @@ class BadgeSVG {
 		// Inner circular ring.
 		$svg .= sprintf(
 			'<circle cx="%.1f" cy="%.1f" r="%.1f" fill="none" stroke="white" stroke-width="1.5" opacity="0.2"/>',
-			$cx, $cy, $ring_r
+			$cx,
+			$cy,
+			$ring_r
 		);
 		$svg .= sprintf(
 			'<circle cx="%.1f" cy="%.1f" r="%.1f" fill="none" stroke="black" stroke-width="0.5" opacity="0.06"/>',
-			$cx, $cy, $ring_r - 2
+			$cx,
+			$cy,
+			$ring_r - 2
 		);
 
 		// Dot ring (28 dots).
@@ -480,12 +518,20 @@ class BadgeSVG {
 			if ( $big && ( $is_scallop || $is_seal ) ) {
 				$svg .= sprintf(
 					'<rect x="%.1f" y="%.1f" width="4.4" height="4.4" rx="0.6" fill="%s" opacity="0.35" transform="rotate(45 %.1f %.1f)"/>',
-					$x - 2.2, $y - 2.2, $m['textFill'], $x, $y
+					$x - 2.2,
+					$y - 2.2,
+					$m['textFill'],
+					$x,
+					$y
 				);
 			} else {
 				$svg .= sprintf(
 					'<circle cx="%.1f" cy="%.1f" r="%.1f" fill="%s" opacity="%.2f"/>',
-					$x, $y, $big ? 1.8 : 0.8, $m['textFill'], $big ? 0.28 : 0.1
+					$x,
+					$y,
+					$big ? 1.8 : 0.8,
+					$m['textFill'],
+					$big ? 0.28 : 0.1
 				);
 			}
 		}
@@ -503,25 +549,38 @@ class BadgeSVG {
 
 			$svg .= sprintf(
 				'<circle cx="%.1f" cy="%.1f" r="%.1f" fill="none" stroke="white" stroke-width="2.5" opacity="0.05"/>',
-				$cx, $cy, $pr
+				$cx,
+				$cy,
+				$pr
 			);
 			$svg .= sprintf(
 				'<circle cx="%.1f" cy="%.1f" r="%.1f" fill="none" stroke="%s" stroke-width="2.5" opacity="0.45"'
 				. ' stroke-dasharray="%.1f %.1f" stroke-dashoffset="%.1f" stroke-linecap="round"/>',
-				$cx, $cy, $pr, $m['lockTint'],
-				$circ * $pct, $circ * ( 1 - $pct ), $circ * 0.25
+				$cx,
+				$cy,
+				$pr,
+				$m['lockTint'],
+				$circ * $pct,
+				$circ * ( 1 - $pct ),
+				$circ * 0.25
 			);
 		}
 
 		// Text arcs.
-		$text_fill = $earned ? $m['textFill'] : $m['shimmer'];
+		$text_fill    = $earned ? $m['textFill'] : $m['shimmer'];
 		$text_opacity = $earned ? 0.65 : 0.8;
 		$name_opacity = 0.75;
 
 		// Top arc — "LOVE TRIVALLEY".
 		$svg .= sprintf(
 			'<path id="%s-ta" d="M%.1f,%.1f A%.1f,%.1f 0 0,1 %.1f,%.1f" fill="none"/>',
-			$id, $cx - $text_r, $cy, $text_r, $text_r, $cx + $text_r, $cy
+			$id,
+			$cx - $text_r,
+			$cy,
+			$text_r,
+			$text_r,
+			$cx + $text_r,
+			$cy
 		);
 		$svg .= sprintf(
 			'<text filter="url(#%s-em)" opacity="%.1f">'
@@ -529,7 +588,11 @@ class BadgeSVG {
 			. '<tspan fill="%s" font-size="10" font-weight="800" font-family="system-ui,-apple-system,sans-serif" letter-spacing="2" opacity="%.2f">'
 			. 'LOVE TRIVALLEY'
 			. '</tspan></textPath></text>',
-			$id, $earned ? 1 : 0.7, $id, $text_fill, $text_opacity
+			$id,
+			$earned ? 1 : 0.7,
+			$id,
+			$text_fill,
+			$text_opacity
 		);
 
 		// Bottom arc — badge name.
@@ -539,7 +602,13 @@ class BadgeSVG {
 
 		$svg .= sprintf(
 			'<path id="%s-ba" d="M%.1f,%.1f A%.1f,%.1f 0 0,0 %.1f,%.1f" fill="none"/>',
-			$id, $cx - $text_r, $cy, $text_r, $text_r, $cx + $text_r, $cy
+			$id,
+			$cx - $text_r,
+			$cy,
+			$text_r,
+			$text_r,
+			$cx + $text_r,
+			$cy
 		);
 		$svg .= sprintf(
 			'<text filter="url(#%s-em)" opacity="%.1f">'
@@ -547,13 +616,19 @@ class BadgeSVG {
 			. '<tspan fill="%s" font-size="%s" font-weight="800" font-family="system-ui,-apple-system,sans-serif" letter-spacing="%s" opacity="%.2f">'
 			. '%s'
 			. '</tspan></textPath></text>',
-			$id, $earned ? 1 : 0.7, $id, $text_fill, $name_size, $name_space, $name_opacity,
+			$id,
+			$earned ? 1 : 0.7,
+			$id,
+			$text_fill,
+			$name_size,
+			$name_space,
+			$name_opacity,
 			esc_html( $name_upper )
 		);
 
 		// Icon in center.
-		$icon_name = self::extract_icon_name( $badge['icon'] ?? '' );
-		$icon_size = ( $is_shield || $is_hex ) ? 42 : 40;
+		$icon_name  = self::extract_icon_name( $badge['icon'] ?? '' );
+		$icon_size  = ( $is_shield || $is_hex ) ? 42 : 40;
 		$icon_color = $earned ? $m['iconColor'] : $m['lockTint'];
 		$icon_cy    = ( $is_shield || $is_hex ) ? $cy - 3 : $cy;
 
@@ -571,9 +646,11 @@ class BadgeSVG {
 			$lock_y    = $cy + 22;
 			$svg      .= sprintf(
 				'<circle cx="%.1f" cy="%.1f" r="10" fill="rgba(0,0,0,0.7)" stroke="%s" stroke-width="1" stroke-opacity="0.3"/>',
-				$lock_x, $lock_y, $m['lockTint']
+				$lock_x,
+				$lock_y,
+				$m['lockTint']
 			);
-			$svg .= self::render_icon_path( 'lock', $lock_x, $lock_y, $lock_size, $m['lockTint'] );
+			$svg      .= self::render_icon_path( 'lock', $lock_x, $lock_y, $lock_size, $m['lockTint'] );
 		}
 
 		// Check icon (earned special/seal badges).
@@ -592,13 +669,15 @@ class BadgeSVG {
 				. '<animateTransform attributeName="transform" type="translate" from="-200,0" to="320,0"'
 				. ' dur="3s" repeatCount="indefinite"/>'
 				. '</rect></g>',
-				$id, $vh + 40, $id
+				$id,
+				$vh + 40,
+				$id
 			);
 		}
 
 		// Wrap in <svg> element.
-		$aspect   = $vh / $vw;
-		$height   = (int) round( $size * $aspect );
+		$aspect    = $vh / $vw;
+		$height    = (int) round( $size * $aspect );
 		$css_class = 'bd-badge-svg';
 		if ( $class ) {
 			$css_class .= ' ' . esc_attr( $class );
@@ -610,9 +689,13 @@ class BadgeSVG {
 		}
 		$css_class .= ' bd-badge-svg--' . esc_attr( $rarity );
 
-		$output = sprintf(
+		$output  = sprintf(
 			'<svg class="%s" viewBox="0 0 %d %d" width="%d" height="%d" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="%s">',
-			$css_class, $vw, $vh, $size, $height,
+			$css_class,
+			$vw,
+			$vh,
+			$size,
+			$height,
 			esc_attr( $name . ' — ' . $m['rarity'] . ' badge' )
 		);
 		$output .= $svg;
@@ -670,8 +753,8 @@ class BadgeSVG {
 			$inner_path = self::circle_d( $cx, $cy, $inner_r );
 		}
 
-		$icon_name  = self::extract_icon_name( $badge['icon'] ?? '' );
-		$icon_cy    = ( $is_shield || $is_hex ) ? $cy - 3 : $cy;
+		$icon_name = self::extract_icon_name( $badge['icon'] ?? '' );
+		$icon_cy   = ( $is_shield || $is_hex ) ? $cy - 3 : $cy;
 
 		$aspect = $vh / $vw;
 		$height = (int) round( $size * $aspect );
@@ -680,7 +763,11 @@ class BadgeSVG {
 			'<svg class="bd-badge-svg-inline bd-badge-svg--%s" viewBox="0 0 %d %d" width="%d" height="%d"'
 			. ' xmlns="http://www.w3.org/2000/svg" role="img" aria-label="%s"'
 			. ' data-tooltip="%s">',
-			esc_attr( $rarity ), $vw, $vh, $size, $height,
+			esc_attr( $rarity ),
+			$vw,
+			$vh,
+			$size,
+			$height,
 			esc_attr( $name ),
 			esc_attr( $name . ' — ' . $m['rarity'] )
 		);
@@ -693,14 +780,19 @@ class BadgeSVG {
 			. '<stop offset="50%%" stop-color="%s"/>'
 			. '<stop offset="100%%" stop-color="%s"/>'
 			. '</radialGradient>',
-			$id, $m['light'], $m['base'], $m['dark']
+			$id,
+			$m['light'],
+			$m['base'],
+			$m['dark']
 		);
 		$svg .= sprintf(
 			'<radialGradient id="%s-rim" cx="50%%" cy="50%%" r="55%%">'
 			. '<stop offset="0%%" stop-color="%s"/>'
 			. '<stop offset="100%%" stop-color="%s"/>'
 			. '</radialGradient>',
-			$id, $m['light'], $m['dark']
+			$id,
+			$m['light'],
+			$m['dark']
 		);
 		$svg .= '</defs>';
 

@@ -39,12 +39,12 @@ class BadgeShareCard {
 		$warm   = ( 'legendary' === $rarity );
 
 		// User info.
-		$user_name   = '';
+		$user_name    = '';
 		$user_initial = '?';
 		$earned_date  = '';
 		if ( $user_id ) {
-			$user        = get_userdata( $user_id );
-			$user_name   = $user ? $user->display_name : '';
+			$user         = get_userdata( $user_id );
+			$user_name    = $user ? $user->display_name : '';
 			$user_initial = strtoupper( substr( $user_name, 0, 1 ) );
 			// Get earned date from badge awards if available.
 			$earned_date = self::get_earned_date( $badge_key, $user_id );
@@ -60,19 +60,19 @@ class BadgeShareCard {
 		}
 
 		// Text colors.
-		$header_color = $dark ? '#C9A227' : ( $warm ? '#9A7B1A' : $m['textColor'] );
-		$title_color  = $dark ? '#f5c522' : ( $warm ? '#78350f' : '#1e293b' );
-		$desc_color   = $dark ? '#7a9eb8' : '#64748b';
-		$pill_bg      = $dark ? 'rgba(201,162,39,0.1)' : 'rgba(0,0,0,0.04)';
-		$pill_border  = $dark ? 'rgba(201,162,39,0.18)' : 'rgba(0,0,0,0.06)';
-		$pill_dot     = $dark ? '#C9A227' : ( $warm ? '#d4a830' : $m['textColor'] );
-		$pill_text    = $dark ? '#C9A227' : ( $warm ? '#92400e' : $m['textColor'] );
-		$divider      = $dark ? 'rgba(201,162,39,0.1)' : 'rgba(0,0,0,0.06)';
-		$avatar_bg    = $dark ? 'rgba(201,162,39,0.1)' : ( $warm ? 'rgba(154,123,26,0.06)' : '#f1f5f9' );
-		$avatar_color = $dark ? '#C9A227' : ( $warm ? '#92400e' : '#64748b' );
+		$header_color  = $dark ? '#C9A227' : ( $warm ? '#9A7B1A' : $m['textColor'] );
+		$title_color   = $dark ? '#f5c522' : ( $warm ? '#78350f' : '#1e293b' );
+		$desc_color    = $dark ? '#7a9eb8' : '#64748b';
+		$pill_bg       = $dark ? 'rgba(201,162,39,0.1)' : 'rgba(0,0,0,0.04)';
+		$pill_border   = $dark ? 'rgba(201,162,39,0.18)' : 'rgba(0,0,0,0.06)';
+		$pill_dot      = $dark ? '#C9A227' : ( $warm ? '#d4a830' : $m['textColor'] );
+		$pill_text     = $dark ? '#C9A227' : ( $warm ? '#92400e' : $m['textColor'] );
+		$divider       = $dark ? 'rgba(201,162,39,0.1)' : 'rgba(0,0,0,0.06)';
+		$avatar_bg     = $dark ? 'rgba(201,162,39,0.1)' : ( $warm ? 'rgba(154,123,26,0.06)' : '#f1f5f9' );
+		$avatar_color  = $dark ? '#C9A227' : ( $warm ? '#92400e' : '#64748b' );
 		$avatar_border = $dark ? 'rgba(201,162,39,0.18)' : 'rgba(0,0,0,0.06)';
-		$name_color   = $dark ? '#f0f7fa' : '#1e293b';
-		$date_color   = $dark ? '#7a9eb8' : '#94a3b8';
+		$name_color    = $dark ? '#f0f7fa' : '#1e293b';
+		$date_color    = $dark ? '#7a9eb8' : '#94a3b8';
 
 		ob_start();
 		?>
@@ -86,7 +86,16 @@ class BadgeShareCard {
 
 				<!-- Badge -->
 				<div style="display: flex; justify-content: center; margin-bottom: 24px;">
-					<?php echo BadgeSVG::render( $badge_key, array( 'size' => 180, 'earned' => true, 'animate' => false ) ); ?>
+					<?php
+					echo BadgeSVG::render(
+						$badge_key,
+						array(
+							'size'    => 180,
+							'earned'  => true,
+							'animate' => false,
+						)
+					);
+					?>
 				</div>
 
 				<!-- Badge Name -->
@@ -170,15 +179,15 @@ class BadgeShareCard {
 				<!-- Share Buttons -->
 				<div style="display: flex; gap: 10px; justify-content: center; margin-top: 24px; flex-wrap: wrap;">
 					<a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo rawurlencode( $share_url ); ?>&quote=<?php echo rawurlencode( $share_text ); ?>"
-					   target="_blank" rel="noopener" class="bd-share-card-btn" style="background: #1877f2; color: white; padding: 10px 20px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+						target="_blank" rel="noopener" class="bd-share-card-btn" style="background: #1877f2; color: white; padding: 10px 20px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
 						<i class="fab fa-facebook-f"></i> Facebook
 					</a>
 					<a href="https://www.linkedin.com/sharing/share-offsite/?url=<?php echo rawurlencode( $share_url ); ?>"
-					   target="_blank" rel="noopener" class="bd-share-card-btn" style="background: #0a66c2; color: white; padding: 10px 20px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+						target="_blank" rel="noopener" class="bd-share-card-btn" style="background: #0a66c2; color: white; padding: 10px 20px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
 						<i class="fab fa-linkedin-in"></i> LinkedIn
 					</a>
 					<button class="bd-share-card-btn bd-copy-link-btn" data-url="<?php echo esc_attr( $share_url ); ?>"
-					   style="background: rgba(255,255,255,0.06); color: #a8c4d4; padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
+						style="background: rgba(255,255,255,0.06); color: #a8c4d4; padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">
 						<i class="fas fa-link"></i> Copy Link
 					</button>
 				</div>

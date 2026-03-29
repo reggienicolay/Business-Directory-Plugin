@@ -220,5 +220,5 @@ if ( file_exists( BD_PLUGIN_DIR . 'includes/guides-loader.php' ) ) {
 
 // Load SEO Components.
 if ( file_exists( BD_PLUGIN_DIR . 'includes/seo-loader.php' ) ) {
-    require_once BD_PLUGIN_DIR . 'includes/seo-loader.php';
+	require_once BD_PLUGIN_DIR . 'includes/seo-loader.php';
 }

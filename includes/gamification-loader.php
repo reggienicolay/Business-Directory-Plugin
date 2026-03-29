@@ -48,24 +48,27 @@ new BD\Frontend\RegistrationShortcode();
 new BD\Frontend\RegistrationHandler();
 
 // Badge share modal AJAX handler.
-add_action( 'wp_ajax_bd_badge_share_modal', function() {
-	check_ajax_referer( 'bd_badges_nonce', 'nonce' );
+add_action(
+	'wp_ajax_bd_badge_share_modal',
+	function () {
+		check_ajax_referer( 'bd_badges_nonce', 'nonce' );
 
-	$badge_key = sanitize_text_field( $_POST['badge_key'] ?? '' );
-	$user_id   = get_current_user_id();
+		$badge_key = sanitize_text_field( $_POST['badge_key'] ?? '' );
+		$user_id   = get_current_user_id();
 
-	if ( ! $badge_key || ! $user_id ) {
-		wp_send_json_error( array( 'message' => 'Missing badge key or not logged in.' ) );
+		if ( ! $badge_key || ! $user_id ) {
+			wp_send_json_error( array( 'message' => 'Missing badge key or not logged in.' ) );
+		}
+
+		// Validate badge_key exists.
+		if ( ! isset( \BD\Gamification\BadgeSystem::BADGES[ $badge_key ] ) ) {
+			wp_send_json_error( array( 'message' => 'Invalid badge key.' ) );
+		}
+
+		$html = \BD\Social\BadgeShareCard::render_modal( $badge_key, $user_id );
+		wp_send_json_success( array( 'html' => $html ) );
 	}
-
-	// Validate badge_key exists.
-	if ( ! isset( \BD\Gamification\BadgeSystem::BADGES[ $badge_key ] ) ) {
-		wp_send_json_error( array( 'message' => 'Invalid badge key.' ) );
-	}
-
-	$html = \BD\Social\BadgeShareCard::render_modal( $badge_key, $user_id );
-	wp_send_json_success( array( 'html' => $html ) );
-});
+);
 
 /**
  * Enqueue Badge Styles - ADMIN

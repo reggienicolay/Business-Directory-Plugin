@@ -206,7 +206,7 @@ class WidgetEndpoint {
 		);
 
 		// Build JS constants with PHP values, then use nowdoc for the rest (avoids PHP 8.2 ${} deprecation).
-		$js_header = "/**\n * LoveTriValley Review Widget\n * Embeddable review widget for business owners\n */\n(function() {\n\t'use strict';\n\n";
+		$js_header  = "/**\n * LoveTriValley Review Widget\n * Embeddable review widget for business owners\n */\n(function() {\n\t'use strict';\n\n";
 		$js_header .= "\tvar API_URL = '" . esc_js( $api_url ) . "';\n";
 		$js_header .= "\tvar SITE_NAME = '" . esc_js( $site_name ) . "';\n";
 		$js_header .= "\tvar SITE_URL = '" . esc_js( $site_url ) . "';\n";

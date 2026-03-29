@@ -271,13 +271,13 @@ class BadgeDisplay {
 								<div class="bd-badge-card-svg">
 									<?php
 									$badge_options = array(
-										'size'     => 120,
-										'earned'   => $has_badge,
-										'animate'  => $has_badge,
+										'size'    => 120,
+										'earned'  => $has_badge,
+										'animate' => $has_badge,
 									);
 									// Add progress for auto-badges with thresholds (uses cached $user_stats).
 									if ( ! $has_badge && ! empty( $badge['check'] ) && ! empty( $badge['threshold'] ) && $is_logged_in ) {
-										$badge_options['goal'] = (int) $badge['threshold'];
+										$badge_options['goal']     = (int) $badge['threshold'];
 										$badge_options['progress'] = (int) ( $user_stats[ $badge['check'] ] ?? 0 );
 									}
 									echo BadgeSVG::render( $badge_key, $badge_options );
@@ -407,7 +407,15 @@ class BadgeDisplay {
 							?>
 							<div class="bd-badge-card bd-badge-card-earned">
 								<div class="bd-badge-card-svg">
-									<?php echo BadgeSVG::render( $badge_key, array( 'size' => 100, 'earned' => true ) ); ?>
+									<?php
+									echo BadgeSVG::render(
+										$badge_key,
+										array(
+											'size'   => 100,
+											'earned' => true,
+										)
+									);
+									?>
 								</div>
 								<div class="bd-badge-card-name"><?php echo esc_html( $badge['name'] ); ?></div>
 								<div class="bd-badge-card-desc"><?php echo esc_html( $badge['description'] ); ?></div>
@@ -439,9 +447,12 @@ class BadgeDisplay {
 							<div class="bd-badge-card bd-badge-card-locked">
 								<div class="bd-badge-card-svg">
 									<?php
-									$lock_options = array( 'size' => 100, 'earned' => false );
+									$lock_options = array(
+										'size'   => 100,
+										'earned' => false,
+									);
 									if ( ! empty( $badge['threshold'] ) ) {
-										$lock_options['goal'] = (int) $badge['threshold'];
+										$lock_options['goal']     = (int) $badge['threshold'];
 										$lock_options['progress'] = (int) ( $stats[ $badge['check'] ?? '' ] ?? 0 );
 									}
 									echo BadgeSVG::render( $badge_key, $lock_options );

@@ -1040,8 +1040,8 @@
 }
 
 /* Topographic contour placeholder — branded wine-country aesthetic
-   for cards without a featured image. Concentric gold rings,
-   centered pin icon, coordinate text. */
+	for cards without a featured image. Concentric gold rings,
+	centered pin icon, coordinate text. */
 .bd-qf-card-placeholder {
 	position: absolute;
 	inset: 0;

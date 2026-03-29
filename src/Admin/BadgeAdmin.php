@@ -283,7 +283,16 @@ class BadgeAdmin {
 								?>
 								<tr>
 									<td style="text-align: center;">
-										<?php echo BadgeSVG::render( $badge_key, array( 'size' => 80, 'earned' => true, 'animate' => false ) ); ?>
+										<?php
+										echo BadgeSVG::render(
+											$badge_key,
+											array(
+												'size'    => 80,
+												'earned'  => true,
+												'animate' => false,
+											)
+										);
+										?>
 									</td>
 									<td>
 										<strong style="color: #1f2937;"><?php echo esc_html( $badge['name'] ); ?></strong>

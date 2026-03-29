@@ -238,9 +238,21 @@ class BadgeEndpoint {
 
 		// Size dimensions.
 		$dimensions = array(
-			'small'  => array( 'width' => 180, 'height' => 70, 'font' => 11 ),
-			'medium' => array( 'width' => 240, 'height' => 90, 'font' => 13 ),
-			'large'  => array( 'width' => 320, 'height' => 110, 'font' => 15 ),
+			'small'  => array(
+				'width'  => 180,
+				'height' => 70,
+				'font'   => 11,
+			),
+			'medium' => array(
+				'width'  => 240,
+				'height' => 90,
+				'font'   => 13,
+			),
+			'large'  => array(
+				'width'  => 320,
+				'height' => 110,
+				'font'   => 15,
+			),
 		);
 
 		$dim = $dimensions[ $size ] ?? $dimensions['medium'];
@@ -439,13 +451,27 @@ class BadgeEndpoint {
 					'<line x1="%d" y1="0" x2="%d" y2="%d" stroke="url(#%s-goldShine)" stroke-width="1" opacity="0.15"/>' .
 					'<g clip-path="url(#%s-shimClip)"><rect x="0" y="-20" width="60" height="%d" fill="url(#%s-goldShine)" opacity="0.04" transform="rotate(25) translate(-200,0)">' .
 					'<animateTransform attributeName="transform" type="translate" from="-300,0" to="500,0" dur="4s" repeatCount="indefinite"/></rect></g>',
-					$w, $h, $uid, $uid,
-					$w, $h, $uid,
-					$w, $uid,
-					$w, $h - 1.5, $uid,
-					$h, $uid,
-					$w, $w, $h, $uid,
-					$uid, $h + 40, $uid
+					$w,
+					$h,
+					$uid,
+					$uid,
+					$w,
+					$h,
+					$uid,
+					$w,
+					$uid,
+					$w,
+					$h - 1.5,
+					$uid,
+					$h,
+					$uid,
+					$w,
+					$w,
+					$h,
+					$uid,
+					$uid,
+					$h + 40,
+					$uid
 				);
 
 			case 'minimal':
@@ -530,14 +556,14 @@ class BadgeEndpoint {
 		$background = self::generate_theme_background( $theme, $dim, $uid );
 
 		// Row positions.
-		$name_y    = $f + 12;
-		$stars_y   = $f + 22;
-		$star_size = (int) ( $f * 1.2 );
-		$rating_x  = 14 + ( 5 * ( $star_size + 2 ) ) + 8;
-		$rating_y  = $f + 34;
-		$footer_y  = $h - 8;
-		$pin_icon  = self::generate_pin_icon( $w - 10 - ( $f * 0.5 ) - mb_strlen( 'Rated on ' . $site_name ) * ( ( $f - 3 ) * 0.55 ), $footer_y - ( $f - 3 ) + 1, 8, $colors['pin'] );
-		$footer_x  = $w - 10;
+		$name_y     = $f + 12;
+		$stars_y    = $f + 22;
+		$star_size  = (int) ( $f * 1.2 );
+		$rating_x   = 14 + ( 5 * ( $star_size + 2 ) ) + 8;
+		$rating_y   = $f + 34;
+		$footer_y   = $h - 8;
+		$pin_icon   = self::generate_pin_icon( $w - 10 - ( $f * 0.5 ) - mb_strlen( 'Rated on ' . $site_name ) * ( ( $f - 3 ) * 0.55 ), $footer_y - ( $f - 3 ) + 1, 8, $colors['pin'] );
+		$footer_x   = $w - 10;
 		$small_font = $f - 3;
 
 		return sprintf(
@@ -756,9 +782,9 @@ class BadgeEndpoint {
 		// Star path (scaled to 12x12 viewbox).
 		$star_path = 'M6 0l1.76 3.57 3.94.57-2.85 2.78.67 3.93L6 9.09l-3.52 1.85.67-3.93L.3 4.14l3.94-.57z';
 
-		$full_stars    = (int) floor( $rating );
-		$fraction      = $rating - $full_stars;
-		$fraction_pct  = (int) round( $fraction * 100 );
+		$full_stars   = (int) floor( $rating );
+		$fraction     = $rating - $full_stars;
+		$fraction_pct = (int) round( $fraction * 100 );
 
 		// Build defs for partial star gradient if needed.
 		$defs  = '';
@@ -766,7 +792,7 @@ class BadgeEndpoint {
 
 		if ( $fraction > 0 && $full_stars < 5 ) {
 			$partial_index = $full_stars + 1;
-			$defs = sprintf(
+			$defs          = sprintf(
 				'<defs><linearGradient id="%s-partial-star-%d">' .
 				'<stop offset="%d%%" stop-color="%s"/>' .
 				'<stop offset="%d%%" stop-color="%s"/>' .
