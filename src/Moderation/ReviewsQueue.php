@@ -35,6 +35,9 @@ class ReviewsQueue {
 	private function get_pending_count() {
 		global $wpdb;
 		$table = $wpdb->prefix . 'bd_reviews';
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+			return 0;
+		}
 		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE status = 'pending'" );
 	}
 

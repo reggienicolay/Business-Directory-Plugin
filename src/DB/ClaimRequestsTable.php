@@ -228,9 +228,12 @@ class ClaimRequestsTable {
 	 */
 	public static function count_pending() {
 		global $wpdb;
-
+		$table = self::table();
+		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+			return 0;
+		}
 		return (int) $wpdb->get_var(
-			'SELECT COUNT(*) FROM ' . self::table() . " WHERE status = 'pending'"
+			"SELECT COUNT(*) FROM {$table} WHERE status = 'pending'"
 		);
 	}
 
