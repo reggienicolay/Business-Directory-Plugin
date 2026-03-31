@@ -172,6 +172,36 @@ function bd_custom_business_template( $single_template ) {
 }
 add_filter( 'single_template', __NAMESPACE__ . '\bd_custom_business_template' );
 
+/**
+ * Register the Claim Your Business page template.
+ * Lives in the plugin so it works on the main site (parent Kadence) too.
+ *
+ * @param array $templates Existing templates.
+ * @return array Modified templates.
+ */
+function bd_register_claim_template( $templates ) {
+	$templates['bd-claim-landing'] = __( 'Claim Your Business', 'business-directory' );
+	return $templates;
+}
+add_filter( 'theme_page_templates', __NAMESPACE__ . '\bd_register_claim_template' );
+
+/**
+ * Load the Claim Your Business template from the plugin.
+ *
+ * @param string $template Template path.
+ * @return string Modified template path.
+ */
+function bd_load_claim_template( $template ) {
+	if ( is_page() && 'bd-claim-landing' === get_page_template_slug() ) {
+		$plugin_template = BD_PLUGIN_DIR . 'templates/claim-landing.php';
+		if ( file_exists( $plugin_template ) ) {
+			return $plugin_template;
+		}
+	}
+	return $template;
+}
+add_filter( 'template_include', __NAMESPACE__ . '\bd_load_claim_template' );
+
 // Load Gamification System (has load-once guard, safe even with early loads above).
 if ( file_exists( BD_PLUGIN_DIR . 'includes/gamification-loader.php' ) ) {
 	require_once BD_PLUGIN_DIR . 'includes/gamification-loader.php';
@@ -192,6 +222,10 @@ if ( file_exists( BD_PLUGIN_DIR . 'cover-media-loader.php' ) ) {
 	require_once BD_PLUGIN_DIR . 'cover-media-loader.php';
 }
 
+// Load Media Optimization System (custom sizes, WebP, EXIF stripping).
+if ( file_exists( BD_PLUGIN_DIR . 'includes/media-loader.php' ) ) {
+	require_once BD_PLUGIN_DIR . 'includes/media-loader.php';
+}
 
 // Load Business Owner Tools.
 if ( file_exists( BD_PLUGIN_DIR . 'includes/business-tools-loader.php' ) ) {
