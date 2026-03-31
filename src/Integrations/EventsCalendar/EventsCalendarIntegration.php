@@ -33,11 +33,13 @@ class EventsCalendarIntegration {
 		require_once __DIR__ . '/BusinessLinker.php';
 		require_once __DIR__ . '/CityEventsShortcode.php';
 		require_once __DIR__ . '/VenueSyncer.php';
+		require_once __DIR__ . '/EventImageManager.php';
 
 		// Initialize components
 		BusinessLinker::init();
 		CityEventsShortcode::init();
 		VenueSyncer::init();
+		EventImageManager::init();
 
 		// Display events on business pages
 		if ( IntegrationsManager::get_setting( 'events_calendar', 'show_events_on_business', true ) ) {
