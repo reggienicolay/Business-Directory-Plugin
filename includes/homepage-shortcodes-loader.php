@@ -11,11 +11,11 @@
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
-    exit;
+	exit;
 }
 
 if ( defined( 'BD_HOMEPAGE_SHORTCODES_LOADED' ) ) {
-    return;
+	return;
 }
 define( 'BD_HOMEPAGE_SHORTCODES_LOADED', true );
 
