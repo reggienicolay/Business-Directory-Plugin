@@ -101,13 +101,13 @@ class ImageOptimizer {
 	 * @return array Unmodified metadata.
 	 */
 	public static function on_generate_metadata( $metadata, $attachment_id ) {
-		// Guard: WebP support required.
-		if ( ! function_exists( 'imagewebp' ) ) {
+		// Guard: valid metadata array with file path.
+		if ( ! is_array( $metadata ) || empty( $metadata['file'] ) ) {
 			return $metadata;
 		}
 
-		// Guard: valid metadata with file path.
-		if ( empty( $metadata['file'] ) ) {
+		// Guard: WebP support required.
+		if ( ! function_exists( 'imagewebp' ) ) {
 			return $metadata;
 		}
 
@@ -215,6 +215,14 @@ class ImageOptimizer {
 				@unlink( $temp_path );
 			}
 		} catch ( \Throwable $e ) {
+			// Free GD resource if it was allocated before the error.
+			if ( isset( $image ) && $image ) {
+				imagedestroy( $image );
+			}
+			// Clean up temp file if it was partially written.
+			if ( isset( $temp_path ) && file_exists( $temp_path ) ) {
+				@unlink( $temp_path );
+			}
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'BD ImageOptimizer: EXIF strip failed for ' . $path . ' — ' . $e->getMessage() );
 		}
@@ -266,6 +274,10 @@ class ImageOptimizer {
 
 			return $success ? $webp_path : null;
 		} catch ( \Throwable $e ) {
+			// Free GD resource if it was allocated before the error.
+			if ( isset( $image ) && $image ) {
+				imagedestroy( $image );
+			}
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'BD ImageOptimizer: WebP generation failed for ' . $source_path . ' [' . $size_name . '] — ' . $e->getMessage() );
 			return null;
