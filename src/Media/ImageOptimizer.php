@@ -111,6 +111,22 @@ class ImageOptimizer {
 			return $metadata;
 		}
 
+		/**
+		 * Filter whether to process this attachment.
+		 *
+		 * Return false to skip optimization for a specific upload.
+		 * Useful for constraining processing to BD content only.
+		 *
+		 * @since 0.2.0
+		 *
+		 * @param bool $should_process Whether to process. Default true.
+		 * @param int  $attachment_id  Attachment post ID.
+		 * @param array $metadata      Attachment metadata.
+		 */
+		if ( ! apply_filters( 'bd_image_optimizer_should_process', true, $attachment_id, $metadata ) ) {
+			return $metadata;
+		}
+
 		$upload_dir    = wp_get_upload_dir();
 		$original_path = $upload_dir['basedir'] . '/' . $metadata['file'];
 
@@ -171,11 +187,23 @@ class ImageOptimizer {
 			}
 		}
 
-		// Store WebP manifest.
+		// Store WebP manifest with paths relative to uploads dir.
+		// Relative paths survive server migrations; resolve with wp_get_upload_dir() at read time.
 		if ( ! empty( $webp_manifest ) ) {
-			update_post_meta( $attachment_id, '_bd_webp_sizes', $webp_manifest );
+			$relative_manifest = array();
+			$basedir           = trailingslashit( $upload_dir['basedir'] );
 
-			// Backward compatibility with CoverManager (_bd_webp_file for full size).
+			foreach ( $webp_manifest as $size => $abs_path ) {
+				if ( 0 === strpos( $abs_path, $basedir ) ) {
+					$relative_manifest[ $size ] = substr( $abs_path, strlen( $basedir ) );
+				} else {
+					$relative_manifest[ $size ] = $abs_path; // Fallback: store as-is.
+				}
+			}
+
+			update_post_meta( $attachment_id, '_bd_webp_sizes', $relative_manifest );
+
+			// Backward compatibility with CoverManager (_bd_webp_file expects absolute path).
 			if ( isset( $webp_manifest['full'] ) ) {
 				update_post_meta( $attachment_id, '_bd_webp_file', $webp_manifest['full'] );
 			}
@@ -197,6 +225,21 @@ class ImageOptimizer {
 	 */
 	private static function strip_exif( $path ) {
 		try {
+			// Skip if EXIF is already absent (prevents quality loss on re-generation).
+			// exif_read_data returns false or empty array when no EXIF exists.
+			if ( function_exists( 'exif_read_data' ) ) {
+				$exif = @exif_read_data( $path, 'GPS', true );
+				if ( ! $exif || empty( $exif['GPS'] ) ) {
+					// No GPS data — either already stripped or never had EXIF.
+					// Check for any EXIF sections at all to be thorough.
+					$any_exif = @exif_read_data( $path, 'ANY_TAG', false );
+					// If fewer than 5 EXIF entries, likely already stripped (only basic IFD0 remains).
+					if ( ! $any_exif || count( $any_exif ) < 5 ) {
+						return;
+					}
+				}
+			}
+
 			$image = @imagecreatefromjpeg( $path );
 			if ( ! $image ) {
 				return;
@@ -294,12 +337,19 @@ class ImageOptimizer {
 	 * @param int $attachment_id Attachment post ID.
 	 */
 	public static function cleanup_webp_files( $attachment_id ) {
-		$manifest = get_post_meta( $attachment_id, '_bd_webp_sizes', true );
+		$manifest   = get_post_meta( $attachment_id, '_bd_webp_sizes', true );
+		$upload_dir = wp_get_upload_dir();
+		$basedir    = trailingslashit( $upload_dir['basedir'] );
 
 		if ( is_array( $manifest ) ) {
 			foreach ( $manifest as $path ) {
-				if ( is_string( $path ) && file_exists( $path ) ) {
-					@unlink( $path );
+				if ( ! is_string( $path ) ) {
+					continue;
+				}
+				// Resolve relative paths (stored since 0.2.0) to absolute.
+				$abs_path = ( 0 === strpos( $path, '/' ) ) ? $path : $basedir . $path;
+				if ( file_exists( $abs_path ) ) {
+					@unlink( $abs_path );
 				}
 			}
 		}
