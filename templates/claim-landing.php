@@ -16,12 +16,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 get_header();
 
-// Font Awesome loaded inline since wp_enqueue_scripts has already fired.
-if ( ! wp_style_is( 'font-awesome', 'enqueued' ) && ! wp_style_is( 'font-awesome-6', 'enqueued' ) ) :
-?>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" />
-<?php
-endif;
+// Enqueue Font Awesome if not already loaded.
+if ( ! wp_style_is( 'font-awesome', 'enqueued' ) && ! wp_style_is( 'font-awesome-6', 'enqueued' ) ) {
+	wp_enqueue_style(
+		'font-awesome-6',
+		'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
+		array(),
+		'6.5.1'
+	);
+}
 ?>
 
 <style>
