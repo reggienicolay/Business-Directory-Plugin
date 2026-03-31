@@ -5,7 +5,7 @@
 
 ## Identity
 
-- **Version:** 0.1.7 | **Post type:** `bd_business` | **Namespace:** `BD\`
+- **Version:** 0.2.0 | **Post type:** `bd_business` | **Namespace:** `BD\`
 - **Repo:** https://github.com/reggienicolay/Business-Directory-Plugin
 - **Part of:** Love Tri Valley plugin suite (this + BD Event Aggregator + BD Outdoor Activities + BD Email Signatures + BD Food Truck Tracker)
 - **Environment:** Local WP (dev) → Cloudways (production), WordPress multisite
@@ -63,10 +63,12 @@ src/Forms/          # Form handlers (BusinessSubmission, ReviewSubmission, Claim
 src/Frontend/       # Shortcodes, profile, registration, edit listing, view tracker
 src/Gamification/   # Points, badges, leaderboards, ranks, activity tracking
 src/Lists/          # User-curated lists + collaboration + network lists
+src/Media/          # Image optimization pipeline (WebP, custom sizes, EXIF stripping)
 src/Search/         # FilterHandler, QueryBuilder, Geocoder
 src/Security/       # RateLimiter, Captcha
-src/Social/         # OpenGraphMeta, social sharing
-includes/           # Feature loaders (geolocation, gamification, embeds, social, auth, seo, etc.)
+src/SEO/            # SlugMigration (301 redirects for old taxonomy URLs)
+src/Social/         # OpenGraph, social sharing (OG defers to bd-seo when active)
+includes/           # Feature loaders (geolocation, gamification, embeds, social, auth, seo, media, etc.)
 templates/          # WP templates (single-business-premium.php, directory.php, profile.php, explore-*)
 tests/Unit/         # PHPUnit tests
 ```
@@ -80,6 +82,8 @@ Lists: `lists`, `list_items`, `list_collaborators`, `list_follows`
 
 ### Cross-Plugin Data Contract
 Other plugins in the suite read/write these on `bd_business` posts:
+- **BD SEO** (separate plugin, v1.4.0) reads `bd_location`, `bd_contact`, `bd_hours`, `bd_social`, `bd_avg_rating`, `bd_review_count` for schema. Reads `_bd_seo_title`, `_bd_seo_description`, `_bd_schema_json` from any post. BD Pro's `Social/OpenGraph.php` and `Frontend/ListSocialMeta.php` defer OG output to bd-seo when `BD\SEO\OpenGraphManager` class exists.
+- **BD Article Generator** writes `_bd_seo_title`, `_bd_seo_description`, `_bd_schema_json`, `_bd_ag_*` meta on generated posts. BD SEO reads these.
 - **BD Event Aggregator** reads `bd_business` post type, writes `bd_linked_business` meta on TEC events
 - **BD Outdoor Activities** reads `bd_location` meta (lat/lng), writes `bdoutdoor_*` meta keys
 - **BD Food Truck Tracker** identifies trucks via `food-trucks` term in `bd_tag` taxonomy, reads `bd_location` meta + `bd_claimed_by` meta, writes `bd_truck_*` meta keys, hooks into `bd_business_tools_after_cards` + `bd_after_about_section`
@@ -127,6 +131,30 @@ Premium embeddable widgets for business owners:
 - `bd_enable_local_features` option controls table creation per subsite
 - Admin menu count queries (ReviewsQueue, ClaimRequestsTable, ChangeRequestsTable) have table existence guards — return 0 if table doesn't exist
 - `CitySettings::apply_explore_card_tag_slugs()` is called from the child theme `homepage.php` — always wrapped in `method_exists()` guard
+
+## Image Optimizer (Phase 1)
+
+`src/Media/ImageOptimizer.php` — hooks `wp_generate_attachment_metadata` to process every upload:
+- Registers 6 custom sizes: `bd-hero` (1600x900), `bd-card` (600x400), `bd-gallery-thumb` (400x300), `bd-lightbox` (1400x1050), `bd-review` (800x600), `bd-og` (1200x630)
+- Generates WebP siblings for each size + original (per-size quality 75-85)
+- Strips EXIF from JPEG originals (GPS, device info) via GD re-encode at quality 92
+- Stores relative paths in `_bd_webp_sizes` meta (portable across servers)
+- Stores absolute path in `_bd_webp_file` for CoverManager backward compat
+- Cleans up all WebP siblings on `delete_attachment`
+- Skips already-stripped JPEGs (prevents quality loss on `wp media regenerate`)
+- `bd_image_optimizer_should_process` filter to constrain processing scope
+- Loaded via `includes/media-loader.php` (immediate init, not deferred — `after_setup_theme` timing)
+
+Phase 2 (templates + `<picture>` tags) not yet implemented — WebP files sit as unused siblings.
+
+## SEO Integration
+
+SEO is handled by the **bd-seo companion plugin** (separate repo). BD Pro's role:
+- `src/SEO/SlugMigration.php` — 301 redirects for old taxonomy URLs
+- `src/Social/OpenGraph.php` — OG output, defers to bd-seo when active (`class_exists('BD\SEO\OpenGraphManager')`)
+- `src/Frontend/ListSocialMeta.php` — List OG output, same deferral pattern
+- `src/Explore/ExploreRouter.php` — Canonical + title for explore pages (bd-seo coordinates with these)
+- Post meta keys `_bd_seo_title`, `_bd_seo_description`, `_bd_schema_json` are the integration seam — any plugin writes, bd-seo reads and outputs
 
 ## Gotchas
 - Two namespaces coexist: `BD\` (primary) and `BusinessDirectory\` (legacy in Search/) — both map to `src/`
