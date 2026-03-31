@@ -27,8 +27,16 @@ class OpenGraph {
 
 	/**
 	 * Output Open Graph meta tags.
+	 *
+	 * Defers to BD SEO plugin when active — it handles all OG output
+	 * with proper third-party SEO plugin detection.
 	 */
 	public function output_meta_tags() {
+		// BD SEO handles all OG output when active.
+		if ( class_exists( 'BD\\SEO\\OpenGraphManager' ) ) {
+			return;
+		}
+
 		$tags = array();
 
 		// Check for list page first (query param or shortcode context).

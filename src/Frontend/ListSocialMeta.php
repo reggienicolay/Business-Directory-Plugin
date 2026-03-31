@@ -36,9 +36,17 @@ class ListSocialMeta {
 	}
 
 	/**
-	 * Output OG meta tags on single list pages
+	 * Output OG meta tags on single list pages.
+	 *
+	 * Defers to BD SEO plugin when active — it handles all OG output
+	 * with proper third-party SEO plugin detection.
 	 */
 	public static function output_meta_tags() {
+		// BD SEO handles all OG output when active.
+		if ( class_exists( 'BD\\SEO\\OpenGraphManager' ) ) {
+			return;
+		}
+
 		$list = self::get_current_list();
 		if ( ! $list ) {
 			return;
@@ -209,6 +217,11 @@ class ListSocialMeta {
 	 * @return string Filtered image URL.
 	 */
 	public static function filter_yoast_og_image( $image ) {
+		// BD SEO handles image filtering when active.
+		if ( class_exists( 'BD\\SEO\\OpenGraphManager' ) ) {
+			return $image;
+		}
+
 		$list = self::get_current_list();
 		if ( ! $list ) {
 			return $image;
