@@ -202,8 +202,18 @@ class ImageOptimizer {
 				return;
 			}
 
-			imagejpeg( $image, $path, self::JPEG_RE_ENCODE_QUALITY );
+			// Write to a temp file first, then rename — atomic replacement
+			// prevents corruption if the write fails (disk full, permissions).
+			$temp_path = $path . '.bd-tmp';
+			$success   = imagejpeg( $image, $temp_path, self::JPEG_RE_ENCODE_QUALITY );
 			imagedestroy( $image );
+
+			if ( $success && file_exists( $temp_path ) ) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.rename_rename
+				rename( $temp_path, $path );
+			} elseif ( file_exists( $temp_path ) ) {
+				@unlink( $temp_path );
+			}
 		} catch ( \Throwable $e ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( 'BD ImageOptimizer: EXIF strip failed for ' . $path . ' — ' . $e->getMessage() );
@@ -242,8 +252,15 @@ class ImageOptimizer {
 			}
 
 			$webp_path = preg_replace( '/\.(jpe?g|png)$/i', '.webp', $source_path );
-			$quality   = self::WEBP_QUALITY[ $size_name ] ?? 80;
 
+			// Guard: preg_replace could return null on PCRE error, or the
+			// original path if no extension matched. Both mean we can't proceed.
+			if ( ! $webp_path || $webp_path === $source_path ) {
+				imagedestroy( $image );
+				return null;
+			}
+
+			$quality = self::WEBP_QUALITY[ $size_name ] ?? 80;
 			$success = imagewebp( $image, $webp_path, $quality );
 			imagedestroy( $image );
 
