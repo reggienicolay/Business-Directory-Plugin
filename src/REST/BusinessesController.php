@@ -107,7 +107,7 @@ class BusinessesController {
 				);
 
 				// Calculate distance if user location provided
-				if ( $request['lat'] && $request['lng'] ) {
+				if ( $request['lat'] !== null && $request['lng'] !== null ) {
 					$business['distance_km'] = self::calculate_distance(
 						$request['lat'],
 						$request['lng'],

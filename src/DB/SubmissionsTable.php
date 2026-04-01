@@ -17,13 +17,24 @@ class SubmissionsTable {
 
 		$clean_data = array(
 			'business_data'   => wp_json_encode( $data['business_data'] ),
-			'submitted_by'    => isset( $data['submitted_by'] ) ? absint( $data['submitted_by'] ) : null,
 			'submitter_name'  => sanitize_text_field( $data['submitter_name'] ?? '' ),
 			'submitter_email' => sanitize_email( $data['submitter_email'] ?? '' ),
 			'ip_address'      => sanitize_text_field( $data['ip_address'] ?? '' ),
 		);
 
-		$result = $wpdb->insert( self::table(), $clean_data, array( '%s', '%d', '%s', '%s', '%s' ) );
+		$format = array( '%s', '%s', '%s', '%s' );
+
+		// Only include submitted_by when it has a value — avoids inserting 0 for anonymous users.
+		if ( ! empty( $data['submitted_by'] ) ) {
+			$clean_data['submitted_by'] = absint( $data['submitted_by'] );
+			$format[]                   = '%d';
+		}
+
+		$result = $wpdb->insert( self::table(), $clean_data, $format );
+
+		if ( false === $result ) {
+			error_log( '[BD Submissions] Database insert failed: ' . $wpdb->last_error );
+		}
 
 		return $result ? $wpdb->insert_id : false;
 	}

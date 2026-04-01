@@ -116,13 +116,27 @@ class FeatureShortcode {
 			$source = 'https://' . $source;
 		}
 
+		// Validate URL to prevent SSRF — block private IPs and internal services.
+		$validated_url = wp_http_validate_url( $source );
+		if ( ! $validated_url ) {
+			error_log( '[BD Feature] Blocked request to unsafe URL: ' . $source );
+			return array();
+		}
+		$source = $validated_url;
+
 		$cache_key = 'bd_feature_' . md5( $source . implode( ',', $ids ) );
 		$cached    = get_transient( $cache_key );
 		if ( false !== $cached ) {
 			return $cached;
 		}
 
-		$response = wp_remote_get( $source . '/wp-json/bd/v1/feature?ids=' . implode( ',', $ids ), array( 'timeout' => 10 ) );
+		$response = wp_remote_get(
+			$source . '/wp-json/bd/v1/feature?ids=' . implode( ',', $ids ),
+			array(
+				'timeout'             => 10,
+				'reject_unsafe_urls'  => true,
+			)
+		);
 		if ( is_wp_error( $response ) || wp_remote_retrieve_response_code( $response ) !== 200 ) {
 			return array();
 		}

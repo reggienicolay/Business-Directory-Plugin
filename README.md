@@ -5,7 +5,7 @@ A modern, map-first local business directory plugin for WordPress with geolocati
 ![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple)
 ![License](https://img.shields.io/badge/License-GPL%20v2-green)
-![Version](https://img.shields.io/badge/Version-0.1.3-orange)
+![Version](https://img.shields.io/badge/Version-0.1.7-orange)
 
 ## Overview
 
@@ -173,67 +173,89 @@ business-directory/
 ├── assets/
 │   ├── css/              # Stylesheets
 │   └── js/               # JavaScript files
-├── includes/             # Feature loaders
+├── includes/             # Feature loaders (geolocation, gamification, embeds, social, auth, media, etc.)
 ├── languages/            # Translation files
 ├── src/
-│   ├── Admin/            # Admin interfaces & menus
-│   ├── API/              # REST API endpoints
-│   ├── Auth/             # Authentication & login system
-│   ├── BusinessTools/    # Owner dashboard & tools
-│   ├── DB/               # Database tables & migrations
-│   ├── Forms/            # Form handlers
-│   ├── Frontend/         # Frontend rendering & shortcodes
-│   ├── Gamification/     # Points, badges, ranks, leaderboards
-│   ├── Importer/         # CSV/bulk import tools
+│   ├── Admin/            # Admin interfaces, menus, settings, moderation queues
+│   ├── API/              # Legacy REST endpoints (lists, badges, collaborators, geocode, features)
+│   ├── Auth/             # Authentication, login, registration, SSO (multisite)
+│   ├── BusinessTools/    # Owner dashboard, analytics, widget embed system
+│   ├── DB/               # Database tables, installer, migrations (17 tables)
+│   ├── Explore/          # Explore pages, cache invalidation, routing
+│   ├── Exporter/         # CSV export
+│   ├── Forms/            # Form handlers (business submission, reviews, claims)
+│   ├── Frontend/         # Shortcodes, profiles, edit listing, view tracking, quick filters
+│   ├── Gamification/     # Points, badges (SVG), ranks, leaderboards, activity tracking
+│   ├── Importer/         # CSV/bulk import with optional geocoding
 │   ├── Install/          # Installation & setup
-│   ├── Integrations/     # Third-party integrations (TEC, etc.)
-│   ├── Lists/            # User lists & collections
-│   ├── Moderation/       # Content moderation queues
-│   ├── Notifications/    # Email & notification system
-│   ├── PostTypes/        # Custom post types
-│   ├── REST/             # REST controllers
+│   ├── Integrations/     # Third-party integrations (The Events Calendar)
+│   ├── Lists/            # User lists, collections, collaboration, covers
+│   ├── Media/            # Image optimization (WebP, custom sizes, EXIF stripping)
+│   ├── Moderation/       # Submissions queue, reviews queue
+│   ├── Notifications/    # Email notifications (submissions, reviews)
+│   ├── PostTypes/        # Custom post types (bd_business)
+│   ├── REST/             # Secured REST controllers (submissions, reviews, claims, businesses)
 │   ├── Roles/            # User roles & capabilities
-│   ├── Search/           # Search & filtering engine
-│   ├── Security/         # Rate limiting, CAPTCHA
-│   ├── Social/           # Social sharing & Open Graph
+│   ├── Search/           # QueryBuilder, FilterHandler, Geocoder (Nominatim)
+│   ├── Security/         # Rate limiting, Cloudflare Turnstile CAPTCHA
+│   ├── SEO/              # Slug migration, 301 redirects
+│   ├── Social/           # Social sharing, Open Graph, badge share cards
 │   ├── Taxonomies/       # Categories, areas, tags
 │   ├── Utils/            # Helper utilities & cache
-│   └── Plugin.php        # Main plugin class
-├── templates/            # Template files
+│   └── Plugin.php        # Main plugin singleton
+├── templates/            # Page templates (single business, directory, profile, explore, claim landing)
 ├── tests/                # PHPUnit tests
 ├── vendor/               # Composer dependencies
-└── business-directory.php  # Main plugin file
+└── business-directory.php  # Main plugin bootstrap
 ```
 
 ## Database Tables
 
-The plugin creates the following custom tables:
+The plugin creates the following custom tables (all prefixed `wp_bd_`):
 
-- `bd_locations` - Business coordinates and address data
+**Core:**
+- `bd_locations` - Business coordinates, address, geohash
 - `bd_reviews` - User reviews and ratings
+- `bd_review_helpful` - Helpful vote tracking (one vote per user per review)
 - `bd_submissions` - Pending business submissions
-- `bd_claim_requests` - Business claim requests
+- `bd_claim_requests` - Business claim requests with proof files
 - `bd_change_requests` - Edit requests from owners
-- `bd_user_reputation` - Gamification points and ranks
-- `bd_user_activity` - Activity log for points
+
+**Gamification:**
+- `bd_user_reputation` - Points, ranks, streaks
+- `bd_user_activity` - Activity log for point awards
 - `bd_badge_awards` - Earned badges
+
+**Lists:**
 - `bd_lists` - User-created lists
 - `bd_list_items` - Businesses in lists
 - `bd_list_collaborators` - List collaboration
 - `bd_list_follows` - List subscriptions
 
+**Analytics:**
+- `bd_share_tracking` - Social share events
+- `bd_qr_scans` - QR code scan tracking
+- `bd_widget_clicks` - Embed widget click tracking
+- `bd_widget_domains` - Allowed embed domains
+
 ## REST API
 
 Base URL: `/wp-json/bd/v1/`
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/businesses` | GET | Search/filter businesses |
-| `/businesses/{id}` | GET | Get single business |
-| `/reviews` | POST | Submit a review |
-| `/claim` | POST | Submit a claim request |
-| `/lists` | GET/POST | User lists |
-| `/geocode` | GET | Geocode an address |
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/businesses` | GET | Public | Search/filter businesses |
+| `/businesses/{id}` | GET | Public | Get single business |
+| `/submit-business` | POST | Public | Submit a new business (rate-limited, CAPTCHA) |
+| `/reviews` | POST | Public | Submit a review (rate-limited, CAPTCHA) |
+| `/claim` | POST | Public | Submit a claim request (rate-limited, CAPTCHA) |
+| `/lists` | GET/POST | Auth | User lists |
+| `/lists/{id}/collaborators` | GET/POST | Auth | List collaborators |
+| `/geocode` | GET | Public | Geocode an address (Nominatim) |
+| `/geocode/reverse` | GET | Public | Reverse geocode coordinates |
+| `/feature` | GET | Public | Feature embed data for external sites |
+| `/badge/{id}.svg` | GET | Public | Badge SVG rendering |
+| `/cover/{list_id}` | POST | Auth | Upload list cover image |
 
 ## Configuration
 
@@ -262,6 +284,36 @@ add_filter( 'bd_points_review', function() {
 ```
 
 ## Changelog
+
+### 0.1.7
+- Fixed Submit Business pipeline: dbDelta table creation, SubmissionsQueue instantiation, MenuOrganizer routing
+- Fixed lat/lng `empty()` checks treating valid 0.0 coordinates as missing (LocationsTable, QueryBuilder, BusinessesController)
+- Added `batch_load()` to LocationsTable — eliminates N+1 queries on directory listings
+- Auto-geocoding via Nominatim when approving business submissions
+- Fixed `%d`/null format bugs in SubmissionsTable and ClaimRequestsTable
+- Added server-side MIME validation to ClaimController and EditListing file uploads
+- Fixed SSRF vulnerability in FeatureShortcode remote fetching
+- Fixed contact field sanitization in EditListing (field-specific: email, URL, phone)
+- Added error logging throughout submission, email, review, and claim pipelines
+- Removed insecure legacy SubmissionEndpoint.php
+- Removed orphaned Settings::add_pending_menu() method
+
+### 0.1.6
+- Image optimization pipeline (WebP, custom sizes, EXIF stripping)
+- Explore pages with cache invalidation
+- SEO slug migration with 301 redirects
+
+### 0.1.5
+- Business owner edit listing with change request workflow
+- Social sharing and Open Graph integration
+- QR code generation for business pages
+- Widget embed system for external sites
+
+### 0.1.4
+- Multisite SSO authentication
+- CSV export functionality
+- Review helpful votes
+- Share and QR scan tracking
 
 ### 0.1.3
 - Added Photo Gallery metabox for admin
@@ -295,8 +347,7 @@ This plugin is licensed under the GPL v2 or later.
 
 For support, feature requests, or bug reports:
 
-- **Email:** support@example.com
-- **Documentation:** [docs.example.com](https://docs.example.com)
+- **GitHub:** [github.com/reggienicolay/Business-Directory-Plugin](https://github.com/reggienicolay/Business-Directory-Plugin)
 
 ## Credits
 
@@ -307,4 +358,4 @@ For support, feature requests, or bug reports:
 
 ---
 
-© 2025 Reggie Nicolay. All rights reserved.
+© 2026 Reggie Nicolay. All rights reserved.

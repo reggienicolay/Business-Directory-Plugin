@@ -69,7 +69,7 @@ class MenuOrganizer {
 			// MODERATION - Items requiring admin action.
 			// ───────────────────────────────
 			'moderation' => array(
-				'edit.php?post_type=bd_business&post_status=pending', // Pending Submissions.
+				'bd-pending-submissions',                   // Pending Submissions.
 				'bd-pending-claims',                        // Pending Claims.
 				'bd-pending-changes',                       // Pending Changes.
 				'bd-pending-reviews',                       // Pending Reviews.

@@ -65,8 +65,6 @@ require_once BD_PLUGIN_DIR . 'src/Lists/ListCollaborators.php';
 require_once BD_PLUGIN_DIR . 'src/API/ListsEndpoint.php';
 require_once BD_PLUGIN_DIR . 'src/API/CollaboratorsEndpoint.php';
 require_once BD_PLUGIN_DIR . 'src/API/BadgeEndpoint.php';
-// SubmissionEndpoint.php removed (security audit 2026-03-28) — use src/REST/SubmitBusinessController.php instead.
-
 // Load Admin classes.
 require_once BD_PLUGIN_DIR . 'src/Admin/ListsAdmin.php';
 require_once BD_PLUGIN_DIR . 'src/Admin/FeaturedAdmin.php';

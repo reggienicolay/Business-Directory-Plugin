@@ -142,17 +142,36 @@ class SubmissionsQueue {
 				update_post_meta( $post_id, 'bd_website', $data['website'] );
 			}
 
-			// Add location (simplified - no geocoding)
+			// Add location with auto-geocoding.
 			if ( ! empty( $data['address'] ) ) {
-				\BD\DB\LocationsTable::insert(
+				// Build full address string for geocoding.
+				$address_parts = array_filter(
 					array(
-						'business_id' => $post_id,
-						'lat'         => 0, // Admin can update later
-						'lng'         => 0,
-						'address'     => $data['address'],
-						'city'        => $data['city'] ?? '',
+						$data['address'],
+						$data['city'] ?? '',
+						'CA',
 					)
 				);
+				$full_address = implode( ', ', $address_parts );
+
+				$geocode_result = \BusinessDirectory\Search\Geocoder::geocode( $full_address );
+
+				if ( $geocode_result && isset( $geocode_result['lat'] ) && isset( $geocode_result['lng'] ) ) {
+					\BD\DB\LocationsTable::insert(
+						array(
+							'business_id' => $post_id,
+							'lat'         => $geocode_result['lat'],
+							'lng'         => $geocode_result['lng'],
+							'address'     => $data['address'],
+							'city'        => $data['city'] ?? '',
+						)
+					);
+					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+						error_log( '[BD Approve] Geocoded "' . $full_address . '" → ' . $geocode_result['lat'] . ', ' . $geocode_result['lng'] );
+					}
+				} else {
+					error_log( '[BD Approve] Geocoding failed for "' . $full_address . '" — business #' . $post_id . ' has no coordinates. Edit the listing to add location.' );
+				}
 			}
 
 			// Mark as approved

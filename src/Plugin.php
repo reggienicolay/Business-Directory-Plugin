@@ -71,6 +71,7 @@ class Plugin {
 			new Admin\MetaBoxes();
 			new Admin\ImporterPage();
 			new Admin\Settings();
+			new Moderation\SubmissionsQueue();
 			new Moderation\ReviewsQueue();
 			new Admin\ClaimsQueue();
 			Admin\FeaturedAdmin::init();

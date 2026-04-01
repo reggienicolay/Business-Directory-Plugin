@@ -131,14 +131,18 @@ class ReviewsQueue {
 			wp_die( __( 'Review not found', 'business-directory' ) );
 		}
 
-		// Approve the review
-		$wpdb->update(
+		// Approve the review.
+		$updated = $wpdb->update(
 			$table,
 			array( 'status' => 'approved' ),
 			array( 'id' => $review_id ),
 			array( '%s' ),
 			array( '%d' )
 		);
+
+		if ( false === $updated ) {
+			error_log( '[BD Reviews] Failed to approve review #' . $review_id . ': ' . $wpdb->last_error );
+		}
 
 		// Award points for the review
 		if ( $review['user_id'] ) {
@@ -171,13 +175,17 @@ class ReviewsQueue {
 		$review_id = absint( $_POST['review_id'] );
 		$table     = $wpdb->prefix . 'bd_reviews';
 
-		$wpdb->update(
+		$updated = $wpdb->update(
 			$table,
 			array( 'status' => 'rejected' ),
 			array( 'id' => $review_id ),
 			array( '%s' ),
 			array( '%d' )
 		);
+
+		if ( false === $updated ) {
+			error_log( '[BD Reviews] Failed to reject review #' . $review_id . ': ' . $wpdb->last_error );
+		}
 
 		wp_redirect( admin_url( 'admin.php?page=bd-pending-reviews&rejected=1' ) );
 		exit;

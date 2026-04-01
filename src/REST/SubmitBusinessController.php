@@ -67,10 +67,19 @@ class SubmitBusinessController {
 		);
 
 		if ( ! $submission_id ) {
+			error_log( '[BD Submit] Submission insert failed for business: ' . sanitize_text_field( $request->get_param( 'title' ) ) );
 			return new \WP_Error( 'submission_failed', __( 'Failed to save submission.', 'business-directory' ) );
 		}
 
-		\BD\Notifications\Email::notify_new_submission( $submission_id );
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( '[BD Submit] Submission #' . $submission_id . ' saved successfully.' );
+		}
+
+		$mail_sent = \BD\Notifications\Email::notify_new_submission( $submission_id );
+		if ( ! $mail_sent ) {
+			// Always log failures, regardless of WP_DEBUG.
+			error_log( '[BD Submit] Notification email failed for submission #' . $submission_id );
+		}
 
 		return rest_ensure_response(
 			array(

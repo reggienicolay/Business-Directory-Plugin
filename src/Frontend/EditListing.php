@@ -779,9 +779,14 @@ class EditListing {
 			}
 		}
 
-		// Contact.
+		// Contact — use field-specific sanitization.
 		if ( isset( $_POST['contact'] ) && is_array( $_POST['contact'] ) ) {
-			$new_contact = array_map( 'sanitize_text_field', wp_unslash( $_POST['contact'] ) );
+			$raw_contact = wp_unslash( $_POST['contact'] );
+			$new_contact = array(
+				'phone'   => sanitize_text_field( $raw_contact['phone'] ?? '' ),
+				'email'   => sanitize_email( $raw_contact['email'] ?? '' ),
+				'website' => esc_url_raw( $raw_contact['website'] ?? '' ),
+			);
 			$old_contact = get_post_meta( $business_id, 'bd_contact', true ) ?: array();
 			if ( $new_contact !== $old_contact ) {
 				$changes['contact']  = $new_contact;
@@ -927,6 +932,19 @@ class EditListing {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'business-directory' ) ) );
 		}
 
+		// Validate MIME type using actual file content before upload.
+		$allowed_mimes = array( 'image/jpeg', 'image/png', 'image/webp', 'image/gif' );
+		$real_mime     = self::get_real_mime_type( $_FILES['photo']['tmp_name'] );
+
+		if ( ! $real_mime || ! in_array( $real_mime, $allowed_mimes, true ) ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid file type. Please upload JPEG, PNG, GIF, or WebP images.', 'business-directory' ) ) );
+		}
+
+		// Validate file size (5MB max).
+		if ( $_FILES['photo']['size'] > 5 * 1024 * 1024 ) {
+			wp_send_json_error( array( 'message' => __( 'File size exceeds the 5MB limit.', 'business-directory' ) ) );
+		}
+
 		// Handle upload.
 		require_once ABSPATH . 'wp-admin/includes/image.php';
 		require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -980,5 +998,37 @@ class EditListing {
 		);
 
 		wp_mail( $admin_email, $subject, $message );
+	}
+
+	/**
+	 * Get real MIME type of a file using actual file content.
+	 *
+	 * @param string $file_path Path to the file.
+	 * @return string|false MIME type or false on failure.
+	 */
+	private static function get_real_mime_type( $file_path ) {
+		if ( function_exists( 'finfo_open' ) ) {
+			$finfo     = finfo_open( FILEINFO_MIME_TYPE );
+			$mime_type = finfo_file( $finfo, $file_path );
+			finfo_close( $finfo );
+
+			if ( $mime_type ) {
+				return $mime_type;
+			}
+		}
+
+		$image_info = @getimagesize( $file_path );
+		if ( $image_info && ! empty( $image_info['mime'] ) ) {
+			return $image_info['mime'];
+		}
+
+		if ( function_exists( 'mime_content_type' ) ) {
+			$mime_type = mime_content_type( $file_path );
+			if ( $mime_type ) {
+				return $mime_type;
+			}
+		}
+
+		return false;
 	}
 }

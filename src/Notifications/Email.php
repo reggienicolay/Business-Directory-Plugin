@@ -11,6 +11,7 @@ class Email {
 		$submission = \BD\DB\SubmissionsTable::get( $submission_id );
 
 		if ( ! $submission ) {
+			error_log( '[BD Email] Cannot send notification — submission #' . $submission_id . ' not found in database.' );
 			return false;
 		}
 
@@ -31,7 +32,15 @@ class Email {
 			$moderate_url
 		);
 
-		return wp_mail( $to, $subject, $message );
+		$sent = wp_mail( $to, $subject, $message );
+
+		if ( ! $sent ) {
+			error_log( '[BD Email] wp_mail() failed for submission #' . $submission_id . '. Recipients: ' . ( is_array( $to ) ? implode( ', ', $to ) : $to ) );
+		} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( '[BD Email] Notification sent for submission #' . $submission_id . ' to ' . ( is_array( $to ) ? implode( ', ', $to ) : $to ) );
+		}
+
+		return $sent;
 	}
 
 	public static function notify_new_review( $review_id ) {
@@ -47,6 +56,7 @@ class Email {
 		);
 
 		if ( ! $review ) {
+			error_log( '[BD Email] Cannot send review notification — review #' . $review_id . ' not found in database.' );
 			return false;
 		}
 
@@ -69,7 +79,13 @@ class Email {
 			$moderate_url
 		);
 
-		return wp_mail( $to, $subject, $message );
+		$sent = wp_mail( $to, $subject, $message );
+
+		if ( ! $sent ) {
+			error_log( '[BD Email] wp_mail() failed for review #' . $review_id . '. Recipients: ' . ( is_array( $to ) ? implode( ', ', $to ) : $to ) );
+		}
+
+		return $sent;
 	}
 
 	private static function get_notification_emails() {

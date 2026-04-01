@@ -19,7 +19,7 @@ class Installer {
 	/**
 	 * Database version - bump this when schema changes.
 	 */
-	const DB_VERSION = '2.6.0';
+	const DB_VERSION = '2.6.1';
 
 	/**
 	 * Initialize - hook into plugins_loaded for upgrade checks.
@@ -121,7 +121,7 @@ class Installer {
 		// LOCATIONS TABLE
 		// =====================================================================
 		$locations_table = $wpdb->prefix . 'bd_locations';
-		$locations_sql   = "CREATE TABLE IF NOT EXISTS $locations_table (
+		$locations_sql   = "CREATE TABLE $locations_table (
 			business_id bigint(20) UNSIGNED NOT NULL,
 			lat double NOT NULL,
 			lng double NOT NULL,
@@ -141,7 +141,7 @@ class Installer {
 		// REVIEWS TABLE
 		// =====================================================================
 		$reviews_table = $wpdb->prefix . 'bd_reviews';
-		$reviews_sql   = "CREATE TABLE IF NOT EXISTS $reviews_table (
+		$reviews_sql   = "CREATE TABLE $reviews_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			business_id bigint(20) UNSIGNED NOT NULL,
 			user_id bigint(20) UNSIGNED DEFAULT NULL,
@@ -166,7 +166,7 @@ class Installer {
 		// SUBMISSIONS TABLE
 		// =====================================================================
 		$submissions_table = $wpdb->prefix . 'bd_submissions';
-		$submissions_sql   = "CREATE TABLE IF NOT EXISTS $submissions_table (
+		$submissions_sql   = "CREATE TABLE $submissions_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			business_data longtext NOT NULL,
 			submitted_by bigint(20) UNSIGNED DEFAULT NULL,
@@ -185,7 +185,7 @@ class Installer {
 		// CLAIM REQUESTS TABLE
 		// =====================================================================
 		$claim_requests_table = $wpdb->prefix . 'bd_claim_requests';
-		$claim_requests_sql   = "CREATE TABLE IF NOT EXISTS $claim_requests_table (
+		$claim_requests_sql   = "CREATE TABLE $claim_requests_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			business_id bigint(20) UNSIGNED NOT NULL,
 			user_id bigint(20) UNSIGNED DEFAULT NULL,
@@ -212,7 +212,7 @@ class Installer {
 		// CHANGE REQUESTS TABLE
 		// =====================================================================
 		$change_requests_table = $wpdb->prefix . 'bd_change_requests';
-		$change_requests_sql   = "CREATE TABLE IF NOT EXISTS $change_requests_table (
+		$change_requests_sql   = "CREATE TABLE $change_requests_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			business_id bigint(20) UNSIGNED NOT NULL,
 			user_id bigint(20) UNSIGNED NOT NULL,
@@ -236,7 +236,7 @@ class Installer {
 		// GAMIFICATION: USER REPUTATION TABLE
 		// =====================================================================
 		$user_reputation_table = $wpdb->prefix . 'bd_user_reputation';
-		$user_reputation_sql   = "CREATE TABLE IF NOT EXISTS $user_reputation_table (
+		$user_reputation_sql   = "CREATE TABLE $user_reputation_table (
 			user_id bigint(20) UNSIGNED NOT NULL,
 			points int(11) NOT NULL DEFAULT 0,
 			level varchar(50) NOT NULL DEFAULT 'newcomer',
@@ -257,7 +257,7 @@ class Installer {
 		// GAMIFICATION: BADGE AWARDS TABLE
 		// =====================================================================
 		$badge_awards_table = $wpdb->prefix . 'bd_badge_awards';
-		$badge_awards_sql   = "CREATE TABLE IF NOT EXISTS $badge_awards_table (
+		$badge_awards_sql   = "CREATE TABLE $badge_awards_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			user_id bigint(20) UNSIGNED NOT NULL,
 			badge_id varchar(50) NOT NULL,
@@ -272,7 +272,7 @@ class Installer {
 		// GAMIFICATION: USER ACTIVITY TABLE
 		// =====================================================================
 		$user_activity_table = $wpdb->prefix . 'bd_user_activity';
-		$user_activity_sql   = "CREATE TABLE IF NOT EXISTS $user_activity_table (
+		$user_activity_sql   = "CREATE TABLE $user_activity_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			user_id bigint(20) UNSIGNED NOT NULL,
 			action_type varchar(50) NOT NULL,
@@ -291,7 +291,7 @@ class Installer {
 		// USER LISTS TABLE
 		// =====================================================================
 		$lists_table = $wpdb->prefix . 'bd_lists';
-		$lists_sql   = "CREATE TABLE IF NOT EXISTS $lists_table (
+		$lists_sql   = "CREATE TABLE $lists_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			user_id bigint(20) UNSIGNED NOT NULL,
 			name varchar(200) NOT NULL,
@@ -322,7 +322,7 @@ class Installer {
 		// LIST ITEMS TABLE
 		// =====================================================================
 		$list_items_table = $wpdb->prefix . 'bd_list_items';
-		$list_items_sql   = "CREATE TABLE IF NOT EXISTS $list_items_table (
+		$list_items_sql   = "CREATE TABLE $list_items_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			list_id bigint(20) UNSIGNED NOT NULL,
 			business_id bigint(20) UNSIGNED NOT NULL,
@@ -341,7 +341,7 @@ class Installer {
 		// LIST FOLLOWS TABLE
 		// =====================================================================
 		$list_follows_table = $wpdb->prefix . 'bd_list_follows';
-		$list_follows_sql   = "CREATE TABLE IF NOT EXISTS $list_follows_table (
+		$list_follows_sql   = "CREATE TABLE $list_follows_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			list_id bigint(20) UNSIGNED NOT NULL,
 			user_id bigint(20) UNSIGNED NOT NULL,
@@ -356,7 +356,7 @@ class Installer {
 		// LIST COLLABORATORS TABLE
 		// =====================================================================
 		$list_collaborators_table = $wpdb->prefix . 'bd_list_collaborators';
-		$list_collaborators_sql   = "CREATE TABLE IF NOT EXISTS $list_collaborators_table (
+		$list_collaborators_sql   = "CREATE TABLE $list_collaborators_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			list_id bigint(20) UNSIGNED NOT NULL,
 			user_id bigint(20) UNSIGNED NOT NULL,
@@ -375,7 +375,7 @@ class Installer {
 		// SOCIAL SHARING: SHARE TRACKING TABLE
 		// =====================================================================
 		$share_tracking_table = $wpdb->prefix . 'bd_share_tracking';
-		$share_tracking_sql   = "CREATE TABLE IF NOT EXISTS $share_tracking_table (
+		$share_tracking_sql   = "CREATE TABLE $share_tracking_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			user_id bigint(20) UNSIGNED DEFAULT NULL,
 			business_id bigint(20) UNSIGNED NOT NULL,
@@ -394,7 +394,7 @@ class Installer {
 		// SOCIAL SHARING: QR CODE SCANS TABLE
 		// =====================================================================
 		$qr_scans_table = $wpdb->prefix . 'bd_qr_scans';
-		$qr_scans_sql   = "CREATE TABLE IF NOT EXISTS $qr_scans_table (
+		$qr_scans_sql   = "CREATE TABLE $qr_scans_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			business_id bigint(20) UNSIGNED NOT NULL,
 			scan_type varchar(50) DEFAULT 'qr',
@@ -411,7 +411,7 @@ class Installer {
 		// WIDGET: EMBED TRACKING TABLE
 		// =====================================================================
 		$widget_clicks_table = $wpdb->prefix . 'bd_widget_clicks';
-		$widget_clicks_sql   = "CREATE TABLE IF NOT EXISTS $widget_clicks_table (
+		$widget_clicks_sql   = "CREATE TABLE $widget_clicks_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			business_id bigint(20) UNSIGNED NOT NULL,
 			domain varchar(255) DEFAULT NULL,
@@ -428,7 +428,7 @@ class Installer {
 		// WIDGET: ALLOWED DOMAINS TABLE
 		// =====================================================================
 		$widget_domains_table = $wpdb->prefix . 'bd_widget_domains';
-		$widget_domains_sql   = "CREATE TABLE IF NOT EXISTS $widget_domains_table (
+		$widget_domains_sql   = "CREATE TABLE $widget_domains_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			business_id bigint(20) UNSIGNED NOT NULL,
 			domain varchar(255) NOT NULL,
@@ -444,7 +444,7 @@ class Installer {
 		// REVIEW HELPFUL VOTES TABLE
 		// =====================================================================
 		$review_helpful_table = $wpdb->prefix . 'bd_review_helpful';
-		$review_helpful_sql   = "CREATE TABLE IF NOT EXISTS $review_helpful_table (
+		$review_helpful_sql   = "CREATE TABLE $review_helpful_table (
 			id bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 			review_id bigint(20) UNSIGNED NOT NULL,
 			user_id bigint(20) UNSIGNED NOT NULL,

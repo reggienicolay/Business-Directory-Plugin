@@ -62,7 +62,6 @@ class ClaimRequestsTable {
 
 		$clean_data = array(
 			'business_id'    => absint( $data['business_id'] ),
-			'user_id'        => isset( $data['user_id'] ) ? absint( $data['user_id'] ) : null,
 			'claimant_name'  => sanitize_text_field( $data['claimant_name'] ),
 			'claimant_email' => sanitize_email( $data['claimant_email'] ),
 			'claimant_phone' => isset( $data['claimant_phone'] ) ? sanitize_text_field( $data['claimant_phone'] ) : null,
@@ -71,11 +70,19 @@ class ClaimRequestsTable {
 			'message'        => isset( $data['message'] ) ? sanitize_textarea_field( $data['message'] ) : null,
 		);
 
-		$result = $wpdb->insert(
-			self::table(),
-			$clean_data,
-			array( '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s' )
-		);
+		$format = array( '%d', '%s', '%s', '%s', '%s', '%s', '%s' );
+
+		// Only include user_id when it has a value — avoids inserting 0 for anonymous users.
+		if ( ! empty( $data['user_id'] ) ) {
+			$clean_data['user_id'] = absint( $data['user_id'] );
+			$format[]              = '%d';
+		}
+
+		$result = $wpdb->insert( self::table(), $clean_data, $format );
+
+		if ( false === $result ) {
+			error_log( '[BD Claims] Database insert failed: ' . $wpdb->last_error );
+		}
 
 		return $result ? $wpdb->insert_id : false;
 	}

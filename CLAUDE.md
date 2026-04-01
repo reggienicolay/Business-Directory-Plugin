@@ -5,7 +5,7 @@
 
 ## Identity
 
-- **Version:** 0.2.0 | **Post type:** `bd_business` | **Namespace:** `BD\`
+- **Version:** 0.1.7 | **Post type:** `bd_business` | **Namespace:** `BD\`
 - **Repo:** https://github.com/reggienicolay/Business-Directory-Plugin
 - **Part of:** Love Tri Valley plugin suite (this + BD Event Aggregator + BD Outdoor Activities + BD Email Signatures + BD Food Truck Tracker)
 - **Environment:** Local WP (dev) → Cloudways (production), WordPress multisite
@@ -23,7 +23,7 @@
 - Run `composer test` and `composer phpstan` before considering work complete
 
 ### MUST NOT
-- **Never put REST endpoints in `src/API/`** — that directory contains legacy/helper endpoints. The proper, secured controllers live in `src/REST/`. `src/API/SubmissionEndpoint.php` was deleted in the March 2026 audit.
+- **Never put REST endpoints in `src/API/`** — that directory contains legacy/helper endpoints. The proper, secured controllers live in `src/REST/`.
 - Never use `__return_true` as a `permission_callback` on endpoints that modify data
 - Never store user-uploaded files without server-side MIME validation — see `SubmitReviewController::get_real_mime_type()` for the correct pattern
 - Never skip the Turnstile check when the site key is configured — the condition must be: if key exists AND token is empty → reject. Don't use `&& ! empty($token)` which allows bypass by omission.
@@ -34,15 +34,16 @@
 
 ### Two REST Directories (important!)
 ```
-src/API/     ← Legacy endpoints (ListsEndpoint, BadgeEndpoint, CollaboratorsEndpoint, SubmissionEndpoint)
+src/API/     ← Legacy/helper endpoints (ListsEndpoint, BadgeEndpoint, CollaboratorsEndpoint,
+               GeocodeEndpoint, FeatureEndpoint, CoverEndpoint, BusinessEndpoint)
                Loaded via require_once in business-directory.php
-               SubmissionEndpoint.php is a KNOWN INSECURE DUPLICATE — do not use as a pattern
+               SubmissionEndpoint.php was DELETED in the April 2026 audit (insecure duplicate)
 
-src/REST/    ← Proper controllers with rate limiting + CAPTCHA + validation
-               SubmitBusinessController.php  ← correct submission handler
-               SubmitReviewController.php    ← correct review handler
-               ClaimController.php           ← correct claim handler
-               BusinessesController.php      ← GET /businesses
+src/REST/    ← Proper controllers with rate limiting + CAPTCHA + server-side MIME validation
+               SubmitBusinessController.php  ← business submissions
+               SubmitReviewController.php    ← review submissions
+               ClaimController.php           ← claim submissions
+               BusinessesController.php      ← GET /businesses (with batch_load for N+1 prevention)
 ```
 
 ### Bootstrap Sequence
@@ -163,4 +164,4 @@ SEO is handled by the **bd-seo companion plugin** (separate repo). BD Pro's role
 - Contact data stored in serialized `bd_contact` post meta (not individual `bd_phone`/`bd_email`/`bd_website` keys)
 - Social links stored in serialized `bd_social` post meta (not `bd_social_facebook` etc.)
 - Address: check `wp_bd_locations` table first, fall back to `bd_location` post meta (legacy)
-- `src/API/SubmissionEndpoint.php` was deleted (insecure duplicate) — use `src/REST/SubmitBusinessController.php`
+- Public submission endpoints live in `src/REST/` (not `src/API/`) — SubmitBusinessController, SubmitReviewController, ClaimController

@@ -239,7 +239,7 @@ class QueryBuilder {
 		}
 
 		// If no user location provided, return businesses without distance data.
-		if ( empty( $this->filters['lat'] ) || empty( $this->filters['lng'] ) ) {
+		if ( ! isset( $this->filters['lat'] ) || ! isset( $this->filters['lng'] ) ) {
 			$businesses = array();
 			foreach ( $business_ids_with_location as $id ) {
 				$businesses[] = array( 'id' => $id );
@@ -435,7 +435,7 @@ class QueryBuilder {
 			foreach ( $meta_locations as $row ) {
 				$location_meta = maybe_unserialize( $row['meta_value'] );
 
-				if ( is_array( $location_meta ) && ! empty( $location_meta['lat'] ) && ! empty( $location_meta['lng'] ) ) {
+				if ( is_array( $location_meta ) && isset( $location_meta['lat'] ) && isset( $location_meta['lng'] ) ) {
 					$this->location_cache[ absint( $row['post_id'] ) ] = array(
 						'lat'     => floatval( $location_meta['lat'] ),
 						'lng'     => floatval( $location_meta['lng'] ),

@@ -23,7 +23,6 @@ class Settings {
 
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_menu' ) );
-		add_action( 'admin_menu', array( $this, 'add_pending_menu' ), 20 );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_filter( 'views_edit-bd_business', array( $this, 'add_pending_view' ) );
 		add_filter( 'post_row_actions', array( $this, 'add_approve_link' ), 10, 2 );
@@ -42,24 +41,7 @@ class Settings {
 		);
 	}
 
-	/**
-	 * Add Pending Submissions submenu with count badge
-	 */
-	public function add_pending_menu() {
-		$pending_count = wp_count_posts( 'bd_business' )->pending;
 
-		add_submenu_page(
-			'edit.php?post_type=bd_business',
-			__( 'Pending Submissions', 'business-directory' ),
-			sprintf(
-				// translators: Placeholder for dynamic value.
-				__( 'Pending Submissions %s', 'business-directory' ),
-				$pending_count > 0 ? '<span class="awaiting-mod count-' . $pending_count . '"><span class="pending-count">' . number_format_i18n( $pending_count ) . '</span></span>' : ''
-			),
-			'edit_posts',
-			'edit.php?post_type=bd_business&post_status=pending'
-		);
-	}
 
 	/**
 	 * Add pending filter to posts list table
