@@ -367,8 +367,12 @@ class BadgeGenerator {
 		$file_url = $upload_dir['baseurl'] . '/bd-badges/' . $filename;
 
 		// Save SVG file.
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		file_put_contents( $filepath, $svg );
+		global $wp_filesystem;
+		if ( empty( $wp_filesystem ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+		$wp_filesystem->put_contents( $filepath, $svg, FS_CHMOD_FILE );
 
 		return $file_url;
 	}

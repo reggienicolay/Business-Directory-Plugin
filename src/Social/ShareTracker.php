@@ -152,6 +152,14 @@ class ShareTracker {
 		$platform  = sanitize_text_field( $request->get_param( 'platform' ) );
 		$user_id   = get_current_user_id();
 
+		// Rate limit anonymous share tracking (30 per hour per IP).
+		if ( ! $user_id ) {
+			$rate_check = \BD\Security\RateLimit::check( 'share_track', $this->get_client_ip(), 30, 3600 );
+			if ( is_wp_error( $rate_check ) ) {
+				return new \WP_REST_Response( array( 'message' => 'Rate limit exceeded' ), 429 );
+			}
+		}
+
 		// Get visitor info for anonymous shares.
 		$ip_address = $this->get_client_ip();
 		$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] )

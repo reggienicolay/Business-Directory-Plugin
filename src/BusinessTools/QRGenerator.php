@@ -392,8 +392,12 @@ class QRGenerator {
 		// In production, use TCPDF or mPDF for proper PDF generation.
 		$html_filename = 'qr-' . $business->ID . '-' . $type . '.html';
 		$html_filepath = $qr_dir . $html_filename;
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		file_put_contents( $html_filepath, $html );
+		global $wp_filesystem;
+		if ( empty( $wp_filesystem ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+		$wp_filesystem->put_contents( $html_filepath, $html, FS_CHMOD_FILE );
 
 		return $upload_dir['baseurl'] . '/bd-qr-codes/' . $html_filename;
 	}
