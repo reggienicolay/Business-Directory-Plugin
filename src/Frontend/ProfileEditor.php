@@ -766,6 +766,19 @@ class ProfileEditor {
 					</div>
 				</div>
 
+				<?php
+				/**
+				 * Fires after all profile editor sections, before the submit button.
+				 *
+				 * Use to inject additional profile sections from satellite plugins.
+				 *
+				 * @since 0.2.0
+				 * @param int   $user_id User ID being edited.
+				 * @param array $data    Profile data array.
+				 */
+				do_action( 'bd_profile_editor_after_sections', $user_id, $data );
+				?>
+
 				<!-- Submit -->
 				<div class="bd-form-actions">
 					<button type="submit" class="bd-btn bd-btn-primary">
