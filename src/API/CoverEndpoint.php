@@ -141,6 +141,35 @@ class CoverEndpoint {
 			)
 		);
 
+		// Update focal point
+		register_rest_route(
+			$namespace,
+			'/lists/(?P<id>\d+)/cover/focal-point',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => array( __CLASS__, 'update_focal_point' ),
+				'permission_callback' => array( __CLASS__, 'check_user_logged_in' ),
+				'args'                => array(
+					'id'      => array(
+						'required'          => true,
+						'validate_callback' => function ( $param ) {
+							return is_numeric( $param );
+						},
+					),
+					'focal_x' => array(
+						'required'          => true,
+						'type'              => 'number',
+						'sanitize_callback' => 'floatval',
+					),
+					'focal_y' => array(
+						'required'          => true,
+						'type'              => 'number',
+						'sanitize_callback' => 'floatval',
+					),
+				),
+			)
+		);
+
 		// Parse video URL (helper endpoint)
 		register_rest_route(
 			$namespace,
@@ -403,6 +432,32 @@ class CoverEndpoint {
 		$result['embed_url']     = CoverManager::get_video_embed_url( $result['platform'], $result['id'] );
 
 		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * Update cover image focal point.
+	 *
+	 * @param \WP_REST_Request $request Request object.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function update_focal_point( $request ) {
+		$list_id = absint( $request['id'] );
+		$user_id = get_current_user_id();
+		$focal_x = floatval( $request['focal_x'] );
+		$focal_y = floatval( $request['focal_y'] );
+
+		$result = CoverManager::update_focal_point( $list_id, $user_id, $focal_x, $focal_y );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response(
+			array(
+				'success'     => true,
+				'focal_point' => $result,
+			)
+		);
 	}
 }
 

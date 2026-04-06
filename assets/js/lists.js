@@ -1341,7 +1341,127 @@ $(document).ready(function () {
 	FollowButton.init();
 	ListsTabs.init();
 	AddBusinessModal.init();
+	FocalPointPicker.init();
 });
+
+// ====================================================================
+// FOCAL POINT PICKER
+// ====================================================================
+
+var FocalPointPicker = {
+	init: function () {
+		$(document).on('click', '.bd-set-focal-point', function () {
+			var listId = $(this).data('list-id');
+			var thumb = $(this).closest('.bd-cover-preview-edit').find('.bd-cover-thumb');
+			FocalPointPicker.activate(thumb, listId);
+		});
+	},
+
+	activate: function ($thumb, listId) {
+		if ($thumb.hasClass('bd-focal-point-active')) {
+			return;
+		}
+
+		var $img = $thumb.find('img');
+		if (!$img.length) {
+			return;
+		}
+
+		var focalX = parseFloat($thumb.data('focal-x')) || 50;
+		var focalY = parseFloat($thumb.data('focal-y')) || 50;
+
+		// Store original values for cancel restore.
+		$thumb.data('focal-x-orig', focalX);
+		$thumb.data('focal-y-orig', focalY);
+
+		$thumb.addClass('bd-focal-point-active');
+
+		// Add marker
+		var $marker = $('<div class="bd-focal-point-marker"></div>');
+		$marker.css({ left: focalX + '%', top: focalY + '%' });
+		$thumb.append($marker);
+
+		// Add hint
+		$thumb.append('<div class="bd-focal-point-hint">Click to set focus point</div>');
+
+		// Add save/cancel buttons
+		var $actions = $thumb.closest('.bd-cover-preview-edit').find('.bd-cover-actions');
+		$actions.append(
+			'<div class="bd-focal-btn-group">' +
+			'<button type="button" class="bd-btn bd-btn-primary bd-btn-sm bd-focal-save" data-list-id="' + listId + '">Save</button>' +
+			'<button type="button" class="bd-btn bd-btn-secondary bd-btn-sm bd-focal-cancel">Cancel</button>' +
+			'</div>'
+		);
+
+		// Click handler on image
+		$thumb.on('click.focal', function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+
+			var rect = $img[0].getBoundingClientRect();
+			var x = ((e.clientX - rect.left) / rect.width) * 100;
+			var y = ((e.clientY - rect.top) / rect.height) * 100;
+
+			x = Math.max(0, Math.min(100, x));
+			y = Math.max(0, Math.min(100, y));
+
+			$marker.css({ left: x + '%', top: y + '%' });
+			$img.css('object-position', x + '% ' + y + '%');
+
+			$thumb.data('focal-x', x);
+			$thumb.data('focal-y', y);
+		});
+
+		// Save handler
+		$actions.on('click.focal', '.bd-focal-save', function () {
+			var newX = $thumb.data('focal-x');
+			var newY = $thumb.data('focal-y');
+
+			$.ajax({
+				url: bdLists.restUrl + 'lists/' + listId + '/cover/focal-point',
+				method: 'PATCH',
+				headers: { 'X-WP-Nonce': bdLists.nonce },
+				data: { focal_x: newX, focal_y: newY },
+				success: function () {
+					showToast('Focus point saved');
+
+					// Update all visible covers for this list
+					$('[data-list-id="' + listId + '"]').each(function () {
+						$(this).find('.bd-list-card-cover img, .bd-list-row-image img').css(
+							'object-position', newX + '% ' + newY + '%'
+						);
+					});
+					$('.bd-list-cover[data-list-id="' + listId + '"]').css(
+						'background-position', newX + '% ' + newY + '%'
+					);
+
+					FocalPointPicker.deactivate($thumb);
+				},
+				error: function (xhr) {
+					showToast(xhr.responseJSON?.message || 'Failed to save focus point', 'error');
+				}
+			});
+		});
+
+		// Cancel handler — restore original focal point.
+		$actions.on('click.focal', '.bd-focal-cancel', function () {
+			var origX = $thumb.data('focal-x-orig');
+			var origY = $thumb.data('focal-y-orig');
+			$thumb.data('focal-x', origX);
+			$thumb.data('focal-y', origY);
+			$img.css('object-position', origX + '% ' + origY + '%');
+			FocalPointPicker.deactivate($thumb);
+		});
+	},
+
+	deactivate: function ($thumb) {
+		$thumb.removeClass('bd-focal-point-active');
+		$thumb.off('click.focal');
+		$thumb.find('.bd-focal-point-marker, .bd-focal-point-hint').remove();
+		$thumb.closest('.bd-cover-preview-edit').find('.bd-focal-btn-group').remove();
+		$thumb.closest('.bd-cover-preview-edit').find('.bd-cover-actions').off('click.focal');
+	}
+};
 
 }) (jQuery);
 

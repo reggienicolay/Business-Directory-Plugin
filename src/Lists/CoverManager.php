@@ -245,6 +245,15 @@ class CoverManager {
 			return $processed;
 		}
 
+		// Preserve existing focal point during recrop.
+		$existing_focal = self::get_focal_point( $list );
+		if ( ! isset( $crop_data['focal_x'] ) ) {
+			$crop_data['focal_x'] = $existing_focal['x'];
+		}
+		if ( ! isset( $crop_data['focal_y'] ) ) {
+			$crop_data['focal_y'] = $existing_focal['y'];
+		}
+
 		// Update crop data
 		$crop_json = self::prepare_crop_data( $crop_data );
 
@@ -737,12 +746,12 @@ class CoverManager {
 	private static function prepare_crop_data( $crop_data ) {
 		// Validate and clamp values to safe ranges
 		$normalized = array(
-			'version'  => 1,
-			'source'   => array(
+			'version'     => 1,
+			'source'      => array(
 				'width'  => absint( $crop_data['source_width'] ?? 0 ),
 				'height' => absint( $crop_data['source_height'] ?? 0 ),
 			),
-			'crop'     => array(
+			'crop'        => array(
 				// Clamp percentages to 0-1 range
 				'x'      => max( 0, min( 1, floatval( $crop_data['x'] ?? 0 ) ) ),
 				'y'      => max( 0, min( 1, floatval( $crop_data['y'] ?? 0 ) ) ),
@@ -750,12 +759,16 @@ class CoverManager {
 				'height' => max( 0.01, min( 1, floatval( $crop_data['height'] ?? 1 ) ) ),
 			),
 			// Clamp zoom to reasonable range
-			'zoom'     => max( 0.1, min( 10, floatval( $crop_data['zoom'] ?? 1 ) ) ),
+			'zoom'        => max( 0.1, min( 10, floatval( $crop_data['zoom'] ?? 1 ) ) ),
 			// Normalize rotation to 0-360
-			'rotation' => fmod( floatval( $crop_data['rotation'] ?? 0 ), 360 ),
-			'flip'     => array(
+			'rotation'    => fmod( floatval( $crop_data['rotation'] ?? 0 ), 360 ),
+			'flip'        => array(
 				'horizontal' => ! empty( $crop_data['flip_h'] ),
 				'vertical'   => ! empty( $crop_data['flip_v'] ),
+			),
+			'focal_point' => array(
+				'x' => max( 0, min( 100, floatval( $crop_data['focal_x'] ?? 50 ) ) ),
+				'y' => max( 0, min( 100, floatval( $crop_data['focal_y'] ?? 50 ) ) ),
 			),
 		);
 
@@ -1046,7 +1059,92 @@ class CoverManager {
 	}
 
 	/**
-	 * Get cover data for a list (for API responses)
+	 * Get focal point for a list cover image.
+	 *
+	 * @param array $list List data (must include cover_crop_data).
+	 * @return array Focal point with 'x' and 'y' as percentages (0–100). Defaults to 50/50 (center).
+	 */
+	public static function get_focal_point( $list ) {
+		$default = array( 'x' => 50, 'y' => 50 );
+
+		if ( empty( $list['cover_crop_data'] ) ) {
+			return $default;
+		}
+
+		$crop_data = is_string( $list['cover_crop_data'] )
+			? json_decode( $list['cover_crop_data'], true )
+			: $list['cover_crop_data'];
+
+		if ( ! is_array( $crop_data ) || empty( $crop_data['focal_point'] ) ) {
+			return $default;
+		}
+
+		return array(
+			'x' => max( 0, min( 100, floatval( $crop_data['focal_point']['x'] ?? 50 ) ) ),
+			'y' => max( 0, min( 100, floatval( $crop_data['focal_point']['y'] ?? 50 ) ) ),
+		);
+	}
+
+	/**
+	 * Update focal point for a list cover image.
+	 *
+	 * @param int   $list_id List ID.
+	 * @param int   $user_id User ID (for ownership check).
+	 * @param float $focal_x Focal point X percentage (0–100).
+	 * @param float $focal_y Focal point Y percentage (0–100).
+	 * @return array|\WP_Error Updated focal point or error.
+	 */
+	public static function update_focal_point( $list_id, $user_id, $focal_x, $focal_y ) {
+		$list = ListManager::get_list( $list_id );
+		if ( ! $list ) {
+			return new \WP_Error( 'not_found', 'List not found', array( 'status' => 404 ) );
+		}
+
+		if ( (int) $list['user_id'] !== (int) $user_id && ! current_user_can( 'manage_options' ) ) {
+			return new \WP_Error( 'forbidden', 'Permission denied', array( 'status' => 403 ) );
+		}
+
+		// Decode existing crop data or start fresh.
+		$crop_data = array();
+		if ( ! empty( $list['cover_crop_data'] ) ) {
+			$crop_data = json_decode( $list['cover_crop_data'], true );
+			if ( ! is_array( $crop_data ) ) {
+				$crop_data = array();
+			}
+		}
+
+		// Update focal point.
+		$crop_data['focal_point'] = array(
+			'x' => max( 0, min( 100, floatval( $focal_x ) ) ),
+			'y' => max( 0, min( 100, floatval( $focal_y ) ) ),
+		);
+
+		global $wpdb;
+		$table = $wpdb->prefix . 'bd_lists';
+
+		$updated = $wpdb->update(
+			$table,
+			array(
+				'cover_crop_data' => wp_json_encode( $crop_data ),
+				'updated_at'      => current_time( 'mysql' ),
+			),
+			array( 'id' => $list_id ),
+			array( '%s', '%s' ),
+			array( '%d' )
+		);
+
+		if ( false === $updated ) {
+			error_log( '[BD Cover] Failed to update focal point for list #' . $list_id . ': ' . $wpdb->last_error );
+			return new \WP_Error( 'update_failed', 'Failed to save focal point', array( 'status' => 500 ) );
+		}
+
+		ListManager::invalidate_list_cache( $list_id );
+
+		return $crop_data['focal_point'];
+	}
+
+	/**
+	 * Get cover data for a list (for API responses).
 	 *
 	 * @param array $list List data.
 	 * @return array Cover data.
@@ -1055,8 +1153,9 @@ class CoverManager {
 		$cover_type = $list['cover_type'] ?? 'auto';
 
 		$data = array(
-			'type'      => $cover_type,
-			'has_cover' => 'auto' !== $cover_type,
+			'type'        => $cover_type,
+			'has_cover'   => 'auto' !== $cover_type,
+			'focal_point' => self::get_focal_point( $list ),
 		);
 
 		if ( 'image' === $cover_type && ! empty( $list['cover_image_id'] ) ) {

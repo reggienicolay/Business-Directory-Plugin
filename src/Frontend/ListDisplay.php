@@ -842,8 +842,9 @@ class ListDisplay {
 				}
 				?>
 				<?php if ( $cover_image ) : ?>
-					<div class="bd-list-cover<?php echo $is_video_cover ? ' bd-list-cover-video' : ''; ?>" 
-						style="background-image: url('<?php echo esc_url( $cover_image ); ?>');"
+					<?php $focal = \BD\Lists\CoverManager::get_focal_point( $list ); ?>
+					<div class="bd-list-cover<?php echo $is_video_cover ? ' bd-list-cover-video' : ''; ?>"
+						style="background-image: url('<?php echo esc_url( $cover_image ); ?>'); background-position: <?php echo esc_attr( $focal['x'] ); ?>% <?php echo esc_attr( $focal['y'] ); ?>%;"
 						<?php if ( $is_video_cover && $video_embed ) : ?>
 						data-video-embed="<?php echo esc_url( $video_embed ); ?>"
 						<?php endif; ?>>
@@ -1086,7 +1087,8 @@ class ListDisplay {
 			<a href="<?php echo esc_url( $url ); ?>" class="bd-list-card-link">
 					<div class="bd-list-card-cover">
 					<?php if ( $cover_image ) : ?>
-						<img src="<?php echo esc_url( $cover_image ); ?>" alt="<?php echo esc_attr( $list['title'] ); ?>">
+						<?php $focal = \BD\Lists\CoverManager::get_focal_point( $list ); ?>
+						<img src="<?php echo esc_url( $cover_image ); ?>" alt="<?php echo esc_attr( $list['title'] ); ?>" style="object-position: <?php echo esc_attr( $focal['x'] ); ?>% <?php echo esc_attr( $focal['y'] ); ?>%;">
 					<?php else : ?>
 						<div class="bd-list-card-placeholder"><i class="fas fa-clipboard-list"></i></div>
 					<?php endif; ?>
@@ -1171,7 +1173,8 @@ class ListDisplay {
 		<a href="<?php echo esc_url( $url ); ?>" class="bd-list-row" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
 			<div class="bd-list-row-image">
 				<?php if ( $cover_image ) : ?>
-					<img src="<?php echo esc_url( $cover_image ); ?>" alt="<?php echo esc_attr( $list['title'] ); ?>">
+					<?php $focal = \BD\Lists\CoverManager::get_focal_point( $list ); ?>
+					<img src="<?php echo esc_url( $cover_image ); ?>" alt="<?php echo esc_attr( $list['title'] ); ?>" style="object-position: <?php echo esc_attr( $focal['x'] ); ?>% <?php echo esc_attr( $focal['y'] ); ?>%;">
 				<?php else : ?>
 					<div class="bd-list-row-placeholder"><i class="fas fa-clipboard-list"></i></div>
 				<?php endif; ?>
@@ -1240,7 +1243,8 @@ class ListDisplay {
 			<a href="<?php echo esc_url( $url ); ?>" class="bd-list-card-link">
 				<div class="bd-list-card-cover">
 					<?php if ( $cover_image ) : ?>
-						<img src="<?php echo esc_url( $cover_image ); ?>" alt="<?php echo esc_attr( $list['title'] ); ?>">
+						<?php $focal = \BD\Lists\CoverManager::get_focal_point( $list ); ?>
+						<img src="<?php echo esc_url( $cover_image ); ?>" alt="<?php echo esc_attr( $list['title'] ); ?>" style="object-position: <?php echo esc_attr( $focal['x'] ); ?>% <?php echo esc_attr( $focal['y'] ); ?>%;">
 					<?php else : ?>
 						<div class="bd-list-card-placeholder"><i class="fas fa-clipboard-list"></i></div>
 					<?php endif; ?>
@@ -1378,9 +1382,12 @@ class ListDisplay {
 								}
 								?>
 								
+								<?php
+								$edit_focal = \BD\Lists\CoverManager::get_focal_point( $list );
+								?>
 								<?php if ( $has_cover && $cover_url ) : ?>
-									<div class="bd-cover-thumb" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
-										<img src="<?php echo esc_url( $cover_url ); ?>" alt="Cover">
+									<div class="bd-cover-thumb" data-list-id="<?php echo esc_attr( $list['id'] ); ?>" data-focal-x="<?php echo esc_attr( $edit_focal['x'] ); ?>" data-focal-y="<?php echo esc_attr( $edit_focal['y'] ); ?>">
+										<img src="<?php echo esc_url( $cover_url ); ?>" alt="Cover" style="object-position: <?php echo esc_attr( $edit_focal['x'] ); ?>% <?php echo esc_attr( $edit_focal['y'] ); ?>%;">
 										<?php if ( in_array( $cover_type, array( 'youtube', 'vimeo' ), true ) ) : ?>
 											<span class="bd-cover-badge"><i class="fas fa-play"></i></span>
 										<?php endif; ?>
@@ -1391,10 +1398,17 @@ class ListDisplay {
 										<span>No cover</span>
 									</div>
 								<?php endif; ?>
-								
-								<button type="button" class="bd-btn bd-btn-secondary bd-btn-sm bd-open-cover-editor" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
-									<i class="fas fa-camera"></i> <?php echo $has_cover ? 'Change Cover' : 'Add Cover'; ?>
-								</button>
+
+								<div class="bd-cover-actions">
+									<button type="button" class="bd-btn bd-btn-secondary bd-btn-sm bd-open-cover-editor" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
+										<i class="fas fa-camera"></i> <?php echo $has_cover ? 'Change Cover' : 'Add Cover'; ?>
+									</button>
+									<?php if ( $has_cover && 'image' === $cover_type ) : ?>
+										<button type="button" class="bd-btn bd-btn-secondary bd-btn-sm bd-set-focal-point" data-list-id="<?php echo esc_attr( $list['id'] ); ?>">
+											<i class="fas fa-crosshairs"></i> Set Focus
+										</button>
+									<?php endif; ?>
+								</div>
 							</div>
 							<p class="bd-form-hint">Add a custom photo or video cover to make your list stand out</p>
 						</div>
