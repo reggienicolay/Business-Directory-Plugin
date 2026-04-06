@@ -50,6 +50,15 @@ class EventImageManager {
 	const DEFAULT_RETENTION = 30;
 
 	/**
+	 * Context flag — true while the event aggregator is importing an image.
+	 * Used by limit_event_image_sizes() to detect event images during sideload
+	 * (before the _bd_event_imported_image meta is set).
+	 *
+	 * @var bool
+	 */
+	private static $importing_event_image = false;
+
+	/**
 	 * Events processed per cron tick. Self-reschedules if more remain.
 	 */
 	const PRUNE_BATCH_SIZE = 50;
@@ -60,8 +69,11 @@ class EventImageManager {
 	 * @since 0.2.0
 	 */
 	public static function init() {
-		// Skip BD custom image sizes for event images (they only need WP defaults).
+		// Let ImageOptimizer process event images (EXIF strip + WebP).
 		add_filter( 'bd_image_optimizer_should_process', array( __CLASS__, 'skip_bd_sizes_for_events' ), 10, 2 );
+
+		// Skip BD custom image sizes for event images (they only need WP defaults).
+		add_filter( 'intermediate_image_sizes_advanced', array( __CLASS__, 'limit_event_image_sizes' ), 10, 3 );
 
 		// Cron callback.
 		add_action( self::CRON_HOOK, array( __CLASS__, 'prune_expired_images' ) );
@@ -97,24 +109,75 @@ class EventImageManager {
 	}
 
 	/**
-	 * Skip BD custom image sizes for event-imported images.
+	 * Allow ImageOptimizer to run on event images.
 	 *
-	 * Events only need thumbnail, medium, and large. Sizes like bd-hero,
-	 * bd-lightbox, bd-og are never used on event pages. Returning false
-	 * tells ImageOptimizer to skip WebP generation for BD sizes.
+	 * Previously returned false which skipped ALL optimization (EXIF stripping,
+	 * WebP generation). Now returns true so event images get fully optimized.
+	 * BD custom sizes (bd-hero, bd-card, etc.) are skipped via the
+	 * intermediate_image_sizes_advanced filter instead.
 	 *
 	 * @since 0.2.0
 	 *
 	 * @param bool $should_process Whether to process this attachment.
 	 * @param int  $attachment_id  Attachment post ID.
-	 * @return bool False for event images, unchanged for others.
+	 * @return bool Always returns $should_process unchanged.
 	 */
 	public static function skip_bd_sizes_for_events( $should_process, $attachment_id ) {
-		if ( get_post_meta( $attachment_id, self::IMPORTED_META_KEY, true ) ) {
-			return false;
+		return $should_process;
+	}
+
+	/**
+	 * Signal that an event image import is starting.
+	 *
+	 * Call before media_handle_sideload() or media_sideload_image() so
+	 * limit_event_image_sizes() can detect the context during sub-size generation.
+	 *
+	 * @since 0.2.0
+	 */
+	public static function begin_event_import() {
+		self::$importing_event_image = true;
+	}
+
+	/**
+	 * Signal that an event image import has finished.
+	 *
+	 * Call after media_handle_sideload() or media_sideload_image() returns.
+	 *
+	 * @since 0.2.0
+	 */
+	public static function end_event_import() {
+		self::$importing_event_image = false;
+	}
+
+	/**
+	 * Remove BD custom image sizes for event-imported images.
+	 *
+	 * Events only need thumbnail, medium, and large. Sizes like bd-hero,
+	 * bd-lightbox, bd-og are never used on event pages. Removing them here
+	 * prevents WordPress from generating the files in the first place.
+	 *
+	 * Uses the $importing_event_image context flag because this filter fires
+	 * during media_handle_sideload() — before _bd_event_imported_image meta is set.
+	 *
+	 * @since 0.2.0
+	 *
+	 * @param array $sizes    Associative array of image sizes.
+	 * @param array $metadata Image metadata (width, height, etc.).
+	 * @param int   $attachment_id Attachment post ID.
+	 * @return array Filtered sizes.
+	 */
+	public static function limit_event_image_sizes( $sizes, $metadata, $attachment_id ) {
+		if ( ! self::$importing_event_image ) {
+			return $sizes;
 		}
 
-		return $should_process;
+		// Remove BD custom sizes — events never use them.
+		$bd_sizes = array( 'bd-hero', 'bd-card', 'bd-gallery-thumb', 'bd-lightbox', 'bd-review', 'bd-og' );
+		foreach ( $bd_sizes as $size ) {
+			unset( $sizes[ $size ] );
+		}
+
+		return $sizes;
 	}
 
 	/**
