@@ -62,6 +62,17 @@ class ImageOptimizer {
 	private const MAX_DIMENSION = 4096;
 
 	/**
+	 * Maximum long-edge dimension for client-side resize (Plupload).
+	 * Images larger than this are resized in the browser before upload.
+	 */
+	private const PLUPLOAD_MAX_DIMENSION = 2400;
+
+	/**
+	 * JPEG quality for client-side Plupload resize.
+	 */
+	private const PLUPLOAD_QUALITY = 82;
+
+	/**
 	 * Initialize hooks.
 	 *
 	 * @since 0.2.0
@@ -75,6 +86,34 @@ class ImageOptimizer {
 
 		// Clean up WebP siblings when an attachment is deleted.
 		add_action( 'delete_attachment', array( __CLASS__, 'cleanup_webp_files' ) );
+
+		// Enable client-side resize in WP media uploader (Plupload).
+		// Resizes large images in the browser before upload — critical for
+		// mobile users uploading iPhone photos that would otherwise exceed
+		// the server upload limit.
+		add_filter( 'plupload_init', array( __CLASS__, 'enable_plupload_resize' ) );
+	}
+
+	/**
+	 * Configure Plupload to resize images client-side before upload.
+	 *
+	 * This is the key fix for mobile uploads: iPhone photos (3-8 MB) get
+	 * resized to ~300-500 KB in the browser before they even leave the phone.
+	 *
+	 * @since 0.2.0
+	 *
+	 * @param array $settings Plupload initialization settings.
+	 * @return array Modified settings with resize enabled.
+	 */
+	public static function enable_plupload_resize( $settings ) {
+		$settings['resize'] = array(
+			'width'   => self::PLUPLOAD_MAX_DIMENSION,
+			'height'  => self::PLUPLOAD_MAX_DIMENSION,
+			'quality' => self::PLUPLOAD_QUALITY,
+			'enabled' => true,
+		);
+
+		return $settings;
 	}
 
 	/**

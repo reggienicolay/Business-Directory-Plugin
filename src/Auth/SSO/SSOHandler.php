@@ -284,6 +284,18 @@ class SSOHandler {
 		wp_set_current_user( $user_id );
 		wp_set_auth_cookie( $user_id, true );
 
+		// For authors/editors/admins, ensure they're a member of this site
+		// so they can publish content. Regular subscribers don't need this
+		// — SSO cookies are enough for them to stay logged in.
+		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
+			$main_site_id = get_main_site_id();
+			$role         = self::get_user_role_on_site( $user_id, $main_site_id );
+
+			if ( $role && in_array( $role, array( 'administrator', 'editor', 'author' ), true ) ) {
+				add_user_to_blog( get_current_blog_id(), $user_id, $role );
+			}
+		}
+
 		// Check for chain continuation.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$next_site = isset( $_GET['bd_sso_next'] ) ? absint( $_GET['bd_sso_next'] ) : 0;
@@ -580,5 +592,21 @@ class SSOHandler {
 				'actionParam' => self::ACTION_PARAM,
 			)
 		);
+	}
+
+	/**
+	 * Get a user's role on a specific site.
+	 *
+	 * @param int $user_id User ID.
+	 * @param int $site_id Site/blog ID.
+	 * @return string|null Role name or null if user is not a member.
+	 */
+	private static function get_user_role_on_site( $user_id, $site_id ) {
+		switch_to_blog( $site_id );
+		$user = new \WP_User( $user_id );
+		$role = ! empty( $user->roles ) ? reset( $user->roles ) : null;
+		restore_current_blog();
+
+		return $role;
 	}
 }

@@ -4,91 +4,183 @@
  */
 (function($) {
     'use strict';
-    
+
+    // ====================================================================
+    // CLIENT-SIDE IMAGE COMPRESSION
+    // Resizes large photos (e.g. iPhone 4032x3024) in the browser before
+    // upload, reducing 5-8 MB originals to ~300-500 KB. Uses Canvas API.
+    // ====================================================================
+
+    var BD_COMPRESS = {
+        maxDimension: 2400,
+        quality: 0.82,
+        maxFileSize: 1.5 * 1024 * 1024 // Skip compression if already under 1.5 MB
+    };
+
+    /**
+     * Compress an image File using Canvas.
+     * Returns a Promise that resolves with a new (smaller) File, or the
+     * original file if it's already small enough or not an image.
+     */
+    function compressImage(file) {
+        return new Promise(function(resolve) {
+            if (!file.type || !file.type.startsWith('image/')) {
+                resolve(file);
+                return;
+            }
+            if (file.size <= BD_COMPRESS.maxFileSize) {
+                resolve(file);
+                return;
+            }
+
+            var img = new Image();
+            var url = URL.createObjectURL(file);
+
+            img.onload = function() {
+                URL.revokeObjectURL(url);
+
+                var w = img.width;
+                var h = img.height;
+
+                // Only resize if larger than max dimension.
+                if (w > BD_COMPRESS.maxDimension || h > BD_COMPRESS.maxDimension) {
+                    if (w > h) {
+                        h = Math.round(h * BD_COMPRESS.maxDimension / w);
+                        w = BD_COMPRESS.maxDimension;
+                    } else {
+                        w = Math.round(w * BD_COMPRESS.maxDimension / h);
+                        h = BD_COMPRESS.maxDimension;
+                    }
+                }
+
+                var canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+                canvas.toBlob(function(blob) {
+                    if (!blob || blob.size >= file.size) {
+                        resolve(file); // Compression didn't help, use original.
+                        return;
+                    }
+                    var compressed = new File([blob], file.name, {
+                        type: 'image/jpeg',
+                        lastModified: file.lastModified
+                    });
+                    resolve(compressed);
+                }, 'image/jpeg', BD_COMPRESS.quality);
+            };
+
+            img.onerror = function() {
+                URL.revokeObjectURL(url);
+                resolve(file); // On error, fall back to original.
+            };
+
+            img.src = url;
+        });
+    }
+
+    /**
+     * Compress an array of Files. Returns a Promise resolving with the
+     * compressed File array.
+     */
+    function compressImages(files) {
+        return Promise.all(Array.from(files).map(function(f) {
+            return compressImage(f);
+        }));
+    }
+
     $(document).ready(function() {
-        
+
         // ====================================================================
         // MEDIA UPLOAD HANDLING
         // ====================================================================
-        
+
         // Photo upload preview
         $('#bd-photo-upload').on('change', function(e) {
             handleMediaUpload(e.target.files, 'photo');
         });
-        
+
         // Video upload preview
         $('#bd-video-upload').on('change', function(e) {
             handleMediaUpload(e.target.files, 'video');
         });
-        
+
         // Handle media file uploads and create previews
         function handleMediaUpload(files, type) {
             const preview = $('#bd-media-preview');
-            
+
             // Validate file count
             const maxFiles = type === 'photo' ? 10 : 3;
             const currentCount = preview.find('.bd-media-preview-item').length;
-            
+
             if (currentCount + files.length > maxFiles) {
                 alert(`You can only upload up to ${maxFiles} ${type}s`);
                 return;
             }
-            
-            Array.from(files).forEach(file => {
-                // Validate file size (5MB for photos, 50MB for videos)
-                const maxSize = type === 'photo' ? 5 * 1024 * 1024 : 50 * 1024 * 1024;
-                if (file.size > maxSize) {
-                    alert(`File ${file.name} is too large. Max size: ${maxSize / (1024 * 1024)}MB`);
-                    return;
-                }
-                
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    const mediaItem = $('<div>', {
-                        class: 'bd-media-preview-item',
-                        'data-file-name': file.name,
-                        'data-file-type': type
-                    });
-                    
-                    if (type === 'photo') {
-                        mediaItem.append($('<img>', {
-                            src: e.target.result,
-                            alt: file.name
-                        }));
-                    } else {
-                        mediaItem.append($('<video>', {
-                            src: e.target.result,
-                            controls: true
-                        }));
+
+            // Compress photos client-side before processing.
+            const processFiles = type === 'photo'
+                ? compressImages(files)
+                : Promise.resolve(Array.from(files));
+
+            processFiles.then(function(processed) {
+                processed.forEach(file => {
+                    // Validate file size (5MB for photos, 50MB for videos)
+                    const maxSize = type === 'photo' ? 5 * 1024 * 1024 : 50 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        alert(`File ${file.name} is too large. Max size: ${maxSize / (1024 * 1024)}MB`);
+                        return;
                     }
-                    
-                    const removeBtn = $('<button>', {
-                        class: 'bd-media-remove',
-                        html: '×',
-                        type: 'button',
-                        click: function(e) {
-                            e.preventDefault();
-                            mediaItem.remove();
+
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        const mediaItem = $('<div>', {
+                            class: 'bd-media-preview-item',
+                            'data-file-name': file.name,
+                            'data-file-type': type
+                        });
+
+                        if (type === 'photo') {
+                            mediaItem.append($('<img>', {
+                                src: e.target.result,
+                                alt: file.name
+                            }));
+                        } else {
+                            mediaItem.append($('<video>', {
+                                src: e.target.result,
+                                controls: true
+                            }));
                         }
-                    });
-                    
-                    mediaItem.append(removeBtn);
-                    preview.append(mediaItem);
-                };
-                
-                reader.readAsDataURL(file);
+
+                        const removeBtn = $('<button>', {
+                            class: 'bd-media-remove',
+                            html: '×',
+                            type: 'button',
+                            click: function(e) {
+                                e.preventDefault();
+                                mediaItem.remove();
+                            }
+                        });
+
+                        mediaItem.append(removeBtn);
+                        preview.append(mediaItem);
+                    };
+
+                    reader.readAsDataURL(file);
+                });
             });
         }
-        
+
         // ====================================================================
         // HOURS OF OPERATION TOGGLE
         // ====================================================================
-        
+
         $('.bd-day-label input[type="checkbox"]').on('change', function() {
             const row = $(this).closest('.bd-hours-row');
             const inputs = row.find('.bd-hours-inputs input');
-            
+
             if ($(this).is(':checked')) {
                 inputs.prop('disabled', false).css('opacity', '1');
                 row.removeClass('bd-disabled');
@@ -97,19 +189,19 @@
                 row.addClass('bd-disabled');
             }
         });
-        
+
         // ====================================================================
         // FORM SUBMISSION
         // ====================================================================
-        
+
         $('#bd-submit-business-form').on('submit', function(e) {
             e.preventDefault();
-            
+
             const form = $(this);
             const button = form.find('button[type="submit"]');
             const message = $('#bd-submission-message');
             const originalButtonText = button.html();
-            
+
             // Disable button and show loading state
             button.prop('disabled', true).html(
                 '<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" style="animation: spin 0.8s linear infinite;">' +
@@ -119,10 +211,10 @@
             );
             message.hide().removeClass('success error');
             form.addClass('loading');
-            
+
             // Prepare form data
             const formData = new FormData(this);
-            
+
             // Add Turnstile token if enabled
             if (window.turnstile && bdSubmission.turnstileSiteKey) {
                 const token = turnstile.getResponse();
@@ -130,17 +222,17 @@
                     formData.append('turnstile_token', token);
                 }
             }
-            
+
             // Add hours data in proper format
             const hours = {};
             $('.bd-hours-row').each(function() {
                 const dayCheckbox = $(this).find('.bd-day-label input[type="checkbox"]');
                 const dayName = dayCheckbox.attr('name').match(/hours\[(.+?)\]/)[1];
-                
+
                 if (dayCheckbox.is(':checked')) {
                     const openTime = $(this).find('input[name*="[open]"]').val();
                     const closeTime = $(this).find('input[name*="[close]"]').val();
-                    
+
                     hours[dayName] = {
                         open: openTime,
                         close: closeTime
@@ -151,9 +243,9 @@
                     };
                 }
             });
-            
+
             formData.append('hours', JSON.stringify(hours));
-            
+
             // Submit via AJAX
             $.ajax({
                 url: bdSubmission.restUrl + 'submit-business',
@@ -169,20 +261,20 @@
                     message
                         .addClass('success')
                         .html(
-                            '<strong>🎉 Success!</strong> ' + 
+                            '<strong>🎉 Success!</strong> ' +
                             (response.message || 'Your business has been submitted and is pending approval. We\'ll notify you once it\'s live!')
                         )
                         .fadeIn();
-                    
+
                     // Reset form
                     form[0].reset();
                     $('#bd-media-preview').empty();
-                    
+
                     // Reset Turnstile
                     if (window.turnstile && bdSubmission.turnstileSiteKey) {
                         turnstile.reset();
                     }
-                    
+
                     // Scroll to message
                     $('html, body').animate({
                         scrollTop: message.offset().top - 100
@@ -195,12 +287,12 @@
                         .addClass('error')
                         .html('<strong>⚠️ Error:</strong> ' + error)
                         .fadeIn();
-                    
+
                     // Reset Turnstile
                     if (window.turnstile && bdSubmission.turnstileSiteKey) {
                         turnstile.reset();
                     }
-                    
+
                     // Scroll to message
                     $('html, body').animate({
                         scrollTop: message.offset().top - 100
@@ -213,36 +305,36 @@
                 }
             });
         });
-        
+
         // ====================================================================
         // DRAG AND DROP SUPPORT (BONUS FEATURE)
         // ====================================================================
-        
+
         $('.bd-upload-box').on('dragover', function(e) {
             e.preventDefault();
             e.stopPropagation();
             $(this).addClass('bd-dragover');
         });
-        
+
         $('.bd-upload-box').on('dragleave', function(e) {
             e.preventDefault();
             e.stopPropagation();
             $(this).removeClass('bd-dragover');
         });
-        
+
         $('.bd-upload-box').on('drop', function(e) {
             e.preventDefault();
             e.stopPropagation();
             $(this).removeClass('bd-dragover');
-            
+
             const files = e.originalEvent.dataTransfer.files;
             const type = $(this).find('input[type="file"]').attr('name').includes('photo') ? 'photo' : 'video';
-            
+
             handleMediaUpload(files, type);
         });
-        
+
     });
-    
+
 })(jQuery);
 
 // Add spin animation for loading state

@@ -2,6 +2,77 @@
 	'use strict';
 
 	// ========================================================================
+	// CLIENT-SIDE IMAGE COMPRESSION
+	// Resizes large photos in the browser before upload so iPhone photos
+	// (3-8 MB) shrink to ~300-500 KB without any user effort.
+	// ========================================================================
+
+	var BD_COMPRESS = {
+		maxDimension: 2400,
+		quality: 0.82,
+		maxFileSize: 1.5 * 1024 * 1024
+	};
+
+	function compressImage(file) {
+		return new Promise(function (resolve) {
+			if (!file.type || !file.type.startsWith('image/')) {
+				resolve(file);
+				return;
+			}
+			if (file.size <= BD_COMPRESS.maxFileSize) {
+				resolve(file);
+				return;
+			}
+
+			var img = new Image();
+			var url = URL.createObjectURL(file);
+
+			img.onload = function () {
+				URL.revokeObjectURL(url);
+				var w = img.width;
+				var h = img.height;
+
+				if (w > BD_COMPRESS.maxDimension || h > BD_COMPRESS.maxDimension) {
+					if (w > h) {
+						h = Math.round(h * BD_COMPRESS.maxDimension / w);
+						w = BD_COMPRESS.maxDimension;
+					} else {
+						w = Math.round(w * BD_COMPRESS.maxDimension / h);
+						h = BD_COMPRESS.maxDimension;
+					}
+				}
+
+				var canvas = document.createElement('canvas');
+				canvas.width = w;
+				canvas.height = h;
+				canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+				canvas.toBlob(function (blob) {
+					if (!blob || blob.size >= file.size) {
+						resolve(file);
+						return;
+					}
+					resolve(new File([blob], file.name, {
+						type: 'image/jpeg',
+						lastModified: file.lastModified
+					}));
+				}, 'image/jpeg', BD_COMPRESS.quality);
+			};
+
+			img.onerror = function () {
+				URL.revokeObjectURL(url);
+				resolve(file);
+			};
+
+			img.src = url;
+		});
+	}
+
+	function compressImages(files) {
+		return Promise.all(Array.from(files).map(compressImage));
+	}
+
+	// ========================================================================
 	// UTILITY FUNCTIONS
 	// ========================================================================
 
@@ -87,7 +158,24 @@
 		// Disable button and show loading state.
 		button.prop('disabled', true).text('Submitting...');
 
-		const formData = new FormData(this);
+		const formEl = this;
+
+		// Compress photos before building FormData.
+		const photosInput = form.find('#photos')[0];
+		const photoFiles = (photosInput && photosInput.files && photosInput.files.length > 0)
+			? compressImages(photosInput.files)
+			: Promise.resolve(null);
+
+		photoFiles.then(function (compressed) {
+		const formData = new FormData(formEl);
+
+		// Replace original photos with compressed versions.
+		if (compressed) {
+			formData.delete('photos[]');
+			compressed.forEach(function (file) {
+				formData.append('photos[]', file, file.name);
+			});
+		}
 
 		// Add Turnstile token if enabled.
 		if (window.turnstile && bdReview.turnstileSiteKey) {
@@ -157,6 +245,7 @@
 				button.prop('disabled', false).text(originalButtonText);
 			}
 		});
+		}); // end compressImages .then()
 	});
 
 	/**
