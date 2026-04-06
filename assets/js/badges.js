@@ -232,12 +232,12 @@
 									});
 								});
 							}
-						}
 						},
 						error: function() {
 							BadgeSystem.showMessage('Unable to load share card. Please try again.', 'error');
 						}
-						});
+					});
+				});
 			});
 		},
 

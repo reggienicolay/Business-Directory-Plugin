@@ -301,7 +301,7 @@
 		}
 
 		// Content validation.
-		const $contentField = form.find('#content');
+		const $contentField = form.find('textarea[name="content"]');
 		const content = ($contentField.val() || '').trim();
 		if (!content) {
 			return {

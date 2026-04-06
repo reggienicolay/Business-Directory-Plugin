@@ -417,7 +417,7 @@ class ReviewSubmission {
 			
 			<div class="bd-form-row">
 				<label for="content"><?php esc_html_e( 'Your Review', 'business-directory' ); ?> <span class="required">*</span></label>
-				<textarea id="content" name="content" rows="6" required minlength="10" maxlength="5000"></textarea>
+				<textarea id="bd-review-content" name="content" rows="6" required minlength="10" maxlength="5000"></textarea>
 				<p class="description"><?php esc_html_e( 'Minimum 10 characters', 'business-directory' ); ?></p>
 			</div>
 			
