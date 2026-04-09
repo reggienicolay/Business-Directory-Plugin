@@ -54,6 +54,54 @@ class ClaimController {
 				'permission_callback' => array( __CLASS__, 'admin_permission' ),
 			)
 		);
+
+		// In-field grant access (admin only) — bypasses the public claim form.
+		register_rest_route(
+			'bd/v1',
+			'/claims/grant',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'grant_access' ),
+				'permission_callback' => array( __CLASS__, 'admin_permission' ),
+				'args'                => array(
+					'business_id'  => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+					'email'        => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_email',
+						'validate_callback' => static function ( $value ) {
+							return is_email( $value ) !== false;
+						},
+					),
+					'name'         => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'phone'        => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'relationship' => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+						'enum'              => array( 'owner', 'manager', 'staff', 'other' ),
+						'default'           => 'owner',
+					),
+					'note'         => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_textarea_field',
+					),
+					'send_welcome' => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -320,6 +368,53 @@ class ClaimController {
 				'message' => __( 'Claim rejected.', 'business-directory' ),
 			)
 		);
+	}
+
+	/**
+	 * In-field grant access handler.
+	 *
+	 * Endpoint: POST /bd/v1/claims/grant
+	 * Auth:     bd_manage_claims (or manage_options)
+	 *
+	 * Lets a directory manager authorise a known business owner (or marketing
+	 * contact) to edit a listing without making them complete the public claim
+	 * form. Delegates all logic to \BD\Admin\GrantAccess::grant() so this is
+	 * the only endpoint — the meta box, row action, and frontend toolbar UIs
+	 * (Phase 2) will hit this same route.
+	 *
+	 * A light rate limit is applied per admin to prevent runaway loops from a
+	 * buggy client. This is NOT a security boundary — the cap check is.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function grant_access( $request ) {
+		$admin_id = get_current_user_id();
+
+		// Mild per-admin rate limit (belt-and-suspenders; cap check is the real gate).
+		$rate_check = \BD\Security\RateLimit::check( 'claim_grant', 'u' . $admin_id, 30, 600 );
+		if ( is_wp_error( $rate_check ) ) {
+			return $rate_check;
+		}
+
+		$result = \BD\Admin\GrantAccess::grant(
+			array(
+				'business_id'  => absint( $request->get_param( 'business_id' ) ),
+				'email'        => sanitize_email( $request->get_param( 'email' ) ),
+				'name'         => sanitize_text_field( (string) $request->get_param( 'name' ) ),
+				'phone'        => sanitize_text_field( (string) $request->get_param( 'phone' ) ),
+				'relationship' => sanitize_text_field( (string) ( $request->get_param( 'relationship' ) ?: 'owner' ) ),
+				'note'         => sanitize_textarea_field( (string) $request->get_param( 'note' ) ),
+				'send_welcome' => (bool) $request->get_param( 'send_welcome' ),
+				'granted_by'   => $admin_id,
+			)
+		);
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response( $result );
 	}
 
 	/**

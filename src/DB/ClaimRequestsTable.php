@@ -135,6 +135,89 @@ class ClaimRequestsTable {
 	}
 
 	/**
+	 * Insert a claim row in an already-approved state (in-field grant).
+	 *
+	 * Used by the GrantAccess service when an admin (e.g. a directory manager in
+	 * the field) authorises a known business owner without making them fill out
+	 * the public claim form. Writes a full audit trail row: status=approved,
+	 * reviewed_by + reviewed_at set, admin_notes populated, no proof_files.
+	 *
+	 * @param array $data {
+	 *     Required keys: business_id, user_id, claimant_name, claimant_email, reviewed_by.
+	 *     Optional:     claimant_phone, relationship ('owner'|'manager'|'staff'|'other'), admin_notes.
+	 * }
+	 * @return int|false Inserted row ID or false on failure.
+	 */
+	public static function insert_granted( $data ) {
+		global $wpdb;
+
+		$business_id = absint( $data['business_id'] ?? 0 );
+		$user_id     = absint( $data['user_id'] ?? 0 );
+		$reviewed_by = absint( $data['reviewed_by'] ?? 0 );
+
+		if ( ! $business_id || ! $user_id || ! $reviewed_by ) {
+			return false;
+		}
+
+		$relationship = isset( $data['relationship'] ) ? sanitize_text_field( $data['relationship'] ) : 'owner';
+		$allowed      = array( 'owner', 'manager', 'staff', 'other' );
+		if ( ! in_array( $relationship, $allowed, true ) ) {
+			$relationship = 'owner';
+		}
+
+		$clean = array(
+			'business_id'    => $business_id,
+			'user_id'        => $user_id,
+			'claimant_name'  => sanitize_text_field( $data['claimant_name'] ?? '' ),
+			'claimant_email' => sanitize_email( $data['claimant_email'] ?? '' ),
+			'claimant_phone' => isset( $data['claimant_phone'] ) ? sanitize_text_field( $data['claimant_phone'] ) : null,
+			'relationship'   => $relationship,
+			'proof_files'    => null,
+			'message'        => null,
+			'status'         => 'approved',
+			'admin_notes'    => isset( $data['admin_notes'] ) ? sanitize_textarea_field( $data['admin_notes'] ) : null,
+			'reviewed_by'    => $reviewed_by,
+			'reviewed_at'    => current_time( 'mysql' ),
+		);
+
+		$format = array( '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s' );
+
+		$result = $wpdb->insert( self::table(), $clean, $format );
+
+		if ( false === $result ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( '[BD Claims] insert_granted failed: ' . $wpdb->last_error );
+			return false;
+		}
+
+		return (int) $wpdb->insert_id;
+	}
+
+	/**
+	 * Find an existing approved claim row for a (business, user) pair.
+	 *
+	 * Used to de-dupe before creating a new grant row.
+	 *
+	 * @param int $business_id Business post ID.
+	 * @param int $user_id     WP user ID.
+	 * @return array|null Row array or null if none.
+	 */
+	public static function get_approved_for_user( $business_id, $user_id ) {
+		global $wpdb;
+
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				'SELECT id, relationship, reviewed_at FROM ' . self::table() . " WHERE business_id = %d AND user_id = %d AND status = 'approved' ORDER BY reviewed_at DESC LIMIT 1",
+				absint( $business_id ),
+				absint( $user_id )
+			),
+			ARRAY_A
+		);
+
+		return $row ?: null;
+	}
+
+	/**
 	 * Get claims by business ID
 	 */
 	public static function get_by_business( $business_id, $status = null ) {
