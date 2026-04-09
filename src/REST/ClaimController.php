@@ -55,6 +55,48 @@ class ClaimController {
 			)
 		);
 
+		// List authorized users for a business (admin only).
+		register_rest_route(
+			'bd/v1',
+			'/businesses/(?P<id>\d+)/access',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'get_business_access' ),
+				'permission_callback' => array( __CLASS__, 'admin_permission' ),
+				'args'                => array(
+					'id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+
+		// Revoke an approved claim (admin only). Distinct from reject_claim,
+		// which only operates on pending rows. This acts on already-approved
+		// rows and handles primary-owner cleanup.
+		register_rest_route(
+			'bd/v1',
+			'/claims/(?P<id>\d+)/revoke',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'revoke_access' ),
+				'permission_callback' => array( __CLASS__, 'admin_permission' ),
+				'args'                => array(
+					'id'   => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+					'note' => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_textarea_field',
+					),
+				),
+			)
+		);
+
 		// In-field grant access (admin only) — bypasses the public claim form.
 		register_rest_route(
 			'bd/v1',
@@ -407,6 +449,88 @@ class ClaimController {
 				'note'         => sanitize_textarea_field( (string) $request->get_param( 'note' ) ),
 				'send_welcome' => (bool) $request->get_param( 'send_welcome' ),
 				'granted_by'   => $admin_id,
+			)
+		);
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * List authorized users for a business.
+	 *
+	 * Endpoint: GET /bd/v1/businesses/{id}/access
+	 * Auth:     bd_manage_claims (or manage_options)
+	 *
+	 * Returns all approved claim rows for a business with minimal user
+	 * info joined in (display_name, user_email). Used by the access modal
+	 * and the "Business Access" meta box to render the current authorized
+	 * users list.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function get_business_access( $request ) {
+		$business_id = absint( $request['id'] );
+
+		$business = get_post( $business_id );
+		if ( ! $business || 'bd_business' !== $business->post_type ) {
+			return new \WP_Error( 'invalid_business', __( 'Business not found.', 'business-directory' ), array( 'status' => 404 ) );
+		}
+
+		$rows = \BD\DB\ClaimRequestsTable::get_authorized_users( $business_id );
+
+		// Shape the payload for the UI: only the fields the modal needs, all
+		// strings escaped at render time by the client. Also flag the primary
+		// owner (bd_claimed_by) so the UI can badge it.
+		$primary_id = (int) get_post_meta( $business_id, 'bd_claimed_by', true );
+
+		$users = array();
+		foreach ( $rows as $row ) {
+			$users[] = array(
+				'claim_id'     => (int) $row['id'],
+				'user_id'      => (int) $row['user_id'],
+				'display_name' => $row['display_name'] ?: $row['claimant_name'] ?: $row['claimant_email'],
+				'email'        => $row['user_email'] ?: $row['claimant_email'],
+				'phone'        => $row['claimant_phone'],
+				'relationship' => $row['relationship'] ?: 'owner',
+				'granted_at'   => $row['reviewed_at'],
+				'granted_by'   => (int) $row['reviewed_by'],
+				'admin_notes'  => $row['admin_notes'],
+				'is_primary'   => ( (int) $row['user_id'] === $primary_id ),
+				'user_missing' => empty( $row['user_login'] ),
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'business_id' => $business_id,
+				'users'       => $users,
+			)
+		);
+	}
+
+	/**
+	 * Revoke an approved claim.
+	 *
+	 * Endpoint: POST /bd/v1/claims/{id}/revoke
+	 * Auth:     bd_manage_claims (or manage_options)
+	 *
+	 * Delegates to GrantAccess::revoke() which handles the DB flip and
+	 * primary-owner reassignment.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function revoke_access( $request ) {
+		$result = \BD\Admin\GrantAccess::revoke(
+			array(
+				'claim_id'   => absint( $request['id'] ),
+				'note'       => sanitize_textarea_field( (string) $request->get_param( 'note' ) ),
+				'revoked_by' => get_current_user_id(),
 			)
 		);
 

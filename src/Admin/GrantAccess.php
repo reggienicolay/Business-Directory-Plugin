@@ -240,6 +240,115 @@ class GrantAccess {
 	}
 
 	/**
+	 * Revoke a previously granted access row.
+	 *
+	 * Flips the claim row status to `revoked` and, if the revoked user was
+	 * the "primary" owner (stored in the `bd_claimed_by` post meta), promotes
+	 * another remaining approved owner to primary. If no other owner remains,
+	 * clears all three primary-owner meta keys so the public claim form
+	 * becomes available again.
+	 *
+	 * Does NOT remove the `business_owner` WP role — the user may still be
+	 * the owner of OTHER businesses in the directory, and we don't want to
+	 * break their access to those. The authorization layer
+	 * (EditListing::user_can_edit) checks the claims table row state, so
+	 * flipping status=revoked is sufficient to cut off this business.
+	 *
+	 * @param array $args {
+	 *     @type int    $claim_id   Required. Row ID from wp_bd_claim_requests.
+	 *     @type int    $revoked_by Optional. Acting admin. Defaults to current user.
+	 *     @type string $note       Optional. Reason appended to admin_notes.
+	 * }
+	 * @return array|\WP_Error Success payload (business_id, user_id, claim_id, new_primary_user_id|null) or WP_Error.
+	 */
+	public static function revoke( array $args ) {
+		$claim_id   = absint( $args['claim_id'] ?? 0 );
+		$revoked_by = absint( $args['revoked_by'] ?? get_current_user_id() );
+		$note       = isset( $args['note'] ) ? sanitize_textarea_field( $args['note'] ) : '';
+
+		if ( ! $claim_id ) {
+			return new \WP_Error( 'bd_revoke_missing_id', __( 'Claim ID is required.', 'business-directory' ), array( 'status' => 400 ) );
+		}
+
+		if ( ! $revoked_by ) {
+			return new \WP_Error( 'bd_revoke_no_admin', __( 'Revoke must be performed by a logged-in admin.', 'business-directory' ), array( 'status' => 403 ) );
+		}
+
+		$claim = ClaimRequestsTable::get( $claim_id );
+		if ( ! $claim ) {
+			return new \WP_Error( 'bd_revoke_not_found', __( 'Claim not found.', 'business-directory' ), array( 'status' => 404 ) );
+		}
+
+		if ( 'approved' !== $claim['status'] ) {
+			return new \WP_Error( 'bd_revoke_not_approved', __( 'Only approved claims can be revoked.', 'business-directory' ), array( 'status' => 409 ) );
+		}
+
+		$business_id = (int) $claim['business_id'];
+		$user_id     = (int) $claim['user_id'];
+
+		$ok = ClaimRequestsTable::revoke( $claim_id, $revoked_by, $note );
+		if ( ! $ok ) {
+			return new \WP_Error( 'bd_revoke_db_failed', __( 'Failed to revoke access in the database.', 'business-directory' ), array( 'status' => 500 ) );
+		}
+
+		// --- Primary-owner cleanup ----------------------------------------------
+		// If the revoked user was the "primary" owner stored in bd_claimed_by,
+		// try to promote another remaining owner. If none, clear all primary
+		// flags so the public claim form becomes available again.
+		$new_primary       = null;
+		$current_primary   = (int) get_post_meta( $business_id, 'bd_claimed_by', true );
+		$was_primary_owner = ( $current_primary === $user_id );
+
+		if ( $was_primary_owner ) {
+			$remaining = ClaimRequestsTable::get_authorized_users( $business_id );
+
+			// Prefer another row with relationship='owner'; fall back to any remaining row.
+			$promoted = null;
+			foreach ( $remaining as $row ) {
+				if ( 'owner' === ( $row['relationship'] ?? '' ) ) {
+					$promoted = $row;
+					break;
+				}
+			}
+			if ( ! $promoted && ! empty( $remaining ) ) {
+				$promoted = $remaining[0];
+			}
+
+			if ( $promoted ) {
+				$new_primary = (int) $promoted['user_id'];
+				update_post_meta( $business_id, 'bd_claimed_by', $new_primary );
+				update_post_meta( $business_id, 'bd_claimed_date', current_time( 'mysql' ) );
+				// bd_claim_status stays 'claimed' — business is still owned.
+			} else {
+				delete_post_meta( $business_id, 'bd_claimed_by' );
+				delete_post_meta( $business_id, 'bd_claim_status' );
+				delete_post_meta( $business_id, 'bd_claimed_date' );
+			}
+		}
+
+		/**
+		 * Fires when an approved claim is revoked.
+		 *
+		 * @param int      $claim_id       Revoked claim row ID.
+		 * @param int      $business_id    Business post ID.
+		 * @param int      $user_id        User whose access was revoked.
+		 * @param int      $revoked_by     Admin user ID who performed the revoke.
+		 * @param int|null $new_primary_id New primary owner user ID, null if none.
+		 */
+		do_action( 'bd_access_revoked', $claim_id, $business_id, $user_id, $revoked_by, $new_primary );
+
+		return array(
+			'success'          => true,
+			'business_id'      => $business_id,
+			'user_id'          => $user_id,
+			'claim_id'         => $claim_id,
+			'was_primary'      => $was_primary_owner,
+			'new_primary_id'   => $new_primary,
+			'message'          => __( 'Access revoked.', 'business-directory' ),
+		);
+	}
+
+	/**
 	 * Derive a unique WP username from an email address.
 	 *
 	 * @param string $email Email.

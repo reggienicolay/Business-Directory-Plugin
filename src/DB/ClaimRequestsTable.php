@@ -292,6 +292,102 @@ class ClaimRequestsTable {
 	}
 
 	/**
+	 * Revoke an approved claim.
+	 *
+	 * Flips status=approved → revoked, records who did it and why. Unlike
+	 * reject() (which acts on pending rows), revoke() acts on already-approved
+	 * rows — e.g. when a business owner leaves a company and their access
+	 * needs to be taken away.
+	 *
+	 * @param int    $id       Claim row ID.
+	 * @param int    $admin_id Admin user performing the revoke.
+	 * @param string $notes    Optional reason appended to admin_notes.
+	 * @return bool True on success, false on failure.
+	 */
+	public static function revoke( $id, $admin_id, $notes = '' ) {
+		global $wpdb;
+
+		$id       = absint( $id );
+		$admin_id = absint( $admin_id );
+
+		// Preserve any existing admin_notes (grant audit trail) by appending
+		// the revoke reason rather than overwriting.
+		$existing = self::get( $id );
+		if ( ! $existing ) {
+			return false;
+		}
+
+		$combined_notes = trim( (string) ( $existing['admin_notes'] ?? '' ) );
+		if ( $notes ) {
+			$revoker     = get_userdata( $admin_id );
+			$revoker_lbl = $revoker ? $revoker->display_name : sprintf( 'user #%d', $admin_id );
+			$revoke_line = sprintf(
+				/* translators: 1: admin display name, 2: revoke reason */
+				__( 'Revoked by %1$s: %2$s', 'business-directory' ),
+				$revoker_lbl,
+				$notes
+			);
+			$combined_notes = $combined_notes ? ( $combined_notes . "\n" . $revoke_line ) : $revoke_line;
+		}
+
+		$result = $wpdb->update(
+			self::table(),
+			array(
+				'status'      => 'revoked',
+				'reviewed_by' => $admin_id,
+				'reviewed_at' => current_time( 'mysql' ),
+				'admin_notes' => sanitize_textarea_field( $combined_notes ),
+			),
+			array( 'id' => $id ),
+			array( '%s', '%d', '%s', '%s' ),
+			array( '%d' )
+		);
+
+		return $result !== false;
+	}
+
+	/**
+	 * Get all authorized users for a business (approved claims only).
+	 *
+	 * Joins the WP users table so a single query returns enough info to
+	 * render the "People with access" list in the meta box / modal without
+	 * further round-trips. Rows for deleted users still come back with NULL
+	 * user columns so the UI can show a warning instead of crashing.
+	 *
+	 * @param int $business_id Business post ID.
+	 * @return array[] Array of rows, each containing:
+	 *                 id, user_id, claimant_name, claimant_email, claimant_phone,
+	 *                 relationship, admin_notes, reviewed_by, reviewed_at,
+	 *                 user_login, user_email, display_name.
+	 */
+	public static function get_authorized_users( $business_id ) {
+		global $wpdb;
+
+		$business_id = absint( $business_id );
+		if ( ! $business_id ) {
+			return array();
+		}
+
+		$table = self::table();
+		$users = $wpdb->users;
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are internal, not user input.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT c.id, c.user_id, c.claimant_name, c.claimant_email, c.claimant_phone, c.relationship, c.admin_notes, c.reviewed_by, c.reviewed_at, u.user_login, u.user_email, u.display_name
+				 FROM {$table} c
+				 LEFT JOIN {$users} u ON u.ID = c.user_id
+				 WHERE c.business_id = %d AND c.status = 'approved'
+				 ORDER BY c.reviewed_at DESC",
+				$business_id
+			),
+			ARRAY_A
+		);
+
+		return $rows ?: array();
+	}
+
+	/**
 	 * Reject a claim request
 	 */
 	public static function reject( $id, $admin_id, $notes = '' ) {
