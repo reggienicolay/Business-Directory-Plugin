@@ -223,8 +223,21 @@ class QueryBuilder {
 			return $empty_result;
 		}
 
-		// Batch load all location data.
-		$this->batch_load_locations( $business_ids );
+		// Pre-compute a geographic bounding box when a radius filter is active.
+		// This lets batch_load_locations() add a SQL WHERE clause that filters
+		// out 90-95% of rows before they reach PHP, dramatically reducing the
+		// Haversine calculation count (e.g. 5000 → ~250 for a 25km radius).
+		$bounds = null;
+		if ( isset( $this->filters['lat'] ) && isset( $this->filters['lng'] ) && ! empty( $this->filters['radius_km'] ) ) {
+			$bounds = $this->compute_bounding_box(
+				floatval( $this->filters['lat'] ),
+				floatval( $this->filters['lng'] ),
+				floatval( $this->filters['radius_km'] )
+			);
+		}
+
+		// Batch load location data (with optional bounding-box pre-filter).
+		$this->batch_load_locations( $business_ids, $bounds );
 
 		// Batch load hours data if "open now" filter is active.
 		if ( ! empty( $this->filters['open_now'] ) ) {
@@ -365,9 +378,15 @@ class QueryBuilder {
 	 * 1. Query custom bd_locations table
 	 * 2. Query postmeta for bd_location (fallback for new submissions)
 	 *
-	 * @param array $business_ids Array of business post IDs.
+	 * When $bounds is provided, a geographic bounding-box WHERE clause is
+	 * appended to the custom-table query so MySQL filters out distant
+	 * locations at the SQL level before they reach PHP. The meta fallback
+	 * applies the same filter in PHP (serialized data can't be indexed).
+	 *
+	 * @param array      $business_ids Array of business post IDs.
+	 * @param array|null $bounds       Optional bounding box from compute_bounding_box().
 	 */
-	private function batch_load_locations( $business_ids ) {
+	private function batch_load_locations( $business_ids, $bounds = null ) {
 		global $wpdb;
 
 		$this->location_cache = array();
@@ -382,15 +401,23 @@ class QueryBuilder {
 			$table_name   = $wpdb->prefix . 'bd_locations';
 			$placeholders = $this->build_in_placeholders( $ids_array );
 
+			// Build the SQL — optionally append bounding-box filter when a
+			// radius search is active. The idx_lat index handles the range.
+			$sql  = "SELECT business_id, lat, lng, address, city, state, postal_code FROM `{$table_name}` WHERE business_id IN ({$placeholders})";
+			$args = $ids_array;
+
+			if ( $bounds ) {
+				$sql   .= ' AND lat BETWEEN %f AND %f AND lng BETWEEN %f AND %f';
+				$args[] = $bounds['lat_min'];
+				$args[] = $bounds['lat_max'];
+				$args[] = $bounds['lng_min'];
+				$args[] = $bounds['lng_max'];
+			}
+
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Batch loading for performance.
 			$table_locations = $wpdb->get_results(
-				$wpdb->prepare(
-					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name from $wpdb->prefix, placeholders generated safely.
-					"SELECT business_id, lat, lng, address, city, state, postal_code 
-					FROM `{$table_name}` 
-					WHERE business_id IN ({$placeholders})",
-					...$ids_array
-				),
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared -- Table name from $wpdb->prefix, placeholders generated safely.
+				$wpdb->prepare( $sql, ...$args ),
 				ARRAY_A
 			);
 
@@ -436,9 +463,18 @@ class QueryBuilder {
 				$location_meta = maybe_unserialize( $row['meta_value'] );
 
 				if ( is_array( $location_meta ) && isset( $location_meta['lat'] ) && isset( $location_meta['lng'] ) ) {
+					$lat = floatval( $location_meta['lat'] );
+					$lng = floatval( $location_meta['lng'] );
+
+					// Apply bounding-box filter in PHP for meta-based locations
+					// (serialized data can't be filtered in SQL).
+					if ( $bounds && ( $lat < $bounds['lat_min'] || $lat > $bounds['lat_max'] || $lng < $bounds['lng_min'] || $lng > $bounds['lng_max'] ) ) {
+						continue;
+					}
+
 					$this->location_cache[ absint( $row['post_id'] ) ] = array(
-						'lat'     => floatval( $location_meta['lat'] ),
-						'lng'     => floatval( $location_meta['lng'] ),
+						'lat'     => $lat,
+						'lng'     => $lng,
 						'address' => isset( $location_meta['address'] ) ? $location_meta['address'] : '',
 						'city'    => isset( $location_meta['city'] ) ? $location_meta['city'] : '',
 						'state'   => isset( $location_meta['state'] ) ? $location_meta['state'] : '',
@@ -523,6 +559,35 @@ class QueryBuilder {
 		}
 
 		return ( $current_time >= $today['open'] && $current_time <= $today['close'] );
+	}
+
+	/**
+	 * Compute a geographic bounding box around a center point.
+	 *
+	 * Returns min/max lat/lng values that define a rectangle enclosing a
+	 * circle of the given radius. Used as a SQL pre-filter so the database
+	 * eliminates distant rows before PHP runs the exact Haversine formula.
+	 *
+	 * A 10% padding is added to compensate for the rectangular approximation
+	 * — at Tri-Valley latitudes (~37.7°N) the error is negligible.
+	 *
+	 * @param float $lat       Center latitude in degrees.
+	 * @param float $lng       Center longitude in degrees.
+	 * @param float $radius_km Search radius in kilometers.
+	 * @return array { lat_min, lat_max, lng_min, lng_max }
+	 */
+	private function compute_bounding_box( $lat, $lng, $radius_km ) {
+		// 1 degree of latitude  ≈ 111 km (constant everywhere).
+		// 1 degree of longitude ≈ 111 km × cos(latitude) (varies by latitude).
+		$lat_delta = ( $radius_km / 111.0 ) * 1.1;
+		$lng_delta = ( $radius_km / ( 111.0 * max( cos( deg2rad( $lat ) ), 0.01 ) ) ) * 1.1;
+
+		return array(
+			'lat_min' => $lat - $lat_delta,
+			'lat_max' => $lat + $lat_delta,
+			'lng_min' => $lng - $lng_delta,
+			'lng_max' => $lng + $lng_delta,
+		);
 	}
 
 	/**

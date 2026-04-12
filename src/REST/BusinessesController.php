@@ -74,12 +74,27 @@ class BusinessesController {
 
 		$query = new \WP_Query( $args );
 
-		// Batch-prime caches to avoid N+1 queries (140 → ~5 queries).
+		// Batch-prime caches to avoid N+1 queries.
 		$post_ids = wp_list_pluck( $query->posts, 'ID' );
 		if ( ! empty( $post_ids ) ) {
 			update_meta_cache( 'post', $post_ids );
 			update_object_term_cache( $post_ids, 'bd_business' );
 			\BD\DB\LocationsTable::batch_load( $post_ids );
+
+			// Prime attachment post cache for thumbnails. update_meta_cache()
+			// above cached _thumbnail_id for each business, so this loop reads
+			// from cache — then one _prime_post_caches() call loads all the
+			// attachment posts in a single query instead of one per business.
+			$thumbnail_ids = array();
+			foreach ( $post_ids as $pid ) {
+				$tid = (int) get_post_meta( $pid, '_thumbnail_id', true );
+				if ( $tid ) {
+					$thumbnail_ids[] = $tid;
+				}
+			}
+			if ( ! empty( $thumbnail_ids ) ) {
+				_prime_post_caches( array_unique( $thumbnail_ids ), false, false );
+			}
 		}
 
 		$businesses = array();
@@ -92,7 +107,7 @@ class BusinessesController {
 				'excerpt'     => $post->post_excerpt,
 				'permalink'   => get_permalink( $post->ID ),
 				'thumbnail'   => get_the_post_thumbnail_url( $post->ID, 'medium' ),
-				'categories'  => wp_get_post_terms( $post->ID, 'bd_category', array( 'fields' => 'names' ) ),
+				'categories'  => self::get_cached_term_names( $post->ID, 'bd_category' ),
 				'phone'       => get_post_meta( $post->ID, 'bd_phone', true ),
 				'website'     => get_post_meta( $post->ID, 'bd_website', true ),
 				'price_level' => get_post_meta( $post->ID, 'bd_price_level', true ),
@@ -127,6 +142,25 @@ class BusinessesController {
 				'pages' => $query->max_num_pages,
 			)
 		);
+	}
+
+	/**
+	 * Get term names from the object term cache.
+	 *
+	 * Uses get_the_terms() which reads from the cache primed by
+	 * update_object_term_cache(), unlike wp_get_post_terms() which
+	 * always queries the database.
+	 *
+	 * @param int    $post_id  Post ID.
+	 * @param string $taxonomy Taxonomy name.
+	 * @return string[] Array of term names.
+	 */
+	private static function get_cached_term_names( $post_id, $taxonomy ) {
+		$terms = get_the_terms( $post_id, $taxonomy );
+		if ( ! $terms || is_wp_error( $terms ) ) {
+			return array();
+		}
+		return wp_list_pluck( $terms, 'name' );
 	}
 
 	private static function calculate_distance( $lat1, $lng1, $lat2, $lng2 ) {

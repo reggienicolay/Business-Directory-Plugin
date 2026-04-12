@@ -73,6 +73,7 @@ Rate limits are enforced per IP address using WordPress transients.
 | Endpoint | Limit | Window |
 |----------|-------|--------|
 | `POST /claim` | 3 requests | Per hour |
+| `POST /claims/grant` | 30 requests per admin | Per 10 minutes |
 | `POST /submit-business` | 3 requests | Per hour |
 | `POST /submit-review` | 5 requests | Per hour |
 | `POST /lists` | 10 requests | Per hour |
@@ -501,6 +502,161 @@ Reject a pending claim.
 **Side effects:**
 
 - Sends a rejection notification email to the claimant.
+
+---
+
+### POST /claims/grant
+
+**In-field grant access.** Authorise a known business owner (or marketing contact) to manage a business listing without making them complete the public `/claim` form. Designed for directory managers who meet owners in person.
+
+Written as a single code path shared by three UI entry points:
+
+1. **"Business Access" meta box** on the `bd_business` edit screen
+2. **"Grant Access" row action** on the businesses list table
+3. **🔑 Grant Access admin-bar node** on the public single-business page (so a directory manager on a phone can grant access directly from the business's public URL)
+
+**Auth:** Admin (`bd_manage_claims` or `manage_options`)
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `business_id` | integer | Yes | ID of the `bd_business` post |
+| `email` | string | Yes | Email address of the user to grant access to. If the user doesn't exist, an account is created. |
+| `name` | string | No | Full name. Used only when creating a new account. |
+| `phone` | string | No | Contact phone (stored on the claim row) |
+| `relationship` | string | No | `owner` (default), `manager`, `staff`, or `other`. Multiple users may be granted per business — e.g. one `owner` plus one `manager`. |
+| `note` | string | No | Internal admin note stored in the claim row's `admin_notes` column. Prefixed with "Granted in-field by {admin name}:" |
+| `send_welcome` | boolean | No | Default `true`. Email a welcome message with login details to newly created users. Existing users are never sent a welcome email. |
+
+**Response (new grant):**
+
+```json
+{
+  "success": true,
+  "already": false,
+  "business_id": 123,
+  "user_id": 456,
+  "claim_id": 78,
+  "created_user": true,
+  "relationship": "owner",
+  "message": "New user created and granted access."
+}
+```
+
+**Response (user already has access):**
+
+Idempotent — granting the same user access to the same business returns success without creating a duplicate claim row:
+
+```json
+{
+  "success": true,
+  "already": true,
+  "business_id": 123,
+  "user_id": 456,
+  "claim_id": 78,
+  "created_user": false,
+  "relationship": "owner",
+  "message": "User already has approved access to this business."
+}
+```
+
+**Side effects:**
+
+- **New users:** a WordPress account is created with the `business_owner` role and a 16-character random password. On DB failure after creation, the orphan account is deleted (rollback).
+- **Existing users:** `business_owner` role is added (never replaces existing roles; admins and directory managers are never demoted).
+- An approved row is inserted into `wp_bd_claim_requests` with `status=approved`, `reviewed_by` set to the acting admin, and an audit-trail entry in `admin_notes`.
+- When `relationship=owner` AND no existing primary owner exists, the `bd_claimed_by` post meta is set. Secondary grants (e.g. a manager) never overwrite an existing primary owner.
+- Fires `do_action( 'bd_claim_approved', $claim_id, $business_id, $user_id )` for companion-plugin compatibility.
+- Fires `do_action( 'bd_access_granted', $claim_id, $business_id, $user_id, $relationship, $granted_by )` for plugins that want to differentiate in-field grants from form-approved claims.
+
+**Example request:**
+
+```bash
+curl -X POST "https://yoursite.com/wp-json/bd/v1/claims/grant" \
+  -H "X-WP-Nonce: <nonce>" \
+  -H "Content-Type: application/json" \
+  --cookie-jar cookies.txt \
+  -d '{
+    "business_id": 123,
+    "email": "owner@example.com",
+    "name": "Jane Doe",
+    "relationship": "owner",
+    "note": "Met at Livermore Farmers Market"
+  }'
+```
+
+---
+
+### GET /businesses/{id}/access
+
+List all users with approved access to a business. Used by the Grant Access modal to render the "People with access" list.
+
+**Auth:** Admin (`bd_manage_claims` or `manage_options`)
+
+**Response:**
+
+```json
+{
+  "business_id": 123,
+  "users": [
+    {
+      "claim_id": 78,
+      "user_id": 456,
+      "display_name": "Jane Doe",
+      "email": "jane@example.com",
+      "phone": "(925) 555-0123",
+      "relationship": "owner",
+      "granted_at": "2026-04-08 14:32:10",
+      "granted_by": 1,
+      "admin_notes": "Granted in-field by Nicole: Met at Farmers Market",
+      "is_primary": true,
+      "user_missing": false
+    }
+  ]
+}
+```
+
+**Notes:**
+
+- `is_primary` indicates the user stored in the business's `bd_claimed_by` post meta (the "primary owner" for backward compatibility).
+- `user_missing` is `true` if the associated WP user account was deleted but the claim row still exists — the UI should show a warning and offer revocation.
+- Response contains PII (email, phone) and internal admin notes. Always gated by the `bd_manage_claims` capability.
+
+---
+
+### POST /claims/{id}/revoke
+
+Revoke a previously granted approved claim. Distinct from `/claims/{id}/reject`, which only operates on `pending` rows.
+
+**Auth:** Admin (`bd_manage_claims` or `manage_options`)
+
+**Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `note` | string | No | Reason appended to the claim row's `admin_notes` (audit trail) |
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "business_id": 123,
+  "user_id": 456,
+  "claim_id": 78,
+  "was_primary": true,
+  "new_primary_id": 457,
+  "message": "Access revoked."
+}
+```
+
+**Side effects:**
+
+- The claim row's `status` is flipped to `revoked`. The existing `admin_notes` (grant audit trail) is preserved; the revoke reason is appended as a new line.
+- The WP user's `business_owner` role is **not** removed — they may still own other businesses. Authorization is enforced by the claim row's `status`, so flipping it to `revoked` is sufficient to cut off access to this business.
+- **Primary owner reassignment:** if the revoked user was the current primary owner (`bd_claimed_by`), another remaining approved owner is promoted (preferring one with `relationship=owner`). If nobody remains, all primary-owner meta keys are cleared and the public claim form becomes available again for this business.
+- Fires `do_action( 'bd_access_revoked', $claim_id, $business_id, $user_id, $revoked_by, $new_primary_id )`.
 
 ---
 

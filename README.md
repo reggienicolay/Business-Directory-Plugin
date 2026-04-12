@@ -31,6 +31,7 @@ Business Directory Pro is a premium WordPress plugin designed for community-focu
 - **Proof Upload** - Document verification for ownership claims
 - **Admin Review Queue** - Approve/reject claims with notes
 - **Automatic Account Creation** - New users created on claim approval
+- **In-Field Grant Access** - Directory managers can grant a known owner direct access from the business edit screen, list-table row action, or the frontend admin bar (designed for managers meeting owners in person). Supports multiple authorized users per business (e.g. owner + marketing contact) with per-user roles. See `API.md` → `/claims/grant`.
 
 ### Gamification System
 - **Points & Badges** - Reward users for reviews, photos, and engagement

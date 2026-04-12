@@ -74,6 +74,7 @@ class Plugin {
 			new Moderation\SubmissionsQueue();
 			new Moderation\ReviewsQueue();
 			new Admin\ClaimsQueue();
+			new Admin\BusinessAccessMetaBox();
 			Admin\FeaturedAdmin::init();
 			// BadgeAdmin is loaded by gamification-loader.php
 		}
@@ -84,6 +85,7 @@ class Plugin {
 		new Forms\BusinessSubmission();
 		new Forms\ReviewSubmission();
 		new Forms\ClaimRequest();
+		new Frontend\GrantAccessToolbar();
 	}
 
 	/**

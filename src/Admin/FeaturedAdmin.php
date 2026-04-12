@@ -265,12 +265,22 @@ class FeaturedAdmin {
 		$ids = get_option( self::OPTION_NAME, array() );
 		$ids = is_array( $ids ) ? array_map( 'absint', $ids ) : array();
 
-		// Validate that all IDs still exist and are published.
-		$valid_ids = array();
-		foreach ( $ids as $id ) {
-			if ( get_post_status( $id ) === 'publish' && get_post_type( $id ) === 'bd_business' ) {
-				$valid_ids[] = $id;
-			}
+		// Validate that all IDs still exist and are published — single query
+		// instead of N individual get_post_status()/get_post_type() calls.
+		// orderby=post__in preserves the admin's featured ordering.
+		if ( ! empty( $ids ) ) {
+			$valid_ids = get_posts(
+				array(
+					'include'     => $ids,
+					'post_type'   => 'bd_business',
+					'post_status' => 'publish',
+					'numberposts' => -1,
+					'fields'      => 'ids',
+					'orderby'     => 'post__in',
+				)
+			);
+		} else {
+			$valid_ids = array();
 		}
 
 		// Update if any were removed.

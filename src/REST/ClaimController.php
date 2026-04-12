@@ -54,6 +54,96 @@ class ClaimController {
 				'permission_callback' => array( __CLASS__, 'admin_permission' ),
 			)
 		);
+
+		// List authorized users for a business (admin only).
+		register_rest_route(
+			'bd/v1',
+			'/businesses/(?P<id>\d+)/access',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'get_business_access' ),
+				'permission_callback' => array( __CLASS__, 'admin_permission' ),
+				'args'                => array(
+					'id' => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+
+		// Revoke an approved claim (admin only). Distinct from reject_claim,
+		// which only operates on pending rows. This acts on already-approved
+		// rows and handles primary-owner cleanup.
+		register_rest_route(
+			'bd/v1',
+			'/claims/(?P<id>\d+)/revoke',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'revoke_access' ),
+				'permission_callback' => array( __CLASS__, 'admin_permission' ),
+				'args'                => array(
+					'id'   => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+					'note' => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_textarea_field',
+					),
+				),
+			)
+		);
+
+		// In-field grant access (admin only) — bypasses the public claim form.
+		register_rest_route(
+			'bd/v1',
+			'/claims/grant',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'grant_access' ),
+				'permission_callback' => array( __CLASS__, 'admin_permission' ),
+				'args'                => array(
+					'business_id'  => array(
+						'required'          => true,
+						'type'              => 'integer',
+						'sanitize_callback' => 'absint',
+					),
+					'email'        => array(
+						'required'          => true,
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_email',
+						'validate_callback' => static function ( $value ) {
+							return is_email( $value ) !== false;
+						},
+					),
+					'name'         => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'phone'        => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'relationship' => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_text_field',
+						'enum'              => array( 'owner', 'manager', 'staff', 'other' ),
+						'default'           => 'owner',
+					),
+					'note'         => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_textarea_field',
+					),
+					'send_welcome' => array(
+						'type'    => 'boolean',
+						'default' => true,
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -320,6 +410,135 @@ class ClaimController {
 				'message' => __( 'Claim rejected.', 'business-directory' ),
 			)
 		);
+	}
+
+	/**
+	 * In-field grant access handler.
+	 *
+	 * Endpoint: POST /bd/v1/claims/grant
+	 * Auth:     bd_manage_claims (or manage_options)
+	 *
+	 * Lets a directory manager authorise a known business owner (or marketing
+	 * contact) to edit a listing without making them complete the public claim
+	 * form. Delegates all logic to \BD\Admin\GrantAccess::grant() so this is
+	 * the only endpoint — the meta box, row action, and frontend toolbar UIs
+	 * (Phase 2) will hit this same route.
+	 *
+	 * A light rate limit is applied per admin to prevent runaway loops from a
+	 * buggy client. This is NOT a security boundary — the cap check is.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function grant_access( $request ) {
+		$admin_id = get_current_user_id();
+
+		// Mild per-admin rate limit (belt-and-suspenders; cap check is the real gate).
+		$rate_check = \BD\Security\RateLimit::check( 'claim_grant', 'u' . $admin_id, 30, 600 );
+		if ( is_wp_error( $rate_check ) ) {
+			return $rate_check;
+		}
+
+		$result = \BD\Admin\GrantAccess::grant(
+			array(
+				'business_id'  => absint( $request->get_param( 'business_id' ) ),
+				'email'        => sanitize_email( $request->get_param( 'email' ) ),
+				'name'         => sanitize_text_field( (string) $request->get_param( 'name' ) ),
+				'phone'        => sanitize_text_field( (string) $request->get_param( 'phone' ) ),
+				'relationship' => sanitize_text_field( (string) ( $request->get_param( 'relationship' ) ?: 'owner' ) ),
+				'note'         => sanitize_textarea_field( (string) $request->get_param( 'note' ) ),
+				'send_welcome' => (bool) $request->get_param( 'send_welcome' ),
+				'granted_by'   => $admin_id,
+			)
+		);
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * List authorized users for a business.
+	 *
+	 * Endpoint: GET /bd/v1/businesses/{id}/access
+	 * Auth:     bd_manage_claims (or manage_options)
+	 *
+	 * Returns all approved claim rows for a business with minimal user
+	 * info joined in (display_name, user_email). Used by the access modal
+	 * and the "Business Access" meta box to render the current authorized
+	 * users list.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function get_business_access( $request ) {
+		$business_id = absint( $request['id'] );
+
+		$business = get_post( $business_id );
+		if ( ! $business || 'bd_business' !== $business->post_type ) {
+			return new \WP_Error( 'invalid_business', __( 'Business not found.', 'business-directory' ), array( 'status' => 404 ) );
+		}
+
+		$rows = \BD\DB\ClaimRequestsTable::get_authorized_users( $business_id );
+
+		// Shape the payload for the UI: only the fields the modal needs, all
+		// strings escaped at render time by the client. Also flag the primary
+		// owner (bd_claimed_by) so the UI can badge it.
+		$primary_id = (int) get_post_meta( $business_id, 'bd_claimed_by', true );
+
+		$users = array();
+		foreach ( $rows as $row ) {
+			$users[] = array(
+				'claim_id'     => (int) $row['id'],
+				'user_id'      => (int) $row['user_id'],
+				'display_name' => $row['display_name'] ?: $row['claimant_name'] ?: $row['claimant_email'],
+				'email'        => $row['user_email'] ?: $row['claimant_email'],
+				'phone'        => $row['claimant_phone'],
+				'relationship' => $row['relationship'] ?: 'owner',
+				'granted_at'   => $row['reviewed_at'],
+				'granted_by'   => (int) $row['reviewed_by'],
+				'admin_notes'  => $row['admin_notes'],
+				'is_primary'   => ( (int) $row['user_id'] === $primary_id ),
+				'user_missing' => empty( $row['user_login'] ),
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'business_id' => $business_id,
+				'users'       => $users,
+			)
+		);
+	}
+
+	/**
+	 * Revoke an approved claim.
+	 *
+	 * Endpoint: POST /bd/v1/claims/{id}/revoke
+	 * Auth:     bd_manage_claims (or manage_options)
+	 *
+	 * Delegates to GrantAccess::revoke() which handles the DB flip and
+	 * primary-owner reassignment.
+	 *
+	 * @param \WP_REST_Request $request REST request.
+	 * @return \WP_REST_Response|\WP_Error
+	 */
+	public static function revoke_access( $request ) {
+		$result = \BD\Admin\GrantAccess::revoke(
+			array(
+				'claim_id'   => absint( $request['id'] ),
+				'note'       => sanitize_textarea_field( (string) $request->get_param( 'note' ) ),
+				'revoked_by' => get_current_user_id(),
+			)
+		);
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response( $result );
 	}
 
 	/**

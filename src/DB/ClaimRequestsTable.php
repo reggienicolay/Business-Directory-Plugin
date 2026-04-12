@@ -135,6 +135,89 @@ class ClaimRequestsTable {
 	}
 
 	/**
+	 * Insert a claim row in an already-approved state (in-field grant).
+	 *
+	 * Used by the GrantAccess service when an admin (e.g. a directory manager in
+	 * the field) authorises a known business owner without making them fill out
+	 * the public claim form. Writes a full audit trail row: status=approved,
+	 * reviewed_by + reviewed_at set, admin_notes populated, no proof_files.
+	 *
+	 * @param array $data {
+	 *     Required keys: business_id, user_id, claimant_name, claimant_email, reviewed_by.
+	 *     Optional:     claimant_phone, relationship ('owner'|'manager'|'staff'|'other'), admin_notes.
+	 * }
+	 * @return int|false Inserted row ID or false on failure.
+	 */
+	public static function insert_granted( $data ) {
+		global $wpdb;
+
+		$business_id = absint( $data['business_id'] ?? 0 );
+		$user_id     = absint( $data['user_id'] ?? 0 );
+		$reviewed_by = absint( $data['reviewed_by'] ?? 0 );
+
+		if ( ! $business_id || ! $user_id || ! $reviewed_by ) {
+			return false;
+		}
+
+		$relationship = isset( $data['relationship'] ) ? sanitize_text_field( $data['relationship'] ) : 'owner';
+		$allowed      = array( 'owner', 'manager', 'staff', 'other' );
+		if ( ! in_array( $relationship, $allowed, true ) ) {
+			$relationship = 'owner';
+		}
+
+		$clean = array(
+			'business_id'    => $business_id,
+			'user_id'        => $user_id,
+			'claimant_name'  => sanitize_text_field( $data['claimant_name'] ?? '' ),
+			'claimant_email' => sanitize_email( $data['claimant_email'] ?? '' ),
+			'claimant_phone' => isset( $data['claimant_phone'] ) ? sanitize_text_field( $data['claimant_phone'] ) : null,
+			'relationship'   => $relationship,
+			'proof_files'    => null,
+			'message'        => null,
+			'status'         => 'approved',
+			'admin_notes'    => isset( $data['admin_notes'] ) ? sanitize_textarea_field( $data['admin_notes'] ) : null,
+			'reviewed_by'    => $reviewed_by,
+			'reviewed_at'    => current_time( 'mysql' ),
+		);
+
+		$format = array( '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%s' );
+
+		$result = $wpdb->insert( self::table(), $clean, $format );
+
+		if ( false === $result ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+			error_log( '[BD Claims] insert_granted failed: ' . $wpdb->last_error );
+			return false;
+		}
+
+		return (int) $wpdb->insert_id;
+	}
+
+	/**
+	 * Find an existing approved claim row for a (business, user) pair.
+	 *
+	 * Used to de-dupe before creating a new grant row.
+	 *
+	 * @param int $business_id Business post ID.
+	 * @param int $user_id     WP user ID.
+	 * @return array|null Row array or null if none.
+	 */
+	public static function get_approved_for_user( $business_id, $user_id ) {
+		global $wpdb;
+
+		$row = $wpdb->get_row(
+			$wpdb->prepare(
+				'SELECT id, relationship, reviewed_at FROM ' . self::table() . " WHERE business_id = %d AND user_id = %d AND status = 'approved' ORDER BY reviewed_at DESC LIMIT 1",
+				absint( $business_id ),
+				absint( $user_id )
+			),
+			ARRAY_A
+		);
+
+		return $row ?: null;
+	}
+
+	/**
 	 * Get claims by business ID
 	 */
 	public static function get_by_business( $business_id, $status = null ) {
@@ -206,6 +289,102 @@ class ClaimRequestsTable {
 		);
 
 		return $result !== false;
+	}
+
+	/**
+	 * Revoke an approved claim.
+	 *
+	 * Flips status=approved → revoked, records who did it and why. Unlike
+	 * reject() (which acts on pending rows), revoke() acts on already-approved
+	 * rows — e.g. when a business owner leaves a company and their access
+	 * needs to be taken away.
+	 *
+	 * @param int    $id       Claim row ID.
+	 * @param int    $admin_id Admin user performing the revoke.
+	 * @param string $notes    Optional reason appended to admin_notes.
+	 * @return bool True on success, false on failure.
+	 */
+	public static function revoke( $id, $admin_id, $notes = '' ) {
+		global $wpdb;
+
+		$id       = absint( $id );
+		$admin_id = absint( $admin_id );
+
+		// Preserve any existing admin_notes (grant audit trail) by appending
+		// the revoke reason rather than overwriting.
+		$existing = self::get( $id );
+		if ( ! $existing ) {
+			return false;
+		}
+
+		$combined_notes = trim( (string) ( $existing['admin_notes'] ?? '' ) );
+		if ( $notes ) {
+			$revoker     = get_userdata( $admin_id );
+			$revoker_lbl = $revoker ? $revoker->display_name : sprintf( 'user #%d', $admin_id );
+			$revoke_line = sprintf(
+				/* translators: 1: admin display name, 2: revoke reason */
+				__( 'Revoked by %1$s: %2$s', 'business-directory' ),
+				$revoker_lbl,
+				$notes
+			);
+			$combined_notes = $combined_notes ? ( $combined_notes . "\n" . $revoke_line ) : $revoke_line;
+		}
+
+		$result = $wpdb->update(
+			self::table(),
+			array(
+				'status'      => 'revoked',
+				'reviewed_by' => $admin_id,
+				'reviewed_at' => current_time( 'mysql' ),
+				'admin_notes' => sanitize_textarea_field( $combined_notes ),
+			),
+			array( 'id' => $id ),
+			array( '%s', '%d', '%s', '%s' ),
+			array( '%d' )
+		);
+
+		return $result !== false;
+	}
+
+	/**
+	 * Get all authorized users for a business (approved claims only).
+	 *
+	 * Joins the WP users table so a single query returns enough info to
+	 * render the "People with access" list in the meta box / modal without
+	 * further round-trips. Rows for deleted users still come back with NULL
+	 * user columns so the UI can show a warning instead of crashing.
+	 *
+	 * @param int $business_id Business post ID.
+	 * @return array[] Array of rows, each containing:
+	 *                 id, user_id, claimant_name, claimant_email, claimant_phone,
+	 *                 relationship, admin_notes, reviewed_by, reviewed_at,
+	 *                 user_login, user_email, display_name.
+	 */
+	public static function get_authorized_users( $business_id ) {
+		global $wpdb;
+
+		$business_id = absint( $business_id );
+		if ( ! $business_id ) {
+			return array();
+		}
+
+		$table = self::table();
+		$users = $wpdb->users;
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names are internal, not user input.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT c.id, c.user_id, c.claimant_name, c.claimant_email, c.claimant_phone, c.relationship, c.admin_notes, c.reviewed_by, c.reviewed_at, u.user_login, u.user_email, u.display_name
+				 FROM {$table} c
+				 LEFT JOIN {$users} u ON u.ID = c.user_id
+				 WHERE c.business_id = %d AND c.status = 'approved'
+				 ORDER BY c.reviewed_at DESC",
+				$business_id
+			),
+			ARRAY_A
+		);
+
+		return $rows ?: array();
 	}
 
 	/**

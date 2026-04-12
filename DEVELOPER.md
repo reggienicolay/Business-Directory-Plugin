@@ -576,6 +576,9 @@ The plugin registers **27 shortcodes** (24 unique + 3 aliases). Grouped by funct
 | `bd_badge_awarded` | Single badge manually awarded | `$user_id`, `$badge_key`, `$awarded_by` |
 | `bd_before_duplicate_merge` | Before merging duplicate businesses | `$canonical_id`, `$duplicate_id` |
 | `bd_seo_before_slug_redirect` | Before a 301 taxonomy slug redirect | `$redirect_url`, `$request_uri` |
+| `bd_claim_approved` | After a claim is approved (form-submitted OR in-field grant) | `$claim_id`, `$business_id`, `$user_id` |
+| `bd_access_granted` | Specifically after an in-field grant (not a form claim) — fires in addition to `bd_claim_approved` so companion plugins can differentiate the two flows | `$claim_id`, `$business_id`, `$user_id`, `$relationship` (`owner`/`manager`/`staff`/`other`), `$granted_by` (admin user ID) |
+| `bd_access_revoked` | After an approved claim is revoked via the Grant Access UI | `$claim_id`, `$business_id`, `$user_id`, `$revoked_by`, `$new_primary_id` (null if no remaining owners) |
 
 ### Key WordPress Hooks Used
 
