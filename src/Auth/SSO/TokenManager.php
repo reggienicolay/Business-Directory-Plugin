@@ -101,6 +101,18 @@ class TokenManager {
 			return false;
 		}
 
+		// Verify the token is being redeemed from the same IP that created it.
+		// Prevents stolen tokens from being used on a different network.
+		$current_ip = self::get_client_ip();
+		if ( ! empty( $token_data['ip'] ) && $current_ip && $token_data['ip'] !== $current_ip ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log( sprintf( '[BD SSO] Token IP mismatch: stored=%s current=%s user=%d', $token_data['ip'], $current_ip, $token_data['user_id'] ) );
+			}
+			self::invalidate_token( $token );
+			return false;
+		}
+
 		// Invalidate token after use (single-use).
 		self::invalidate_token( $token );
 
@@ -118,22 +130,29 @@ class TokenManager {
 	}
 
 	/**
-	 * Get client IP address
+	 * Get client IP address using trusted sources only.
+	 *
+	 * Delegates to Security\RateLimit::get_client_ip() when available, which
+	 * trusts Cloudflare's CF-CONNECTING-IP header (validated by Cloudflare)
+	 * and only trusts X-Forwarded-For when explicitly enabled via the
+	 * `bd_trust_proxy_headers` filter. Falls back to REMOTE_ADDR.
+	 *
+	 * Previous implementation trusted HTTP_CLIENT_IP and HTTP_X_FORWARDED_FOR
+	 * unconditionally — both are client-controlled headers that can be
+	 * spoofed to bypass IP-based token validation.
 	 *
 	 * @return string IP address.
 	 */
 	private static function get_client_ip() {
-		$ip = '';
-
-		if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CLIENT_IP'] ) );
-		} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-			$forwarded = sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] ) );
-			$ip_list   = explode( ',', $forwarded );
-			$ip        = trim( $ip_list[0] );
-		} elseif ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
-			$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
+		// Reuse the hardened IP detection from Security\RateLimit if available.
+		if ( class_exists( '\BD\Security\RateLimit' ) ) {
+			return \BD\Security\RateLimit::get_client_ip();
 		}
+
+		// Minimal fallback: only REMOTE_ADDR (not spoofable).
+		$ip = isset( $_SERVER['REMOTE_ADDR'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) )
+			: '';
 
 		return filter_var( $ip, FILTER_VALIDATE_IP ) ? $ip : '';
 	}

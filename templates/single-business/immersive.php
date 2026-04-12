@@ -49,10 +49,14 @@ while ( have_posts() ) :
 	$current_user_id = get_current_user_id();
 	$is_owner        = ( $current_user_id && intval( $claimed_by ) === $current_user_id );
 
-	// Taxonomies.
-	$categories = wp_get_post_terms( $business_id, 'bd_category' );
-	$areas      = wp_get_post_terms( $business_id, 'bd_area' );
-	$tags       = wp_get_post_terms( $business_id, 'bd_tag' );
+	// Taxonomies — prime the object term cache first (one query for all
+	// three taxonomies) so get_the_terms() reads from cache instead of
+	// querying per taxonomy. wp_get_post_terms() always queries the DB
+	// even when the cache is primed, so we use get_the_terms() instead.
+	update_object_term_cache( array( $business_id ), 'bd_business' );
+	$categories = get_the_terms( $business_id, 'bd_category' ) ?: array();
+	$areas      = get_the_terms( $business_id, 'bd_area' ) ?: array();
+	$tags       = get_the_terms( $business_id, 'bd_tag' ) ?: array();
 
 	// Photos - Gallery + Featured Image.
 	// Note: Photos stored in bd_photos, featured image is post thumbnail

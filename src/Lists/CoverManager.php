@@ -889,11 +889,22 @@ class CoverManager {
 	 * @return string|false Thumbnail URL or false.
 	 */
 	public static function get_video_thumbnail_url( $platform, $video_id ) {
-		// Check cache first
+		// Check cache first.
 		$cache_key = 'bd_video_thumb_' . $platform . '_' . $video_id;
 		$cached    = get_transient( $cache_key );
 		if ( false !== $cached ) {
-			return $cached ?: false; // Empty string means "no thumbnail found"
+			return $cached ?: false; // Empty string means "no thumbnail found".
+		}
+
+		// On frontend requests, never make blocking external API calls to
+		// fetch video thumbnails — a cache miss for 12 list cards with video
+		// covers would fire 3 wp_remote_head() calls each (5s timeout),
+		// totalling up to 180 seconds of page hang. Return false so the
+		// caller falls back to a placeholder image. The thumbnail will be
+		// fetched and cached the next time the list is viewed/edited in
+		// wp-admin, or via WP-Cron if configured.
+		if ( ! is_admin() && ! wp_doing_ajax() && ! wp_doing_cron() && ! defined( 'REST_REQUEST' ) ) {
+			return false;
 		}
 
 		$url = false;

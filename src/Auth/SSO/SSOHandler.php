@@ -374,6 +374,12 @@ class SSOHandler {
 			? esc_url_raw( rawurldecode( wp_unslash( $_GET['bd_sso_return'] ) ) )
 			: home_url();
 
+		// Validate return URL is a network URL to prevent open-redirect
+		// attacks via a crafted bd_sso_return parameter.
+		if ( ! self::is_network_url( $return_url ) ) {
+			$return_url = home_url();
+		}
+
 		// Check for chain continuation.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$next_site = isset( $_GET['bd_sso_next'] ) ? absint( $_GET['bd_sso_next'] ) : 0;

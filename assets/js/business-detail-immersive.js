@@ -288,6 +288,10 @@
 			var $mapContainer = $('#bd-sidebar-map');
 			if (!$mapContainer.length || typeof L === 'undefined') return;
 
+			// Guard against re-initialization (e.g. jQuery ready firing twice,
+			// or Kadence theme re-running scripts after AJAX navigation).
+			if ($mapContainer[0]._leaflet_id) return;
+
 			var lat = parseFloat($mapContainer.data('lat'));
 			var lng = parseFloat($mapContainer.data('lng'));
 

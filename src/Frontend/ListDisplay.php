@@ -800,8 +800,31 @@ class ListDisplay {
 		);
 		$items = array_values( $items ); // Re-index array.
 
-		// Get map data for items with coordinates.
-		$map_items = ListManager::get_list_items_with_coords( $list['id'] );
+		// Build map data from items we already loaded — avoids a second call
+		// to get_list_items() inside get_list_items_with_coords().
+		$map_items    = array();
+		$business_ids = wp_list_pluck( $items, 'business_id' );
+		$locations    = ! empty( $business_ids ) ? ListManager::batch_get_post_meta( $business_ids, 'bd_location' ) : array();
+		foreach ( $items as $item ) {
+			if ( empty( $item['business'] ) ) {
+				continue;
+			}
+			$location = $locations[ $item['business_id'] ] ?? array();
+			if ( empty( $location['lat'] ) || empty( $location['lng'] ) ) {
+				continue;
+			}
+			$map_items[] = array(
+				'id'        => $item['business_id'],
+				'title'     => $item['business']['title'],
+				'permalink' => $item['business']['permalink'],
+				'image'     => $item['business']['featured_image'],
+				'rating'    => $item['business']['rating'],
+				'category'  => ! empty( $item['business']['categories'] ) ? $item['business']['categories'][0] : '',
+				'lat'       => floatval( $location['lat'] ),
+				'lng'       => floatval( $location['lng'] ),
+				'note'      => $item['user_note'] ?? '',
+			);
+		}
 
 		// Check if user is following this list.
 		$is_following   = $current_user_id ? ListManager::is_following( $list['id'], $current_user_id ) : false;
