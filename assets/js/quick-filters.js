@@ -223,8 +223,12 @@
 			// so we must init the map now. On mobile the default is 'list',
 			// so we defer map init to the first split-view toggle click —
 			// saving ~350 KB of render-blocking Leaflet assets.
+			//
+			// Leaflet JS loads from a CDN. On first visit it may not be
+			// parsed yet when this runs (jQuery ready fires before deferred
+			// CDN scripts). We retry briefly to avoid a silent no-op.
 			if (this.state.view === 'split') {
-				this.initMap();
+				this.initMapWhenReady();
 			}
 			this.loadBusinesses();
 			this.updateActiveFilters();
@@ -419,8 +423,7 @@
 					// Lazy-initialize the map on first switch to split view.
 					// Defers ~350 KB of Leaflet rendering until actually needed.
 					if (!self.map) {
-						self.initMap();
-						self.updateMapMarkers(self.currentBusinesses || []);
+						self.initMapWhenReady();
 					}
 				} else {
 					$mainContent.addClass('bd-qf-no-split');
@@ -800,6 +803,37 @@
 					$toast.remove();
 				}, 300);
 			}, 2500);
+		},
+
+		/**
+		 * Wait for Leaflet to be available, then initialize.
+		 *
+		 * Leaflet loads from a CDN as a deferred script. On cold first-visit
+		 * it may not be parsed when jQuery ready fires. We poll briefly
+		 * (up to 5 seconds) so the map always renders without requiring
+		 * a manual page refresh.
+		 */
+		initMapWhenReady: function () {
+			var self = this;
+			var attempts = 0;
+			var maxAttempts = 50; // 50 × 100ms = 5 seconds
+
+			function tryInit() {
+				if (typeof L !== 'undefined' && $('#bd-qf-map').length) {
+					self.initMap();
+					// Plot any businesses that loaded while we waited.
+					if (self.currentBusinesses && self.currentBusinesses.length) {
+						self.updateMapMarkers(self.currentBusinesses);
+					}
+					return;
+				}
+				attempts++;
+				if (attempts < maxAttempts) {
+					setTimeout(tryInit, 100);
+				}
+			}
+
+			tryInit();
 		},
 
 		/**
