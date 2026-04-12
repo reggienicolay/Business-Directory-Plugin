@@ -475,7 +475,7 @@ class ShareButtons {
 
 		// Check if table exists.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-		$exists = $wpdb->get_var( "SHOW TABLES LIKE '$table'" );
+		$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
 		if ( ! $exists ) {
 			return 0;
 		}
