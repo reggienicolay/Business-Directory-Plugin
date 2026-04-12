@@ -27,6 +27,7 @@ class ProfileEditor {
 	public static function init() {
 		add_action( 'wp_ajax_bd_update_profile', array( __CLASS__, 'handle_update' ) );
 		add_action( 'wp_ajax_bd_request_email_change', array( __CLASS__, 'handle_email_change_request' ) );
+		add_action( 'wp_ajax_bd_change_password', array( __CLASS__, 'handle_password_change' ) );
 	}
 
 	/**
@@ -779,6 +780,55 @@ class ProfileEditor {
 				do_action( 'bd_profile_editor_after_sections', $user_id, $data );
 				?>
 
+				<!-- Password & Security -->
+				<div class="bd-form-section bd-password-section">
+					<h3 class="bd-form-section-title">
+						<i class="fa-solid fa-lock"></i> <?php esc_html_e( 'Password & Security', 'business-directory' ); ?>
+					</h3>
+					<p class="bd-form-section-help">
+						<?php esc_html_e( 'Update the password you use to sign in. We will email you a confirmation when your password changes.', 'business-directory' ); ?>
+					</p>
+
+					<div class="bd-password-change-messages"></div>
+
+					<div class="bd-form-group">
+						<label for="bd-current-password">
+							<?php esc_html_e( 'Current Password', 'business-directory' ); ?>
+						</label>
+						<input type="password" id="bd-current-password" name="current_password"
+							autocomplete="current-password">
+					</div>
+
+					<div class="bd-form-row">
+						<div class="bd-form-group">
+							<label for="bd-new-password">
+								<?php esc_html_e( 'New Password', 'business-directory' ); ?>
+							</label>
+							<input type="password" id="bd-new-password" name="new_password"
+								autocomplete="new-password" minlength="8">
+							<small class="bd-form-help"><?php esc_html_e( 'At least 8 characters.', 'business-directory' ); ?></small>
+						</div>
+
+						<div class="bd-form-group">
+							<label for="bd-confirm-password">
+								<?php esc_html_e( 'Confirm New Password', 'business-directory' ); ?>
+							</label>
+							<input type="password" id="bd-confirm-password" name="confirm_password"
+								autocomplete="new-password" minlength="8">
+						</div>
+					</div>
+
+					<div class="bd-form-actions bd-form-actions-inline">
+						<button type="button" class="bd-btn bd-btn-secondary bd-change-password-btn">
+							<i class="fa-solid fa-key"></i> <?php esc_html_e( 'Update Password', 'business-directory' ); ?>
+						</button>
+						<a href="<?php echo esc_url( wp_lostpassword_url() ); ?>" class="bd-form-link">
+							<?php esc_html_e( 'Forgot your current password?', 'business-directory' ); ?>
+						</a>
+					</div>
+				</div>
+
+
 				<!-- Submit -->
 				<div class="bd-form-actions">
 					<button type="submit" class="bd-btn bd-btn-primary">
@@ -792,5 +842,158 @@ class ProfileEditor {
 		</div>
 		<?php
 		return ob_get_clean();
+	}
+
+	/**
+	 * Handle password change AJAX request.
+	 *
+	 * Verifies the current password, validates the new one, updates it,
+	 * keeps the user signed in, and emails a confirmation notification.
+	 */
+	public static function handle_password_change() {
+		// Verify nonce.
+		if ( ! check_ajax_referer( 'bd_profile_nonce', 'nonce', false ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Security check failed. Please refresh the page.', 'business-directory' ),
+				)
+			);
+			return;
+		}
+
+		// Must be logged in.
+		if ( ! is_user_logged_in() ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'You must be logged in to change your password.', 'business-directory' ),
+				)
+			);
+			return;
+		}
+
+		$user = wp_get_current_user();
+		if ( ! $user || ! $user->ID ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Unable to identify your account.', 'business-directory' ),
+				)
+			);
+			return;
+		}
+
+		$current_password = isset( $_POST['current_password'] ) ? (string) wp_unslash( $_POST['current_password'] ) : '';
+		$new_password     = isset( $_POST['new_password'] ) ? (string) wp_unslash( $_POST['new_password'] ) : '';
+		$confirm_password = isset( $_POST['confirm_password'] ) ? (string) wp_unslash( $_POST['confirm_password'] ) : '';
+
+		// Hard cap on input length to prevent bcrypt DoS via giant strings.
+		$max_password_length = 4096;
+		if (
+			strlen( $current_password ) > $max_password_length ||
+			strlen( $new_password ) > $max_password_length ||
+			strlen( $confirm_password ) > $max_password_length
+		) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Password is too long.', 'business-directory' ),
+				)
+			);
+			return;
+		}
+
+		// --- Cheap validations first (before bcrypt and before consuming a rate-limit slot) ---
+
+		if ( '' === $current_password || '' === $new_password || '' === $confirm_password ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Please fill in all password fields.', 'business-directory' ),
+				)
+			);
+			return;
+		}
+
+		if ( strlen( $new_password ) < 8 ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'New password must be at least 8 characters.', 'business-directory' ),
+				)
+			);
+			return;
+		}
+
+		if ( $new_password !== $confirm_password ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'New password and confirmation do not match.', 'business-directory' ),
+				)
+			);
+			return;
+		}
+
+		if ( $new_password === $current_password ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Your new password must be different from your current password.', 'business-directory' ),
+				)
+			);
+			return;
+		}
+
+		// --- Rate limit guards the bcrypt check below: 5 attempts/hour/user ---
+		if ( class_exists( '\\BD\\Security\\RateLimit' ) ) {
+			$allowed = \BD\Security\RateLimit::check( 'bd_change_password', (string) $user->ID, 5, HOUR_IN_SECONDS );
+			if ( ! $allowed ) {
+				wp_send_json_error(
+					array(
+						'message' => __( 'Too many password change attempts. Please try again later.', 'business-directory' ),
+					)
+				);
+				return;
+			}
+		}
+
+		// Verify current password against stored hash (expensive — last).
+		if ( ! wp_check_password( $current_password, $user->user_pass, $user->ID ) ) {
+			wp_send_json_error(
+				array(
+					'message' => __( 'Your current password is incorrect.', 'business-directory' ),
+				)
+			);
+			return;
+		}
+
+		// Update password. wp_set_password() destroys existing sessions/cookies,
+		// so we re-authenticate the current session immediately so the user
+		// stays signed in on this device.
+		wp_set_password( $new_password, $user->ID );
+		wp_clear_auth_cookie();
+		wp_set_current_user( $user->ID );
+		wp_set_auth_cookie( $user->ID, true );
+
+		// Reset rate-limit counter on success.
+		if ( class_exists( '\\BD\\Security\\RateLimit' ) ) {
+			\BD\Security\RateLimit::reset( 'bd_change_password', (string) $user->ID );
+		}
+
+		// Send confirmation email — one-way notification, no link/action.
+		$site_name = wp_specialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+		$subject   = sprintf(
+			/* translators: %s: site name */
+			__( '[%s] Your password was changed', 'business-directory' ),
+			$site_name
+		);
+		$message = sprintf(
+			/* translators: 1: user display name, 2: site name, 3: site URL */
+			__( "Hi %1\$s,\n\nThis is a confirmation that the password for your account on %2\$s was just changed.\n\nIf you made this change, no further action is required.\n\nIf you did NOT make this change, please reset your password immediately:\n%3\$s\n\nThanks,\nThe %2\$s Team", 'business-directory' ),
+			$user->display_name ? $user->display_name : $user->user_login,
+			$site_name,
+			esc_url_raw( wp_lostpassword_url() )
+		);
+		wp_mail( $user->user_email, $subject, $message );
+
+		wp_send_json_success(
+			array(
+				'message' => __( 'Your password has been updated.', 'business-directory' ),
+			)
+		);
 	}
 }

@@ -310,7 +310,7 @@ class AuthHandler {
 		}
 
 		if ( ! $terms ) {
-			$errors[] = __( 'You must agree to the Terms of Service.', 'business-directory' );
+			$errors[] = __( 'You must agree to the Terms of Use and Privacy Policy.', 'business-directory' );
 		}
 
 		if ( ! empty( $errors ) ) {

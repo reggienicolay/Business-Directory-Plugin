@@ -51,6 +51,9 @@
 			$(document).on('click', '.bd-cancel-email-change', this.hideEmailChange);
 			$(document).on('click', '.bd-send-verification', this.sendEmailVerification);
 
+			// Password change
+			$(document).on('click', '.bd-change-password-btn', this.handlePasswordChange);
+
 			// Smooth scroll for anchor links
 			$('a[href^="#bd-"]').on('click', function(e) {
 				e.preventDefault();
@@ -240,6 +243,83 @@
 				complete: function() {
 					$btn.removeClass('bd-loading').prop('disabled', false);
 					$btn.html(originalText);
+				}
+			});
+		},
+
+		// =========================================================================
+		// PASSWORD CHANGE
+		// =========================================================================
+
+		/**
+		 * Handle password change submission
+		 */
+		handlePasswordChange: function(e) {
+			e.preventDefault();
+
+			var $btn = $(this);
+			var $section = $btn.closest('.bd-password-section');
+			var $messages = $section.find('.bd-password-change-messages');
+			var $current = $section.find('#bd-current-password');
+			var $new = $section.find('#bd-new-password');
+			var $confirm = $section.find('#bd-confirm-password');
+
+			$messages.empty();
+
+			var current = $current.val();
+			var next = $new.val();
+			var confirmation = $confirm.val();
+
+			if (!current || !next || !confirmation) {
+				BD_Profile.showMessage('error', 'Please fill in all password fields.', $messages);
+				return;
+			}
+
+			if (next.length < 8) {
+				BD_Profile.showMessage('error', 'New password must be at least 8 characters.', $messages);
+				return;
+			}
+
+			if (next !== confirmation) {
+				BD_Profile.showMessage('error', 'New password and confirmation do not match.', $messages);
+				return;
+			}
+
+			if (next === current) {
+				BD_Profile.showMessage('error', 'Your new password must be different from your current password.', $messages);
+				return;
+			}
+
+			$btn.addClass('bd-loading').prop('disabled', true);
+			var originalHtml = $btn.html();
+			$btn.html('<i class="fa-solid fa-spinner fa-spin"></i> Updating...');
+
+			$.ajax({
+				url: bdProfile.ajaxUrl,
+				type: 'POST',
+				data: {
+					action: 'bd_change_password',
+					nonce: $('input[name="nonce"]').val(),
+					current_password: current,
+					new_password: next,
+					confirm_password: confirmation
+				},
+				success: function(response) {
+					if (response.success) {
+						BD_Profile.showMessage('success', response.data.message, $messages);
+						$current.val('');
+						$new.val('');
+						$confirm.val('');
+					} else {
+						BD_Profile.showMessage('error', response.data.message, $messages);
+					}
+				},
+				error: function() {
+					BD_Profile.showMessage('error', 'An error occurred. Please try again.', $messages);
+				},
+				complete: function() {
+					$btn.removeClass('bd-loading').prop('disabled', false);
+					$btn.html(originalHtml);
 				}
 			});
 		},

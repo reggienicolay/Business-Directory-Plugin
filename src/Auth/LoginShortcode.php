@@ -343,10 +343,12 @@ class LoginShortcode {
 								<span>
 									<?php
 									printf(
-										/* translators: %s: link to terms page */
-										esc_html__( 'I agree to the %s', 'business-directory' ),
-										'<a href="' . esc_url( home_url( '/terms/' ) ) . '" target="_blank">' .
-										esc_html__( 'Terms of Service', 'business-directory' ) . '</a>'
+										/* translators: 1: link to terms page, 2: link to privacy policy page */
+										esc_html__( 'I agree to the %1$s and %2$s', 'business-directory' ),
+										'<a href="' . esc_url( home_url( '/terms/' ) ) . '" target="_blank" rel="noopener">' .
+										esc_html__( 'Terms of Use', 'business-directory' ) . '</a>',
+										'<a href="' . esc_url( home_url( '/privacy/' ) ) . '" target="_blank" rel="noopener">' .
+										esc_html__( 'Privacy Policy', 'business-directory' ) . '</a>'
 									);
 									?>
 								</span>

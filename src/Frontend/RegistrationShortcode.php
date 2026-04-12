@@ -193,7 +193,7 @@ class RegistrationShortcode {
 							<div class="ll-form-group ll-checkbox-group">
 								<label>
 									<input type="checkbox" name="terms" required>
-									<span>I agree to the <a href="<?php echo home_url( '/terms' ); ?>" target="_blank">Terms of Service</a></span>
+									<span>I agree to the <a href="<?php echo esc_url( home_url( '/terms/' ) ); ?>" target="_blank" rel="noopener">Terms of Use</a> and <a href="<?php echo esc_url( home_url( '/privacy/' ) ); ?>" target="_blank" rel="noopener">Privacy Policy</a></span>
 								</label>
 							</div>
 							
