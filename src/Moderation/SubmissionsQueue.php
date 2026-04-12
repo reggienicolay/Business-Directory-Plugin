@@ -33,7 +33,9 @@ class SubmissionsQueue {
 	private function get_pending_count() {
 		global $wpdb;
 		$table = $wpdb->prefix . 'bd_submissions';
-		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE status = 'pending'" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin count badge, not cacheable.
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is from $wpdb->prefix, not user input.
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE status = %s", 'pending' ) );
 	}
 
 	public function render_page() {

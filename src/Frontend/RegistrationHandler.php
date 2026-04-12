@@ -56,16 +56,20 @@ class RegistrationHandler {
 			$errors[] = 'Password must be at least 8 characters';
 		}
 
-		// If errors, redirect back with error
+		// If errors, redirect back with error.
+		// Use wp_safe_redirect to prevent open-redirect attacks via a
+		// crafted Referer header. Falls back to the registration page if
+		// the referer is empty or points to an external domain.
 		if ( ! empty( $errors ) ) {
 			$error_msg = implode( ', ', $errors );
-			wp_redirect(
+			$back_url  = wp_get_referer() ?: home_url( '/register' );
+			wp_safe_redirect(
 				add_query_arg(
 					array(
 						'registration' => 'failed',
 						'error'        => urlencode( $error_msg ),
 					),
-					wp_get_referer()
+					$back_url
 				)
 			);
 			exit;
@@ -75,13 +79,14 @@ class RegistrationHandler {
 		$user_id = wp_create_user( $username, $password, $email );
 
 		if ( is_wp_error( $user_id ) ) {
-			wp_redirect(
+			$back_url = wp_get_referer() ?: home_url( '/register' );
+			wp_safe_redirect(
 				add_query_arg(
 					array(
 						'registration' => 'failed',
 						'error'        => urlencode( $user_id->get_error_message() ),
 					),
-					wp_get_referer()
+					$back_url
 				)
 			);
 			exit;
