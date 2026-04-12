@@ -286,6 +286,17 @@ add_filter( 'bd_points_review', function() {
 
 ## Changelog
 
+### 0.1.9
+- **SSO security hardening**: token IP validation on redemption, hardened IP detection (delegates to RateLimit::get_client_ip, no longer trusts spoofable X-Forwarded-For), logout redirect validated as network URL early in chain
+- **List endpoint security**: reorder and quick-save endpoints now verify list ownership or collaborator status before modifying (was any-authenticated-user). GeocodeEndpoint rate-limited to 10 req/min per IP
+- **Open redirect fix**: RegistrationHandler uses wp_safe_redirect with fallback
+- **All SQL queries prepared**: last unprepared query (ShareButtons table check) fixed. Four-pass audit complete — codebase clean
+- **Video cover performance**: external API calls (YouTube/Vimeo thumbnail fetch) no longer block frontend page renders. Returns placeholder on cache miss; thumbnails populate via admin views
+- **ListDisplay double-load eliminated**: single list view reuses loaded items for map data instead of re-fetching (14 queries → 7)
+- **Immersive template optimized**: term cache primed before taxonomy lookups (3 queries → 0 after prime)
+- **Leaflet reliability**: fixed "Map container already initialized" error on business detail pages. Fixed map not rendering on cold first visit (CDN race condition — polls for Leaflet availability up to 5s)
+- **ReviewsQueue optimized**: batch cache priming before render loop (50 queries → 1)
+
 ### 0.1.8
 - **In-field grant access**: directory managers can grant a known owner direct access from the business edit screen, list-table row action, or the frontend admin bar — no claim form needed. Supports multiple authorized users per business (owner + marketing contact) with per-user roles and revoke
 - **Search performance**: eliminated N+1 queries in BusinessesController (wp_get_post_terms → get_the_terms, thumbnail cache priming), FeaturedAdmin validation loop (N queries → 1), and added geo bounding-box pre-filter for radius searches (~120 queries → ~30, ~10x faster Haversine loop)
