@@ -341,7 +341,7 @@
 												<i class="fas fa-sync"></i>
 											</button>
 											<button type="button" class="bd-custom-thumb-cancel" title="Cancel custom thumbnail">
-												<i class="fas fa-times"></i> Use Default
+												<i class="fas fa-xmark"></i> Use Default
 											</button>
 										</div>
 									</div>

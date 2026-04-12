@@ -94,7 +94,7 @@
                     <div class="bd-collab-modal-overlay"></div>
                     <div class="bd-collab-modal-content">
                         <button class="bd-collab-modal-close" aria-label="Close">
-                            <i class="fas fa-times"></i>
+                            <i class="fas fa-xmark"></i>
                         </button>
                         
                         <h2 class="bd-collab-modal-title">
@@ -371,7 +371,7 @@
                             <span class="bd-collab-role">${collab.role}</span>
                         </div>
                         <button class="bd-remove-collab-btn" data-user-id="${collab.user_id}" title="Remove">
-                            <i class="fas fa-times"></i>
+                            <i class="fas fa-xmark"></i>
                         </button>
                     </div>
                 `;
@@ -407,7 +407,7 @@
                                 <i class="fas fa-check"></i>
                             </button>
                             <button class="bd-deny-request-btn" data-user-id="${req.user_id}" title="Deny">
-                                <i class="fas fa-times"></i>
+                                <i class="fas fa-xmark"></i>
                             </button>
                         </div>
                     </div>
@@ -737,7 +737,7 @@
             const icons = {
                 'added_to_list': '<i class="fas fa-user-plus"></i>',
                 'join_request': '<i class="fas fa-hand-paper"></i>',
-                'request_approved': '<i class="fas fa-check-circle"></i>',
+                'request_approved': '<i class="fas fa-circle-check"></i>',
                 'collaborator_joined': '<i class="fas fa-user-check"></i>',
                 'item_added': '<i class="fas fa-plus-circle"></i>'
             };
@@ -889,7 +889,7 @@
                                     data-bd-login="true" 
                                     data-tab="login"
                                     data-redirect="${window.location.href}">
-                                <i class="fas fa-sign-in-alt"></i> Log In
+                                <i class="fas fa-right-to-bracket"></i> Log In
                             </button>
                             <p class="bd-join-register">
                                 Don't have an account? 
@@ -920,7 +920,7 @@
                         showToast(response.message);
                         $('.bd-join-modal-content').html(`
                             <div class="bd-join-success">
-                                <i class="fas fa-check-circle"></i>
+                                <i class="fas fa-circle-check"></i>
                                 <h2>You're In!</h2>
                                 <p>${response.message}</p>
                                 <a href="${bdLists.myListsUrl}" class="bd-btn bd-btn-primary">
@@ -1008,7 +1008,7 @@
         
         // Fallback toast
         $('.bd-toast').remove();
-        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+        const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
         const $toast = $(`
             <div class="bd-toast bd-toast-${type}">
                 <i class="fas ${icon}"></i>

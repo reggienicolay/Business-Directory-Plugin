@@ -121,8 +121,10 @@ class FilterHandler {
 			'rating_ranges' => self::get_rating_counts(),
 		);
 
-		// Cache for 15 minutes.
-		set_transient( $cache_key, $metadata, 15 * MINUTE_IN_SECONDS );
+		// Cache for 60 minutes. Invalidated early by invalidate_filter_cache()
+		// when a business is created, updated, or deleted (hooked to
+		// save_post_bd_business and delete_post in Plugin::init_hooks).
+		set_transient( $cache_key, $metadata, HOUR_IN_SECONDS );
 
 		return $metadata;
 	}
@@ -334,5 +336,26 @@ class FilterHandler {
 		}
 
 		return ( $current_time >= $today['open'] && $current_time <= $today['close'] );
+	}
+
+	/**
+	 * Delete the cached filter metadata transient.
+	 *
+	 * Hooked to save_post_bd_business (create/update) and delete_post so
+	 * the filter counts refresh the next time a user loads the directory.
+	 * Accepts the post parameter signature from both hooks but only acts
+	 * when the post type is bd_business.
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param \WP_Post $post    Post object (optional, not used by delete_post hook).
+	 */
+	public static function invalidate_filter_cache( $post_id, $post = null ) {
+		if ( $post && 'bd_business' !== $post->post_type ) {
+			return;
+		}
+		if ( ! $post && 'bd_business' !== get_post_type( $post_id ) ) {
+			return;
+		}
+		delete_transient( 'bd_filter_metadata' );
 	}
 }

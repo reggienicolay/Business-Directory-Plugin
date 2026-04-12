@@ -571,7 +571,7 @@
             }
             // Half star
             if (hasHalf) {
-                html += '<i class="fas fa-star-half-alt"></i>';
+                html += '<i class="fas fa-star-half-stroke"></i>';
             }
             // Empty stars
             for (let i = 0; i < emptyStars; i++) {

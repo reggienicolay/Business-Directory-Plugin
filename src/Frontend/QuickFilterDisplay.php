@@ -26,8 +26,8 @@ class QuickFilterDisplay {
 	const TAG_ICONS = array(
 		// Food & Drink
 		'bar'             => 'fa-beer',
-		'wine-tasting'    => 'fa-wine-glass-alt',
-		'wine'            => 'fa-wine-glass-alt',
+		'wine-tasting'    => 'fa-wine-glass',
+		'wine'            => 'fa-wine-glass',
 		'brewery'         => 'fa-beer',
 		'coffee'          => 'fa-coffee',
 		'cafe'            => 'fa-coffee',
@@ -71,7 +71,7 @@ class QuickFilterDisplay {
 		'live-music'      => 'fa-music',
 		'entertainment'   => 'fa-theater-masks',
 		'sports-bar'      => 'fa-football-ball',
-		'trivia'          => 'fa-question-circle',
+		'trivia'          => 'fa-circle-question',
 		'happy-hour'      => 'fa-cocktail',
 		'brunch'          => 'fa-sun',
 		'late-night'      => 'fa-moon',
@@ -279,7 +279,7 @@ class QuickFilterDisplay {
 				<div class="bd-qf-filters-modal-header">
 					<h3>More Filters</h3>
 					<button type="button" class="bd-qf-filters-modal-close">
-						<i class="fas fa-times"></i>
+						<i class="fas fa-xmark"></i>
 					</button>
 				</div>
 				<div class="bd-qf-filters-modal-body">
@@ -387,7 +387,7 @@ class QuickFilterDisplay {
 		if ( ! wp_style_is( 'font-awesome', 'enqueued' ) && ! wp_style_is( 'fontawesome', 'enqueued' ) ) {
 			wp_enqueue_style(
 				'font-awesome-5',
-				'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css',
+				'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
 				array(),
 				'5.15.4'
 			);

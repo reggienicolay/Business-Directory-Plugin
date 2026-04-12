@@ -286,6 +286,17 @@ add_filter( 'bd_points_review', function() {
 
 ## Changelog
 
+### 0.1.8
+- **In-field grant access**: directory managers can grant a known owner direct access from the business edit screen, list-table row action, or the frontend admin bar — no claim form needed. Supports multiple authorized users per business (owner + marketing contact) with per-user roles and revoke
+- **Search performance**: eliminated N+1 queries in BusinessesController (wp_get_post_terms → get_the_terms, thumbnail cache priming), FeaturedAdmin validation loop (N queries → 1), and added geo bounding-box pre-filter for radius searches (~120 queries → ~30, ~10x faster Haversine loop)
+- **WebP delivery**: new `bd_picture()` / `bd_post_picture()` helpers output `<picture>` elements with WebP `<source>` + JPEG fallback. Applied to search result cards and gallery thumbnails
+- **Font Awesome 6.5.1**: consolidated 3 versions (5.15.4, 6.4.0, 6.5.1) down to single 6.5.1 load across all pages. Renamed 17 deprecated v5 icon names to v6 equivalents. Updated SRI hash
+- **Lazy Leaflet map**: map no longer initializes on page load — deferred to first "split view" toggle click, saving ~350KB render-blocking assets on list-view sessions
+- **Filter cache**: increased transient TTL from 15 min to 60 min with smart invalidation on `save_post_bd_business` / `delete_post`
+- **Composite lat/lng index**: added `idx_lat_lng` on `wp_bd_locations` for faster bounding-box queries (DB v2.7.0)
+- Password change section on user profile page
+- Updated Terms of Service → Terms of Use + Privacy Policy links across login modal, login shortcode, and registration
+
 ### 0.1.7
 - Fixed Submit Business pipeline: dbDelta table creation, SubmissionsQueue instantiation, MenuOrganizer routing
 - Fixed lat/lng `empty()` checks treating valid 0.0 coordinates as missing (LocationsTable, QueryBuilder, BusinessesController)

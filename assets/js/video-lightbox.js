@@ -81,7 +81,7 @@
 					<div class="bd-video-lightbox-overlay"></div>
 					<div class="bd-video-lightbox-container">
 						<button type="button" class="bd-video-lightbox-close" aria-label="Close video">
-							<i class="fas fa-times"></i>
+							<i class="fas fa-xmark"></i>
 						</button>
 						<div class="bd-video-lightbox-content">
 							<div class="bd-video-lightbox-player">

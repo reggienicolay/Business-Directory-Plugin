@@ -714,13 +714,13 @@ function showToast(message, type = 'success') {
 
 	let icon;
 	if (type === 'success') {
-		icon = '<i class="fas fa-check-circle"></i>';
+		icon = '<i class="fas fa-circle-check"></i>';
 	} else if (type === 'error') {
-		icon = '<i class="fas fa-times-circle"></i>';
+		icon = '<i class="fas fa-circle-xmark"></i>';
 	} else if (type === 'info') {
 		icon = '<i class="fas fa-spinner fa-spin"></i>';
 	} else {
-		icon = '<i class="fas fa-info-circle"></i>';
+		icon = '<i class="fas fa-circle-info"></i>';
 	}
 	
 	// Build toast safely using jQuery to prevent XSS

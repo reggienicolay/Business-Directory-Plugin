@@ -1798,11 +1798,11 @@ class ListManager {
 			'cafes'           => 'fa-coffee',
 			'coffee'          => 'fa-coffee',
 			'bakeries'        => 'fa-bread-slice',
-			'bars'            => 'fa-glass-martini-alt',
+			'bars'            => 'fa-martini-glass',
 
 			// Wine & Breweries
-			'wineries'        => 'fa-wine-glass-alt',
-			'wine'            => 'fa-wine-glass-alt',
+			'wineries'        => 'fa-wine-glass',
+			'wine'            => 'fa-wine-glass',
 			'breweries'       => 'fa-beer',
 			'tasting-rooms'   => 'fa-wine-bottle',
 
@@ -1814,11 +1814,11 @@ class ListManager {
 			// Services
 			'services'        => 'fa-wrench',
 			'professional'    => 'fa-briefcase',
-			'health'          => 'fa-heartbeat',
+			'health'          => 'fa-heart-pulse',
 			'beauty'          => 'fa-spa',
 
 			// Entertainment
-			'entertainment'   => 'fa-ticket-alt',
+			'entertainment'   => 'fa-ticket',
 			'arts'            => 'fa-palette',
 			'nightlife'       => 'fa-moon',
 
@@ -1836,7 +1836,7 @@ class ListManager {
 			// Local Favorites
 			'local-favorites' => 'fa-heart',
 			'hidden-gems'     => 'fa-gem',
-			'shop-local'      => 'fa-store-alt',
+			'shop-local'      => 'fa-store',
 		);
 
 		// Try exact match.
