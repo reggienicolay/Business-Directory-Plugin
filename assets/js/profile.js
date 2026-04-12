@@ -391,7 +391,7 @@
 		showCopyError: function($btn) {
 			var originalHtml = $btn.html();
 			
-			$btn.html('<i class="fa-solid fa-times"></i> <span>' + (bdProfile.i18n.copyError || 'Error') + '</span>');
+			$btn.html('<i class="fa-solid fa-xmark"></i> <span>' + (bdProfile.i18n.copyError || 'Error') + '</span>');
 			
 			setTimeout(function() {
 				$btn.html(originalHtml);
@@ -612,8 +612,8 @@
 			}
 
 			var icon = type === 'success'
-				? '<i class="fa-solid fa-check-circle"></i>'
-				: '<i class="fa-solid fa-exclamation-circle"></i>';
+				? '<i class="fa-solid fa-circle-check"></i>'
+				: '<i class="fa-solid fa-circle-exclamation"></i>';
 
 			var html = '<div class="bd-profile-message bd-profile-message-' + type + '">' +
 				icon + '<span>' + message + '</span></div>';

@@ -785,6 +785,7 @@ class ExploreQuery {
 			'excerpt'        => get_the_excerpt( $business_id ),
 			'permalink'      => get_permalink( $business_id ),
 			'featured_image' => $featured_image ?: '',
+			'thumbnail_id'   => (int) get_post_thumbnail_id( $business_id ),
 			'rating'         => floatval( get_post_meta( $business_id, 'bd_avg_rating', true ) ),
 			'review_count'   => intval( get_post_meta( $business_id, 'bd_review_count', true ) ),
 			'price_level'    => get_post_meta( $business_id, 'bd_price_level', true ) ?: '',

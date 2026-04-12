@@ -58,7 +58,7 @@ class ListsAdmin {
 		// Font Awesome for icons.
 		wp_enqueue_style(
 			'font-awesome',
-			'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
 			array(),
 			'6.4.0'
 		);
@@ -482,7 +482,7 @@ class ListsAdmin {
 
 					<?php if ( $search_query || $current_city || $current_category || $current_author ) : ?>
 						<a href="<?php echo esc_url( $current_status ? add_query_arg( 'status', $current_status, $base_url ) : $base_url ); ?>" class="button bd-clear-filters">
-							<i class="fas fa-times"></i>
+							<i class="fas fa-xmark"></i>
 							<?php esc_html_e( 'Clear', 'developer-developer-developer' ); ?>
 						</a>
 					<?php endif; ?>
@@ -641,7 +641,7 @@ class ListsAdmin {
 										<?php if ( 'private' !== $list['visibility'] ) : ?>
 											<a href="<?php echo esc_url( ListManager::get_list_url( $list ) ); ?>" 
 												class="bd-action-btn bd-view-btn" target="_blank" title="View List">
-												<i class="fas fa-external-link-alt"></i>
+												<i class="fas fa-up-right-from-square"></i>
 											</a>
 										<?php endif; ?>
 										
@@ -659,7 +659,7 @@ class ListsAdmin {
 										
 										<button type="button" class="bd-action-btn bd-delete-btn" 
 											data-list-id="<?php echo esc_attr( $list['id'] ); ?>" title="Delete List">
-											<i class="fas fa-trash-alt"></i>
+											<i class="fas fa-trash-can"></i>
 										</button>
 									</div>
 								</td>

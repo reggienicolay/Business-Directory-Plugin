@@ -287,7 +287,14 @@ while ( have_posts() ) :
 								$is_last = ( $index === 4 && $photo_count > 4 );
 								?>
 								<div class="bd-hero-thumb" data-index="<?php echo esc_attr( $index - 1 ); ?>">
-									<?php echo wp_get_attachment_image( $photo_id, 'thumbnail', false, array( 'loading' => 'lazy' ) ); ?>
+									<?php
+									if ( function_exists( 'bd_picture' ) ) {
+										// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- bd_picture() escapes internally.
+										echo bd_picture( $photo_id, 'bd-gallery-thumb', array( 'loading' => 'lazy' ) );
+									} else {
+										echo wp_get_attachment_image( $photo_id, 'thumbnail', false, array( 'loading' => 'lazy' ) );
+									}
+									?>
 									<?php if ( $is_last ) : ?>
 										<div class="more-overlay">+<?php echo intval( $photo_count - 4 ); ?></div>
 									<?php endif; ?>

@@ -58,6 +58,11 @@ class GeocodeEndpoint {
 	 * Geocode address
 	 */
 	public static function geocode( $request ) {
+		$rate_check = self::check_rate_limit();
+		if ( is_wp_error( $rate_check ) ) {
+			return $rate_check;
+		}
+
 		$address = $request->get_param( 'address' );
 		$result  = Geocoder::geocode( $address );
 
@@ -72,6 +77,11 @@ class GeocodeEndpoint {
 	 * Reverse geocode
 	 */
 	public static function reverse_geocode( $request ) {
+		$rate_check = self::check_rate_limit();
+		if ( is_wp_error( $rate_check ) ) {
+			return $rate_check;
+		}
+
 		$lat = $request->get_param( 'lat' );
 		$lng = $request->get_param( 'lng' );
 
@@ -82,5 +92,22 @@ class GeocodeEndpoint {
 		}
 
 		return rest_ensure_response( $result );
+	}
+
+	/**
+	 * Rate-limit geocode requests to prevent abuse of the Nominatim proxy.
+	 *
+	 * Public endpoint → per-IP limiting. Nominatim's own policy is 1 req/sec;
+	 * we allow 10 per minute per IP which is generous for legitimate use but
+	 * blocks bulk scraping.
+	 *
+	 * @return true|\WP_Error
+	 */
+	private static function check_rate_limit() {
+		if ( ! class_exists( '\BD\Security\RateLimit' ) ) {
+			return true;
+		}
+		$ip = \BD\Security\RateLimit::get_client_ip();
+		return \BD\Security\RateLimit::check( 'geocode', $ip, 10, 60 );
 	}
 }

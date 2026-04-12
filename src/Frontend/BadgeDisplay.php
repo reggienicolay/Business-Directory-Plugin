@@ -318,7 +318,7 @@ class BadgeDisplay {
 						<i class="fas fa-user-plus"></i> Create Account
 					</a>
 					<a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>" class="bd-btn bd-btn-secondary">
-						<i class="fas fa-sign-in-alt"></i> Log In
+						<i class="fas fa-right-to-bracket"></i> Log In
 					</a>
 				</div>
 			<?php endif; ?>

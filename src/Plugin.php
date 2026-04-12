@@ -57,6 +57,11 @@ class Plugin {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'frontend_assets' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+
+		// Invalidate the filter metadata cache when businesses change so the
+		// directory shows accurate counts without waiting for the 60-min TTL.
+		add_action( 'save_post_bd_business', array( '\BusinessDirectory\Search\FilterHandler', 'invalidate_filter_cache' ), 10, 2 );
+		add_action( 'delete_post', array( '\BusinessDirectory\Search\FilterHandler', 'invalidate_filter_cache' ) );
 	}
 
 	/**

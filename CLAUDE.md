@@ -5,7 +5,7 @@
 
 ## Identity
 
-- **Version:** 0.1.7 | **Post type:** `bd_business` | **Namespace:** `BD\`
+- **Version:** 0.1.8 | **Post type:** `bd_business` | **Namespace:** `BD\`
 - **Repo:** https://github.com/reggienicolay/Business-Directory-Plugin
 - **Part of:** Love Tri Valley plugin suite (this + BD Event Aggregator + BD Outdoor Activities + BD Email Signatures + BD Food Truck Tracker)
 - **Environment:** Local WP (dev) → Cloudways (production), WordPress multisite
@@ -133,7 +133,7 @@ Premium embeddable widgets for business owners:
 - Admin menu count queries (ReviewsQueue, ClaimRequestsTable, ChangeRequestsTable) have table existence guards — return 0 if table doesn't exist
 - `CitySettings::apply_explore_card_tag_slugs()` is called from the child theme `homepage.php` — always wrapped in `method_exists()` guard
 
-## Image Optimizer (Phase 1)
+## Image Optimizer
 
 `src/Media/ImageOptimizer.php` — hooks `wp_generate_attachment_metadata` to process every upload:
 - Registers 6 custom sizes: `bd-hero` (1600x900), `bd-card` (600x400), `bd-gallery-thumb` (400x300), `bd-lightbox` (1400x1050), `bd-review` (800x600), `bd-og` (1200x630)
@@ -146,7 +146,14 @@ Premium embeddable widgets for business owners:
 - `bd_image_optimizer_should_process` filter to constrain processing scope
 - Loaded via `includes/media-loader.php` (immediate init, not deferred — `after_setup_theme` timing)
 
-Phase 2 (templates + `<picture>` tags) not yet implemented — WebP files sit as unused siblings.
+### WebP Delivery (Phase 2 — v0.1.8)
+
+`src/Media/ImageHelper.php` + `includes/image-helper-functions.php` — reads `_bd_webp_sizes` meta and builds `<picture>` elements with WebP `<source>` + JPEG/PNG `<img>` fallback:
+- `bd_picture( $attachment_id, $size, $attrs )` — builds `<picture>` for any attachment
+- `bd_post_picture( $post_id, $size, $attrs )` — resolves featured image, then calls `bd_picture()`
+- Falls back to plain `<img>` when no WebP variant exists (safe for pre-optimizer uploads)
+- Currently used by: explore/search result cards (`ExploreCardRenderer`), business detail gallery thumbnails (`immersive.php`)
+- Hero background image uses CSS `background-image` and cannot use `<picture>` — would need a template refactor to convert to an `<img>` element
 
 ## SEO Integration
 

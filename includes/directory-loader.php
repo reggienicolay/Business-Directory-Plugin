@@ -83,7 +83,7 @@ add_action(
 			// Font Awesome.
 			wp_enqueue_style(
 				'font-awesome',
-				'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css',
+				'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
 				array(),
 				'5.15.4'
 			);
@@ -174,7 +174,7 @@ add_action(
 			if ( ! wp_style_is( 'font-awesome', 'enqueued' ) ) {
 				wp_enqueue_style(
 					'font-awesome',
-					'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css',
+					'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
 					array(),
 					'5.15.4'
 				);

@@ -508,7 +508,7 @@ class ProfileEditor {
 			<div class="bd-edit-profile-header">
 				<h2><i class="fa-solid fa-user-pen"></i> <?php esc_html_e( 'Edit Profile', 'business-directory' ); ?></h2>
 				<button type="button" class="bd-btn bd-btn-secondary bd-btn-sm bd-cancel-edit">
-					<i class="fa-solid fa-times"></i> <?php esc_html_e( 'Cancel', 'business-directory' ); ?>
+					<i class="fa-solid fa-xmark"></i> <?php esc_html_e( 'Cancel', 'business-directory' ); ?>
 				</button>
 			</div>
 
@@ -537,7 +537,7 @@ class ProfileEditor {
 								<span><?php esc_html_e( 'Copy', 'business-directory' ); ?></span>
 							</button>
 							<a href="<?php echo esc_url( $public_profile_url ); ?>" target="_blank" class="bd-btn bd-btn-secondary bd-btn-sm" title="<?php esc_attr_e( 'Preview', 'business-directory' ); ?>">
-								<i class="fa-solid fa-external-link-alt"></i>
+								<i class="fa-solid fa-up-right-from-square"></i>
 							</a>
 						</div>
 					</div>

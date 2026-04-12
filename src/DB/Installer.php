@@ -19,7 +19,7 @@ class Installer {
 	/**
 	 * Database version - bump this when schema changes.
 	 */
-	const DB_VERSION = '2.6.1';
+	const DB_VERSION = '2.7.0';
 
 	/**
 	 * Initialize - hook into plugins_loaded for upgrade checks.
@@ -134,6 +134,7 @@ class Installer {
 			PRIMARY KEY (business_id),
 			KEY idx_lat (lat),
 			KEY idx_lng (lng),
+			KEY idx_lat_lng (lat, lng),
 			KEY idx_geohash (geohash)
 		) $charset_collate;";
 
@@ -674,6 +675,25 @@ class Installer {
 				if ( empty( $indexes ) ) {
 					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
 					$wpdb->query( "ALTER TABLE {$review_helpful_table} ADD UNIQUE KEY idx_review_user (review_id, user_id)" );
+				}
+			}
+		}
+
+		// =====================================================================
+		// Upgrade to 2.7.0: Add composite lat/lng index for bounding-box queries.
+		// =====================================================================
+		if ( version_compare( $from_version, '2.7.0', '<' ) ) {
+			$locations_table = $wpdb->prefix . 'bd_locations';
+			$table_exists    = $wpdb->get_var(
+				$wpdb->prepare( 'SHOW TABLES LIKE %s', $locations_table )
+			);
+
+			if ( $table_exists ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$indexes = $wpdb->get_results( "SHOW INDEX FROM {$locations_table} WHERE Key_name = 'idx_lat_lng'" );
+				if ( empty( $indexes ) ) {
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
+					$wpdb->query( "ALTER TABLE {$locations_table} ADD KEY idx_lat_lng (lat, lng)" );
 				}
 			}
 		}

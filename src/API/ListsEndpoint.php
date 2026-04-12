@@ -637,9 +637,24 @@ class ListsEndpoint {
 	 * Reorder items
 	 */
 	public static function reorder_items( $request ) {
-		$list_id = $request->get_param( 'list_id' );
+		$list_id = absint( $request->get_param( 'list_id' ) );
 		$order   = $request->get_param( 'order' );
 		$user_id = get_current_user_id();
+
+		// Verify the user owns this list or is an approved collaborator.
+		$list = ListManager::get_list( $list_id );
+		if ( ! $list || (int) $list['user_id'] !== $user_id ) {
+			$is_collaborator = class_exists( '\BD\Lists\ListCollaborators' )
+				? \BD\Lists\ListCollaborators::get_user_permissions( $list_id, $user_id )
+				: false;
+			if ( ! $is_collaborator ) {
+				return new \WP_Error(
+					'forbidden',
+					'You do not have permission to reorder this list.',
+					array( 'status' => 403 )
+				);
+			}
+		}
 
 		$result = ListManager::reorder_items( $list_id, $user_id, $order );
 
@@ -663,14 +678,14 @@ class ListsEndpoint {
 	 * Quick save - add business to existing or new list
 	 */
 	public static function quick_save( $request ) {
-		$business_id = $request->get_param( 'business_id' );
-		$list_id     = $request->get_param( 'list_id' );
+		$business_id = absint( $request->get_param( 'business_id' ) );
+		$list_id     = absint( $request->get_param( 'list_id' ) );
 		$new_list    = $request->get_param( 'new_list' );
 		$user_id     = get_current_user_id();
 
-		// Create new list if requested.
+		// Create new list if requested (user is the owner by definition).
 		if ( ! empty( $new_list ) ) {
-			$list_id = ListManager::create_list( $user_id, $new_list );
+			$list_id = ListManager::create_list( $user_id, sanitize_text_field( $new_list ) );
 			if ( ! $list_id ) {
 				return new \WP_Error(
 					'create_failed',
@@ -686,6 +701,23 @@ class ListsEndpoint {
 				'Please select a list or create a new one.',
 				array( 'status' => 400 )
 			);
+		}
+
+		// Verify the user owns this list or is an approved collaborator
+		// before allowing them to add items. Without this check, any
+		// logged-in user could add items to any list by ID.
+		$list = ListManager::get_list( $list_id );
+		if ( ! $list || (int) $list['user_id'] !== $user_id ) {
+			$is_collaborator = class_exists( '\BD\Lists\ListCollaborators' )
+				? \BD\Lists\ListCollaborators::get_user_permissions( $list_id, $user_id )
+				: false;
+			if ( ! $is_collaborator ) {
+				return new \WP_Error(
+					'forbidden',
+					'You do not have permission to add items to this list.',
+					array( 'status' => 403 )
+				);
+			}
 		}
 
 		$item_id = ListManager::add_item( $list_id, $business_id, $user_id );

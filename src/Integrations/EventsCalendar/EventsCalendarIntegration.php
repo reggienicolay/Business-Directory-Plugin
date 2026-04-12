@@ -368,7 +368,7 @@ class EventsCalendarIntegration {
 		?>
 		<div class="bd-business-events">
 			<h3 class="bd-business-events-title">
-				<i class="far fa-calendar-alt"></i>
+				<i class="far fa-calendar-days"></i>
 				<?php esc_html_e( 'Upcoming Events', 'business-directory' ); ?>
 			</h3>
 			<ul class="bd-events-list">
@@ -447,7 +447,7 @@ class EventsCalendarIntegration {
 		?>
 		<div class="bd-business-events">
 			<h3 class="bd-business-events-title">
-				<i class="far fa-calendar-alt"></i>
+				<i class="far fa-calendar-days"></i>
 				<?php esc_html_e( 'Upcoming Events', 'business-directory' ); ?>
 			</h3>
 			<ul class="bd-events-list">
@@ -563,7 +563,7 @@ class EventsCalendarIntegration {
 		?>
 		<div class="bd-business-events" style="<?php echo esc_attr( $container_style ); ?>">
 			<h3 class="bd-business-events-title" style="<?php echo esc_attr( $title_style ); ?>">
-				<i class="far fa-calendar-alt"></i>
+				<i class="far fa-calendar-days"></i>
 				<?php esc_html_e( 'Upcoming Events', 'business-directory' ); ?>
 			</h3>
 			<ul class="bd-events-list" style="list-style: none; margin: 0; padding: 0;">

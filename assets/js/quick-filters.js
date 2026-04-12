@@ -219,7 +219,13 @@
 			}
 
 			this.bindEvents();
-			this.initMap();
+			// On desktop the default view is 'split' (set in bindEvents),
+			// so we must init the map now. On mobile the default is 'list',
+			// so we defer map init to the first split-view toggle click —
+			// saving ~350 KB of render-blocking Leaflet assets.
+			if (this.state.view === 'split') {
+				this.initMap();
+			}
 			this.loadBusinesses();
 			this.updateActiveFilters();
 		},
@@ -404,22 +410,29 @@
 				$('.bd-qf-view-btn').removeClass('active');
 				$(this).addClass('active');
 				self.state.view = view;
-				
+
 				// Toggle split/no-split class on main content container
 				const $mainContent = $('#bd-qf-main-content');
 				if (view === 'split') {
 					$mainContent.removeClass('bd-qf-no-split');
+
+					// Lazy-initialize the map on first switch to split view.
+					// Defers ~350 KB of Leaflet rendering until actually needed.
+					if (!self.map) {
+						self.initMap();
+						self.updateMapMarkers(self.currentBusinesses || []);
+					}
 				} else {
 					$mainContent.addClass('bd-qf-no-split');
 				}
-				
+
 				// Invalidate map size after layout change
 				setTimeout(function() {
 					if (self.map) {
 						self.map.invalidateSize();
 					}
 				}, 100);
-				
+
 				self.renderView();
 			});
 
@@ -583,7 +596,7 @@
 							<div class="bd-qf-save-modal-content">
 								<div class="bd-qf-save-modal-header">
 									<h4>Save to List</h4>
-									<button type="button" class="bd-qf-save-modal-close"><i class="fas fa-times"></i></button>
+									<button type="button" class="bd-qf-save-modal-close"><i class="fas fa-xmark"></i></button>
 								</div>
 								<div class="bd-qf-save-modal-body">
 									<div class="bd-qf-save-loading">
@@ -816,7 +829,9 @@
 					function (position) {
 						self.state.lat = position.coords.latitude;
 						self.state.lng = position.coords.longitude;
-						self.map.setView([self.state.lat, self.state.lng], 12);
+						if (self.map) {
+							self.map.setView([self.state.lat, self.state.lng], 12);
+						}
 						self.loadBusinesses();
 					},
 					function () {
@@ -1032,7 +1047,7 @@
 				},
 				error: function (xhr, status, error) {
 					console.error('Failed to load businesses:', error);
-					$container.html('<div class="bd-qf-no-results"><i class="fas fa-exclamation-circle"></i><p>Failed to load businesses. Please try again.</p></div>');
+					$container.html('<div class="bd-qf-no-results"><i class="fas fa-circle-exclamation"></i><p>Failed to load businesses. Please try again.</p></div>');
 				}
 			});
 		},
@@ -1411,7 +1426,7 @@
 			
 			return '<span class="bd-qf-active-pill" data-filter-type="' + type + '" data-filter-value="' + value + '">' +
 				'<span class="bd-qf-pill-label">' + this.escapeHtml(decodedLabel) + '</span>' +
-				'<button type="button" class="bd-qf-pill-close"><i class="fas fa-times"></i></button>' +
+				'<button type="button" class="bd-qf-pill-close"><i class="fas fa-xmark"></i></button>' +
 				'</span>';
 		},
 
@@ -1685,7 +1700,7 @@
 				if (!$existingMsg.length) {
 					$tagsList.append(
 						'<span class="bd-qf-no-tags-message">' +
-						'<i class="fas fa-info-circle"></i> ' +
+						'<i class="fas fa-circle-info"></i> ' +
 						'No tags for this category' +
 						'</span>'
 					);

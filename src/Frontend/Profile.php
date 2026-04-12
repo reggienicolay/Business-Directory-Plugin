@@ -172,7 +172,7 @@ class Profile {
 		if ( ! wp_style_is( 'font-awesome', 'enqueued' ) ) {
 			wp_enqueue_style(
 				'font-awesome',
-				'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+				'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
 				array(),
 				'6.4.0'
 			);
@@ -387,7 +387,7 @@ class Profile {
 								<?php endif; ?>
 
 								<span class="bd-profile-meta-item">
-									<i class="fas fa-calendar-alt"></i>
+									<i class="fas fa-calendar-days"></i>
 									<?php if ( $data['is_guide'] ) : ?>
 										<?php
 										printf(
@@ -509,7 +509,7 @@ class Profile {
 							</span>
 						</div>
 						<div class="bd-guide-impact-badge">
-							<i class="fas fa-check-circle"></i>
+							<i class="fas fa-circle-check"></i>
 							<?php esc_html_e( 'Verified', 'business-directory' ); ?>
 						</div>
 					</div>
@@ -627,7 +627,7 @@ class Profile {
 										$color  = $badge['color'] ?? '#7a9eb8';
 										?>
 										<div class="bd-badge-card bd-badge-card-earned" data-rarity="<?php echo esc_attr( $rarity ); ?>" style="border-color: <?php echo esc_attr( $color ); ?>;">
-											<div class="bd-badge-check"><i class="fa-solid fa-check-circle"></i></div>
+											<div class="bd-badge-check"><i class="fa-solid fa-circle-check"></i></div>
 											<div class="bd-badge-rarity bd-rarity-<?php echo esc_attr( $rarity ); ?>">
 												<?php echo esc_html( ucfirst( $rarity ) ); ?>
 											</div>
@@ -1163,15 +1163,15 @@ class Profile {
 		$category_icons = array(
 			'restaurants'   => 'fas fa-utensils',
 			'dining'        => 'fas fa-utensils',
-			'wineries'      => 'fas fa-wine-glass-alt',
-			'wine'          => 'fas fa-wine-glass-alt',
+			'wineries'      => 'fas fa-wine-glass',
+			'wine'          => 'fas fa-wine-glass',
 			'shopping'      => 'fas fa-shopping-bag',
-			'entertainment' => 'fas fa-ticket-alt',
+			'entertainment' => 'fas fa-ticket',
 			'services'      => 'fas fa-concierge-bell',
 			'outdoors'      => 'fas fa-hiking',
 			'family'        => 'fas fa-child',
 			'cafes'         => 'fas fa-coffee',
-			'bars'          => 'fas fa-glass-martini-alt',
+			'bars'          => 'fas fa-martini-glass',
 			'breweries'     => 'fas fa-beer',
 		);
 
@@ -1230,7 +1230,7 @@ class Profile {
 			if ( $i <= $full_stars ) {
 				$output .= '<i class="fas fa-star"></i>';
 			} elseif ( $half_star && $i === $full_stars + 1 ) {
-				$output .= '<i class="fas fa-star-half-alt"></i>';
+				$output .= '<i class="fas fa-star-half-stroke"></i>';
 			} else {
 				$output .= '<i class="far fa-star empty"></i>';
 			}

@@ -148,7 +148,7 @@ class ListDisplay {
 
 		wp_enqueue_style(
 			'font-awesome',
-			'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+			'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
 			array(),
 			'6.4.0'
 		);
@@ -636,12 +636,12 @@ class ListDisplay {
 					<span class="bd-active-filters-label">Filters:</span>
 					<?php if ( ! empty( $search ) ) : ?>
 						<a href="<?php echo esc_url( remove_query_arg( 'list_search' ) ); ?>" class="bd-filter-tag">
-							"<?php echo esc_html( $search ); ?>" <i class="fas fa-times"></i>
+							"<?php echo esc_html( $search ); ?>" <i class="fas fa-xmark"></i>
 						</a>
 					<?php endif; ?>
 					<?php if ( ! empty( $city ) ) : ?>
 						<a href="<?php echo esc_url( remove_query_arg( 'list_city' ) ); ?>" class="bd-filter-tag">
-							<?php echo esc_html( $city ); ?> <i class="fas fa-times"></i>
+							<?php echo esc_html( $city ); ?> <i class="fas fa-xmark"></i>
 						</a>
 					<?php endif; ?>
 					<?php if ( ! empty( $category ) ) : ?>
@@ -650,7 +650,7 @@ class ListDisplay {
 						$cat_name = $cat_term ? $cat_term->name : $category;
 						?>
 						<a href="<?php echo esc_url( remove_query_arg( 'list_category' ) ); ?>" class="bd-filter-tag">
-							<?php echo esc_html( $cat_name ); ?> <i class="fas fa-times"></i>
+							<?php echo esc_html( $cat_name ); ?> <i class="fas fa-xmark"></i>
 						</a>
 					<?php endif; ?>
 					<a href="<?php echo esc_url( strtok( $_SERVER['REQUEST_URI'], '?' ) ); ?>" class="bd-clear-filters">
@@ -689,7 +689,7 @@ class ListDisplay {
 						</p>
 						<?php if ( $has_filters ) : ?>
 							<a href="<?php echo esc_url( strtok( $_SERVER['REQUEST_URI'], '?' ) ); ?>" class="bd-btn bd-btn-primary">
-								<i class="fas fa-times"></i> Clear Filters
+								<i class="fas fa-xmark"></i> Clear Filters
 							</a>
 						<?php endif; ?>
 					</div>
@@ -1043,7 +1043,7 @@ class ListDisplay {
 											<i class="fas fa-comment"></i>
 										</button>
 										<button type="button" class="bd-remove-item-btn" title="Remove">
-											<i class="fas fa-times"></i>
+											<i class="fas fa-xmark"></i>
 										</button>
 									</div>
 								<?php endif; ?>
@@ -1475,7 +1475,7 @@ class ListDisplay {
 			<div class="bd-modal-overlay"></div>
 			<div class="bd-modal-content">
 				<div class="bd-modal-header">
-					<h3><i class="fas fa-exclamation-triangle"></i> <span class="bd-confirm-title">Confirm</span></h3>
+					<h3><i class="fas fa-triangle-exclamation"></i> <span class="bd-confirm-title">Confirm</span></h3>
 					<button type="button" class="bd-modal-close">&times;</button>
 				</div>
 				<div class="bd-modal-body">

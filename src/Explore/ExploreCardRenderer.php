@@ -83,10 +83,27 @@ class ExploreCardRenderer {
 					if ( ! empty( $business['areas'] ) ) {
 						$alt_text .= ' in ' . $business['areas'][0] . ', California';
 					}
+					$thumb_id = ! empty( $business['thumbnail_id'] ) ? (int) $business['thumbnail_id'] : 0;
 					?>
-					<img src="<?php echo esc_url( $image_url ); ?>"
-						alt="<?php echo esc_attr( $alt_text ); ?>"
-						loading="lazy" width="400" height="200">
+					<?php if ( $thumb_id && function_exists( 'bd_picture' ) ) : ?>
+						<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- bd_picture() escapes internally.
+						echo bd_picture(
+							$thumb_id,
+							'bd-card',
+							array(
+								'alt'     => $alt_text,
+								'loading' => 'lazy',
+								'width'   => '400',
+								'height'  => '200',
+							)
+						);
+						?>
+					<?php else : ?>
+						<img src="<?php echo esc_url( $image_url ); ?>"
+							alt="<?php echo esc_attr( $alt_text ); ?>"
+							loading="lazy" width="400" height="200">
+					<?php endif; ?>
 				<?php else : ?>
 					<?php
 					// Try the category-aware PlaceholderImage (wine glass for wineries,

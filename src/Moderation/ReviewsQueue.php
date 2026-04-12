@@ -38,22 +38,35 @@ class ReviewsQueue {
 		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
 			return 0;
 		}
-		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE status = 'pending'" );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin count badge, not cacheable.
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is from $wpdb->prefix, not user input.
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE status = %s", 'pending' ) );
 	}
 
 	public function render_page() {
 		global $wpdb;
 		$table = $wpdb->prefix . 'bd_reviews';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is from $wpdb->prefix, not user input.
 		$reviews = $wpdb->get_results(
-			"SELECT * FROM $table WHERE status = 'pending' ORDER BY created_at DESC LIMIT 50",
+			$wpdb->prepare( "SELECT * FROM {$table} WHERE status = %s ORDER BY created_at DESC LIMIT %d", 'pending', 50 ),
 			ARRAY_A
 		);
+
+		// Prime post cache for all referenced businesses in one query
+		// instead of calling get_post() per review row (N+1 → 1 query).
+		if ( ! empty( $reviews ) ) {
+			$business_ids = array_unique( array_filter( wp_list_pluck( $reviews, 'business_id' ) ) );
+			if ( ! empty( $business_ids ) ) {
+				_prime_post_caches( $business_ids, false, false );
+			}
+		}
 
 		?>
 		<div class="wrap">
 			<h1><?php _e( 'Pending Reviews', 'business-directory' ); ?></h1>
-			
+
 			<?php if ( empty( $reviews ) ) : ?>
 				<p><?php _e( 'No pending reviews.', 'business-directory' ); ?></p>
 			<?php else : ?>
