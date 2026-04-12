@@ -219,10 +219,13 @@
 			}
 
 			this.bindEvents();
-			// Map is lazy-initialized on first switch to split/map view
-			// (see view-toggle handler in bindEvents). This avoids loading
-			// ~350 KB of Leaflet CSS/JS and blocking FCP when the user is
-			// in list-only view (the default).
+			// On desktop the default view is 'split' (set in bindEvents),
+			// so we must init the map now. On mobile the default is 'list',
+			// so we defer map init to the first split-view toggle click —
+			// saving ~350 KB of render-blocking Leaflet assets.
+			if (this.state.view === 'split') {
+				this.initMap();
+			}
 			this.loadBusinesses();
 			this.updateActiveFilters();
 		},
