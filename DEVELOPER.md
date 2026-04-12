@@ -597,6 +597,29 @@ The plugin registers **27 shortcodes** (24 unique + 3 aliases). Grouped by funct
 | `single_template` | default | Custom business page template |
 | `register_activation_hook` | -- | `Installer::activate()` + `FrontendEditorInstaller::install()` |
 | `register_deactivation_hook` | -- | `Installer::deactivate()` |
+| `save_post_bd_business` | 10 | `FilterHandler::invalidate_filter_cache()` — clears filter metadata transient |
+| `delete_post` | default | `FilterHandler::invalidate_filter_cache()` — same, catches business deletions |
+| `admin_bar_menu` | 100 | `GrantAccessToolbar::add_node()` — 🔑 Grant Access on single business pages |
+
+### Performance Architecture (v0.1.8)
+
+Query budget targets established during four-pass production audit:
+
+| Page type | Target queries | Key optimizations |
+|-----------|---------------|-------------------|
+| Directory search (20 results) | ~5 | Batch cache priming (meta, terms, thumbnails), `get_the_terms()` over `wp_get_post_terms()` |
+| Business detail (immersive) | ~8 | `update_object_term_cache()` before term lookups, Leaflet re-init guard |
+| Single list view (50 items) | ~7 | Reuse loaded items for map data (no double-fetch) |
+| My Lists dashboard (12 cards) | ~30 | Video thumbnails return placeholder on frontend cache miss (no blocking API calls) |
+| Featured businesses validation | 1 | Single `get_posts()` with `fields=ids` + `orderby=post__in` |
+| Radius search | ~250 candidates | Bounding-box SQL pre-filter (lat/lng BETWEEN) before PHP Haversine loop |
+
+**Rules for new code:**
+- Always call `update_object_term_cache()` or `update_meta_cache()` before loops that read term/meta data
+- Use `get_the_terms()` (cache-aware) not `wp_get_post_terms()` (always queries)
+- Use `_prime_post_caches()` for attachment/thumbnail lookups before loops
+- Never call `wp_remote_get/head()` on frontend page renders — cache in admin or cron only
+- Filter metadata transient is 60 min — if you add a new filter dimension, add it to `FilterHandler::get_filter_metadata()` and it auto-inherits the TTL + invalidation
 
 ---
 

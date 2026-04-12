@@ -92,9 +92,14 @@ Other plugins in the suite read/write these on `bd_business` posts:
 - Changing the `bd_business` post type slug, `bd_location`/`bd_contact`/`bd_social` meta structure, or taxonomy slugs (`bd_category`, `bd_area`, `bd_tag`) will break satellite plugins
 
 ### Caching
-- Transients for query results (5-min default), `CacheWarmer.php` pre-populates
+- `bd_filter_metadata` transient — 60 min TTL, auto-invalidated on `save_post_bd_business` / `delete_post` via `FilterHandler::invalidate_filter_cache()`
+- `CacheWarmer.php` pre-populates directory transients
 - `ExploreCacheInvalidator` clears on business/review changes
-- Geohash indexing for distance queries
+- `batch_load_locations()` uses bounding-box SQL pre-filter when radius is set (eliminates 90-95% of rows before PHP Haversine)
+- `update_object_term_cache()` primed before term loops in `BusinessesController` and `immersive.php`
+- `_prime_post_caches()` for thumbnails in `BusinessesController` and reviews in `ReviewsQueue`
+- Video cover thumbnails: external API calls blocked on frontend (admin/cron only), cached 24h
+- Composite `idx_lat_lng` index on `wp_bd_locations` for bounding-box queries (DB v2.7.0)
 
 ## Common Tasks
 
@@ -164,6 +169,25 @@ SEO is handled by the **bd-seo companion plugin** (separate repo). BD Pro's role
 - `src/Explore/ExploreRouter.php` — Canonical + title for explore pages (bd-seo coordinates with these)
 - Post meta keys `_bd_seo_title`, `_bd_seo_description`, `_bd_schema_json` are the integration seam — any plugin writes, bd-seo reads and outputs
 
+## Security Audit Status (v0.1.8, April 2026)
+
+Four-pass audit completed. Issue trajectory: 15 → 10 → 7 → 1 → clean.
+
+**All fixed:**
+- REST N+1 patterns, unprepared SQL, missing permission callbacks
+- SSO token IP validation, spoofable header hardening, logout redirect validation
+- List reorder/quick-save IDOR (ownership + collaborator checks added)
+- GeocodeEndpoint rate limiting (10 req/min per IP)
+- Open redirect in RegistrationHandler (wp_safe_redirect)
+- Font Awesome 6.5.1 (17 v5 icon renames)
+- ReviewsQueue batch cache priming
+- Leaflet re-init guard on detail pages
+
+**Remaining documented items (low priority / other repos):**
+- bd-seo AutoLinker: nested `<a>` tags on Guides page city names (separate repo, not a BD Pro fix)
+- List invite token rate limiting on `/lists/join` (token is 32 bytes, brute-force impractical)
+- render_my_lists card-level N+1 (low traffic page)
+
 ## Gotchas
 - Two namespaces coexist: `BD\` (primary) and `BusinessDirectory\` (legacy in Search/) — both map to `src/`
 - Multisite features gated behind `bd_enable_local_features` option
@@ -171,4 +195,6 @@ SEO is handled by the **bd-seo companion plugin** (separate repo). BD Pro's role
 - Contact data stored in serialized `bd_contact` post meta (not individual `bd_phone`/`bd_email`/`bd_website` keys)
 - Social links stored in serialized `bd_social` post meta (not `bd_social_facebook` etc.)
 - Address: check `wp_bd_locations` table first, fall back to `bd_location` post meta (legacy)
+- Font Awesome 6.5.1: all icons use v6 names (`fa-xmark` not `fa-times`, `fa-circle-check` not `fa-check-circle`, etc.). See FA 6 migration guide if adding new icons.
+- Video cover thumbnails: `CoverManager::get_video_thumbnail_url()` returns false on frontend cache miss — thumbnails populate via admin views only. If you need immediate thumbnails, trigger from WP-Cron.
 - Public submission endpoints live in `src/REST/` (not `src/API/`) — SubmitBusinessController, SubmitReviewController, ClaimController
