@@ -1065,7 +1065,10 @@ class CoverManager {
 	 * @return array Focal point with 'x' and 'y' as percentages (0–100). Defaults to 50/50 (center).
 	 */
 	public static function get_focal_point( $list ) {
-		$default = array( 'x' => 50, 'y' => 50 );
+		$default = array(
+			'x' => 50,
+			'y' => 50,
+		);
 
 		if ( empty( $list['cover_crop_data'] ) ) {
 			return $default;
