@@ -5,7 +5,7 @@ A modern, map-first local business directory plugin for WordPress with geolocati
 ![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple)
 ![License](https://img.shields.io/badge/License-GPL%20v2-green)
-![Version](https://img.shields.io/badge/Version-0.1.7-orange)
+![Version](https://img.shields.io/badge/Version-0.1.9-orange)
 
 ## Overview
 

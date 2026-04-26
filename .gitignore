@@ -19,8 +19,12 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+.claude/
 *.sublime-project
 *.sublime-workspace
+
+# Test caches
+.phpunit.result.cache
 
 # Logs
 *.log

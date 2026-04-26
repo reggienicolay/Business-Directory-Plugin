@@ -1,6 +1,6 @@
 # Business Directory Pro -- Developer Guide
 
-**Version:** 0.1.6
+**Version:** 0.1.9
 **Author:** Reggie Nicolay
 **License:** GPL v2 or later
 **Requires:** PHP 8.0+, WordPress 6.0+
@@ -415,8 +415,9 @@ Migrations run automatically via `plugins_loaded` hook (priority 5) through `Ins
 | 2.4.0 | Added `wp_bd_claim_requests` and `wp_bd_change_requests` tables; `proof_files` column to claims |
 | 2.5.0 | Added `cached_categories`, `cached_city`, `theme_override` to `wp_bd_lists`; triggers list cache refresh |
 | 2.6.0 | Added `helpful_count` to `wp_bd_reviews`; created `wp_bd_review_helpful` table |
+| 2.7.0 | Added composite `idx_lat_lng` index on `wp_bd_locations` for bounding-box queries |
 
-Current DB_VERSION: `2.6.0`
+Current DB_VERSION: `2.7.0`
 
 ---
 
@@ -601,7 +602,7 @@ The plugin registers **27 shortcodes** (24 unique + 3 aliases). Grouped by funct
 | `delete_post` | default | `FilterHandler::invalidate_filter_cache()` — same, catches business deletions |
 | `admin_bar_menu` | 100 | `GrantAccessToolbar::add_node()` — 🔑 Grant Access on single business pages |
 
-### Performance Architecture (v0.1.8)
+### Performance Architecture (v0.1.9)
 
 Query budget targets established during four-pass production audit:
 
@@ -700,7 +701,7 @@ Create a file in `tests/Unit/` following this pattern:
 
 ## 14. Frontend Assets
 
-Assets are **registered** on `wp_enqueue_scripts` and **conditionally enqueued** by shortcodes and templates as needed. All assets use the `BD_VERSION` constant (`0.1.6`) for cache busting.
+Assets are **registered** on `wp_enqueue_scripts` and **conditionally enqueued** by shortcodes and templates as needed. All assets use the `BD_VERSION` constant (`0.1.9`) for cache busting.
 
 ### Key JavaScript Files
 

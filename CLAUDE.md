@@ -74,12 +74,13 @@ templates/          # WP templates (single-business-premium.php, directory.php, 
 tests/Unit/         # PHPUnit tests
 ```
 
-### Database — 12 Custom Tables
-All prefixed `wp_bd_`. Schema managed by `DB\Installer` using `dbDelta()`. Version tracked in `bd_db_version` option.
+### Database — 17 Custom Tables
+All prefixed `wp_bd_`. Schema managed by `DB\Installer` using `dbDelta()`. Version tracked in `bd_db_version` option (current: 2.7.0).
 
-Core: `locations`, `reviews`, `submissions`, `claim_requests`, `change_requests`
+Core: `locations`, `reviews`, `submissions`, `claim_requests`, `change_requests`, `review_helpful`
 Gamification: `user_reputation`, `user_activity`, `badge_awards`
 Lists: `lists`, `list_items`, `list_collaborators`, `list_follows`
+Sharing/Widgets: `share_tracking`, `qr_scans`, `widget_clicks`, `widget_domains`
 
 ### Cross-Plugin Data Contract
 Other plugins in the suite read/write these on `bd_business` posts:
