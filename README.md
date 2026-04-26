@@ -5,7 +5,7 @@ A modern, map-first local business directory plugin for WordPress with geolocati
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple)
 ![License](https://img.shields.io/badge/License-GPL%20v2-green)
-![Version](https://img.shields.io/badge/Version-0.1.11-orange)
+![Version](https://img.shields.io/badge/Version-0.1.12-orange)
 
 ## Overview
 
@@ -285,6 +285,13 @@ add_filter( 'bd_points_review', function() {
 ```
 
 ## Changelog
+
+### 0.1.12
+- **Hours UI: smart defaults for outdoor listings** — new `src/Frontend/HoursDisplay.php` centralises display rules. Two universal changes:
+  1. **If no weekday hours are filled, the entire Hours card is hidden** (no more empty grid or misleading "Closed" badge on sparsely-populated listings). Open Now / Closed pills in the hero and sticky bar are also gated on real-hours-exist
+  2. **For listings in the Get Outside category (parks, trails, open spaces), the weekday grid is replaced with a single Access line.** New admin field on the business edit screen offers presets (Open daily sunrise to sunset, Open 24/7, Open during daylight hours, Seasonal, Custom freeform). Outdoor listings with no explicit access type and no real hours auto-default to "Open daily, sunrise to sunset"
+- **New post meta:** `bd_outdoor_access_type` (preset slug or `custom`) + `bd_outdoor_access_custom` (freeform text). Owner can override either direction — outdoor places with real gates can fill in the weekday grid normally
+- **Detection:** primary signal is the `get-outside` `bd_category` slug; secondary signal is any of the outdoor `bd_tag` slugs (park, hiking-trails, open-space, dog-park, playground, gardens, sports-fields)
 
 ### 0.1.11
 - **Reviews UI: mission-aligned empty state** — when a business has zero reviews, the deflating "0.0 ★★★★★ Based on 0 reviews" header + grey banner is replaced with a heart-led invitation card: "What do you love about [Business]?" + a "Share What You Love" CTA + a small "+10 points • First Steps badge" gamification nudge. Section title shifts from "Reviews" to "Share What You Love" until the first review lands, then becomes "What Locals Love"

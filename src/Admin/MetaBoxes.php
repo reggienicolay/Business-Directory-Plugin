@@ -84,9 +84,11 @@ class MetaBoxes {
 		$website = $contact['website'] ?? '';
 		$email   = $contact['email'] ?? '';
 
-		$price_level = get_post_meta( $post->ID, 'bd_price_level', true );
-		$hours       = get_post_meta( $post->ID, 'bd_hours', true );
-		$social      = get_post_meta( $post->ID, 'bd_social', true );
+		$price_level         = get_post_meta( $post->ID, 'bd_price_level', true );
+		$hours               = get_post_meta( $post->ID, 'bd_hours', true );
+		$social              = get_post_meta( $post->ID, 'bd_social', true );
+		$outdoor_access_type = (string) get_post_meta( $post->ID, 'bd_outdoor_access_type', true );
+		$outdoor_access_text = (string) get_post_meta( $post->ID, 'bd_outdoor_access_custom', true );
 
 		if ( ! is_array( $hours ) ) {
 			$hours = array();
@@ -152,6 +154,38 @@ class MetaBoxes {
 				}
 				?>
 			</div>
+			<p class="description" style="margin-top:8px;">
+				<?php esc_html_e( 'If left blank, no hours are shown on the public listing.', 'business-directory' ); ?>
+			</p>
+		</div>
+
+		<div class="bd-metabox-field">
+			<label for="bd_outdoor_access_type"><?php esc_html_e( 'Outdoor Access (parks, trails, open spaces)', 'business-directory' ); ?></label>
+			<select id="bd_outdoor_access_type" name="bd_outdoor_access_type">
+				<?php foreach ( \BD\Frontend\HoursDisplay::get_admin_presets() as $preset_slug => $preset_label ) : ?>
+					<option value="<?php echo esc_attr( $preset_slug ); ?>" <?php selected( $outdoor_access_type, $preset_slug ); ?>>
+						<?php echo esc_html( $preset_label ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
+			<div id="bd_outdoor_access_custom_wrap" style="margin-top:8px;<?php echo 'custom' === $outdoor_access_type ? '' : 'display:none;'; ?>">
+				<input type="text" id="bd_outdoor_access_custom" name="bd_outdoor_access_custom"
+					value="<?php echo esc_attr( $outdoor_access_text ); ?>"
+					placeholder="<?php esc_attr_e( 'e.g. Open Apr–Oct, dawn to dusk; gated overnight', 'business-directory' ); ?>" />
+			</div>
+			<p class="description" style="margin-top:8px;">
+				<?php esc_html_e( 'When set, the public listing replaces the weekday hours grid with a single Access line. For listings in the Get Outside category, leaving this blank automatically displays "Open daily, sunrise to sunset" if no weekday hours are filled.', 'business-directory' ); ?>
+			</p>
+			<script>
+				( function () {
+					var sel  = document.getElementById( 'bd_outdoor_access_type' );
+					var wrap = document.getElementById( 'bd_outdoor_access_custom_wrap' );
+					if ( ! sel || ! wrap ) { return; }
+					sel.addEventListener( 'change', function () {
+						wrap.style.display = ( 'custom' === sel.value ) ? '' : 'none';
+					} );
+				} )();
+			</script>
 		</div>
 		
 		<div class="bd-metabox-field">
@@ -591,6 +625,30 @@ class MetaBoxes {
 				}
 			}
 			update_post_meta( $post_id, 'bd_hours', $hours );
+		}
+
+		// Outdoor access type + optional freeform custom text.
+		if ( isset( $_POST['bd_outdoor_access_type'] ) ) {
+			$valid_types = array_keys( \BD\Frontend\HoursDisplay::get_admin_presets() );
+			$type        = sanitize_key( wp_unslash( $_POST['bd_outdoor_access_type'] ) );
+			if ( ! in_array( $type, $valid_types, true ) ) {
+				$type = 'none';
+			}
+			if ( 'none' === $type || '' === $type ) {
+				delete_post_meta( $post_id, 'bd_outdoor_access_type' );
+				delete_post_meta( $post_id, 'bd_outdoor_access_custom' );
+			} else {
+				update_post_meta( $post_id, 'bd_outdoor_access_type', $type );
+				if ( 'custom' === $type && isset( $_POST['bd_outdoor_access_custom'] ) ) {
+					update_post_meta(
+						$post_id,
+						'bd_outdoor_access_custom',
+						sanitize_text_field( wp_unslash( $_POST['bd_outdoor_access_custom'] ) )
+					);
+				} else {
+					delete_post_meta( $post_id, 'bd_outdoor_access_custom' );
+				}
+			}
 		}
 		if ( isset( $_POST['bd_social'] ) ) {
 			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized

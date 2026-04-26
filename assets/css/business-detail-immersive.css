@@ -891,6 +891,31 @@ body.bd-detail-layout-immersive .entry-title:not(.bd-hero-title-row h1) {
 }
 
 /* =====================================================================
+   ACCESS CARD (outdoor places)
+   Replaces the weekday Hours grid with a single human-readable line for
+   parks / trails / open spaces.
+   ===================================================================== */
+
+.bd-access-card .bd-hours-header h3 {
+	margin: 0;
+}
+
+.bd-access-line {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: 12px 0 0;
+	color: var(--bd-neutral-700);
+	font-size: var(--bd-text-base);
+	line-height: 1.4;
+}
+
+.bd-access-icon {
+	flex: 0 0 auto;
+	color: var(--bd-primary-600);
+}
+
+/* =====================================================================
    EMPTY-STATE INVITATION
    Shown when review_count = 0. Replaces the deflating "0.0 / Based on 0
    reviews" header with a heart-led, mission-aligned invitation.

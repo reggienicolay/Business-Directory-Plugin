@@ -233,7 +233,7 @@ while ( have_posts() ) :
 						<?php endif; ?>
 
 						<!-- Open/Closed Status -->
-						<?php if ( $hours ) : ?>
+						<?php if ( \BD\Frontend\HoursDisplay::should_show_open_status( $business_id ) ) : ?>
 							<?php if ( $is_open ) : ?>
 								<span class="bd-badge bd-badge-open">
 									<span class="bd-status-dot"></span>
@@ -373,7 +373,7 @@ while ( have_posts() ) :
 	<nav class="bd-quick-bar">
 		<div class="bd-quick-bar-inner">
 			<div class="bd-quick-left">
-				<?php if ( $hours ) : ?>
+				<?php if ( \BD\Frontend\HoursDisplay::should_show_open_status( $business_id ) ) : ?>
 					<span class="bd-open-status <?php echo $is_open ? 'bd-is-open' : 'bd-is-closed'; ?>">
 						<?php if ( $is_open ) : ?>
 							<span class="bd-open-dot"></span>
@@ -792,8 +792,30 @@ while ( have_posts() ) :
 
 		<!-- RIGHT SIDEBAR -->
 		<aside class="bd-sidebar">
-			<!-- Hours Card -->
-			<?php if ( $hours ) : ?>
+			<?php
+			// Hours / Outdoor Access Card
+			//
+			// Display priority:
+			//   1. Owner-set outdoor access label  → show "Access" card with that label
+			//   2. Outdoor listing + no real hours → show "Access" card with default label
+			//   3. Real weekday hours filled       → show normal Hours card
+			//   4. Otherwise                       → render nothing (no empty/misleading card)
+			$bd_access_label = \BD\Frontend\HoursDisplay::get_access_label( $business_id );
+			$bd_has_hours    = \BD\Frontend\HoursDisplay::has_hours( $business_id );
+			?>
+			<?php if ( '' !== $bd_access_label ) : ?>
+				<div class="bd-card bd-card-padded bd-access-card">
+					<div class="bd-hours-header">
+						<h3><?php esc_html_e( 'Access', 'business-directory' ); ?></h3>
+					</div>
+					<p class="bd-access-line">
+						<svg class="bd-access-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+							<path d="M12 3a6 6 0 0 1 6 6c0 4.5-6 12-6 12S6 13.5 6 9a6 6 0 0 1 6-6Zm0 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z" />
+						</svg>
+						<?php echo esc_html( $bd_access_label ); ?>
+					</p>
+				</div>
+			<?php elseif ( $bd_has_hours ) : ?>
 				<div class="bd-card bd-card-padded">
 					<div class="bd-hours-header">
 						<h3><?php esc_html_e( 'Hours', 'business-directory' ); ?></h3>
@@ -832,7 +854,7 @@ while ( have_posts() ) :
 						</div>
 					<?php endforeach; ?>
 				</div>
-			<?php endif; ?>
+			<?php endif; // No card rendered when neither outdoor access nor real hours exist. ?>
 
 			<!-- Contact Card -->
 			<div class="bd-card bd-card-padded">
