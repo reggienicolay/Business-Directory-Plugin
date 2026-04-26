@@ -345,8 +345,11 @@ $visually_hidden_style = 'position:absolute;width:1px;height:1px;padding:0;margi
 
 				<?php else : ?>
 
-					<p class="bd-no-reviews">
-						<?php esc_html_e( 'Be the first to review this business!', 'business-directory' ); ?>
-					</p>
+					<?php
+					// Empty-state invitation is rendered higher in the page (immersive.php
+					// shows a heart-led "What do you love about [Business]?" card when
+					// review_count = 0). Suppress the duplicate prompt here so the section
+					// has a single, mission-aligned voice.
+					?>
 
 				<?php endif; ?>

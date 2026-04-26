@@ -443,10 +443,10 @@ while ( have_posts() ) :
 		===================================================================== -->
 	<div class="bd-engagement-strip">
 		<div class="bd-engagement-strip-inner">
-			<span class="bd-engagement-label"><?php esc_html_e( 'Been here?', 'business-directory' ); ?></span>
+			<span class="bd-engagement-label"><?php esc_html_e( 'Love this spot?', 'business-directory' ); ?></span>
 			<a href="#write-review" class="bd-engagement-cta">
-				<i class="fas fa-star"></i>
-				<?php esc_html_e( 'Write a Review', 'business-directory' ); ?>
+				<i class="fa-solid fa-heart"></i>
+				<?php esc_html_e( 'Share What You Love', 'business-directory' ); ?>
 			</a>
 			<a href="#write-review" class="bd-engagement-cta bd-add-photo-btn" data-focus="photos">
 				<i class="fas fa-camera"></i>
@@ -547,28 +547,61 @@ while ( have_posts() ) :
 			<!-- Reviews Card -->
 			<article class="bd-card bd-card-padded" id="reviews">
 				<div class="bd-section-label">
-					<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-						<path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+					<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+						<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
 					</svg>
-					<h2><?php esc_html_e( 'Reviews', 'business-directory' ); ?></h2>
+					<h2>
+						<?php
+						echo (int) $review_count > 0
+							? esc_html__( 'What Locals Love', 'business-directory' )
+							: esc_html__( 'Share What You Love', 'business-directory' );
+						?>
+					</h2>
 					<span class="label-line"></span>
 				</div>
 
-				<!-- Rating Summary -->
-				<div class="bd-reviews-header">
-					<div class="bd-rating-big">
-						<span class="bd-rating-score"><?php echo $avg_rating ? number_format( $avg_rating, 1 ) : '0.0'; ?></span>
-						<div class="bd-rating-detail">
-							<span class="bd-rating-stars"><?php echo str_repeat( '★', $avg_rating ? round( $avg_rating ) : 0 ); ?><?php echo str_repeat( '☆', 5 - ( $avg_rating ? round( $avg_rating ) : 0 ) ); ?></span>
-							<?php /* translators: %d is the number of reviews */ ?>
-							<span class="bd-rating-count"><?php printf( esc_html__( 'Based on %d reviews', 'business-directory' ), intval( $review_count ) ); ?></span>
+				<?php if ( (int) $review_count > 0 ) : ?>
+					<!-- Rating Summary (only shown when reviews exist) -->
+					<div class="bd-reviews-header">
+						<div class="bd-rating-big">
+							<span class="bd-rating-score"><?php echo esc_html( number_format( (float) $avg_rating, 1 ) ); ?></span>
+							<div class="bd-rating-detail">
+								<span class="bd-rating-stars"><?php echo str_repeat( '★', $avg_rating ? round( $avg_rating ) : 0 ); ?><?php echo str_repeat( '☆', 5 - ( $avg_rating ? round( $avg_rating ) : 0 ) ); ?></span>
+								<?php /* translators: %d is the number of reviews */ ?>
+								<span class="bd-rating-count"><?php printf( esc_html( _n( '%d local has shared the love', '%d locals have shared the love', (int) $review_count, 'business-directory' ) ), (int) $review_count ); ?></span>
+							</div>
 						</div>
+						<a href="#write-review" class="bd-btn-write-review">
+							<i class="fa-solid fa-heart" aria-hidden="true"></i>
+							<?php esc_html_e( 'Share What You Love', 'business-directory' ); ?>
+						</a>
 					</div>
-					<a href="#write-review" class="bd-btn-write-review">
-						<i class="fas fa-pencil"></i>
-						<?php esc_html_e( 'Write a Review', 'business-directory' ); ?>
-					</a>
-				</div>
+				<?php else : ?>
+					<!-- Empty-state invitation (no reviews yet) -->
+					<div class="bd-reviews-empty-invite">
+						<div class="bd-empty-invite-icon" aria-hidden="true">
+							<svg viewBox="0 0 24 24" fill="currentColor">
+								<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+							</svg>
+						</div>
+						<h3 class="bd-empty-invite-title">
+							<?php
+							/* translators: %s is the business name */
+							printf( esc_html__( 'What do you love about %s?', 'business-directory' ), esc_html( get_the_title() ) );
+							?>
+						</h3>
+						<p class="bd-empty-invite-body">
+							<?php esc_html_e( 'Tell us what keeps you coming back, what to order, when to visit — anything that helps another local discover this spot.', 'business-directory' ); ?>
+						</p>
+						<a href="#write-review" class="bd-btn-write-review bd-btn-write-review--hero">
+							<i class="fa-solid fa-heart" aria-hidden="true"></i>
+							<?php esc_html_e( 'Share What You Love', 'business-directory' ); ?>
+						</a>
+						<p class="bd-empty-invite-meta">
+							<?php esc_html_e( '+10 points • First Steps badge', 'business-directory' ); ?>
+						</p>
+					</div>
+				<?php endif; ?>
 
 				<!-- Review List -->
 				<?php if ( ! empty( $reviews ) ) : ?>
@@ -616,13 +649,17 @@ while ( have_posts() ) :
 							</div>
 						<?php endforeach; ?>
 					</div>
-				<?php else : ?>
-					<p class="bd-no-reviews"><?php esc_html_e( 'Be the first to review this business!', 'business-directory' ); ?></p>
-				<?php endif; ?>
+				<?php endif; // end review list (empty-state invitation above already handles the no-reviews case) ?>
 
 				<!-- Write Review Form -->
 				<div class="bd-review-form-section" id="write-review">
-					<h3><?php esc_html_e( 'Write a Review', 'business-directory' ); ?></h3>
+					<h3>
+						<i class="fa-solid fa-heart bd-heart-accent" aria-hidden="true"></i>
+						<?php esc_html_e( 'Share what you love', 'business-directory' ); ?>
+					</h3>
+					<p class="bd-form-mission-note">
+						<?php esc_html_e( 'No rants, no critiques — just what makes this spot worth visiting.', 'business-directory' ); ?>
+					</p>
 
 					<?php if ( is_user_logged_in() ) : ?>
 						<?php
@@ -665,8 +702,21 @@ while ( have_posts() ) :
 							</div>
 
 							<div class="bd-form-row">
-								<label for="review-content"><?php esc_html_e( 'Your Review', 'business-directory' ); ?> <span class="required">*</span></label>
-								<textarea id="review-content" name="content" rows="5" placeholder="<?php esc_attr_e( 'Tell others about your experience...', 'business-directory' ); ?>"></textarea>
+								<label for="review-content"><?php esc_html_e( 'What do you love?', 'business-directory' ); ?> <span class="required">*</span></label>
+								<?php
+								$bd_prompts = \BD\Frontend\ReviewPrompts::get_for_business( $business_id );
+								if ( ! empty( $bd_prompts ) ) :
+									?>
+									<div class="bd-prompt-chips" role="list" aria-label="<?php esc_attr_e( 'Need a starting point? Tap one:', 'business-directory' ); ?>">
+										<span class="bd-prompt-chips-label"><?php esc_html_e( 'Need a starting point? Tap one:', 'business-directory' ); ?></span>
+										<?php foreach ( $bd_prompts as $bd_prompt ) : ?>
+											<button type="button" class="bd-prompt-chip" data-prompt="<?php echo esc_attr( $bd_prompt ); ?>" role="listitem">
+												<?php echo esc_html( $bd_prompt ); ?>
+											</button>
+										<?php endforeach; ?>
+									</div>
+								<?php endif; ?>
+								<textarea id="review-content" name="content" rows="5" placeholder="<?php esc_attr_e( 'Share what made it special — what to order, when to visit, why you love it.', 'business-directory' ); ?>"></textarea>
 							</div>
 
 							<div class="bd-form-row">
@@ -676,7 +726,8 @@ while ( have_posts() ) :
 							</div>
 
 							<button type="submit" class="bd-btn bd-btn-primary">
-								<?php esc_html_e( 'Submit Review', 'business-directory' ); ?>
+								<i class="fa-solid fa-heart" aria-hidden="true"></i>
+								<?php esc_html_e( 'Share What You Love', 'business-directory' ); ?>
 							</button>
 						</form>
 					<?php else : ?>
@@ -684,7 +735,7 @@ while ( have_posts() ) :
 							<?php
 							printf(
 								/* translators: %1$s: login URL, %2$s: register URL */
-								wp_kses_post( __( 'Please <a href="%1$s">log in</a> or <a href="%2$s">create an account</a> to write a review.', 'business-directory' ) ),
+								wp_kses_post( __( 'Please <a href="%1$s">log in</a> or <a href="%2$s">create an account</a> to share what you love.', 'business-directory' ) ),
 								esc_url( wp_login_url( $business_url . '#write-review' ) ),
 								esc_url( wp_registration_url() )
 							);
@@ -692,6 +743,32 @@ while ( have_posts() ) :
 						</p>
 					<?php endif; ?>
 				</div>
+
+				<script>
+					( function () {
+						var chips    = document.querySelectorAll( '.bd-prompt-chip' );
+						var textarea = document.getElementById( 'review-content' );
+						if ( ! chips.length || ! textarea ) {
+							return;
+						}
+						chips.forEach( function ( chip ) {
+							chip.addEventListener( 'click', function () {
+								var seed = chip.getAttribute( 'data-prompt' );
+								if ( ! seed ) {
+									return;
+								}
+								// If the textarea is empty, prefill with the prompt + a trailing space.
+								// Otherwise append on a new line so users can stack ideas.
+								var current = textarea.value.trim();
+								textarea.value = current
+									? current + '\n\n' + seed + ' '
+									: seed + ' ';
+								textarea.focus();
+								textarea.setSelectionRange( textarea.value.length, textarea.value.length );
+							} );
+						} );
+					} )();
+				</script>
 
 				<!-- Share Bar -->
 				<div class="bd-share-bar">

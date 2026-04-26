@@ -872,11 +872,149 @@ body.bd-detail-layout-immersive .entry-title:not(.bd-hero-title-row h1) {
 	font-size: var(--bd-text-sm);
 	font-weight: var(--bd-font-semibold);
 	text-decoration: none;
-	transition: background var(--bd-transition-base);
+	transition: background var(--bd-transition-base), transform var(--bd-transition-base);
 }
 
 .bd-btn-write-review:hover {
 	background: var(--bd-primary-700);
+	color: #fff;
+}
+
+.bd-btn-write-review .fa-heart {
+	color: #ff5b7a;
+	font-size: 1em;
+	transition: transform var(--bd-transition-base);
+}
+
+.bd-btn-write-review:hover .fa-heart {
+	transform: scale(1.15);
+}
+
+/* =====================================================================
+   EMPTY-STATE INVITATION
+   Shown when review_count = 0. Replaces the deflating "0.0 / Based on 0
+   reviews" header with a heart-led, mission-aligned invitation.
+   ===================================================================== */
+
+.bd-reviews-empty-invite {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: 12px;
+	padding: 36px 24px 32px;
+	margin-bottom: 32px;
+	background: linear-gradient( 180deg, #fff 0%, var(--bd-primary-50) 100% );
+	border: 1px solid var(--bd-primary-100, #e0ecf5);
+	border-radius: var(--bd-radius-lg);
+}
+
+.bd-empty-invite-icon {
+	width: 56px;
+	height: 56px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: #fff;
+	border-radius: 50%;
+	box-shadow: 0 2px 12px rgba( 255, 91, 122, 0.15 );
+	color: #ff5b7a;
+}
+
+.bd-empty-invite-icon svg {
+	width: 28px;
+	height: 28px;
+}
+
+.bd-empty-invite-title {
+	font-family: var(--bd-font-heading);
+	font-size: 1.5rem;
+	font-weight: var(--bd-font-bold);
+	color: var(--bd-neutral-800);
+	margin: 0;
+	line-height: 1.25;
+}
+
+.bd-empty-invite-body {
+	color: var(--bd-neutral-600);
+	font-size: var(--bd-text-base);
+	line-height: 1.55;
+	max-width: 52ch;
+	margin: 0 0 4px;
+}
+
+.bd-btn-write-review--hero {
+	padding: 14px 28px;
+	font-size: var(--bd-text-base);
+	margin-top: 4px;
+}
+
+.bd-empty-invite-meta {
+	color: var(--bd-neutral-500);
+	font-size: var(--bd-text-xs);
+	margin: 0;
+	letter-spacing: 0.02em;
+}
+
+/* =====================================================================
+   FORM HEADER (mission voice)
+   ===================================================================== */
+
+.bd-review-form-section h3 .bd-heart-accent {
+	color: #ff5b7a;
+	margin-right: 6px;
+}
+
+.bd-form-mission-note {
+	color: var(--bd-neutral-500);
+	font-size: var(--bd-text-sm);
+	margin: -8px 0 20px;
+	font-style: italic;
+}
+
+/* =====================================================================
+   PROMPT CHIPS (cognitive-load reducer)
+   Click to prefill the textarea with a starting line.
+   ===================================================================== */
+
+.bd-prompt-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 6px 0 10px;
+	align-items: center;
+}
+
+.bd-prompt-chips-label {
+	color: var(--bd-neutral-500);
+	font-size: var(--bd-text-xs);
+	margin-right: 4px;
+	flex-basis: 100%;
+}
+
+.bd-prompt-chip {
+	appearance: none;
+	border: 1px solid var(--bd-primary-200, #c7dceb);
+	background: #fff;
+	color: var(--bd-primary-700);
+	padding: 6px 14px;
+	border-radius: 999px;
+	font-size: var(--bd-text-sm);
+	font-weight: var(--bd-font-medium, 500);
+	cursor: pointer;
+	transition: background var(--bd-transition-base), border-color var(--bd-transition-base), color var(--bd-transition-base);
+}
+
+.bd-prompt-chip:hover,
+.bd-prompt-chip:focus-visible {
+	background: var(--bd-primary-50);
+	border-color: var(--bd-primary-500);
+	color: var(--bd-primary-700);
+	outline: none;
+}
+
+.bd-prompt-chip:active {
+	background: var(--bd-primary-100, #d8e8f3);
 }
 
 /* Review Cards */

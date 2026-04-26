@@ -5,7 +5,7 @@ A modern, map-first local business directory plugin for WordPress with geolocati
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple)
 ![License](https://img.shields.io/badge/License-GPL%20v2-green)
-![Version](https://img.shields.io/badge/Version-0.1.10-orange)
+![Version](https://img.shields.io/badge/Version-0.1.11-orange)
 
 ## Overview
 
@@ -286,7 +286,11 @@ add_filter( 'bd_points_review', function() {
 
 ## Changelog
 
-### 0.1.10
+### 0.1.11
+- **Reviews UI: mission-aligned empty state** — when a business has zero reviews, the deflating "0.0 ★★★★★ Based on 0 reviews" header + grey banner is replaced with a heart-led invitation card: "What do you love about [Business]?" + a "Share What You Love" CTA + a small "+10 points • First Steps badge" gamification nudge. Section title shifts from "Reviews" to "Share What You Love" until the first review lands, then becomes "What Locals Love"
+- **Reviews UI: prompt chips lower the cognitive load** — `src/Frontend/ReviewPrompts.php` maps `bd_category` to 3-4 click-to-prefill suggestions ("What's the must-order dish here?", "Best feature of this spot", etc.) shown above the textarea. Click a chip → textarea pre-fills with the prompt + space, cursor parked at end. Generic fallback when no category matches
+- **Reviews UI: heart accents replace generic icons** throughout the review section — write-review buttons, engagement strip ("Love this spot?" / "Share What You Love"), form heading. Star rating mechanic preserved (familiar, scannable, matches Schema.org rendering in Google SERPs)
+- **Reviews UI: form copy refresh** — "Write a Review" → "Share what you love"; "Tell others about your experience" → "Share what made it special — what to order, when to visit, why you love it"; submit button → "Share What You Love"; new italic mission note: "No rants, no critiques — just what makes this spot worth visiting"
 - **Security: ownership checks on two AJAX handlers** — `ToolsDashboard::ajax_update_email_prefs` and `StatsEmail::ajax_send_test_email` now verify approved-claim ownership before mutating prefs / sending stats emails (was any-logged-in-user)
 - **Security: locked down `ajax_search_users`** — added `_ajax_nonce` + `manage_options` capability check; updated inline JS to send the nonce. Prevents user enumeration
 - **Security: rate limits on remaining public REST endpoints** — `/widget/click` (60/min/IP), `/badge/{id}` and `/badge/{id}/code` (120/min/IP), `/lists`, `/lists/{id}`, `/lists/{id}/share-data` (60–120/min/IP), `/feature` and `/feature/search` (60/min/IP), `/events/city/{city}` and `/events/business/{id}` (60/min/IP)
