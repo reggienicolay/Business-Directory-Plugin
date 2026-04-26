@@ -489,6 +489,19 @@ class StatsEmail {
 			wp_send_json_error( array( 'message' => __( 'Invalid request.', 'business-directory' ) ) );
 		}
 
+		global $wpdb;
+		$claims_table = $wpdb->prefix . 'bd_claim_requests';
+		$owned        = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT id FROM {$claims_table} WHERE user_id = %d AND business_id = %d AND status = 'approved'",
+				$user_id,
+				$business_id
+			)
+		);
+		if ( empty( $owned ) ) {
+			wp_send_json_error( array( 'message' => __( 'Not authorized for this business.', 'business-directory' ) ) );
+		}
+
 		$result = $this->send_report( $user_id, $business_id );
 
 		if ( $result ) {

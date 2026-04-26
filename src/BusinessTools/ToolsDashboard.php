@@ -970,6 +970,10 @@ class ToolsDashboard {
 			wp_send_json_error( array( 'message' => __( 'Invalid business ID.', 'business-directory' ) ) );
 		}
 
+		if ( ! $this->user_owns_business( get_current_user_id(), $business_id ) ) {
+			wp_send_json_error( array( 'message' => 'Not authorized for this business.' ) );
+		}
+
 		$prefs = array(
 			'enabled'         => $enabled,
 			'email'           => $email,
