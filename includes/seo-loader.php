@@ -37,7 +37,8 @@ define( 'BD_SEO_LOADER_LOADED', true );
  * @var array<string, string>
  */
 $bd_seo_classes = array(
-	'SlugMigration' => 'src/SEO/SlugMigration.php',
+	'SlugMigration'   => 'src/SEO/SlugMigration.php',
+	'ArchiveRedirect' => 'src/SEO/ArchiveRedirect.php',
 	// Future classes (uncomment when files exist):
 	// 'AutoLinker'         => 'src/SEO/AutoLinker.php',
 	// 'RelatedBusinesses'  => 'src/SEO/RelatedBusinesses.php',
@@ -85,6 +86,12 @@ function init_seo_components(): void {
 	// Slug Migration: 301 redirects for old taxonomy URLs.
 	if ( class_exists( __NAMESPACE__ . '\\SlugMigration' ) ) {
 		SlugMigration::init();
+	}
+
+	// Archive Redirect: 301 the unlinked /places/ post-type archive (and its
+	// pagination) to /explore/, the canonical browse experience.
+	if ( class_exists( __NAMESPACE__ . '\\ArchiveRedirect' ) ) {
+		ArchiveRedirect::init();
 	}
 
 	// Future components (uncomment when classes exist):

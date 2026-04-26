@@ -1,6 +1,6 @@
 # Business Directory Pro -- Developer Guide
 
-**Version:** 0.1.13
+**Version:** 0.1.14
 **Author:** Reggie Nicolay
 **License:** GPL v2 or later
 **Requires:** PHP 8.0+, WordPress 6.2+
@@ -602,7 +602,7 @@ The plugin registers **27 shortcodes** (24 unique + 3 aliases). Grouped by funct
 | `delete_post` | default | `FilterHandler::invalidate_filter_cache()` — same, catches business deletions |
 | `admin_bar_menu` | 100 | `GrantAccessToolbar::add_node()` — 🔑 Grant Access on single business pages |
 
-### Performance Architecture (v0.1.13)
+### Performance Architecture (v0.1.14)
 
 Query budget targets established during four-pass production audit:
 
@@ -714,7 +714,7 @@ Create a file in `tests/Unit/` following this pattern:
 
 ## 14. Frontend Assets
 
-Assets are **registered** on `wp_enqueue_scripts` and **conditionally enqueued** by shortcodes and templates as needed. All assets use the `BD_VERSION` constant (`0.1.13`) for cache busting.
+Assets are **registered** on `wp_enqueue_scripts` and **conditionally enqueued** by shortcodes and templates as needed. All assets use the `BD_VERSION` constant (`0.1.14`) for cache busting.
 
 ### Key JavaScript Files
 

@@ -5,7 +5,7 @@ A modern, map-first local business directory plugin for WordPress with geolocati
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple)
 ![License](https://img.shields.io/badge/License-GPL%20v2-green)
-![Version](https://img.shields.io/badge/Version-0.1.13-orange)
+![Version](https://img.shields.io/badge/Version-0.1.14-orange)
 
 ## Overview
 
@@ -286,7 +286,8 @@ add_filter( 'bd_points_review', function() {
 
 ## Changelog
 
-### 0.1.13
+### 0.1.14
+- **301 redirect: `/places/` → `/explore/`** — the default WordPress post-type archive at `/places/` is unlinked and unindexed (your canonical browse experience lives at `/explore/`, handled by `Explore\ExploreRouter`). New `src/SEO/ArchiveRedirect.php` 301s the bare archive (and its pagination `/places/page/N/`) to `/explore/`, consolidating SEO equity onto the URL Google actually indexes. Single-business URLs (`/places/{slug}/`) unchanged. Filterable destination via `bd_archive_redirect_destination`. Wired alongside `SlugMigration` in `includes/seo-loader.php`.
 - **Anti-scraping hardening on `/wp-json/bd/v1/businesses`** — three layers added for anonymous requests:
   1. **Nonce required** (`X-WP-Nonce` header, validated against `wp_rest`). Binds the endpoint to first-party JS — every CLI scraper (curl, wget, python-requests, scrapy) gets a 401. All BD frontend JS already passes the nonce; one missing call site in `lists.js` was patched.
   2. **Rate limit** 60/min/IP via `BD\Security\RateLimit` (matches the audit-pass treatment of other public endpoints — was the only one missed)
