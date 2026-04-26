@@ -1947,7 +1947,7 @@ class ListManager {
 		global $wpdb;
 		$table = $wpdb->prefix . 'bd_lists';
 
-		$list_ids = $wpdb->get_col( "SELECT id FROM $table" );
+		$list_ids = $wpdb->get_col( $wpdb->prepare( 'SELECT id FROM %i', $table ) );
 		$count    = 0;
 
 		foreach ( $list_ids as $list_id ) {

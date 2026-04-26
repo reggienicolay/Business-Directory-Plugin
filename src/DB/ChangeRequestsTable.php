@@ -258,7 +258,7 @@ class ChangeRequestsTable {
 			return 0;
 		}
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} WHERE status = 'pending'" );
+		return (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE status = 'pending'", $table ) );
 	}
 
 	/**

@@ -428,7 +428,7 @@ class SubmitReviewController {
 
 			// Validate MIME type using actual file content (not client-provided type).
 			$file_path = $files['tmp_name'][ $i ];
-			$mime_type = self::get_real_mime_type( $file_path );
+			$mime_type = \BD\Security\MimeValidator::get_real_mime_type( $file_path );
 
 			if ( ! $mime_type || ! in_array( $mime_type, self::ALLOWED_MIME_TYPES, true ) ) {
 				// Clean up any previously uploaded photos before returning error.
@@ -479,40 +479,6 @@ class SubmitReviewController {
 		}
 
 		return $photo_ids;
-	}
-
-	/**
-	 * Get real MIME type of a file using multiple methods.
-	 *
-	 * @param string $file_path Path to the file.
-	 * @return string|false MIME type or false on failure.
-	 */
-	private static function get_real_mime_type( $file_path ) {
-		// Method 1: Use fileinfo extension (preferred).
-		if ( function_exists( 'finfo_open' ) ) {
-			$finfo     = finfo_open( FILEINFO_MIME_TYPE );
-			$mime_type = finfo_file( $finfo, $file_path );
-
-			if ( $mime_type ) {
-				return $mime_type;
-			}
-		}
-
-		// Method 2: Use getimagesize for images.
-		$image_info = @getimagesize( $file_path );
-		if ( $image_info && ! empty( $image_info['mime'] ) ) {
-			return $image_info['mime'];
-		}
-
-		// Method 3: Use WordPress mime_content_type wrapper.
-		if ( function_exists( 'mime_content_type' ) ) {
-			$mime_type = mime_content_type( $file_path );
-			if ( $mime_type ) {
-				return $mime_type;
-			}
-		}
-
-		return false;
 	}
 
 	/**

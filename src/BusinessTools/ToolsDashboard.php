@@ -797,13 +797,15 @@ class ToolsDashboard {
 
 		// Widget domains count.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		$domain_count = $wpdb->get_var( "SELECT COUNT(DISTINCT business_id) FROM {$domains_table}" );
+		$domain_count = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(DISTINCT business_id) FROM %i', $domains_table ) );
 
 		// Widget clicks this month.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$clicks_count = $wpdb->get_var(
-			"SELECT COUNT(*) FROM {$clicks_table} 
-			WHERE MONTH(created_at) = MONTH(CURRENT_DATE())"
+			$wpdb->prepare(
+				'SELECT COUNT(*) FROM %i WHERE MONTH(created_at) = MONTH(CURRENT_DATE())',
+				$clicks_table
+			)
 		);
 
 		// QR scans this month.

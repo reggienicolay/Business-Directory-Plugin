@@ -213,7 +213,7 @@ class ClaimController {
 					}
 
 					// Validate MIME type using actual file content (not client-provided type).
-					$real_mime = self::get_real_mime_type( $files['tmp_name'][ $i ] );
+					$real_mime = \BD\Security\MimeValidator::get_real_mime_type( $files['tmp_name'][ $i ] );
 					if ( ! $real_mime || ! in_array( $real_mime, $allowed_mimes, true ) ) {
 						error_log( '[BD Claim] Rejected file upload with MIME: ' . ( $real_mime ?: 'unknown' ) );
 						continue;
@@ -639,37 +639,5 @@ class ClaimController {
 		);
 
 		wp_mail( $claim['claimant_email'], $subject, $message );
-	}
-
-	/**
-	 * Get real MIME type of a file using actual file content.
-	 *
-	 * @param string $file_path Path to the file.
-	 * @return string|false MIME type or false on failure.
-	 */
-	private static function get_real_mime_type( $file_path ) {
-		if ( function_exists( 'finfo_open' ) ) {
-			$finfo     = finfo_open( FILEINFO_MIME_TYPE );
-			$mime_type = finfo_file( $finfo, $file_path );
-			finfo_close( $finfo );
-
-			if ( $mime_type ) {
-				return $mime_type;
-			}
-		}
-
-		$image_info = @getimagesize( $file_path );
-		if ( $image_info && ! empty( $image_info['mime'] ) ) {
-			return $image_info['mime'];
-		}
-
-		if ( function_exists( 'mime_content_type' ) ) {
-			$mime_type = mime_content_type( $file_path );
-			if ( $mime_type ) {
-				return $mime_type;
-			}
-		}
-
-		return false;
 	}
 }

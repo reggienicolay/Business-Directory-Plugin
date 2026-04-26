@@ -2,7 +2,7 @@
 
 A modern, map-first local business directory plugin for WordPress with geolocation, reviews, gamification, and multi-city support.
 
-![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-blue)
+![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple)
 ![License](https://img.shields.io/badge/License-GPL%20v2-green)
 ![Version](https://img.shields.io/badge/Version-0.1.9-orange)
@@ -58,7 +58,7 @@ Business Directory Pro is a premium WordPress plugin designed for community-focu
 
 ## Requirements
 
-- WordPress 6.0 or higher
+- WordPress 6.2 or higher (uses `%i` placeholder in $wpdb->prepare for table identifiers)
 - PHP 8.0 or higher
 - MySQL 8.0 or higher
 

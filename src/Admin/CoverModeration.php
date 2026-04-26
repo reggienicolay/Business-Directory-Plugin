@@ -324,18 +324,19 @@ class CoverModeration {
 		$where  = self::build_where_clause( $filter );
 		$offset = ( $page - 1 ) * $per_page;
 
+		$quoted_table = $wpdb->prepare( '%i', $table );
 		// Optimized: JOIN to get list and user data in single query
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT l.id as list_id, l.user_id, l.title as list_title, 
-				        l.slug, l.visibility, l.cover_type, l.cover_image_id, 
+				"SELECT l.id as list_id, l.user_id, l.title as list_title,
+				        l.slug, l.visibility, l.cover_type, l.cover_image_id,
 				        l.cover_video_id, l.cover_video_thumb_id, l.updated_at,
 				        u.display_name as author_name
-				 FROM {$table} l
+				 FROM $quoted_table l
 				 LEFT JOIN {$wpdb->users} u ON l.user_id = u.ID
 				 WHERE {$where['sql']}
-				 ORDER BY l.updated_at DESC 
+				 ORDER BY l.updated_at DESC
 				 LIMIT %d OFFSET %d",
 				$per_page,
 				$offset
@@ -356,8 +357,9 @@ class CoverModeration {
 
 		$where = self::build_where_clause( $filter );
 
+		$quoted_table = $wpdb->prepare( '%i', $table );
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} l WHERE {$where['sql']}" );
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM $quoted_table l WHERE {$where['sql']}" );
 	}
 
 	/**

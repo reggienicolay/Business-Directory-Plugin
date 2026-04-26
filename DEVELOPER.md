@@ -3,7 +3,7 @@
 **Version:** 0.1.9
 **Author:** Reggie Nicolay
 **License:** GPL v2 or later
-**Requires:** PHP 8.0+, WordPress 6.0+
+**Requires:** PHP 8.0+, WordPress 6.2+
 
 ---
 
@@ -15,7 +15,7 @@
 |-------------|---------|
 | PHP | 8.0+ |
 | Composer | Latest |
-| WordPress | 6.0+ |
+| WordPress | 6.2+ |
 | Dev Environment | Local by Flywheel (or any WP dev environment) |
 
 ### Commands

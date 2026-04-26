@@ -118,7 +118,7 @@ class BadgeAdmin {
 
 		// Get total users with reputation.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		$total_users = $wpdb->get_var( "SELECT COUNT(*) FROM {$reputation_table} WHERE total_points > 0" );
+		$total_users = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE total_points > 0', $reputation_table ) );
 		$total_users = max( $total_users, 1 );
 
 		// Get badge counts.
@@ -127,7 +127,8 @@ class BadgeAdmin {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$count                = $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM {$reputation_table} WHERE badges LIKE %s",
+					'SELECT COUNT(*) FROM %i WHERE badges LIKE %s',
+					$reputation_table,
 					'%"' . $key . '"%'
 				)
 			);
@@ -352,22 +353,25 @@ class BadgeAdmin {
 
 		// Get stats.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		$total_users = $wpdb->get_var( "SELECT COUNT(*) FROM {$reputation_table} WHERE total_points > 0" );
+		$total_users = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE total_points > 0', $reputation_table ) );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		$total_points = $wpdb->get_var( "SELECT SUM(total_points) FROM {$reputation_table}" );
+		$total_points = $wpdb->get_var( $wpdb->prepare( 'SELECT SUM(total_points) FROM %i', $reputation_table ) );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		$total_reviews = $wpdb->get_var( "SELECT SUM(total_reviews) FROM {$reputation_table}" );
+		$total_reviews = $wpdb->get_var( $wpdb->prepare( 'SELECT SUM(total_reviews) FROM %i', $reputation_table ) );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		$total_badges = $wpdb->get_var( "SELECT COUNT(*) FROM {$reputation_table} WHERE badges IS NOT NULL AND badges != '' AND badges != '[]'" );
+		$total_badges = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM %i WHERE badges IS NOT NULL AND badges != '' AND badges != '[]'", $reputation_table ) );
 
 		// Recent activity.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$recent_activity = $wpdb->get_results(
-			"SELECT a.*, u.display_name
-			FROM {$activity_table} a
-			INNER JOIN {$wpdb->users} u ON a.user_id = u.ID
-			ORDER BY a.created_at DESC
-			LIMIT 20",
+			$wpdb->prepare(
+				'SELECT a.*, u.display_name
+				FROM %i a
+				INNER JOIN ' . $wpdb->users . ' u ON a.user_id = u.ID
+				ORDER BY a.created_at DESC
+				LIMIT 20',
+				$activity_table
+			),
 			ARRAY_A
 		);
 
@@ -924,7 +928,7 @@ class BadgeAdmin {
 
 		// Get all users with reputation records.
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
-		$user_ids = $wpdb->get_col( "SELECT user_id FROM {$reputation_table}" );
+		$user_ids = $wpdb->get_col( $wpdb->prepare( 'SELECT user_id FROM %i', $reputation_table ) );
 
 		$total_new_badges = 0;
 

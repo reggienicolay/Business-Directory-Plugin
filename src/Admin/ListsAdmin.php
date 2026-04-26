@@ -154,15 +154,18 @@ class ListsAdmin {
 		$orderby         = in_array( $args['orderby'], $allowed_orderby, true ) ? $args['orderby'] : 'updated_at';
 		$order           = 'ASC' === strtoupper( $args['order'] ) ? 'ASC' : 'DESC';
 
-		// Total count.
-		$total = $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE $where" );
+		// Total count. $where is built from $wpdb->prepare() fragments above; $table comes from $wpdb->prefix.
+		$quoted_table = $wpdb->prepare( '%i', $table );
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$total = $wpdb->get_var( "SELECT COUNT(*) FROM $quoted_table WHERE $where" );
 
 		// Get lists.
 		$offset = ( $args['page'] - 1 ) * $args['per_page'];
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$lists  = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT l.*, u.display_name as author_name, u.user_email as author_email
-				FROM $table l
+				FROM $quoted_table l
 				LEFT JOIN {$wpdb->users} u ON l.user_id = u.ID
 				WHERE $where
 				ORDER BY $orderby $order
@@ -178,7 +181,7 @@ class ListsAdmin {
 		foreach ( $lists as &$list ) {
 			$list['item_count']     = ListManager::get_list_item_count( $list['id'] );
 			$list['follower_count'] = (int) $wpdb->get_var(
-				$wpdb->prepare( "SELECT COUNT(*) FROM $follows_table WHERE list_id = %d", $list['id'] )
+				$wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE list_id = %d', $follows_table, $list['id'] )
 			);
 			$list['cover_image']    = self::get_list_cover_image( $list );
 		}
@@ -237,12 +240,12 @@ class ListsAdmin {
 		$table = $wpdb->prefix . 'bd_lists';
 
 		$counts = $wpdb->get_results(
-			"SELECT visibility, COUNT(*) as count FROM $table GROUP BY visibility",
+			$wpdb->prepare( 'SELECT visibility, COUNT(*) as count FROM %i GROUP BY visibility', $table ),
 			OBJECT_K
 		);
 
-		$featured_count = $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE featured = 1" );
-		$total_count    = $wpdb->get_var( "SELECT COUNT(*) FROM $table" );
+		$featured_count = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE featured = 1', $table ) );
+		$total_count    = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table ) );
 
 		return array(
 			'all'      => (int) $total_count,

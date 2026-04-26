@@ -473,7 +473,7 @@ class ReviewsAdmin {
 
 		// Get all reviews (no pagination).
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-		$reviews = $wpdb->get_results( "SELECT * FROM {$table} ORDER BY created_at DESC", ARRAY_A );
+		$reviews = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i ORDER BY created_at DESC', $table ), ARRAY_A );
 
 		// Output CSV.
 		header( 'Content-Type: text/csv; charset=utf-8' );
