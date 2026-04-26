@@ -33,7 +33,7 @@
     "scripts": {
         "phpcs": "phpcs --warning-severity=0",
         "phpcbf": "phpcbf",
-        "phpstan": "phpstan analyse",
+        "phpstan": "phpstan analyse --no-ansi",
         "test": "phpunit"
     },
     "config": {

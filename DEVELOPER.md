@@ -668,6 +668,19 @@ The plugin uses the `single_template` filter to load `templates/single-business-
 | Config | `phpunit.xml` (testsuite points to `tests/Unit/`) |
 | Coverage | `src/` directory |
 
+### First-time Setup
+
+The PHPUnit suite needs the WordPress test scaffolding (`wordpress-tests-lib`) installed in your `$TMPDIR`. Run once:
+
+```bash
+bin/install-wp-tests.sh <db-name> <db-user> <db-pass> [db-host] [wp-version] [skip-db-create]
+
+# Example, Local WP defaults (MySQL on 127.0.0.1, root/root):
+bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 latest
+```
+
+The script downloads WP source to `/tmp/wordpress/`, the test framework to `/tmp/wordpress-tests-lib/`, and creates a fresh `<db-name>` database. Re-running is safe — it skips re-downloads. After install, `composer test` should boot.
+
 ### Test Inventory
 
 | File | Tests | Module Covered |

@@ -25,6 +25,8 @@
 15. [Geocode](#15-geocode)
 16. [Share Tracking](#16-share-tracking)
 17. [Widgets](#17-widgets)
+18. [QR Codes](#18-qr-codes)
+19. [Events (Calendar Integration)](#19-events-calendar-integration)
 
 ---
 
@@ -1484,6 +1486,7 @@ Get structured widget data for a business listing.
 Track a click interaction on an embedded widget.
 
 **Auth:** Public
+**Rate limit:** 60/min/IP
 
 **Parameters:**
 
@@ -1491,3 +1494,139 @@ Track a click interaction on an embedded widget.
 |-----------|------|----------|-------------|
 | `business_id` | integer | Yes | Business post ID |
 | `action` | string | Yes | Interaction type: `review` or `view` |
+
+**Response:**
+
+```json
+{ "success": true }
+```
+
+---
+
+## 18. QR Codes
+
+### POST /qr/generate
+
+Generate a tracking QR code for a business. Returns the QR image plus the encoded redirect URL that resolves through `/qr/go/{code}`.
+
+**Auth:** Logged in
+**Source:** [src/BusinessTools/QRGenerator.php](src/BusinessTools/QRGenerator.php)
+
+**Parameters:**
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `business_id` | integer | Yes | — | Business post ID |
+| `type` | string | No | `review` | Destination intent: `review` or `listing` |
+| `format` | string | No | `png` | Output format: `png`, `svg`, or `pdf` |
+
+**Response (success):**
+
+```json
+{
+  "code": "abc123XYZ",
+  "url": "https://yoursite.com/wp-json/bd/v1/qr/go/abc123XYZ",
+  "image": "data:image/png;base64,iVBORw0KGgo...",
+  "format": "png"
+}
+```
+
+**Response (failure):** HTTP 500 with `{ "error": "Failed to generate QR code" }`.
+
+---
+
+### GET /qr/go/{code}
+
+Resolve a QR redirect code, log a scan to `wp_bd_qr_scans`, and `wp_safe_redirect` to the destination (review submission page or business permalink). On invalid codes, redirects to the home URL.
+
+**Auth:** Public
+**Response:** HTTP 302 redirect (no JSON body).
+
+**Path parameter:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `code` | string | Encoded QR code returned by `/qr/generate` |
+
+> Most QR scans hit the rewrite rule (`/bd-qr/{code}`) and never reach this REST route. The endpoint is the fallback for environments where rewrite rules are disabled.
+
+---
+
+## 19. Events (Calendar Integration)
+
+These endpoints surface The Events Calendar (TEC) events on city subsites that don't run TEC directly. They read TEC data from the main site (or wherever TEC is installed) and join against `bd_business` posts via venue matching or the `bd_linked_business` meta key.
+
+**Source:** [src/Integrations/EventsCalendar/EventsCalendarIntegration.php](src/Integrations/EventsCalendar/EventsCalendarIntegration.php)
+
+### GET /events/city/{city}
+
+Get upcoming events whose venue's `_VenueCity` matches the supplied city slug.
+
+**Auth:** Public
+**Rate limit:** 60/min/IP
+
+**Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `city` | string (path) | — | City slug, e.g. `dublin`, `pleasanton` |
+| `limit` | integer | 10 | Max events to return (capped at 50) |
+
+**Response:**
+
+```json
+[
+  {
+    "id": 1234,
+    "title": "Spring Wine Walk",
+    "url": "https://yoursite.com/events/spring-wine-walk/",
+    "start_date": "2026-05-10",
+    "start_time": "17:00",
+    "venue_id": 567,
+    "venue_name": "Downtown Pleasanton",
+    "linked_business_id": 89
+  }
+]
+```
+
+Returns an empty array `[]` when no venues match the city.
+
+---
+
+### GET /events/business/{id}
+
+Get upcoming events linked to a specific `bd_business` post via the `bd_linked_business` meta on the TEC event.
+
+**Auth:** Public
+**Rate limit:** 60/min/IP
+
+**Parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `id` | integer (path) | — | Business post ID |
+| `limit` | integer | 5 | Max events to return (capped at 50) |
+
+**Response:**
+
+```json
+{
+  "business": {
+    "id": 89,
+    "name": "Valley Oak Bistro",
+    "url": "https://yoursite.com/places/valley-oak-bistro/"
+  },
+  "events": [
+    {
+      "id": 1234,
+      "title": "Wine Pairing Dinner",
+      "url": "https://yoursite.com/events/wine-pairing-dinner/",
+      "start_date": "2026-05-15",
+      "start_time": "18:30",
+      "venue_id": 567
+    }
+  ]
+}
+```
+
+**Error response:** `{ "error": "invalid_business", "message": "Business not found" }` (HTTP 200 with error envelope) when the post does not exist or is not a `bd_business`.

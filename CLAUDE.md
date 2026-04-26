@@ -56,19 +56,31 @@ src/REST/    ← Proper controllers with rate limiting + CAPTCHA + server-side M
 ### Key Directories
 ```
 src/Admin/          # Admin pages, metaboxes, moderation queues (claims, reviews, changes, covers)
+src/API/            # Legacy/helper REST endpoints (Lists, Badge, Collaborators, Geocode, Feature, Cover, Business)
 src/Auth/SSO/       # Multisite single sign-on
-src/BusinessTools/  # Owner dashboard
+src/BusinessTools/  # Owner dashboard, widgets, badge generator, QR generator, stats email
 src/DB/             # Tables, installer, migrations (DB version in bd_db_version option)
-src/Explore/        # Explore pages + cache invalidation
+src/Explore/        # Explore pages + router + cache invalidation
+src/Exporter/       # CSV/JSON export pipeline
 src/Forms/          # Form handlers (BusinessSubmission, ReviewSubmission, ClaimRequest)
 src/Frontend/       # Shortcodes, profile, registration, edit listing, view tracker
 src/Gamification/   # Points, badges, leaderboards, ranks, activity tracking
+src/Importer/       # Batch importer (CSV/JSON ingestion)
+src/Install/        # Activation hooks beyond DB installer
+src/Integrations/   # Third-party integrations (EventsCalendar/, etc.)
 src/Lists/          # User-curated lists + collaboration + network lists
 src/Media/          # Image optimization pipeline (WebP, custom sizes, EXIF stripping)
+src/Moderation/     # Cross-cutting moderation helpers
+src/Notifications/  # Email/in-app notification dispatch
+src/PostTypes/      # bd_business CPT registration
+src/REST/           # Hardened public-submission controllers (rate limit + CAPTCHA + MIME validation)
+src/Roles/          # Custom capabilities + role mapping
 src/Search/         # FilterHandler, QueryBuilder, Geocoder
-src/Security/       # RateLimiter, Captcha
+src/Security/       # RateLimit, Captcha, MimeValidator
 src/SEO/            # SlugMigration (301 redirects for old taxonomy URLs)
 src/Social/         # OpenGraph, social sharing (OG defers to bd-seo when active)
+src/Taxonomies/     # bd_category, bd_area, bd_tag registration
+src/Utils/          # Misc helpers (PlaceholderImage, etc.)
 includes/           # Feature loaders (geolocation, gamification, embeds, social, auth, seo, media, etc.)
 templates/          # WP templates (single-business-premium.php, directory.php, profile.php, explore-*)
 tests/Unit/         # PHPUnit tests
