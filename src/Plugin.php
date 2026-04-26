@@ -187,5 +187,10 @@ class Plugin {
 		REST\SubmitBusinessController::register();
 		REST\SubmitReviewController::register();
 		REST\ClaimController::register();
+
+		// Lock down WP Core REST surfaces that bypass our bd/v1 rate limits:
+		// /wp/v2/users (admin-only) and /wp/v2/bd_business + bd_* taxonomies
+		// (editor+). Gutenberg keeps working because the editor is authenticated.
+		Security\RestGuard::init();
 	}
 }

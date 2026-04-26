@@ -1,6 +1,6 @@
 # Business Directory Pro REST API Reference
 
-**Plugin Version:** 0.1.12
+**Plugin Version:** 0.1.13
 **API Namespace:** `bd/v1`
 **Base URL:** `https://yoursite.com/wp-json/bd/v1/`
 

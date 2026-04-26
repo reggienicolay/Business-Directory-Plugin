@@ -49,6 +49,51 @@ class BusinessesController {
 	}
 
 	public static function get_businesses( $request ) {
+		// =====================================================================
+		// SCRAPING PROTECTION (anonymous requests)
+		//
+		// Real users hit this endpoint through our own JS, which sends
+		// X-WP-Nonce via wp_localize_script(..., 'nonce' => wp_create_nonce(
+		// 'wp_rest' )). CLI scrapers (curl, wget, python-requests, scrapy)
+		// don't have a valid nonce, so they get a 401. Logged-in users skip
+		// this gate entirely.
+		//
+		// Layered:
+		//   - Nonce required (binds the endpoint to first-party JS)
+		//   - Rate limit 60/min/IP (matches other public endpoints)
+		//   - Hard cap on `page` so even a determined scraper can't paginate
+		//     the entire directory in 20 requests of 50 records
+		// =====================================================================
+		if ( ! is_user_logged_in() ) {
+			$nonce = $request->get_header( 'x_wp_nonce' );
+			if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'wp_rest' ) ) {
+				return new \WP_Error(
+					'rest_cookie_invalid_nonce',
+					__( 'Invalid or missing nonce.', 'business-directory' ),
+					array( 'status' => 401 )
+				);
+			}
+
+			$rate = \BD\Security\RateLimit::check(
+				'businesses_get',
+				\BD\Security\RateLimit::get_client_ip(),
+				60,
+				MINUTE_IN_SECONDS
+			);
+			if ( is_wp_error( $rate ) ) {
+				return $rate;
+			}
+
+			$page = (int) $request['page'];
+			if ( $page > 20 ) {
+				return new \WP_Error(
+					'rest_pagination_limit',
+					__( 'Pagination limit reached. Refine your filters to see more results.', 'business-directory' ),
+					array( 'status' => 400 )
+				);
+			}
+		}
+
 		$args = array(
 			'post_type'      => 'bd_business',
 			'post_status'    => 'publish',

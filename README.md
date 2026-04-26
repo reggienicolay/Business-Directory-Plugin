@@ -5,7 +5,7 @@ A modern, map-first local business directory plugin for WordPress with geolocati
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple)
 ![License](https://img.shields.io/badge/License-GPL%20v2-green)
-![Version](https://img.shields.io/badge/Version-0.1.12-orange)
+![Version](https://img.shields.io/badge/Version-0.1.13-orange)
 
 ## Overview
 
@@ -285,6 +285,17 @@ add_filter( 'bd_points_review', function() {
 ```
 
 ## Changelog
+
+### 0.1.13
+- **Anti-scraping hardening on `/wp-json/bd/v1/businesses`** — three layers added for anonymous requests:
+  1. **Nonce required** (`X-WP-Nonce` header, validated against `wp_rest`). Binds the endpoint to first-party JS — every CLI scraper (curl, wget, python-requests, scrapy) gets a 401. All BD frontend JS already passes the nonce; one missing call site in `lists.js` was patched.
+  2. **Rate limit** 60/min/IP via `BD\Security\RateLimit` (matches the audit-pass treatment of other public endpoints — was the only one missed)
+  3. **Page cap** — anonymous requests beyond `page=20` are rejected (1000 records max per scrape session, vs unlimited before). Logged-in users skip all three gates.
+  4. Existing `per_page` cap of 50 server-side is preserved.
+- **REST Guard locks down two parallel WP Core surfaces** that bypass the `bd/v1` rate limits:
+  - `/wp-json/wp/v2/users*` — required `list_users` capability (admins only). Closes the WP user-enumeration leak (slug = login = credential-stuffing fuel)
+  - `/wp-json/wp/v2/bd_business*` and `/wp-json/wp/v2/bd_category|bd_tag|bd_area*` — required `edit_posts` capability. Anonymous bulk-export via the WP Core REST routes is blocked. Gutenberg block editor remains unaffected (editor users are authenticated)
+- **New file:** `src/Security/RestGuard.php` (uses `rest_pre_dispatch` filter; returns 401 for anonymous, 403 for authenticated-but-uncapable). Wired in `Plugin::register_rest_routes()`.
 
 ### 0.1.12
 - **Hours UI: smart defaults for outdoor listings** — new `src/Frontend/HoursDisplay.php` centralises display rules. Two universal changes:

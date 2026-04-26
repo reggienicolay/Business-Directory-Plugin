@@ -1078,6 +1078,7 @@ const AddBusinessModal = {
 		$.ajax({
 			url: this.getApiBaseUrl() + "bd/v1/filters",
 			method: "GET",
+			headers: { 'X-WP-Nonce': bdLists.nonce },
 			success: function (response) {
 				// Populate category filter
 				const $catFilter = self.$modal.find('[data-filter="categories"]');
@@ -1168,6 +1169,7 @@ const AddBusinessModal = {
 			url: this.getApiBaseUrl() + "bd/v1/businesses",
 			method: "GET",
 			data: params,
+			headers: { 'X-WP-Nonce': bdLists.nonce },
 			success: function (response) {
 				$loading.hide();
 
