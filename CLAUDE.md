@@ -5,7 +5,7 @@
 
 ## Identity
 
-- **Version:** 0.1.9 | **Post type:** `bd_business` | **Namespace:** `BD\`
+- **Version:** 0.1.10 | **Post type:** `bd_business` | **Namespace:** `BD\`
 - **Repo:** https://github.com/reggienicolay/Business-Directory-Plugin
 - **Part of:** Love Tri Valley plugin suite (this + BD Event Aggregator + BD Outdoor Activities + BD Email Signatures + BD Food Truck Tracker)
 - **Environment:** Local WP (dev) → Cloudways (production), WordPress multisite

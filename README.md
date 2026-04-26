@@ -5,7 +5,7 @@ A modern, map-first local business directory plugin for WordPress with geolocati
 ![WordPress](https://img.shields.io/badge/WordPress-6.2%2B-blue)
 ![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple)
 ![License](https://img.shields.io/badge/License-GPL%20v2-green)
-![Version](https://img.shields.io/badge/Version-0.1.9-orange)
+![Version](https://img.shields.io/badge/Version-0.1.10-orange)
 
 ## Overview
 
@@ -285,6 +285,19 @@ add_filter( 'bd_points_review', function() {
 ```
 
 ## Changelog
+
+### 0.1.10
+- **Security: ownership checks on two AJAX handlers** — `ToolsDashboard::ajax_update_email_prefs` and `StatsEmail::ajax_send_test_email` now verify approved-claim ownership before mutating prefs / sending stats emails (was any-logged-in-user)
+- **Security: locked down `ajax_search_users`** — added `_ajax_nonce` + `manage_options` capability check; updated inline JS to send the nonce. Prevents user enumeration
+- **Security: rate limits on remaining public REST endpoints** — `/widget/click` (60/min/IP), `/badge/{id}` and `/badge/{id}/code` (120/min/IP), `/lists`, `/lists/{id}`, `/lists/{id}/share-data` (60–120/min/IP), `/feature` and `/feature/search` (60/min/IP), `/events/city/{city}` and `/events/business/{id}` (60/min/IP)
+- **Security: prepared SQL for table identifiers** — converted ~14 `$wpdb` calls that interpolated table names directly to use the `%i` placeholder (no exploitable SQLi, but enforces the project's "no exceptions to prepare()" invariant)
+- **Bumped minimum WordPress to 6.2** — required for `%i` identifier placeholder support
+- **Consolidated `MimeValidator`** — extracted the duplicated `get_real_mime_type()` from SubmitReviewController, ClaimController, and EditListing into `src/Security/MimeValidator.php`
+- **API.md: documented QR + TEC integration endpoints** — section 18 (QR Codes: `/qr/generate`, `/qr/go/{code}`) and section 19 (Events: `/events/city/{city}`, `/events/business/{id}`); filled in missing `/widget/click` rate-limit + response
+- **CLAUDE.md: expanded Key Directories** — listed every `src/` subfolder; corrected DB table count (12 → 17)
+- **Tooling: `bin/install-wp-tests.sh`** — standard WP test scaffold installer so `composer test` can boot
+- **Tooling: PHPStan now runs without crashing** — added `--no-ansi` to the composer script (works around a Symfony Console formatter crash in PHPStan 2.1.x parallel workers)
+- **Stale `.bak.php` removed** from `src/Integrations/EventsCalendar/`
 
 ### 0.1.9
 - **SSO security hardening**: token IP validation on redemption, hardened IP detection (delegates to RateLimit::get_client_ip, no longer trusts spoofable X-Forwarded-For), logout redirect validated as network URL early in chain
