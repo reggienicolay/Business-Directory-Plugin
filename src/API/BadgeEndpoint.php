@@ -117,6 +117,11 @@ class BadgeEndpoint {
 	 * @param \WP_REST_Request $request Request object.
 	 */
 	public static function get_badge( $request ) {
+		$rate = \BD\Security\RateLimit::check( 'badge_get', \BD\Security\RateLimit::get_client_ip(), 120, 60 );
+		if ( is_wp_error( $rate ) ) {
+			return $rate;
+		}
+
 		$business_id = $request->get_param( 'id' );
 		$style       = $request->get_param( 'style' );
 		$format      = $request->get_param( 'format' );
@@ -187,6 +192,11 @@ class BadgeEndpoint {
 	 * @return \WP_REST_Response|\WP_Error
 	 */
 	public static function get_badge_code( $request ) {
+		$rate = \BD\Security\RateLimit::check( 'badge_code', \BD\Security\RateLimit::get_client_ip(), 120, 60 );
+		if ( is_wp_error( $rate ) ) {
+			return $rate;
+		}
+
 		$business_id = $request->get_param( 'id' );
 		$style       = $request->get_param( 'style' );
 		$size        = $request->get_param( 'size' );

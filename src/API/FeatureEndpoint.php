@@ -59,6 +59,11 @@ class FeatureEndpoint {
 		return current_user_can( 'edit_posts' ); }
 
 	public static function get_featured_businesses( $request ) {
+		$rate = \BD\Security\RateLimit::check( 'feature_get', \BD\Security\RateLimit::get_client_ip(), 60, 60 );
+		if ( is_wp_error( $rate ) ) {
+			return $rate;
+		}
+
 		$ids = array_filter( array_map( 'absint', explode( ',', $request->get_param( 'ids' ) ) ) );
 		if ( empty( $ids ) ) {
 			return new \WP_Error( 'no_ids', 'No valid IDs', array( 'status' => 400 ) );
@@ -88,6 +93,11 @@ class FeatureEndpoint {
 	}
 
 	public static function search_businesses( $request ) {
+		$rate = \BD\Security\RateLimit::check( 'feature_search', \BD\Security\RateLimit::get_client_ip(), 60, 60 );
+		if ( is_wp_error( $rate ) ) {
+			return $rate;
+		}
+
 		$args = array(
 			'post_type'      => 'bd_business',
 			'post_status'    => 'publish',

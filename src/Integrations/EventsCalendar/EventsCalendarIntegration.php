@@ -1020,6 +1020,11 @@ class EventsCalendarIntegration {
 	 * @return WP_REST_Response
 	 */
 	public static function rest_get_city_events( $request ) {
+		$rate = \BD\Security\RateLimit::check( 'events_city', \BD\Security\RateLimit::get_client_ip(), 60, 60 );
+		if ( is_wp_error( $rate ) ) {
+			return $rate;
+		}
+
 		$city  = $request->get_param( 'city' );
 		$limit = min( $request->get_param( 'limit' ), 50 );
 
@@ -1103,6 +1108,11 @@ class EventsCalendarIntegration {
 	 * @return WP_REST_Response
 	 */
 	public static function rest_get_business_events( $request ) {
+		$rate = \BD\Security\RateLimit::check( 'events_business', \BD\Security\RateLimit::get_client_ip(), 60, 60 );
+		if ( is_wp_error( $rate ) ) {
+			return $rate;
+		}
+
 		$business_id = $request->get_param( 'id' );
 		$limit       = min( $request->get_param( 'limit' ), 50 );
 

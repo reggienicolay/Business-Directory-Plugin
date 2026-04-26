@@ -127,6 +127,11 @@ class BadgeGenerator {
 	 * @return \WP_REST_Response
 	 */
 	public function rest_get_badge( $request ) {
+		$rate = \BD\Security\RateLimit::check( 'badge_gen', \BD\Security\RateLimit::get_client_ip(), 120, 60 );
+		if ( is_wp_error( $rate ) ) {
+			return $rate;
+		}
+
 		$business_id = $request->get_param( 'business_id' );
 		$style       = $request->get_param( 'style' );
 

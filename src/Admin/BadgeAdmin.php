@@ -697,6 +697,7 @@ class BadgeAdmin {
 		<script>
 			jQuery(document).ready(function($) {
 				let searchTimeout;
+				const bdSearchUsersNonce = <?php echo wp_json_encode( wp_create_nonce( 'bd_search_users' ) ); ?>;
 
 				$('#bd-user-search').on('input', function() {
 					const query = $(this).val();
@@ -712,7 +713,8 @@ class BadgeAdmin {
 							url: ajaxurl,
 							data: {
 								action: 'bd_search_users',
-								query: query
+								query: query,
+								_ajax_nonce: bdSearchUsersNonce
 							},
 							success: function(response) {
 								if (response.success && response.data.length > 0) {
@@ -956,7 +958,13 @@ class BadgeAdmin {
 	 * AJAX search users
 	 */
 	public function ajax_search_users() {
-		$query = sanitize_text_field( $_GET['query'] ?? '' );
+		check_ajax_referer( 'bd_search_users', '_ajax_nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'Forbidden' ), 403 );
+		}
+
+		$query = sanitize_text_field( wp_unslash( $_GET['query'] ?? '' ) );
 
 		$users = get_users(
 			array(

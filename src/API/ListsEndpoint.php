@@ -312,6 +312,11 @@ class ListsEndpoint {
 	 * Get public lists
 	 */
 	public static function get_public_lists( $request ) {
+		$rate = \BD\Security\RateLimit::check( 'lists_browse', \BD\Security\RateLimit::get_client_ip(), 60, 60 );
+		if ( is_wp_error( $rate ) ) {
+			return $rate;
+		}
+
 		$result = ListManager::get_public_lists(
 			array(
 				'page'     => $request->get_param( 'page' ),
@@ -392,6 +397,11 @@ class ListsEndpoint {
 	 * Get single list
 	 */
 	public static function get_list( $request ) {
+		$rate = \BD\Security\RateLimit::check( 'lists_get', \BD\Security\RateLimit::get_client_ip(), 120, 60 );
+		if ( is_wp_error( $rate ) ) {
+			return $rate;
+		}
+
 		$id = $request->get_param( 'id' );
 
 		// Try by ID first, then by slug.
@@ -799,6 +809,11 @@ class ListsEndpoint {
 	 * @return \WP_REST_Response|\WP_Error Response or error.
 	 */
 	public static function get_share_data( $request ) {
+		$rate = \BD\Security\RateLimit::check( 'lists_share', \BD\Security\RateLimit::get_client_ip(), 60, 60 );
+		if ( is_wp_error( $rate ) ) {
+			return $rate;
+		}
+
 		$list_id = $request->get_param( 'list_id' );
 
 		$list = ListManager::get_list( $list_id );

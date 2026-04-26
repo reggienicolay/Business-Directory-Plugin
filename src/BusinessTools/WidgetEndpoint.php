@@ -166,6 +166,11 @@ class WidgetEndpoint {
 		// Get IP.
 		$ip = $this->get_client_ip();
 
+		$rate = \BD\Security\RateLimit::check( 'widget_click', $ip, 60, 60 );
+		if ( is_wp_error( $rate ) ) {
+			return $rate;
+		}
+
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$wpdb->insert(
 			$table,
