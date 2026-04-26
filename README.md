@@ -284,6 +284,15 @@ add_filter( 'bd_points_review', function() {
 });
 ```
 
+## Operations Runbooks
+
+Step-by-step ops/infra documentation lives in `docs/`:
+
+- [`docs/cloudflare-setup.md`](docs/cloudflare-setup.md) — planned migration to Cloudflare for edge bot/rate-limit defenses (decision date 2026-04-26, not yet executed)
+- [`docs/BD-Image-Optimizer-Spec.md`](docs/BD-Image-Optimizer-Spec.md) — image pipeline design
+- [`docs/EventImageManager-Spec.md`](docs/EventImageManager-Spec.md) — event image handling
+- [`docs/bd-core-seo-evolution-spec.md`](docs/bd-core-seo-evolution-spec.md) — SEO module roadmap
+
 ## Changelog
 
 ### 0.1.14
